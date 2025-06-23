@@ -164,7 +164,7 @@ function Navbar() {
             // WebkitBackdropFilter: "blur(10px)",
             justifyContent: "center",
             alignItems: "center",
-            position: "fixed",
+            position: "absolute",
             top: 10,
             left: "50%",
             transform: "translateX(-50%)",

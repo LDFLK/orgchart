@@ -120,40 +120,39 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
     }
 
     const activeMinistryRelations = await response.json()
+    console.log("Active ministry relations:", activeMinistryRelations)
 
-    // Extract the relatedEntityIds from the response
-    const activeMinistryIds = activeMinistryRelations
+    // Extract relatedEntityId and startTime from each relation
+    const activeMinistryInfo = activeMinistryRelations
       .filter(relation => relation.relatedEntityId)
-      .map(relation => relation.relatedEntityId)
+      .map(relation => ({
+        id: relation.relatedEntityId,
+        startTime: relation.startTime || null
+      }))
 
-    // console.log('Active ministry IDs:', activeMinistryIds)
+    // Map ministry info using protobuf data
+    const activeMinistries = activeMinistryInfo.map(({ id, startTime }) => {
+      const ministry = allMinistryData.find(min => min.id === id)
+      let name = ministry?.name || "Unknown Ministry"
 
-    // Map active ministry IDs with the protobuf data to get ministry names
-    const activeMinistries = allMinistryData
-      .filter(ministry => activeMinistryIds.includes(ministry.id))
-      .map(ministry => {
-        let name = ministry.name
-
-        try {
-          const parsed = JSON.parse(ministry.name)
-          if (parsed?.value) {
-            name = utils.decodeHexString(parsed.value)
-          }
-        } catch (e) {
-          // Use extractNameFromProtobuf as fallback
-          name = utils.extractNameFromProtobuf(ministry.name) || ministry.name
-          console.log(e.message)
+      try {
+        const parsed = JSON.parse(name)
+        if (parsed?.value) {
+          name = utils.decodeHexString(parsed.value)
         }
+      } catch (e) {
+        name = utils.extractNameFromProtobuf(name) || name
+        console.log(e.message)
+      }
 
-        return {
-          name,
-          id: ministry.id,
-          type: "ministry",
-          children: []
-        }
-      })
-
-    // console.log('Active ministries with names:', activeMinistries)
+      return {
+        name,
+        id,
+        type: "ministry",
+        startTime,
+        children: []
+      }
+    })
 
     return {
       name: "Government",
@@ -163,7 +162,6 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
 
   } catch (error) {
     console.error("Error fetching active ministries:", error)
-    // Return empty tree structure on error
     return {
       name: "Government",
       children: [],
@@ -171,6 +169,7 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
     }
   }
 }
+
 
 const fetchAllPersons = async () => {
   try{

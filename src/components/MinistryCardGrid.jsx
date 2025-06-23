@@ -39,6 +39,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
         selectedDate,
         allMinistryData
       );
+      console.log("activeMinistry with start time ", activeMinistry);
 
       const enrichedMinistries = await Promise.all(
         activeMinistry.children.map(async (ministry) => {
@@ -65,6 +66,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
       );
 
       setActiveMinistryList(enrichedMinistries);
+      console.log("activeMinistryList: ", enrichedMinistries);
       setLoading(false);
     } catch (e) {
       console.log("error fetch ministry list : ", e.message);
