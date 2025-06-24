@@ -39,7 +39,7 @@ const MinistryCard = ({ card, onClick }) => {
           <Typography variant="h7" sx={{ color: "#ffffff", fontWeight: 600 }}>
             {card.name.split(":")[0]}
           </Typography>
-          {showNewBadge && (card.newMin || card.newPerson) && (
+          {showNewBadge && (card.newMin) && (
             <Box
               sx={{
                 backgroundColor: colors.green,
@@ -130,7 +130,7 @@ const MinistryCard = ({ card, onClick }) => {
                       .split(":")[0]}
                 </Typography>
 
-                {/* {card.newPerson && (
+                 {showNewBadge && (card.newPerson) && (
                   <Box
                     sx={{
                       backgroundColor: colors.purple,
@@ -145,7 +145,7 @@ const MinistryCard = ({ card, onClick }) => {
                   >
                     NEW
                   </Box>
-                )} */}
+                )}
               </Stack>
             </Stack>
           </Stack>
