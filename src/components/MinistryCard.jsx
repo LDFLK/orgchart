@@ -1,15 +1,15 @@
-// src/components/MinistryCard.jsx
-
-import { Card, Typography, Box, Stack, Avatar } from "@mui/material";
+import { Card, Typography, Box, Stack } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useThemeContext } from "../themeContext";
+import { useBadgeContext } from "../badgeContext";
 
 const MinistryCard = ({ card, onClick }) => {
-
   const { selectedPresident } = useSelector((state) => state.presidency);
   const { colors } = useThemeContext();
+ const { showMinistryBadge, showPersonBadge } = useBadgeContext();
+
 
   return (
     <Card
@@ -21,17 +21,15 @@ const MinistryCard = ({ card, onClick }) => {
         "&:hover": {
           border: `2px solid ${colors.ministryCardBorderHover}`,
         },
-        // "&:active": {
-        //   border: `2px solid ${colors.backgroundSecondary}`,
-        //   backgroundColor: "#ececf5",
-        // },
         backgroundColor: colors.backgroundPrimary,
         borderRadius: "10px",
+        position: "relative",
       }}
       onClick={() => onClick(card)}
     >
+
       <Stack>
-        {/* Title with icon */}
+        {/* Ministry Title */}
         <Stack
           direction="row"
           alignItems="center"
@@ -42,9 +40,25 @@ const MinistryCard = ({ card, onClick }) => {
           <Typography variant="h7" sx={{ color: "#ffffff", fontWeight: 600 }}>
             {card.name.split(":")[0]}
           </Typography>
+           {(card.newMin && showMinistryBadge)&& (
+            <Box
+              sx={{
+                backgroundColor: colors.green,
+                color: "#fff",
+                fontSize: "0.7rem",
+                fontWeight: "bold",
+                borderRadius: "5px",
+                px: 1,
+                py: "2px",
+                fontFamily: "poppins",
+              }}
+            >
+              NEW
+            </Box>
+          )}
         </Stack>
 
-        {/* Ministers */}
+        {/* Minister Info */}
         <Stack spacing={0.5} sx={{ p: 1, minHeight: 60 }}>
           <Stack direction="row" spacing={1}>
             <PersonIcon
@@ -52,14 +66,22 @@ const MinistryCard = ({ card, onClick }) => {
               fontSize="small"
             />
             <Stack direction="column" spacing={0}>
+              {/* Minister / President label */}
               {(!card.headMinisterName ||
                 (selectedPresident &&
-                  utils.extractNameFromProtobuf(card.headMinisterName) === utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0])
-              ) ? (
+                  utils.extractNameFromProtobuf(card.headMinisterName) ===
+                  utils
+                    .extractNameFromProtobuf(selectedPresident.name)
+                    .split(":")[0])) ? (
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Typography
                     variant="subtitle2"
-                    sx={{ color: colors.textSecondary, fontFamily: "poppins", py: "5px", pr: "8px" }}
+                    sx={{
+                      color: colors.textSecondary,
+                      fontFamily: "poppins",
+                      py: "5px",
+                      pr: "8px",
+                    }}
                   >
                     Minister
                   </Typography>
@@ -71,7 +93,7 @@ const MinistryCard = ({ card, onClick }) => {
                       py: "5px",
                       px: "8px",
                       backgroundColor: `${colors.green}50`,
-                      borderRadius: "5px"
+                      borderRadius: "5px",
                     }}
                   >
                     President
@@ -80,22 +102,53 @@ const MinistryCard = ({ card, onClick }) => {
               ) : (
                 <Typography
                   variant="subtitle2"
-                  sx={{ color: colors.textSecondary, fontFamily: "poppins", py: "5px", pr: "10px" }}
+                  sx={{
+                    color: colors.textSecondary,
+                    fontFamily: "poppins",
+                    py: "5px",
+                    pr: "10px",
+                  }}
                 >
                   Minister
                 </Typography>
               )}
 
-              <Typography
-                variant="subtitle2"
-                sx={{ fontWeight: 600, color: colors.textPrimary, fontFamily: "poppins" }}
-              >
-                {card.headMinisterName
-                  ? utils.extractNameFromProtobuf(card.headMinisterName)
-                  : (selectedPresident && utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0])}
-              </Typography>
-            </Stack>
+              {/* Head Minister Name + NEW badge if newPerson */}
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    color: colors.textPrimary,
+                    fontFamily: "poppins",
+                  }}
+                >
+                  {card.headMinisterName
+                    ? utils.extractNameFromProtobuf(card.headMinisterName)
+                    : selectedPresident &&
+                    utils
+                      .extractNameFromProtobuf(selectedPresident.name)
+                      .split(":")[0]}
+                </Typography>
 
+                 {(card.newPerson && showPersonBadge)&& (
+                  <Box
+                    sx={{
+                      backgroundColor: colors.purple,
+                      color: "#fff",
+                      fontSize: "0.65rem",
+                      fontWeight: "bold",
+                      borderRadius: "4px",
+                      px: 1,
+                      py: "1px",
+                      fontFamily: "poppins",
+                    }}
+                  >
+                    NEW
+                  </Box>
+                )}
+              </Stack>
+            </Stack>
           </Stack>
         </Stack>
       </Stack>

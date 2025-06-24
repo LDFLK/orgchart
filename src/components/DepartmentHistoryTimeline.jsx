@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Typography, Paper, Avatar, Box} from '@mui/material';
+import { Typography, Paper, Avatar, Box } from '@mui/material';
 import { useSelector } from "react-redux";
 import utils from '../utils/utils';
 import api from '../services/services';
@@ -14,11 +14,16 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     const [enrichedMinistries, setEnrichedMinistries] = useState([]);
     const allPersonList = useSelector((state) => state.allPerson.allPerson);
     const [loading, setLoading] = useState(false);
-    const {colors} = useThemeContext();
+    const { colors } = useThemeContext();
 
     const toggleSelect = (idx) => {
         setSelectedIndex(selectedIndex === idx ? null : idx);
     };
+
+    // const formatDate = (dateString) => {
+    //     const date = new Date(dateString);
+    //     return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+    // };
 
     useEffect(() => {
         const enrichWithMinisters = async () => {
@@ -68,7 +73,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
 
     return (
         <>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3, color: colors.textPrimary , fontFamily: "poppins" }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3, color: colors.textPrimary, fontFamily: "poppins" }}>
                 {utils.extractNameFromProtobuf(selectedDepartment.name)}
             </Typography>
 
@@ -100,10 +105,15 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                     variant="body2"
                                 >
                                     {entry.startTime
-                                        ? `${new Date(entry.startTime).toLocaleDateString()} - ${entry.endTime
-                                            ? new Date(entry.endTime).toLocaleDateString()
+                                        ? `${new Date(entry.startTime).toISOString().slice(0, 10)} — ${entry.endTime
+                                            ? new Date(entry.endTime).toISOString().slice(0, 10)
                                             : 'Present'}`
                                         : 'Unknown'}
+
+                                    {/* {entry.startTime
+                                        ? `${formatDate(entry.startTime)} - ${entry.endTime ? formatDate(entry.endTime) : 'Present'}`
+                                        : 'Unknown'} */}
+
                                 </TimelineOppositeContent>
 
                                 <TimelineSeparator>
@@ -156,7 +166,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                                 <Typography
                                                     variant="caption"
                                                     color={colors.textMuted2}
-                                                    sx={{ fontSize: 14, fontFamily: "poppins"}}
+                                                    sx={{ fontSize: 14, fontFamily: "poppins" }}
 
                                                 >
                                                     {entry.minister}
@@ -170,27 +180,27 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         ))}
                 </Timeline>
             ) : (
-                <Typography variant="body2" sx={{ mt: 2, fontFamily: "poppins", color: colors.textPrimary}}>
+                <Typography variant="body2" sx={{ mt: 2, fontFamily: "poppins", color: colors.textPrimary }}>
                     No timeline history available.
                 </Typography>
             )}</>) : (<><Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "20vh",
-          }}
-        >
-          <ClipLoader
-            color={colors.timelineLineActive}
-            loading={loading}
-            size={25}
-            aria-label="Loading Spinner"
-            data-testid="loader"
-          />
-        </Box></>)}
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "20vh",
+                }}
+            >
+                <ClipLoader
+                    color={colors.timelineLineActive}
+                    loading={loading}
+                    size={25}
+                    aria-label="Loading Spinner"
+                    data-testid="loader"
+                />
+            </Box></>)}
 
-            
+
 
             <style>
                 {`

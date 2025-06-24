@@ -96,7 +96,7 @@ const ModernView = () => {
   return (
     <Box
       sx={{
-        paddingTop: "5vw",
+        paddingTop: "2vw",
         width: "100vw",
         minHeight: "100vh",
         backgroundColor: colors.backgroundPrimary,
