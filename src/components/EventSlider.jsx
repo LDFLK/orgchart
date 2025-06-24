@@ -1,7 +1,8 @@
 import * as React from "react";
-import { Box, Slider, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
+import PresidencyTimeline from "./PresidencyTimeline";
 
-export default function EventSlider({ data, onSelectDate, selectedDate }) {
+export default function EventSlider({ data, selectedDate }) {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
   React.useEffect(() => {
@@ -19,29 +20,31 @@ export default function EventSlider({ data, onSelectDate, selectedDate }) {
   }
 
   // Spread values equally between 0 and 100
-  const stepSize = 100 / (data.length - 1);
-  const marks = data.map((item, index) => ({
-    value: index * stepSize,
-    label: item.date, // Show date as label
-  }));
+  // const stepSize = 100 / (data.length - 1);
+  // const marks = data.map((item, index) => ({
+  //   value: index * stepSize,
+  //   label: item.date, // Show date as label
+  // }));
 
-  const handleChange = (event, newValue) => {
-    const newIndex = Math.round(newValue / stepSize);
-    if (newIndex !== selectedIndex) {
-      setSelectedIndex(newIndex);
-      onSelectDate(data[newIndex].date);
-      console.log("EventSlider.jsx: data[newIndex].date:", data[newIndex].date);
-      console.log("EventSlider.jsx: Data:", data[newIndex]);
-    }
-  };
+  // const handleChange = (event, newValue) => {
+  //   const newIndex = Math.round(newValue / stepSize);
+  //   if (newIndex !== selectedIndex) {
+  //     setSelectedIndex(newIndex);
+  //     onSelectDate(data[newIndex].date);
+  //     console.log("EventSlider.jsx: data[newIndex].date:", data[newIndex].date);
+  //     console.log("EventSlider.jsx: Data:", data[newIndex]);
+  //   }
+  // };
 
   return (
-    <Box sx={{ width: "80%", margin: "auto", textAlign: "center" }}>
+
+    <>
       {/* <Typography variant="h6" gutterBottom>
         Event Timeline
       </Typography> */}
+      <PresidencyTimeline/>
 
-      <Slider
+      {/* <Slider
         value={selectedIndex * stepSize}
         onChange={handleChange}
         step={null} // Only allow selecting predefined dates
@@ -88,12 +91,13 @@ export default function EventSlider({ data, onSelectDate, selectedDate }) {
             //opacity: 1
           },
         }}
-      />
+      /> */}
 
       {/* <Typography variant="body1" sx={{ marginBottom: 2 }}> */}
       {/* Selected Date:{" "} */}
       {/* {marks.find((mark) => mark.value === selectedValue)?.label}
       </Typography> */}
-    </Box>
+
+      </>
   );
 }

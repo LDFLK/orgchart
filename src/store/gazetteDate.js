@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit"
 
 
 const initialState = {
-    gazetteData: []
+    gazetteData: [],
+    gazetteDataClassic: []
 }
 
 const gazetteSlice = createSlice({
@@ -11,9 +12,12 @@ const gazetteSlice = createSlice({
     reducers: {
         setGazetteData(state, action){
             state.gazetteData = action.payload;
+        },
+        setGazetteDataClassic(state, action){
+            state.gazetteDataClassic = action.payload
         }
     }
 })
 
-export const {setGazetteData} = gazetteSlice.actions;
+export const {setGazetteData, setGazetteDataClassic} = gazetteSlice.actions;
 export default gazetteSlice.reducer;

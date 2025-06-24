@@ -1,17 +1,17 @@
 .nodes text {
   -webkit-transition: fill, font-size 0.5s;
   transition: fill, font-size 0.5s;
-  font-size: 12px;
-  fill: #f4f4f4;
-  text-shadow: 0 1px 4px black;
+  font-size: var(--text-font-size);
+  fill: var(--text-fill);
   stroke-linejoin: round;
   paint-order: stroke;
+  font-family: var(--font-family);
 }
 
 .nodes circle {
-  fill: #f3f3ff;
-  stroke: #2593b8;
-  stroke-width: 1.5px;
+  fill: var(--circle-fill);
+  stroke: var(--circle-stroke);
+  stroke-width: var(--circle-stroke-width);
   transition: all 0.3s ease;
 }
 
@@ -20,21 +20,21 @@
 }
 
 circle.highlight {
-  fill: #f3f3ff !important;
-  stroke: #1ec8c2 !important;
-  stroke-width: 2px !important;
+  fill: var(--highlight-fill) !important;
+  stroke: var(--highlight-stroke) !important;
+  stroke-width: var(--highlight-stroke-width) !important;
 }
 
 text.highlight {
-  font-weight: bold !important;
-  font-size: 14px !important;
-  fill: #7deae6 !important;
+  font-weight: var(--highlight-font-weight) !important;
+  font-size: var(--highlight-font-size) !important;
+  fill: var(--text-fill) !important;
 }
 
 path.highlight {
-  stroke: #1ec8c2 !important;
-  stroke-width: 2px !important;
-  stroke-opacity: 0.8 !important;
+  stroke: var(--highlight-stroke) !important;
+  stroke-width: var(--highlight-stroke-width) !important;
+  stroke-opacity: var(--highlight-stroke-opacity) !important;
 }
 
 .loading-indicator {

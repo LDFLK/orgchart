@@ -1,43 +1,33 @@
 import utils from "../utils/utils"
 
+// const apiUrl = window?.configs?.apiUrl ? window.configs.apiUrl : "/"
+const apiUrl = "";
+
 // Fetch initial gazette dates and all ministry protobuf data
 const fetchInitialGazetteData = async () => {
   try {
-    const response = await fetch("/v1/entities/search", {
+    const response = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         kind: {
-          major: "Organisation",
-          minor: "minister"
+          major: "Document",
+          minor: "extgztorg"
         }
       })
     })
 
-    // const responseForDepartment = await fetch("/v1/entities/search", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json"
-    //   },
-    //   body: JSON.stringify({
-    //     kind: {
-    //       major: "Organisation",
-    //       minor: "department"
-    //     }
-    //   })
-    // })
-    
-    const responseForPerson = await fetch("/v1/entities/search", {
+    const responseForPerson = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         kind: {
-          major: "Person",
-          minor: "citizen"
+          major: "Document",
+          minor: "extgztperson"
         }
       })
     })
@@ -45,65 +35,30 @@ const fetchInitialGazetteData = async () => {
     if (!response.ok) {
       throw new Error(`API error: ${response.statusText}`)
     }
-    // if(!responseForDepartment.ok){
-    //   throw new Error(`API error: ${responseForDepartment.statusText}`)
-    // }
+
     if (!responseForPerson.ok) {
       throw new Error(`API error: ${responseForPerson.statusText}`)
     }
 
     const result = await response.json()
-    // const resultForDepartment = await responseForDepartment.json()
     const resultForPerson = await responseForPerson.json()
 
     const datesList1 = result.body.map((item) => item.created?.split("T")[0]);
     const datesList2 = resultForPerson.body.map((item) => item.created?.split("T")[0]);
     // const datesList3 = resultForDepartment.body.map((item) => item.created?.split("T")[0]);
 
-    const ministryIdList = result.body.map((item) => item.id);
-    console.log('ministry Id LIst : ', ministryIdList);
+    // const ministryIdList = result.body.map((item) => item.id);
+    // console.log('ministry Id LIst : ', ministryIdList);
 
-    // console.log('date list 1',datesList1)
-    // console.log('date list 2',datesList2)
+    console.log('date list 1',datesList1)
+    console.log('date list 2',datesList2)
     // console.log('date list 3',datesList3)
 
     const mergedDateList1 = datesList1.concat(datesList2).sort();
+    // console.log('merged dates : ', mergedDateList1)
     // const mergedDateList2 = mergedDateList1.concat(datesList3).sort();
     const dates = Array.from(new Set(mergedDateList1))
-
-    console.log(dates[0])
-
-    var allResponses = [];
-
-    const relationPromises = ministryIdList.map(async (ministryId) => {
-      const response = await fetch(`/v1/entities/${ministryId}/relations`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          relatedEntityId: "",
-          startTime: `${dates[0]}T00:00:00Z`,
-          endTime: "",
-          id: "",
-          name: "AS_DEPARTMENT"
-        })
-      });
-
-      // console.log('inside ministry response ', response)
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch relations for ministry ${ministryId}`);
-      }
-
-      const jsonResponse = await response.json();
-      console.log('all response json : ', allResponses)
-      allResponses.push(jsonResponse.body);
-
-      // return jsonResponse;
-    });
-
-    console.log('all response : ', allResponses)
+    // console.log('array from dates ' , dates)
 
     // Wait for all requests to complete
     // const allResponses = await Promise.all(relationPromises);
@@ -126,7 +81,7 @@ const fetchInitialGazetteData = async () => {
 
 const fetchPresidentsData = async (governmentNodeId = "gov_01") => {
   try{
-    const response = await fetch(`/v1/entities/${governmentNodeId}/allrelations`, {
+    const response = await fetch(`${apiUrl}/v1/entities/${governmentNodeId}/allrelations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -146,7 +101,7 @@ const fetchPresidentsData = async (governmentNodeId = "gov_01") => {
 
 const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNodeId = "gov_01") => {
   try {
-    const response = await fetch(`/v1/entities/${governmentNodeId}/relations`, {
+    const response = await fetch(`${apiUrl}/v1/entities/${governmentNodeId}/relations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -165,39 +120,39 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
     }
 
     const activeMinistryRelations = await response.json()
+    console.log("Active ministry relations:", activeMinistryRelations)
 
-    // Extract the relatedEntityIds from the response
-    const activeMinistryIds = activeMinistryRelations
+    // Extract relatedEntityId and startTime from each relation
+    const activeMinistryInfo = activeMinistryRelations
       .filter(relation => relation.relatedEntityId)
-      .map(relation => relation.relatedEntityId)
+      .map(relation => ({
+        id: relation.relatedEntityId,
+        startTime: relation.startTime || null
+      }))
 
-    console.log('Active ministry IDs:', activeMinistryIds)
+    // Map ministry info using protobuf data
+    const activeMinistries = activeMinistryInfo.map(({ id, startTime }) => {
+      const ministry = allMinistryData.find(min => min.id === id)
+      let name = ministry?.name || "Unknown Ministry"
 
-    // Map active ministry IDs with the protobuf data to get ministry names
-    const activeMinistries = allMinistryData
-      .filter(ministry => activeMinistryIds.includes(ministry.id))
-      .map(ministry => {
-        let name = ministry.name
-
-        try {
-          const parsed = JSON.parse(ministry.name)
-          if (parsed?.value) {
-            name = utils.decodeHexString(parsed.value)
-          }
-        } catch (e) {
-          // Use extractNameFromProtobuf as fallback
-          name = utils.extractNameFromProtobuf(ministry.name) || ministry.name
+      try {
+        const parsed = JSON.parse(name)
+        if (parsed?.value) {
+          name = utils.decodeHexString(parsed.value)
         }
+      } catch (e) {
+        name = utils.extractNameFromProtobuf(name) || name
+        console.log(e.message)
+      }
 
-        return {
-          name,
-          id: ministry.id,
-          type: "ministry",
-          children: []
-        }
-      })
-
-    console.log('Active ministries with names:', activeMinistries)
+      return {
+        name,
+        id,
+        type: "ministry",
+        startTime,
+        children: []
+      }
+    })
 
     return {
       name: "Government",
@@ -207,7 +162,6 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
 
   } catch (error) {
     console.error("Error fetching active ministries:", error)
-    // Return empty tree structure on error
     return {
       name: "Government",
       children: [],
@@ -216,9 +170,10 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
   }
 }
 
+
 const fetchAllPersons = async () => {
   try{
-const response = await fetch("/v1/entities/search", {
+const response = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -247,7 +202,7 @@ const response = await fetch("/v1/entities/search", {
 
 const fetchActiveRelationsForMinistry = async (selectedDate, ministryId, relationType) => {
   try {
-    const response = await fetch(`/v1/entities/${ministryId}/relations`, {
+    const response = await fetch(`${apiUrl}/v1/entities/${ministryId}/relations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -274,7 +229,7 @@ const fetchActiveRelationsForMinistry = async (selectedDate, ministryId, relatio
 
 const fetchAllDepartments = async () => {
     // Fetch all department protobuf data
-    const response = await fetch("/v1/entities/search", {
+    const response = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -296,7 +251,7 @@ const fetchAllDepartments = async () => {
 
 const fetchAllMinistries = async () => {
     // Fetch all ministries protobuf data
-    const response = await fetch("/v1/entities/search", {
+    const response = await fetch(`${apiUrl}/v1/entities/search`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -316,4 +271,64 @@ const fetchAllMinistries = async () => {
     return response;
 } 
 
-export default {fetchInitialGazetteData, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData};
+const fetchAllRelationsForMinistry = async (ministryId) => {
+  try {
+    const response = await fetch(`/v1/entities/${ministryId}/allrelations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+
+    const json = await response.json();
+    return json; 
+
+  } catch (error) {
+    console.error(`Error fetching relations for ministry ID ${ministryId}:`, error);
+    return [];
+  }
+};
+
+
+const createDepartmentHistoryDictionary = async (allMinistryData) => {
+  const departmentHistory = {};
+
+  for (const ministry of allMinistryData) {
+    const ministryId = ministry.id;
+    //console.log("current ministry id in loop:", ministryId)
+
+    
+    const allRelations = await fetchAllRelationsForMinistry(ministryId);
+
+
+    for (const relation of allRelations) {
+      if (relation.name === "AS_DEPARTMENT") {
+        const departmentId = relation.relatedEntityId;
+
+        if (!departmentHistory[departmentId]) {
+          departmentHistory[departmentId] = [];
+        }
+
+        if (!departmentHistory[departmentId].includes(ministryId)) {
+          departmentHistory[departmentId].push(ministryId);
+        }
+      }
+    }
+  }
+
+  return departmentHistory;
+};
+
+
+
+
+  
+
+
+
+
+export default {fetchInitialGazetteData,fetchAllRelationsForMinistry, createDepartmentHistoryDictionary, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData};

@@ -1,11 +1,20 @@
-import { Box, Grid, Typography, Alert, AlertTitle } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Typography,
+  Alert,
+  AlertTitle,
+  Divider,
+  Chip,
+} from "@mui/material";
 import MinistryCard from "./MinistryCard";
-import colors from "../assets/colors";
+// import colors from "../assets/colors";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import api from "./../services/services";
 import { ClipLoader } from "react-spinners";
 import { setSelectedMinistry } from "../store/allMinistryData";
+import { useThemeContext } from "../themeContext";
 
 const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
@@ -14,68 +23,77 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [loading, setLoading] = useState(false);
   const allPersonList = useSelector((state) => state.allPerson.allPerson);
-
+  const { colors } = useThemeContext();
 
   useEffect(() => {
     fetchMinistryList();
   }, [selectedDate, allMinistryData]);
 
-const fetchMinistryList = async () => {
-  if (!selectedDate || !allMinistryData || allMinistryData.length === 0)
-    return;
+  const fetchMinistryList = async () => {
+    if (!selectedDate || !allMinistryData || allMinistryData.length === 0)
+      return;
 
-  try {
-    setLoading(true);
-    console.log("finding active ministry");
-    const activeMinistry = await api.fetchActiveMinistries(
-      selectedDate,
-      allMinistryData
-    );
+    try {
+      setLoading(true);
+      const activeMinistry = await api.fetchActiveMinistries(
+        selectedDate,
+        allMinistryData
+      );
+      console.log("activeMinistry with start time ", activeMinistry);
 
-    const enrichedMinistries = await Promise.all(
-      activeMinistry.children.map(async (ministry) => {
-        const response = await api.fetchActiveRelationsForMinistry(
-          selectedDate.date,
-          ministry.id,
-          "AS_APPOINTED"
-        );
-        const res = await response.json();
+      const enrichedMinistries = await Promise.all(
+        activeMinistry.children.map(async (ministry) => {
+          const response = await api.fetchActiveRelationsForMinistry(
+            selectedDate.date,
+            ministry.id,
+            "AS_APPOINTED"
+          );
+          const res = await response.json();
+          console.log("PEOPLEEE RELATIONS WITH START TIME", res);
 
-        const personSet = new Set(res.map((person) => person.relatedEntityId));
-        const personListInDetail = allPersonList.filter((person) =>
-          personSet.has(person.id)
-        );
+          // Create a map of relatedEntityId -> startTime for fast lookup
+          const startTimeMap = new Map();
+          res.forEach((relation) => {
+            if (relation.relatedEntityId) {
+              startTimeMap.set(relation.relatedEntityId, relation.startTime);
+            }
+          });
 
-        const headMinisterName = personListInDetail[0]?.name || null;
-        console.log(headMinisterName)
-        return {
-          ...ministry,
-          headMinisterName, 
-        };
-      })
-    );
+          // Enrich each person with their own startTime
+          const personListInDetail = allPersonList
+            .filter((person) => startTimeMap.has(person.id))
+            .map((person) => ({
+              ...person,
+              startTime: startTimeMap.get(person.id) || null,
+            }));
 
-    setActiveMinistryList(enrichedMinistries);
-    console.log(enrichedMinistries)
-    setLoading(false);
-  } catch (e) {
-    console.log("error fetch ministry list : ", e.message);
-    setLoading(false);
-  }
-};
 
+          const headMinisterName = personListInDetail[0]?.name || null;
+          const headMinisterStartTime = personListInDetail[0]?.startTime || null;
+
+
+          return {
+            ...ministry,
+            headMinisterName,
+            newPerson: headMinisterStartTime?.startsWith(selectedDate.date) || false,
+            newMin: ministry.startTime?.startsWith(selectedDate.date) || false,
+          };
+        })
+      );
+
+      setActiveMinistryList(enrichedMinistries);
+      console.log("activeMinistryList with person start date and ministry start date: ", enrichedMinistries);
+      setLoading(false);
+    } catch (e) {
+      console.log("error fetch ministry list : ", e.message);
+      setLoading(false);
+    }
+  };
 
   return (
     <Box sx={{ px: 4, pb: 4 }}>
       <Box
         sx={{
-          px: {
-            xs: 0,
-            sm: 0,
-            md: 5,
-            lg: 10,
-            xl: 20
-          },
           py: {
             xs: 2,
             sm: 3,
@@ -84,16 +102,27 @@ const fetchMinistryList = async () => {
           overflowX: "auto",
         }}
       >
-        <Box sx={{ textAlign: "center", mb: 3 }}>
-          <Typography variant="h7" sx={{ color: "text.secondary" }}>
-            Gazette Date
-          </Typography>
+        <Box sx={{ textAlign: "center", mb: 2 }}>
           <Typography
             variant="h6"
-            sx={{ fontWeight: "bold", color: colors.textSecondary }}
+            sx={{ color: colors.textPrimary, fontFamily: "poppins" }}
           >
-            {selectedDate.date}
+            Gazette Date
           </Typography>
+          <Divider>
+            <Chip
+              label={selectedDate.date}
+
+              sx={{
+                backgroundColor: "transparent",
+                fontWeight: "bold",
+                color: colors.textSecondary,
+                fontFamily: "poppins",
+                fontSize: 25,
+                P: 1,
+              }}
+            />
+          </Divider>
         </Box>
 
         {loading ? (
@@ -106,7 +135,7 @@ const fetchMinistryList = async () => {
             }}
           >
             <ClipLoader
-              color={"#000000"}
+              color={colors.timelineLineActive}
               loading={loading}
               size={25}
               aria-label="Loading Spinner"
@@ -118,10 +147,9 @@ const fetchMinistryList = async () => {
             container
             spacing={2}
             sx={{
-              border: `2px solid ${colors.primary}15`,
-              p: 2,
+              p: 1,
               borderRadius: "15px",
-              backgroundColor: colors.white,
+              backgroundColor: colors.backgroundColor,
             }}
           >
             {activeMinistryList && activeMinistryList.length > 0 ? (
@@ -129,17 +157,18 @@ const fetchMinistryList = async () => {
                 <Grid
                   key={card.id}
                   sx={{
+                    display: 'grid',
                     flexBasis: {
                       xs: "100%",
-                      sm: "50%",
-                      md: "25%",
-                      lg: "16.66%",
+                      sm: "48%",
+                      md: "31.5%",
+                      lg: "23.5%",
                     },
                     maxWidth: {
                       xs: "100%",
-                      sm: "50%",
-                      md: "25%",
-                      lg: "16.66%",
+                      sm: "48%",
+                      md: "31.5%",
+                      lg: "23.5%",
                     },
                   }}
                 >
@@ -160,9 +189,10 @@ const fetchMinistryList = async () => {
                 }}
               >
                 <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
-                  <AlertTitle>Info</AlertTitle>
-                  No ministries in the goverment. Sometimes this can be the
-                  president appointed date.
+                  <AlertTitle sx={{ fontFamily: "poppins", color: colors.textPrimary }}>
+                    Info: No ministries in the goverment. Sometimes this can be
+                    the president appointed date.
+                  </AlertTitle>
                 </Alert>
               </Box>
             )}

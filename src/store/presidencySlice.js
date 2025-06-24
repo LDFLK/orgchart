@@ -32,12 +32,12 @@ const presidencySlice = createSlice({
     },
     initializeSelection(state) {
       if (!state.initialized && state.presidentList.length > 0) {
-        const lastPresidentIndex = presidents.length - 1;
-        const lastPresident = state.presidentList[lastPresidentIndex];
+        // const lastPresidentIndex = presidents.length - 1;
+        // const lastPresident = state.presidentList[lastPresidentIndex];
         // const lastDate = lastPresident?.dates[lastPresident.dates.length - 1]?.date ?? null;
 
-        state.selectedIndex = lastPresidentIndex;
-        state.selectedDate = lastDate;
+        // state.selectedIndex = lastPresidentIndex;
+        // state.selectedDate = lastDate;
         state.initialized = true;
       }
     },

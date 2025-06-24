@@ -3,6 +3,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import MinistryDrawerContent from "./MinistryDrawerContent";
 import DepartmentHistoryTimeline from "./DepartmentHistoryTimeline";
 
+import { useThemeContext } from "../themeContext";
+
 const InfoTab = ({
   drawerOpen,
   drawerMode,
@@ -13,6 +15,8 @@ const InfoTab = ({
   onBack,
   onDepartmentClick,
 }) => {
+  const { colors } = useThemeContext();
+
   return (
     <Drawer anchor="right" open={drawerOpen} onClose={onClose}>
       <Box
@@ -25,9 +29,11 @@ const InfoTab = ({
             xl: 750,
           },
           p: 2,
-          height: "100%",
+          height: "100vh",
           display: "flex",
           flexDirection: "column",
+          backgroundColor: colors.backgroundPrimary,
+          overflow: "auto",
         }}
       >
         {/* Header */}
@@ -47,7 +53,11 @@ const InfoTab = ({
           )}
 
           <IconButton onClick={onClose}>
-            <CloseIcon />
+            <CloseIcon
+              sx={{
+                color: colors.textPrimary,
+              }}
+            />
           </IconButton>
         </Box>
 
