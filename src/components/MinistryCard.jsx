@@ -3,10 +3,12 @@ import PersonIcon from "@mui/icons-material/Person";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useThemeContext } from "../themeContext";
+import { useBadgeContext } from "../badgeContext";
 
 const MinistryCard = ({ card, onClick }) => {
   const { selectedPresident } = useSelector((state) => state.presidency);
   const { colors } = useThemeContext();
+  const { showNewBadge } = useBadgeContext();
 
   return (
     <Card
@@ -24,7 +26,7 @@ const MinistryCard = ({ card, onClick }) => {
       }}
       onClick={() => onClick(card)}
     >
-    
+
       <Stack>
         {/* Ministry Title */}
         <Stack
@@ -37,22 +39,22 @@ const MinistryCard = ({ card, onClick }) => {
           <Typography variant="h7" sx={{ color: "#ffffff", fontWeight: 600 }}>
             {card.name.split(":")[0]}
           </Typography>
-           {(card.newMin || card.newPerson) && (
-          <Box
-            sx={{
-              backgroundColor: colors.green,
-              color: "#fff",
-              fontSize: "0.7rem",
-              fontWeight: "bold",
-              borderRadius: "5px",
-              px: 1,
-              py: "2px",
-              fontFamily: "poppins",
-            }}
-          >
-            NEW
-          </Box>
-      )}
+          {showNewBadge && (card.newMin || card.newPerson) && (
+            <Box
+              sx={{
+                backgroundColor: colors.green,
+                color: "#fff",
+                fontSize: "0.7rem",
+                fontWeight: "bold",
+                borderRadius: "5px",
+                px: 1,
+                py: "2px",
+                fontFamily: "poppins",
+              }}
+            >
+              NEW
+            </Box>
+          )}
         </Stack>
 
         {/* Minister Info */}
@@ -67,9 +69,9 @@ const MinistryCard = ({ card, onClick }) => {
               {(!card.headMinisterName ||
                 (selectedPresident &&
                   utils.extractNameFromProtobuf(card.headMinisterName) ===
-                    utils
-                      .extractNameFromProtobuf(selectedPresident.name)
-                      .split(":")[0])) ? (
+                  utils
+                    .extractNameFromProtobuf(selectedPresident.name)
+                    .split(":")[0])) ? (
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Typography
                     variant="subtitle2"
@@ -123,9 +125,9 @@ const MinistryCard = ({ card, onClick }) => {
                   {card.headMinisterName
                     ? utils.extractNameFromProtobuf(card.headMinisterName)
                     : selectedPresident &&
-                      utils
-                        .extractNameFromProtobuf(selectedPresident.name)
-                        .split(":")[0]}
+                    utils
+                      .extractNameFromProtobuf(selectedPresident.name)
+                      .split(":")[0]}
                 </Typography>
 
                 {/* {card.newPerson && (

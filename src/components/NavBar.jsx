@@ -27,6 +27,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { useDispatch } from "react-redux";
 import { useThemeContext } from "../themeContext";
 import { ClipLoader } from "react-spinners";
+import { useBadgeContext } from "../badgeContext.jsx"
 
 
 function Navbar() {
@@ -35,6 +36,7 @@ function Navbar() {
   const dispatch = useDispatch();
   const [showServerError, setShowServerError] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { showNewBadge, setShowNewBadge } = useBadgeContext();
 
   //handle modern/classic view
   const handleViewChange = (type) => {
@@ -293,6 +295,35 @@ function Navbar() {
           >
             {isDark ? "Light Mode" : "Dark Mode"}
           </Button>
+          <Button
+            onClick={() => setShowNewBadge(prev => !prev)}
+            startIcon={
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  backgroundColor: showNewBadge ? colors.green : colors.textPrimary,
+                }}
+              />
+            }
+            sx={{
+              justifyContent: "flex-start",
+              textTransform: "none",
+              fontWeight: 500,
+              color: colors.textPrimary,
+              border: `1px solid ${colors.textPrimary}33`,
+              borderRadius: "10px",
+              px: 2,
+              py: 1,
+              "&:hover": {
+                backgroundColor: `${colors.primary}22`,
+              },
+            }}
+          >
+            {showNewBadge ? "Hide NEW Badges" : "Show NEW Badges"}
+          </Button>
+
         </Stack>
       </Drawer>
 
