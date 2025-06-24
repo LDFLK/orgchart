@@ -222,15 +222,32 @@ function Navbar() {
           </Box> */}
 
           {/* open settings drawer */}
-          <Box sx={{ textAlign: "right",color: colors.textPrimary, flex: 1 }}>
-            <SettingsIcon onClick={() => setDrawerOpen(true)} color="inherit" hoverColor={colors.dotColorActive} sx={{ cursor: "pointer" }}>
-              {isDark ? <LightModeIcon /> : <DarkModeIcon />}
-            </SettingsIcon>
+          <Box sx={{ textAlign: "right", color: colors.textPrimary, flex: 1 }}>
+            <Button
+              onClick={() => setDrawerOpen(true)}
+              startIcon={<SettingsIcon />}
+              sx={{
+                justifyContent: "flex-start",
+                textTransform: "none",
+                fontWeight: 500,
+                color: colors.textPrimary,
+                border: `1px solid ${colors.textPrimary}33`,
+                borderRadius: "10px",
+                px: 2,
+                py: 1,
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: `${colors.primary}22`,
+                },
+              }}
+            >
+              Settings
+            </Button>
           </Box>
         </Stack>
       </Box>
 
-     {/* Drawer for settings */}
+      {/* Drawer for settings */}
       <Drawer
         anchor="right"
         open={drawerOpen}
@@ -278,7 +295,7 @@ function Navbar() {
           </Button>
         </Stack>
       </Drawer>
-      
+
 
       {loading ? (
         <Box

@@ -23,7 +23,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [loading, setLoading] = useState(false);
   const allPersonList = useSelector((state) => state.allPerson.allPerson);
-  const {colors} = useThemeContext();
+  const { colors } = useThemeContext();
 
   useEffect(() => {
     fetchMinistryList();
@@ -49,24 +49,40 @@ const MinistryCardGrid = ({ onCardClick }) => {
             "AS_APPOINTED"
           );
           const res = await response.json();
+          console.log("PEOPLEEE RELATIONS WITH START TIME", res);
 
-          const personSet = new Set(
-            res.map((person) => person.relatedEntityId)
-          );
-          const personListInDetail = allPersonList.filter((person) =>
-            personSet.has(person.id)
-          );
+          // Create a map of relatedEntityId -> startTime for fast lookup
+          const startTimeMap = new Map();
+          res.forEach((relation) => {
+            if (relation.relatedEntityId) {
+              startTimeMap.set(relation.relatedEntityId, relation.startTime);
+            }
+          });
+
+          // Enrich each person with their own startTime
+          const personListInDetail = allPersonList
+            .filter((person) => startTimeMap.has(person.id))
+            .map((person) => ({
+              ...person,
+              startTime: startTimeMap.get(person.id) || null,
+            }));
+
 
           const headMinisterName = personListInDetail[0]?.name || null;
+          const headMinisterStartTime = personListInDetail[0]?.startTime || null;
+
+
           return {
             ...ministry,
             headMinisterName,
+            newPerson: headMinisterStartTime?.startsWith(selectedDate.date) || false,
+            newMin: ministry.startTime?.startsWith(selectedDate.date) || false,
           };
         })
       );
 
       setActiveMinistryList(enrichedMinistries);
-      console.log("activeMinistryList: ", enrichedMinistries);
+      console.log("activeMinistryList with person start date and ministry start date: ", enrichedMinistries);
       setLoading(false);
     } catch (e) {
       console.log("error fetch ministry list : ", e.message);
@@ -96,7 +112,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
           <Divider>
             <Chip
               label={selectedDate.date}
-              
+
               sx={{
                 backgroundColor: "transparent",
                 fontWeight: "bold",
