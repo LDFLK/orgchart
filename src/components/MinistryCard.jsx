@@ -8,7 +8,8 @@ import { useBadgeContext } from "../badgeContext";
 const MinistryCard = ({ card, onClick }) => {
   const { selectedPresident } = useSelector((state) => state.presidency);
   const { colors } = useThemeContext();
-  const { showNewBadge } = useBadgeContext();
+ const { showMinistryBadge, showPersonBadge } = useBadgeContext();
+
 
   return (
     <Card
@@ -39,7 +40,7 @@ const MinistryCard = ({ card, onClick }) => {
           <Typography variant="h7" sx={{ color: "#ffffff", fontWeight: 600 }}>
             {card.name.split(":")[0]}
           </Typography>
-          {showNewBadge && (card.newMin) && (
+           {(card.newMin && showMinistryBadge)&& (
             <Box
               sx={{
                 backgroundColor: colors.green,
@@ -130,7 +131,7 @@ const MinistryCard = ({ card, onClick }) => {
                       .split(":")[0]}
                 </Typography>
 
-                 {showNewBadge && (card.newPerson) && (
+                 {(card.newPerson && showPersonBadge)&& (
                   <Box
                     sx={{
                       backgroundColor: colors.purple,

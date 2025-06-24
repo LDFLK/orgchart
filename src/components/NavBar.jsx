@@ -24,10 +24,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import SettingsIcon from '@mui/icons-material/Settings';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import { Switch, FormControlLabel } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useThemeContext } from "../themeContext";
 import { ClipLoader } from "react-spinners";
 import { useBadgeContext } from "../badgeContext.jsx"
+import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 
 function Navbar() {
@@ -36,7 +39,12 @@ function Navbar() {
   const dispatch = useDispatch();
   const [showServerError, setShowServerError] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { showNewBadge, setShowNewBadge } = useBadgeContext();
+  const {
+    showMinistryBadge,
+    setShowMinistryBadge,
+    showPersonBadge,
+    setShowPersonBadge,
+  } = useBadgeContext();
 
   //handle modern/classic view
   const handleViewChange = (type) => {
@@ -273,59 +281,168 @@ function Navbar() {
             </IconButton>
           </Box>
 
-          <Button
-            onClick={() => {
-              toggleTheme();
-              setDrawerOpen(false);
-            }}
-            startIcon={isDark ? <LightModeIcon /> : <DarkModeIcon />}
-            sx={{
-              justifyContent: "flex-start",
-              textTransform: "none",
-              fontWeight: 500,
-              color: colors.textPrimary,
-              border: `1px solid ${colors.textPrimary}33`,
-              borderRadius: "10px",
-              px: 2,
-              py: 1,
-              "&:hover": {
-                backgroundColor: `${colors.primary}22`,
-              },
-            }}
-          >
-            {isDark ? "Light Mode" : "Dark Mode"}
-          </Button>
-          <Button
-            onClick={() => setShowNewBadge(prev => !prev)}
-            startIcon={
-              <Box
+          <FormControlLabel
+            control={
+              <Switch
+                checked={isDark}
+                onChange={toggleTheme}
+                icon={
+                  <LightModeIcon
+                    sx={{
+                      fontSize: 20,
+                      color: colors.textPrimary,
+                      m: 0.1,
+                    }}
+                  />
+                }
+                checkedIcon={
+                  <DarkModeIcon
+                    sx={{
+                      fontSize: 20,
+                      color: colors.textPrimary,
+                      m: 0.1,
+                    }}
+                  />
+                }
                 sx={{
-                  width: 12,
-                  height: 12,
-                  borderRadius: "50%",
-                  background: showNewBadge
-                    ? colors.textPrimary
-                    : `linear-gradient(90deg, ${colors.green}, ${colors.purple})`,
+
+                  '& .MuiSwitch-switchBase': {
+                    padding: 1,
+                  },
+                  '& .MuiSwitch-thumb': {
+                    backgroundColor: 'transparent',
+                    width: 24,
+                    height: 24,
+                  },
+                  '& .MuiSwitch-track': {
+                    backgroundColor: isDark
+                      ? `${colors.primary}99`
+                      : `${colors.textMuted}55`,
+                    borderRadius: 20,
+                  },
                 }}
               />
-
             }
+            label={isDark ? "Dark Mode" : "Light Mode"}
+            labelPlacement="start"
             sx={{
-              justifyContent: "flex-start",
-              textTransform: "none",
-              fontWeight: 500,
               color: colors.textPrimary,
-              border: `1px solid ${colors.textPrimary}33`,
-              borderRadius: "10px",
-              px: 2,
-              py: 1,
-              "&:hover": {
-                backgroundColor: `${colors.primary}22`,
+              justifyContent: "space-between",
+              mx: 0,
+              '& .MuiFormControlLabel-label': {
+                fontWeight: 500,
+                fontFamily: "poppins",
               },
             }}
+          />
+          <Accordion
+            disableGutters
+            sx={{
+              backgroundColor: "transparent",
+              border: 'none',
+              borderRadius: "12px",
+              boxShadow: "none",
+              "&:before": { display: "none" },
+            }}
           >
-            {showNewBadge ? "Hide NEW Badges" : "Show NEW Badges"}
-          </Button>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon sx={{ color: colors.textPrimary }} />}
+              aria-controls="badge-settings-content"
+              id="badge-settings-header"
+              sx={{
+                color: colors.textPrimary,
+                fontWeight: 500,
+                fontFamily: "poppins",
+                fontSize: 16,
+                p: 0,
+                minHeight: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                "& .MuiAccordionSummary-content": {
+                  margin: 0,
+                },
+                "& .MuiAccordionSummary-expandIconWrapper": {
+                  marginRight: 1,
+                },
+              }}
+            >
+              Badge Visibility
+            </AccordionSummary>
+
+            <AccordionDetails>
+              <Stack spacing={1}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      color={colors.green}
+                      checked={showMinistryBadge}
+                      onChange={() => setShowMinistryBadge((prev) => !prev)}
+                      sx={{
+                        '& .MuiSwitch-thumb': {
+                          background: colors.green,
+                        },
+                        '& .MuiSwitch-track': {
+                          background: showMinistryBadge
+                            ? `${colors.green}`
+                            : `${colors.green}99`,
+                        },
+                      }}
+                    />
+                  }
+                  label={
+                    showMinistryBadge
+                      ? "Ministry"
+                      : "Ministry"
+                  }
+                  labelPlacement="start"
+                  sx={{
+                    color: colors.textPrimary,
+                    justifyContent: "space-between",
+                    mx: 0,
+                    '& .MuiFormControlLabel-label': {
+                      fontWeight: 500,
+                      fontFamily: "poppins",
+                    },
+                  }}
+                />
+
+                <FormControlLabel
+                  control={
+                    <Switch
+                      color={colors.purple}
+                      checked={showPersonBadge}
+                      onChange={() => setShowPersonBadge((prev) => !prev)}
+                      sx={{
+                        '& .MuiSwitch-thumb': {
+                          background: colors.purple,
+                        },
+                        '& .MuiSwitch-track': {
+                          background: showPersonBadge
+                            ? colors.purple
+                            : `${colors.purple}99`,
+                        },
+                      }}
+                    />
+                  }
+                  label={
+                    showPersonBadge
+                      ? "Minister"
+                      : "Minister"
+                  }
+                  labelPlacement="start"
+                  sx={{
+                    color: colors.textPrimary,
+                    justifyContent: "space-between",
+                    mx: 0,
+                    '& .MuiFormControlLabel-label': {
+                      fontWeight: 500,
+                      fontFamily: "poppins",
+                    },
+                  }}
+                />
+              </Stack>
+            </AccordionDetails>
+          </Accordion>
 
         </Stack>
       </Drawer>
