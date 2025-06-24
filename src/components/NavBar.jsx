@@ -300,12 +300,15 @@ function Navbar() {
             startIcon={
               <Box
                 sx={{
-                  width: 10,
-                  height: 10,
+                  width: 12,
+                  height: 12,
                   borderRadius: "50%",
-                  backgroundColor: showNewBadge ? colors.green : colors.textPrimary,
+                  background: showNewBadge
+                    ? colors.textPrimary
+                    : `linear-gradient(90deg, ${colors.green}, ${colors.purple})`,
                 }}
               />
+
             }
             sx={{
               justifyContent: "flex-start",
