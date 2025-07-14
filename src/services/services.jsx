@@ -323,12 +323,30 @@ const createDepartmentHistoryDictionary = async (allMinistryData) => {
   return departmentHistory;
 };
 
+const getMinistriesByDepartment = async(departmentId) =>{
+  try {
+    const response = await fetch(`${apiUrl}/v1/entities/${departmentId}/relations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: "AS_DEPARTMENT",
+      })
+    })
 
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`)
+    }
+
+    return response;
+    
+  } catch (error) {
+    console.error("Error fetching past ministries for department:", error)
+  }
+}
 
 
   
 
-
-
-
-export default {fetchInitialGazetteData,fetchAllRelationsForMinistry, createDepartmentHistoryDictionary, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData};
+export default {fetchInitialGazetteData,fetchAllRelationsForMinistry,getMinistriesByDepartment, createDepartmentHistoryDictionary, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData};

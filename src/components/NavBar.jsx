@@ -135,10 +135,10 @@ function Navbar() {
       const response = await api.fetchAllMinistries();
       const ministryList = await response.json();
       dispatch(setAllMinistryData(ministryList.body));
-      const dictionary = await api.createDepartmentHistoryDictionary(
-        ministryList.body
-      );
-      dispatch(setDepartmentHistory(dictionary));
+      // const dictionary = await api.createDepartmentHistoryDictionary(
+      //   ministryList.body
+      // );
+      // dispatch(setDepartmentHistory(dictionary));
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching ministry data : ${e.message}`);
