@@ -452,7 +452,7 @@ function Navbar() {
         <Box
           sx={{
             paddingTop: "2vh",
-            width: "100vw",
+            width: "100%",
             height: "100vh",
             backgroundColor: colors.backgroundPrimary,
             display: "flex",
@@ -486,15 +486,7 @@ function Navbar() {
         </>
       ) : (
         <>
-          {view == "modern" ? (
-            <>
               <ModernView />
-            </>
-          ) : (
-            <>
-              <OrgChart />
-            </>
-          )}
         </>
       )}
     </Box>

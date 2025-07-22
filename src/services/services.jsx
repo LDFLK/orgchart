@@ -81,17 +81,17 @@ const fetchInitialGazetteData = async () => {
 
 const fetchPresidentsData = async (governmentNodeId = "gov_01") => {
   try{
-    const response = await fetch(`${apiUrl}/v1/entities/${governmentNodeId}/allrelations`, {
+    const response = await fetch(`${apiUrl}/v1/entities/${governmentNodeId}/relations`, {
       method: "POST",
+      body: JSON.stringify({"name":"AS_APPOINTED"}),
       headers: {
         "Content-Type": "application/json"
       },
     });
 
     const jsonResponse = await response.json();
-    const presidentData = jsonResponse.filter(person => person.name == "AS_APPOINTED");
 
-    return presidentData;
+    return jsonResponse;
 
   }catch(e){
     console.log(`Error fetching presidents `,e.message);
@@ -108,10 +108,11 @@ const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNo
       },
       body: JSON.stringify({
         relatedEntityId: "",
-        startTime: `${selectedDate.date}T00:00:00Z`,
+        startTime: "",
         endTime: "",
         id: "",
-        name: "AS_MINISTER"
+        name: "AS_MINISTER",
+        activeAt: `${selectedDate.date}T00:00:00Z`
       })
     })
 
@@ -209,10 +210,11 @@ const fetchActiveRelationsForMinistry = async (selectedDate, ministryId, relatio
       },
       body: JSON.stringify({
         relatedEntityId: "",
-        startTime: `${selectedDate}T00:00:00Z`,
+        startTime: "",
         endTime: "",
         id: "",
-        name: relationType
+        name: relationType,
+        activeAt: `${selectedDate}T00:00:00Z`
       })
     })
 
@@ -273,8 +275,9 @@ const fetchAllMinistries = async () => {
 
 const fetchAllRelationsForMinistry = async (ministryId) => {
   try {
-    const response = await fetch(`/v1/entities/${ministryId}/allrelations`, {
+    const response = await fetch(`/v1/entities/${ministryId}/relations`, {
       method: "POST",
+      body: JSON.stringify({}),
       headers: {
         "Content-Type": "application/json",
       },
