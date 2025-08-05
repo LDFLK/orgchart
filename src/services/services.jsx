@@ -326,6 +326,33 @@ const createDepartmentHistoryDictionary = async (allMinistryData) => {
   return departmentHistory;
 };
 
+const chatbotApiCall = async (question) => {
+  try {
+    console.log(`this is the question ${question}`)
+    const response = await fetch(`http://127.0.0.1:8000/chat`, {
+      method: "POST",
+      body: JSON.stringify({question}),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log(response)
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+
+    const json = await response.json();
+    console.log(json)
+    return json; 
+
+  } catch (error) {
+    console.error(`Chat Error`, error);
+    return [];
+  }
+};
+
 
 
 
@@ -334,4 +361,4 @@ const createDepartmentHistoryDictionary = async (allMinistryData) => {
 
 
 
-export default {fetchInitialGazetteData,fetchAllRelationsForMinistry, createDepartmentHistoryDictionary, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData};
+export default {fetchInitialGazetteData,fetchAllRelationsForMinistry, createDepartmentHistoryDictionary, fetchActiveMinistries, fetchAllPersons, fetchActiveRelationsForMinistry,fetchAllMinistries, fetchAllDepartments, fetchPresidentsData, chatbotApiCall};

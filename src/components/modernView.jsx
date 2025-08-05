@@ -11,6 +11,7 @@ import utils from "../utils/utils";
 import { setSelectedDate } from "../store/presidencySlice";
 import { setGazetteData } from "../store/gazetteDate";
 import { useThemeContext } from "../themeContext";
+import ChatbotComponent from "./chatbot_screen";
 
 const ModernView = () => {
   const dispatch = useDispatch();
@@ -103,6 +104,8 @@ const ModernView = () => {
         overflowX: "hidden",
       }}
     >
+      <ChatbotComponent/>
+      
       {/* Search Bar */}
       {/* <Box
         sx={{
@@ -174,6 +177,7 @@ const ModernView = () => {
             justifyContent: "Center",
           }}
         >
+          
           <Card
             sx={{
               width: {
