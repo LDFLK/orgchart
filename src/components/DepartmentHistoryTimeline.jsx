@@ -9,7 +9,7 @@ import { ClipLoader } from "react-spinners";
 
 const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
-    const dictionary = useSelector((state) => state.allDepartmentData.departmentHistory);
+    //const dictionary = useSelector((state) => state.allDepartmentData.departmentHistory);
     const allMinistryData = useSelector((state) => state.allMinistryData.allMinistryData);
     const [enrichedMinistries, setEnrichedMinistries] = useState([]);
     const allPersonList = useSelector((state) => state.allPerson.allPerson);
@@ -25,50 +25,60 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     //     return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
     // };
 
-    useEffect(() => {
-        const enrichWithMinisters = async () => {
-            setLoading(true);
-            const rawMinistries = (dictionary[selectedDepartment?.id] || [])
-                .map((id) => allMinistryData.find((m) => m.id === id))
+useEffect(() => {
+    const enrichWithMinisters = async () => {
+        setLoading(true);
+        try {
+            const relationsRes = await api.getMinistriesByDepartment(selectedDepartment?.id);
+            const ministryRelations = await relationsRes.json();
 
             const enriched = await Promise.all(
-                rawMinistries.map(async (ministry) => {
-                    try {
-                        const allRelations = await api.fetchAllRelationsForMinistry(ministry.id);
+                ministryRelations.map(async (relation) => {
+                    const ministryId = relation.relatedEntityId;
+                    const ministry = allMinistryData.find((m) => m.id === ministryId);
 
+                    if (!ministry) {
+                        return null; // or skip
+                    }
+
+                    try {
+                        const allRelations = await api.fetchAllRelationsForMinistry(ministryId);
                         const appointedRelation = allRelations.find(
-                            (relation) => relation.name === 'AS_APPOINTED'
+                            (r) => r.name === 'AS_APPOINTED'
                         );
-                        // console.log("appointed relation ", appointedRelation)
-                        if (!appointedRelation) {
-                            return { ...ministry, minister: null, startTime: null };
-                        }
-                        const minister = allPersonList.find(
-                            (p) => p.id === appointedRelation.relatedEntityId
-                        );
+
+                        const minister = appointedRelation
+                            ? allPersonList.find((p) => p.id === appointedRelation.relatedEntityId)
+                            : null;
 
                         return {
                             ...ministry,
                             minister: minister
                                 ? utils.extractNameFromProtobuf(minister.name)
                                 : null,
-                            startTime: appointedRelation.startTime,
-                            endTime: appointedRelation.endTime,
+                            startTime: relation.startTime,
+                            endTime: relation.endTime,
                         };
                     } catch (e) {
-                        console.log(e.message)
+                        console.log("Minister fetch error:", e.message);
                         return { ...ministry, minister: null };
                     }
                 })
             );
-            setEnrichedMinistries(enriched);
-            setLoading(false)
-        };
 
-        if (selectedDepartment?.id) {
-            enrichWithMinisters();
+            setEnrichedMinistries(enriched.filter(Boolean)); // remove nulls
+        } catch (err) {
+            console.error("Error enriching ministries:", err.message);
+        } finally {
+            setLoading(false);
         }
-    }, []);
+    };
+
+    if (selectedDepartment?.id) {
+        enrichWithMinisters();
+    }
+}, [selectedDepartment]);
+
 
 
     return (
