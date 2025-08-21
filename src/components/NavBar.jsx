@@ -75,12 +75,14 @@ function Navbar() {
 
   const fetchPersonData = async () => {
     try {
+      console.log('fetching person data');
       const personResponse = await api.fetchAllPersons();
       const personList = await personResponse.json();
       dispatch(setAllPerson(personList.body));
 
       //this is for president data
       const presidentResponse = await api.fetchPresidentsData();
+      console.log(presidentResponse)
       dispatch(setPresidentRelationList(presidentResponse));
 
       const presidentSet = new Set(
@@ -102,6 +104,8 @@ function Navbar() {
                 .toLowerCase()
             )
         );
+
+        console.log(matchedDetail)
 
         return {
           ...president,

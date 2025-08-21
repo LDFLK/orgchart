@@ -23,29 +23,37 @@ function ChatbotComponent() {
 
   const handleResizeChatbox = () => {
     setIsResized((prev) => !prev);
-  }
+  };
 
   const callchatbot = async () => {
     try {
       if (userInput.trim() == "") return;
+      console.log(`this is the user input ${userInput}`)
       setLoading(true);
       const newMessages = [...messages, { text: userInput, sender: "user" }];
       setMessages(newMessages);
       setUserInput("");
-      const response = await api.chatbotApiCall(userInput);
-      console.log("this is the chat response");
-      console.log(response);
-      // Simulate bot response
-      if (response.trim() == "") return;
+      var session_id = sessionStorage.getItem("session_id_orgchart");
+      console.log('api call starting')
+      console.log(`this is the session id : ${session_id}`)
+      if(session_id == null){session_id = ""}
+      const response = await api.chatbotApiCall(userInput, session_id);
+      console.log('api call ending')
+      const message = response["response"];
+      if (sessionStorage.key("session_id_orgchart") == null) {
+        sessionStorage.setItem("session_id_orgchart", response["session_id"]);
+      }
+      if (message.trim() == "") return;
       setTimeout(() => {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: response, sender: "bot" },
+          { text: message, sender: "bot" },
         ]);
       }, 500);
       setLoading(false);
     } catch (e) {
       console.log(`Error fetching chat message data : ${e.message}`);
+      setLoading(false);
     }
   };
 

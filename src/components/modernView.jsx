@@ -66,9 +66,9 @@ const ModernView = () => {
 
       const { dates } = await api.fetchInitialGazetteData();
 
-      // console.log('returned date : ',dates)
-      // console.log('start date : ',startTime);
-      // console.log('endTime : ', endTime)
+      console.log('returned date : ',dates)
+      console.log('start date : ',startTime); 
+      console.log('endTime : ', endTime)
 
       var filteredDates = [];
       if (endTime == "") {
@@ -104,7 +104,8 @@ const ModernView = () => {
         overflowX: "hidden",
       }}
     >
-      <ChatbotComponent/>
+      {/* Chabot component */}
+      {/* <ChatbotComponent/> */}
       
       {/* Search Bar */}
       {/* <Box

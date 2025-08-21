@@ -19,7 +19,7 @@ import { useThemeContext } from "../themeContext";
 const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
-  const { selectedDate } = useSelector((state) => state.presidency);
+  const { selectedDate, selectedPresident } = useSelector((state) => state.presidency);
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [loading, setLoading] = useState(false);
   const allPersonList = useSelector((state) => state.allPerson.allPerson);
@@ -37,7 +37,8 @@ const MinistryCardGrid = ({ onCardClick }) => {
       setLoading(true);
       const activeMinistry = await api.fetchActiveMinistries(
         selectedDate,
-        allMinistryData
+        allMinistryData,
+        selectedPresident
       );
       console.log("activeMinistry with start time ", activeMinistry);
 

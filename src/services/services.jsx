@@ -83,7 +83,7 @@ const fetchPresidentsData = async (governmentNodeId = "gov_01") => {
   try{
     const response = await fetch(`${apiUrl}/v1/entities/${governmentNodeId}/relations`, {
       method: "POST",
-      body: JSON.stringify({"name":"AS_APPOINTED"}),
+      body: JSON.stringify({"name":"AS_PRESIDENT"}),
       headers: {
         "Content-Type": "application/json"
       },
@@ -99,9 +99,11 @@ const fetchPresidentsData = async (governmentNodeId = "gov_01") => {
   }
 }
 
-const fetchActiveMinistries = async (selectedDate, allMinistryData, governmentNodeId = "gov_01") => {
+const fetchActiveMinistries = async (selectedDate, allMinistryData, selectedPresident) => {
   try {
-    const response = await fetch(`${apiUrl}/v1/entities/${governmentNodeId}/relations`, {
+    console.log('this is the president');
+    console.log(selectedPresident.id)
+    const response = await fetch(`${apiUrl}/v1/entities/${selectedPresident.id}/relations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -326,25 +328,22 @@ const createDepartmentHistoryDictionary = async (allMinistryData) => {
   return departmentHistory;
 };
 
-const chatbotApiCall = async (question) => {
+const chatbotApiCall = async (question,session_id) => {
   try {
     console.log(`this is the question ${question}`)
     const response = await fetch(`http://127.0.0.1:8000/chat`, {
       method: "POST",
-      body: JSON.stringify({question}),
+      body: JSON.stringify({question,session_id}),
       headers: {
         "Content-Type": "application/json",
       },
     });
-
-    console.log(response)
 
     if (!response.ok) {
       throw new Error(`API error: ${response.statusText}`);
     }
 
     const json = await response.json();
-    console.log(json)
     return json; 
 
   } catch (error) {
