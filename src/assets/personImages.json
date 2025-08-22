@@ -1,4 +1,4 @@
 [
-  { "presidentName": "Ranil Wickremesinghe", "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/President_Dr_Muizzu_meets_Sri_Lankan_President_Ranil_Wickremesinghe_%28cropped%29.jpg/800px-President_Dr_Muizzu_meets_Sri_Lankan_President_Ranil_Wickremesinghe_%28cropped%29.jpg" },
-  { "presidentName": "Anura Kumara Dissanayake", "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/President_of_Sri_Lanka_Mr._Anura_Kumara_Dissanayak%2C_Official_portrait_%28December_2024%29_crop.jpg/250px-President_of_Sri_Lanka_Mr._Anura_Kumara_Dissanayak%2C_Official_portrait_%28December_2024%29_crop.jpg" }
+  { "presidentName": "Ranil Wickremesinghe", "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/President_Dr_Muizzu_meets_Sri_Lankan_President_Ranil_Wickremesinghe_%28cropped%29.jpg/800px-President_Dr_Muizzu_meets_Sri_Lankan_President_Ranil_Wickremesinghe_%28cropped%29.jpg", "themeColorLight": "#4A9243" },
+  { "presidentName": "Anura Kumara Dissanayake", "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/President_of_Sri_Lanka_Mr._Anura_Kumara_Dissanayak%2C_Official_portrait_%28December_2024%29_crop.jpg/250px-President_of_Sri_Lanka_Mr._Anura_Kumara_Dissanayak%2C_Official_portrait_%28December_2024%29_crop.jpg", "themeColorLight": "#B33F67" }
 ]

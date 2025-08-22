@@ -11,6 +11,7 @@ import utils from "../utils/utils";
 import { setSelectedDate } from "../store/presidencySlice";
 import { setGazetteData } from "../store/gazetteDate";
 import { useThemeContext } from "../themeContext";
+import ChatbotComponent from "./chatbot_screen";
 
 const ModernView = () => {
   const dispatch = useDispatch();
@@ -65,9 +66,9 @@ const ModernView = () => {
 
       const { dates } = await api.fetchInitialGazetteData();
 
-      // console.log('returned date : ',dates)
-      // console.log('start date : ',startTime);
-      // console.log('endTime : ', endTime)
+      console.log('returned date : ',dates)
+      console.log('start date : ',startTime); 
+      console.log('endTime : ', endTime)
 
       var filteredDates = [];
       if (endTime == "") {
@@ -96,13 +97,16 @@ const ModernView = () => {
   return (
     <Box
       sx={{
-        paddingTop: "5vw",
+        paddingTop: "2vw",
         width: "100vw",
         minHeight: "100vh",
         backgroundColor: colors.backgroundPrimary,
         overflowX: "hidden",
       }}
     >
+      {/* Chabot component */}
+      {/* <ChatbotComponent/> */}
+      
       {/* Search Bar */}
       {/* <Box
         sx={{
@@ -174,6 +178,7 @@ const ModernView = () => {
             justifyContent: "Center",
           }}
         >
+          
           <Card
             sx={{
               width: {
@@ -181,7 +186,8 @@ const ModernView = () => {
                 lg: "25%",
               },
               marginRight: 1,
-              border: `2px solid ${colors.purple}50`,
+              border: `2px solid ${selectedPresident.themeColorLight}`,
+              // border: `2px solid ${colors.purple}50`,
               borderRadius: "15px",
               backgroundColor: colors.backgroundPrimary,
               boxShadow: "none",
@@ -191,7 +197,8 @@ const ModernView = () => {
               sx={{
                 width: "175px",
                 height: "35px",
-                backgroundColor: `${colors.purple}`,
+                backgroundColor: `${selectedPresident.themeColorLight}`,
+                // backgroundColor: `${colors.purple}`,
                 borderBottomRightRadius: "15px",
               }}
             >
@@ -231,7 +238,8 @@ const ModernView = () => {
                         sx={{
                           width: 75,
                           height: 75,
-                          border: `3px solid ${colors.backgroundSecondary}`,
+                          // border: `3px solid ${colors.backgroundSecondary}`,
+                          border: `3px solid ${selectedPresident.themeColorLight}`,
                           backgroundColor: colors.backgroundPrimary,
                           margin: "auto",
                         }}
@@ -393,6 +401,7 @@ const ModernView = () => {
         onBack={() => setDrawerMode("ministry")}
         onDepartmentClick={handleDepartmentClick}
         ministryId={selectedMinistry}
+        selectedPresident={selectedPresident}
       />
     </Box>
   );

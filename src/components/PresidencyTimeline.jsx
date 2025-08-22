@@ -183,7 +183,8 @@ export default function PresidencyTimeline() {
           sx={{
             position: "absolute",
             height: "5px",
-            backgroundColor: colors.timelineLineActive,
+            // backgroundColor: colors.timelineLineActive,
+            backgroundColor: selectedPresident.themeColorLight,
             top: `${lineStyle.top}px`,
             left: `${lineStyle.left}px`,
             width: `${lineStyle.width}px`,
@@ -260,7 +261,8 @@ export default function PresidencyTimeline() {
                         variant="dot"
                         sx={{
                           border: isSelected
-                            ? `4px solid ${colors.timelineLineActive}`
+                            ? `4px solid ${selectedPresident.themeColorLight}`
+                            // ? `4px solid ${colors.timelineLineActive}`
                             : `2px solid ${colors.inactiveBorderColor}`,
                           backgroundColor: colors.backgroundPrimary,
                           margin: "auto",
@@ -287,7 +289,7 @@ export default function PresidencyTimeline() {
                       <Box
                         sx={{
                           border: isSelected
-                            ? `4px solid ${colors.timelineLineActive}`
+                            ? `4px solid ${selectedPresident.themeColorLight}`
                             : `2px solid ${colors.inactiveBorderColor}`,
                           borderRadius: "50%",
                         }}
@@ -380,7 +382,8 @@ export default function PresidencyTimeline() {
                               height: 15,
                               borderRadius: "50%",
                               backgroundColor: isDateSelected
-                                ? colors.dotColorActive
+                                ? selectedPresident.themeColorLight
+                                // ? colors.dotColorActive
                                 : colors.dotColorInactive,
                               border: `3px solid ${colors.backgroundPrimary}`,
                             }}
@@ -390,7 +393,8 @@ export default function PresidencyTimeline() {
                             sx={{
                               mt: 0.5,
                               color: isDateSelected
-                                ? colors.dotColorActive
+                                ? selectedPresident.themeColorLight
+                                // ? colors.dotColorActive
                                 : colors.dotColorInactive,
                               fontSize: "0.75rem",
                               fontWeight: isDateSelected ? "bold" : "",

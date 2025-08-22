@@ -3,10 +3,10 @@
 // mount this to the ./public in deployement configurations
 
 //example
-window.configs = {
-    apiUrl : null ,
-    version : "rc-0.1.0"
-};
+// window.configs = {
+//     apiUrl : null ,
+//     version : "rc-0.1.0"
+// };
 
 // get the data to the relevant component using ->
 // example

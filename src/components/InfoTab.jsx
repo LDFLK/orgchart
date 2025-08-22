@@ -14,6 +14,7 @@ const InfoTab = ({
   onClose,
   onBack,
   onDepartmentClick,
+  selectedPresident
 }) => {
   const { colors } = useThemeContext();
 
@@ -47,7 +48,12 @@ const InfoTab = ({
           }}
         >
           {drawerMode === "department" ? (
-            <Button onClick={onBack}>← Back</Button>
+            <Button onClick={onBack}
+            // color={selectedPresident.themeColorLight}
+            sx={{
+              color:`${selectedPresident.themeColorLight}`
+            }}
+            >← Back</Button>
           ) : (
             <Box width={75} /> // spacer
           )}

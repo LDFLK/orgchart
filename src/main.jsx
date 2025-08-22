@@ -6,6 +6,8 @@ import store from "./store/store";
 
 import { ThemeProvider as CustomThemeProvider } from "./themeContext.jsx";
 import { ThemeProvider as MUIThemeProvider, createTheme } from "@mui/material/styles";
+import { Badge } from "lucide-react";
+import { BadgeProvider } from "./badgeContext.jsx";
 
 const theme = createTheme({
   palette: {
@@ -27,7 +29,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <Provider store={store}>
       <CustomThemeProvider>
         <MUIThemeProvider theme={theme}>
-          <App />
+          <BadgeProvider>
+            <App />
+          </BadgeProvider>
         </MUIThemeProvider>
       </CustomThemeProvider>
     </Provider>
