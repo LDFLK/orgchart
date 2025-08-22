@@ -21,17 +21,20 @@ import { useThemeContext } from "../themeContext";
 const MinistryDrawerContent = ({
   selectedCard,
   selectedDate,
-  onDepartmentClick
+  onDepartmentClick,
 }) => {
-
   const { colors } = useThemeContext();
 
   const allPersonList = useSelector((state) => state.allPerson.allPerson);
-  const allDepartmentList = useSelector((state) => state.allDepartmentData.allDepartmentData);
+  const allDepartmentList = useSelector(
+    (state) => state.allDepartmentData.allDepartmentData
+  );
   const { selectedPresident } = useSelector((state) => state.presidency);
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
   const [personListForMinistry, setPersonListForMinistry] = useState([]);
-  const [departmentListForMinistry, setDepartmentListForMinistry] = useState([]);
+  const [departmentListForMinistry, setDepartmentListForMinistry] = useState(
+    []
+  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -93,7 +96,11 @@ const MinistryDrawerContent = ({
       {/* Date */}
       <Typography
         variant="h6"
-        sx={{ color: colors.textSecondary, fontFamily: "poppins" }}
+        sx={{
+          // color: colors.textSecondary,
+          color: `${selectedPresident.themeColorLight}90`,
+          fontFamily: "poppins",
+        }}
       >
         Gazette Date
       </Typography>
@@ -101,7 +108,8 @@ const MinistryDrawerContent = ({
         <Typography
           variant="h5"
           sx={{
-            color: colors.secondary,
+            // color: colors.secondary,
+            color: selectedPresident.themeColorLight,
             fontFamily: "poppins",
             fontWeight: "bold",
           }}
@@ -114,7 +122,11 @@ const MinistryDrawerContent = ({
       <Box display="flex" alignItems="center" my={1}>
         <ApartmentIcon
           color={colors.textPrimary}
-          sx={{ mr: 1, color: colors.backgroundSecondary }}
+          sx={{
+            mr: 1,
+            // color: colors.backgroundSecondary,
+            color: selectedPresident.themeColorLight,
+          }}
         />
         <Typography
           variant="h5"
@@ -140,7 +152,8 @@ const MinistryDrawerContent = ({
           }}
         >
           <ClipLoader
-            color={colors.timelineLineActive}
+            // color={colors.timelineLineActive}
+            color={selectedPresident.themeColorLight}
             loading={loading}
             size={25}
             aria-label="Loading Spinner"
@@ -157,14 +170,13 @@ const MinistryDrawerContent = ({
               fontSize: "1.25rem",
               color: colors.textPrimary,
               fontFamily: "poppins",
-              fontWeight: 600
+              fontWeight: 600,
             }}
           >
             Minister
           </Typography>
 
           <Divider sx={{ py: 1 }} />
-
 
           <Stack spacing={1} sx={{ mb: 2 }}>
             {personListForMinistry && personListForMinistry.length > 0 ? (
@@ -198,9 +210,15 @@ const MinistryDrawerContent = ({
                   >
                     <PersonIcon
                       fontSize="small"
-                      sx={{ mr: 1, color: colors.backgroundSecondary }}
+                      sx={{
+                        mr: 1,
+                        // color: colors.backgroundSecondary,
+                        color: selectedPresident.themeColorLight,
+                      }}
                     />
-                    <Typography sx={{ fontFamily: "poppins", color: colors.textPrimary }}>
+                    <Typography
+                      sx={{ fontFamily: "poppins", color: colors.textPrimary }}
+                    >
                       {depName}
                     </Typography>
 
@@ -208,13 +226,15 @@ const MinistryDrawerContent = ({
                       <Typography
                         variant="subtitle2"
                         sx={{
-                          color: colors.textSecondary,
+                          // color: colors.textSecondary,
+                          color: colors.white,
                           fontFamily: "poppins",
                           py: "5px",
                           px: "8px",
-                          backgroundColor: `${colors.green}50`,
+                          // backgroundColor: `${colors.green}50`,
+                          backgroundColor: `${selectedPresident.themeColorLight}`,
                           borderRadius: "5px",
-                          mx: "5px"
+                          mx: "5px",
                         }}
                       >
                         President
@@ -244,21 +264,29 @@ const MinistryDrawerContent = ({
               >
                 <PersonIcon
                   fontSize="small"
-                  sx={{ mr: 1, color: colors.backgroundSecondary }}
+                  sx={{
+                    mr: 1,
+                    // color: colors.backgroundSecondary,
+                    color: selectedPresident.themeColorLight,
+                  }}
                 />
-                <Typography sx={{ fontFamily: "poppins", color: colors.textPrimary }}>
+                <Typography
+                  sx={{ fontFamily: "poppins", color: colors.textPrimary }}
+                >
                   {utils.extractNameFromProtobuf(selectedPresident.name)}
                 </Typography>
                 <Typography
                   variant="subtitle2"
                   sx={{
-                    color: colors.textSecondary,
+                    // color: colors.textSecondary,
+                    color: colors.white,
                     fontFamily: "poppins",
                     py: "5px",
                     px: "8px",
-                    backgroundColor: `${colors.green}50`,
+                    // backgroundColor: `${colors.green}50`,
+                    backgroundColor: `${selectedPresident.themeColorLight}`,
                     borderRadius: "5px",
-                    mx: "5px"
+                    mx: "5px",
                   }}
                 >
                   President
@@ -284,7 +312,7 @@ const MinistryDrawerContent = ({
           <Divider sx={{ py: 1 }} />
           <Stack spacing={1}>
             {departmentListForMinistry &&
-              departmentListForMinistry.length > 0 ? (
+            departmentListForMinistry.length > 0 ? (
               departmentListForMinistry?.map((dep, idx) => (
                 <Button
                   key={idx}
@@ -309,25 +337,36 @@ const MinistryDrawerContent = ({
                 >
                   <AccountBalanceIcon
                     fontSize="small"
-                    sx={{ mr: 2, color: colors.backgroundSecondary }}
+                    sx={{
+                      mr: 2,
+                      // color: colors.backgroundSecondary,
+                      color: selectedPresident.themeColorLight,
+                    }}
                   />
-                  <Typography sx={{ fontFamily: "poppins", color: colors.textPrimary }}>
+                  <Typography
+                    sx={{ fontFamily: "poppins", color: colors.textPrimary }}
+                  >
                     {utils.extractNameFromProtobuf(dep.name)}
                   </Typography>
                 </Button>
               ))
             ) : (
-              <Box>
-                <Alert
-                  severity="info"
-                  sx={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "left",
-                  }}
-                >
-                  <AlertTitle>Info</AlertTitle>
-                  No departments created for the ministry
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
+                  <AlertTitle
+                    sx={{
+                      fontFamily: "poppins",
+                      color: colors.textPrimary,
+                    }}
+                  >
+                    Info: No departments created for the ministry.
+                  </AlertTitle>
                 </Alert>
               </Box>
             )}

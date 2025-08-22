@@ -6,6 +6,7 @@ import './animations.css';
 import './components/TidyTree.variables.css';
 import './components/TidyTree.css';
 import { useThemeContext } from "./themeContext";
+import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
 
 const App = () => {
 
@@ -16,7 +17,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/orgchart" element={<Navbar/>} />
+        <Route path="/orgchart" element={<DataLoadingAnimatedComponent/>} />
         <Route path="*" element={<Error404 />} />
       </Routes>
     </Router>

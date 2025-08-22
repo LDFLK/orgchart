@@ -10,6 +10,7 @@ import { ClipLoader } from "react-spinners";
 const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
     //const dictionary = useSelector((state) => state.allDepartmentData.departmentHistory);
+    const {selectedPresident } = useSelector((state)=>state.presidency);
     const allMinistryData = useSelector((state) => state.allMinistryData.allMinistryData);
     const [enrichedMinistries, setEnrichedMinistries] = useState([]);
     const allPersonList = useSelector((state) => state.allPerson.allPerson);
@@ -80,7 +81,6 @@ useEffect(() => {
 }, [selectedDepartment]);
 
 
-
     return (
         <>
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', mb: 3, color: colors.textPrimary, fontFamily: "poppins" }}>
@@ -95,7 +95,9 @@ useEffect(() => {
                             <TimelineItem
                                 key={idx}
                                 sx={{
-                                    '&:hover': { backgroundColor: colors.backgroundPrimary, borderRadius: 2 },
+                                    '&:hover': { 
+                                        // backgroundColor: colors.backgroundPrimary, 
+                                        borderRadius: 2 },
                                     cursor: 'pointer',
                                     transition: 'background-color 0.3s ease',
                                     py: 0.5,
@@ -104,7 +106,8 @@ useEffect(() => {
                                 <TimelineOppositeContent
                                     sx={{
                                         m: 'auto 0',
-                                        color: colors.secondary,
+                                        // color: colors.secondary,
+                                        color: selectedPresident.themeColorLight,
                                         fontWeight: '600',
                                         fontSize: 12,
                                         minWidth: 70,
@@ -115,7 +118,7 @@ useEffect(() => {
                                     variant="body2"
                                 >
                                     {entry.startTime
-                                        ? `${new Date(entry.startTime).toISOString().slice(0, 10)} — ${entry.endTime
+                                        ? `${new Date(entry.startTime).toISOString().slice(0, 10)} - ${entry.endTime
                                             ? new Date(entry.endTime).toISOString().slice(0, 10)
                                             : 'Present'}`
                                         : 'Unknown'}
@@ -132,14 +135,19 @@ useEffect(() => {
                                         sx={{
                                             width: 2,
                                             height: 2,
-                                            boxShadow: `0 0 6px rgba(25, 118, 210, 0.7)`,
+                                            // boxShadow: `0 0 6px rgba(25, 118, 210, 0.7)`,
+                                            boxShadow: `0 0 6px ${selectedPresident.themeColorLight}`,
                                             animation: 'pulse 2.5s infinite',
-                                            backgroundColor: colors.backgroundSecondary,
+                                            // backgroundColor: colors.backgroundSecondary,
+                                            backgroundColor: selectedPresident.themeColorLight,
                                             // background: `linear-gradient(45deg,${colors.dotColorActive}, #21cbf3)`,
                                         }}
                                     />
-                                    {idx < arr.length - 1 && (
-                                        <TimelineConnector sx={{ bgcolor: colors.timelineLineActive, height: 2 }} />
+                                    {idx < arr.length && (
+                                        <TimelineConnector sx={{ 
+                                            // bgcolor: colors.timelineLineActive, 
+                                            bgcolor: selectedPresident.themeColorLight, 
+                                            height: 2 }} />
                                     )}
                                 </TimelineSeparator>
 
@@ -151,7 +159,8 @@ useEffect(() => {
                                             borderRadius: 2,
                                             backgroundColor: selectedIndex === idx ? colors.backgroundTertiary : 'background.paper',
                                             boxShadow: selectedIndex === idx
-                                                ? '0 0 10px rgba(25, 118, 210, 0.4)'
+                                                // ? '0 0 10px rgba(25, 118, 210, 0.4)'
+                                                ? `0 0 10px ${selectedPresident.themeColorLight}`
                                                 : '0 1px 5px rgba(0,0,0,0.1)',
                                             transform: selectedIndex === idx ? 'scale(1.02)' : 'scale(1)',
                                             transition: 'all 0.2s ease-in-out',
@@ -166,7 +175,10 @@ useEffect(() => {
                                                 gap: 8,
                                             }}
                                         >
-                                            <Avatar sx={{ bgcolor: colors.backgroundSecondary, width: 30, height: 30, fontSize: 14 }}>
+                                            <Avatar sx={{ 
+                                                // bgcolor: colors.backgroundSecondary, 
+                                                bgcolor: selectedPresident.themeColorLight, 
+                                                width: 30, height: 30, fontSize: 14 }}>
                                                 {entry.minister ? entry.minister.charAt(0).toUpperCase() : '?'}
                                             </Avatar>
                                             <div style={{ flexGrow: 1 }}>
@@ -202,7 +214,8 @@ useEffect(() => {
                 }}
             >
                 <ClipLoader
-                    color={colors.timelineLineActive}
+                    // color={colors.timelineLineActive}
+                    color={selectedPresident.themeColorLight}
                     loading={loading}
                     size={25}
                     aria-label="Loading Spinner"
@@ -213,7 +226,7 @@ useEffect(() => {
 
 
             <style>
-                {`
+                {/* {`
           @keyframes pulse {
             0% {
               box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7);
@@ -225,7 +238,7 @@ useEffect(() => {
               box-shadow: 0 0 0 0 rgba(33, 150, 243, 0);
             }
           }
-        `}
+        `} */}
             </style>
         </>
     );

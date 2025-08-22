@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Box, Button, Stack, Typography, IconButton, Drawer } from "@mui/material";
+import {
+  Box,
+  Button,
+  Stack,
+  Typography,
+  IconButton,
+  Drawer,
+} from "@mui/material";
 import ModernView from "./modernView";
 import OrgChart from "./orgchart";
 import api from "./../services/services";
@@ -18,24 +25,20 @@ import {
   setSelectedIndex,
   setSelectedDate,
 } from "../store/presidencySlice";
-// import Brightness4Icon from "@mui/icons-material/Brightness4";
-// import Brightness7Icon from "@mui/icons-material/Brightness7";
 import CloseIcon from "@mui/icons-material/Close";
-import SettingsIcon from '@mui/icons-material/Settings';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
+import SettingsIcon from "@mui/icons-material/Settings";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 import { Switch, FormControlLabel } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { useThemeContext } from "../themeContext";
 import { ClipLoader } from "react-spinners";
-import { useBadgeContext } from "../badgeContext.jsx"
+import { useBadgeContext } from "../badgeContext.jsx";
 import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
-
 function Navbar() {
   const [view, setView] = useState("modern");
-  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const [showServerError, setShowServerError] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -46,108 +49,7 @@ function Navbar() {
     setShowPersonBadge,
   } = useBadgeContext();
 
-  //handle modern/classic view
-  const handleViewChange = (type) => {
-    dispatch(setSelectedPresident(null));
-    dispatch(setSelectedIndex(null));
-    dispatch(setSelectedDate(null));
-    setView(type);
-  };
-
   const { isDark, toggleTheme, colors } = useThemeContext();
-
-  useEffect(() => {
-    const initialFetchData = async () => {
-      setLoading(true);
-      try {
-        await fetchPersonData();
-        await fetchAllMinistryData();
-        await fetchAllDepartmentData();
-
-        setLoading(false);
-      } catch (e) {
-        console.error("Error loading initial data:", e.message);
-      }
-    };
-
-    initialFetchData();
-  }, []);
-
-  const fetchPersonData = async () => {
-    try {
-      console.log('fetching person data');
-      const personResponse = await api.fetchAllPersons();
-      const personList = await personResponse.json();
-      dispatch(setAllPerson(personList.body));
-
-      //this is for president data
-      const presidentResponse = await api.fetchPresidentsData();
-      console.log(presidentResponse)
-      dispatch(setPresidentRelationList(presidentResponse));
-
-      const presidentSet = new Set(
-        presidentResponse.map((p) => p.relatedEntityId)
-      );
-
-      const presidentListInDetail = personList.body.filter((person) =>
-        presidentSet.has(person.id)
-      );
-
-      const enrichedPresidents = presidentListInDetail.map((president) => {
-        const matchedDetail = presidentDetails.find((detail) =>
-          detail.presidentName
-            .toLowerCase()
-            .includes(
-              utils
-                .extractNameFromProtobuf(president.name)
-                .split(":")[0]
-                .toLowerCase()
-            )
-        );
-
-        console.log(matchedDetail)
-
-        return {
-          ...president,
-          imageUrl: matchedDetail?.imageUrl || null, // fallback if no match
-        };
-      });
-
-      dispatch(setPresidentList(enrichedPresidents));
-      dispatch(
-        setSelectedPresident(enrichedPresidents[enrichedPresidents.length - 1])
-      );
-    } catch (e) {
-      setShowServerError(true);
-      console.log(`Error fetching person data : ${e.message}`);
-    }
-  };
-
-  const fetchAllDepartmentData = async () => {
-    try {
-      const response = await api.fetchAllDepartments();
-      const departmentList = await response.json();
-      dispatch(setAllDepartmentData(departmentList.body));
-    } catch (e) {
-      setShowServerError(true);
-      console.log(`Error fetching department data : ${e.message}`);
-    }
-  };
-
-  const fetchAllMinistryData = async () => {
-    try {
-      const response = await api.fetchAllMinistries();
-      const ministryList = await response.json();
-      dispatch(setAllMinistryData(ministryList.body));
-      // const dictionary = await api.createDepartmentHistoryDictionary(
-      //   ministryList.body
-      // );
-      // dispatch(setDepartmentHistory(dictionary));
-    } catch (e) {
-      setShowServerError(true);
-      console.log(`Error fetching ministry data : ${e.message}`);
-    }
-  };
 
   return (
     <Box
@@ -276,7 +178,11 @@ function Navbar() {
         }}
       >
         <Stack spacing={2}>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography fontWeight={600} fontSize={18}>
               Settings
             </Typography>
@@ -309,16 +215,15 @@ function Navbar() {
                   />
                 }
                 sx={{
-
-                  '& .MuiSwitch-switchBase': {
+                  "& .MuiSwitch-switchBase": {
                     padding: 1,
                   },
-                  '& .MuiSwitch-thumb': {
-                    backgroundColor: 'transparent',
+                  "& .MuiSwitch-thumb": {
+                    backgroundColor: "transparent",
                     width: 24,
                     height: 24,
                   },
-                  '& .MuiSwitch-track': {
+                  "& .MuiSwitch-track": {
                     backgroundColor: isDark
                       ? `${colors.primary}99`
                       : `${colors.textMuted}55`,
@@ -333,7 +238,7 @@ function Navbar() {
               color: colors.textPrimary,
               justifyContent: "space-between",
               mx: 0,
-              '& .MuiFormControlLabel-label': {
+              "& .MuiFormControlLabel-label": {
                 fontWeight: 500,
                 fontFamily: "poppins",
               },
@@ -343,7 +248,7 @@ function Navbar() {
             disableGutters
             sx={{
               backgroundColor: "transparent",
-              border: 'none',
+              border: "none",
               borderRadius: "12px",
               boxShadow: "none",
               "&:before": { display: "none" },
@@ -359,9 +264,9 @@ function Navbar() {
                 fontFamily: "poppins",
                 fontSize: 16,
                 p: 0,
-                minHeight: '36px',
-                display: 'flex',
-                alignItems: 'center',
+                minHeight: "36px",
+                display: "flex",
+                alignItems: "center",
                 "& .MuiAccordionSummary-content": {
                   margin: 0,
                 },
@@ -382,10 +287,10 @@ function Navbar() {
                       checked={showMinistryBadge}
                       onChange={() => setShowMinistryBadge((prev) => !prev)}
                       sx={{
-                        '& .MuiSwitch-thumb': {
+                        "& .MuiSwitch-thumb": {
                           background: colors.green,
                         },
-                        '& .MuiSwitch-track': {
+                        "& .MuiSwitch-track": {
                           background: showMinistryBadge
                             ? `${colors.green}`
                             : `${colors.green}99`,
@@ -393,17 +298,13 @@ function Navbar() {
                       }}
                     />
                   }
-                  label={
-                    showMinistryBadge
-                      ? "Ministry"
-                      : "Ministry"
-                  }
+                  label={showMinistryBadge ? "Ministry" : "Ministry"}
                   labelPlacement="start"
                   sx={{
                     color: colors.textPrimary,
                     justifyContent: "space-between",
                     mx: 0,
-                    '& .MuiFormControlLabel-label': {
+                    "& .MuiFormControlLabel-label": {
                       fontWeight: 500,
                       fontFamily: "poppins",
                     },
@@ -417,10 +318,10 @@ function Navbar() {
                       checked={showPersonBadge}
                       onChange={() => setShowPersonBadge((prev) => !prev)}
                       sx={{
-                        '& .MuiSwitch-thumb': {
+                        "& .MuiSwitch-thumb": {
                           background: colors.purple,
                         },
-                        '& .MuiSwitch-track': {
+                        "& .MuiSwitch-track": {
                           background: showPersonBadge
                             ? colors.purple
                             : `${colors.purple}99`,
@@ -428,17 +329,13 @@ function Navbar() {
                       }}
                     />
                   }
-                  label={
-                    showPersonBadge
-                      ? "Minister"
-                      : "Minister"
-                  }
+                  label={showPersonBadge ? "Minister" : "Minister"}
                   labelPlacement="start"
                   sx={{
                     color: colors.textPrimary,
                     justifyContent: "space-between",
                     mx: 0,
-                    '& .MuiFormControlLabel-label': {
+                    "& .MuiFormControlLabel-label": {
                       fontWeight: 500,
                       fontFamily: "poppins",
                     },
@@ -447,52 +344,10 @@ function Navbar() {
               </Stack>
             </AccordionDetails>
           </Accordion>
-
         </Stack>
       </Drawer>
 
-
-      {loading ? (
-        <Box
-          sx={{
-            paddingTop: "2vh",
-            width: "100%",
-            height: "100vh",
-            backgroundColor: colors.backgroundPrimary,
-            display: "flex",
-            justifyContent: "center",
-            justifyItems: "center",
-          }}
-        >
-          <ClipLoader
-            color={colors.timelineLineActive}
-            loading={loading}
-            size={50}
-            aria-label="Loading Spinner"
-            data-testid="loader"
-          />
-        </Box>
-      ) : showServerError ? (
-        <>
-          <Box sx={{
-            width: "100%",
-            height: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}>
-            <Typography color={colors.textPrimary} sx={{
-              fontFamily: "poppins",
-              fontSize: 24,
-            }}>Oops.. Something Went Wrong... Refresh Please</Typography>
-          </Box>
-
-        </>
-      ) : (
-        <>
-              <ModernView />
-        </>
-      )}
+      <ModernView />
     </Box>
   );
 }

@@ -4,27 +4,33 @@ import utils from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useThemeContext } from "../themeContext";
 import { useBadgeContext } from "../badgeContext";
+import { useState } from "react";
 
 const MinistryCard = ({ card, onClick }) => {
   const { selectedPresident } = useSelector((state) => state.presidency);
   const { colors } = useThemeContext();
- const { showMinistryBadge, showPersonBadge } = useBadgeContext();
-
+  const { showMinistryBadge, showPersonBadge } = useBadgeContext();
+  const [mouseHover, setMouseHover] = useState(false);
 
   return (
     <Card
       sx={{
         cursor: "pointer",
         boxShadow: "none",
-        border: `2px solid ${colors.backgroundSecondary}50`,
+        // border: `2px solid ${colors.backgroundSecondary}50`,
+        border: `2px solid ${selectedPresident.themeColorLight}99`,
         transition: "box-shadow 0.2s",
         "&:hover": {
-          border: `2px solid ${colors.ministryCardBorderHover}`,
+          // border: `2px solid ${colors.ministryCardBorderHover}`,
+          border: `2px solid ${selectedPresident.themeColorLight}`,
         },
         backgroundColor: colors.backgroundPrimary,
         borderRadius: "10px",
         position: "relative",
+        width: '100%'
       }}
+      onMouseOver={() => setMouseHover(card)}
+      onMouseOut={() => setMouseHover(null)}
       onClick={() => onClick(card)}
     >
 
@@ -35,7 +41,14 @@ const MinistryCard = ({ card, onClick }) => {
           alignItems="center"
           spacing={1}
           minHeight={50}
-          sx={{ px: 2, py: 1, backgroundColor: colors.backgroundSecondary }}
+          sx={{ px: 2, py: 1,
+             backgroundColor: mouseHover && mouseHover.id == card.id ? `${selectedPresident.themeColorLight}` : `${selectedPresident.themeColorLight}99`,
+             "&:hover": {
+              backgroundColor: selectedPresident.themeColorLight
+             }
+            //  backgroundColor: colors.backgroundSecondary
+
+           }}
         >
           <Typography variant="h7" sx={{ color: "#ffffff", fontWeight: 600 }}>
             {card.name.split(":")[0]}
@@ -43,7 +56,8 @@ const MinistryCard = ({ card, onClick }) => {
            {(card.newMin && showMinistryBadge)&& (
             <Box
               sx={{
-                backgroundColor: colors.green,
+                backgroundColor: selectedPresident.themeColorLight,
+                // backgroundColor: colors.green,
                 color: "#fff",
                 fontSize: "0.7rem",
                 fontWeight: "bold",
@@ -62,7 +76,10 @@ const MinistryCard = ({ card, onClick }) => {
         <Stack spacing={0.5} sx={{ p: 1, minHeight: 60 }}>
           <Stack direction="row" spacing={1}>
             <PersonIcon
-              sx={{ color: colors.backgroundSecondary, alignSelf: "center" }}
+              sx={{ 
+                color: selectedPresident.themeColorLight, 
+                // color: colors.backgroundSecondary, 
+                alignSelf: "center" }}
               fontSize="small"
             />
             <Stack direction="column" spacing={0}>
@@ -77,7 +94,8 @@ const MinistryCard = ({ card, onClick }) => {
                   <Typography
                     variant="subtitle2"
                     sx={{
-                      color: colors.textSecondary,
+                      // color: colors.textSecondary,
+                      color: selectedPresident.themeColorLight,
                       fontFamily: "poppins",
                       py: "5px",
                       pr: "8px",
@@ -88,11 +106,13 @@ const MinistryCard = ({ card, onClick }) => {
                   <Typography
                     variant="subtitle2"
                     sx={{
-                      color: colors.textSecondary,
+                      // color: colors.textSecondary,
+                      color: colors.white,
                       fontFamily: "poppins",
                       py: "5px",
                       px: "8px",
-                      backgroundColor: `${colors.green}50`,
+                      // backgroundColor: `${colors.green}50`,
+                      backgroundColor: `${selectedPresident.themeColorLight}`,
                       borderRadius: "5px",
                     }}
                   >
@@ -104,6 +124,7 @@ const MinistryCard = ({ card, onClick }) => {
                   variant="subtitle2"
                   sx={{
                     color: colors.textSecondary,
+                    color: selectedPresident.themeColorLight,
                     fontFamily: "poppins",
                     py: "5px",
                     pr: "10px",
@@ -134,8 +155,11 @@ const MinistryCard = ({ card, onClick }) => {
                  {(card.newPerson && showPersonBadge)&& (
                   <Box
                     sx={{
-                      backgroundColor: colors.purple,
-                      color: "#fff",
+                      // backgroundColor: colors.purple,
+                      // backgroundColor: selectedPresident.themeColorLight,
+                      border: `2px solid ${selectedPresident.themeColorLight}`,
+                      // color: "#fff",
+                      color: `${selectedPresident.themeColorLight}`,
                       fontSize: "0.65rem",
                       fontWeight: "bold",
                       borderRadius: "4px",

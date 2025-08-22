@@ -186,7 +186,8 @@ const ModernView = () => {
                 lg: "25%",
               },
               marginRight: 1,
-              border: `2px solid ${colors.purple}50`,
+              border: `2px solid ${selectedPresident.themeColorLight}`,
+              // border: `2px solid ${colors.purple}50`,
               borderRadius: "15px",
               backgroundColor: colors.backgroundPrimary,
               boxShadow: "none",
@@ -196,7 +197,8 @@ const ModernView = () => {
               sx={{
                 width: "175px",
                 height: "35px",
-                backgroundColor: `${colors.purple}`,
+                backgroundColor: `${selectedPresident.themeColorLight}`,
+                // backgroundColor: `${colors.purple}`,
                 borderBottomRightRadius: "15px",
               }}
             >
@@ -236,7 +238,8 @@ const ModernView = () => {
                         sx={{
                           width: 75,
                           height: 75,
-                          border: `3px solid ${colors.backgroundSecondary}`,
+                          // border: `3px solid ${colors.backgroundSecondary}`,
+                          border: `3px solid ${selectedPresident.themeColorLight}`,
                           backgroundColor: colors.backgroundPrimary,
                           margin: "auto",
                         }}
@@ -398,6 +401,7 @@ const ModernView = () => {
         onBack={() => setDrawerMode("ministry")}
         onDepartmentClick={handleDepartmentClick}
         ministryId={selectedMinistry}
+        selectedPresident={selectedPresident}
       />
     </Box>
   );
