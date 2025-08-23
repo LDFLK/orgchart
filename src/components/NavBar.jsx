@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -8,39 +8,17 @@ import {
   Drawer,
 } from "@mui/material";
 import ModernView from "./modernView";
-import OrgChart from "./orgchart";
-import api from "./../services/services";
-import utils from "./../utils/utils";
-import { setAllMinistryData } from "../store/allMinistryData";
-import {
-  setAllDepartmentData,
-  setDepartmentHistory,
-} from "../store/allDepartmentData";
-import presidentDetails from "./../assets/personImages.json";
-import { setAllPerson } from "../store/allPersonList";
-import {
-  setPresidentRelationList,
-  setPresidentList,
-  setSelectedPresident,
-  setSelectedIndex,
-  setSelectedDate,
-} from "../store/presidencySlice";
 import CloseIcon from "@mui/icons-material/Close";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import { Switch, FormControlLabel } from "@mui/material";
-import { useDispatch } from "react-redux";
 import { useThemeContext } from "../themeContext";
-import { ClipLoader } from "react-spinners";
 import { useBadgeContext } from "../badgeContext.jsx";
 import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 function Navbar() {
-  const [view, setView] = useState("modern");
-  const dispatch = useDispatch();
-  const [showServerError, setShowServerError] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const {
     showMinistryBadge,
@@ -69,15 +47,9 @@ function Navbar() {
           direction="row"
           spacing={2}
           sx={{
-            //border: `2px solid ${colors.textPrimary}25`,
             px: 5,
             py: 2,
-            // borderRadius: "50px",
-            // backgroundColor: `${colors.backgroundPrimary}99`,
             border: "none",
-            // justifyItems: "center",
-            // backdropFilter: "blur(10px)",
-            // WebkitBackdropFilter: "blur(10px)",
             justifyContent: "center",
             alignItems: "center",
             position: "absolute",
@@ -89,54 +61,6 @@ function Navbar() {
             zIndex: 1000,
           }}
         >
-          {/* <Typography
-            fontSize={25}
-            fontWeight={"bold"}
-            sx={{ color: colors.textPrimary, flex: 1, textAlign: "left" }}
-          >
-            ORGCHART 2.0
-          </Typography> */}
-          {/* <Box>
-            {["modern", "classic"].map((type) => (
-              <Button
-                key={type}
-                variant={view === type ? "contained" : "outlined"}
-                onClick={() => handleViewChange(type)}
-                sx={{
-                  fontFamily: "poppins",
-                  color: view === type ? "#fff" : colors.primary,
-                  backgroundColor:
-                    view === type ? colors.primary : "transparent",
-                  borderColor: colors.primary,
-                  textTransform: "none",
-                  fontWeight: 600,
-                  borderRadius: "50px",
-                  px: 3,
-                  py: 1,
-                  m: 0.5,
-                  "&:hover": {
-                    backgroundColor:
-                      view === type ? colors.primary : `${colors.primary}22`, // light hover tint
-                    borderColor: colors.primary,
-                  },
-                }}
-              >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </Button>
-            ))}
-          </Box> */}
-          {/* <Box sx={{ color: colors.textPrimary, flex: 1, textAlign: "right" }}>
-            <IconButton
-              sx={{ ml: 1 }}
-              onClick={() => {
-                toggleTheme();
-              }}
-              color="inherit"
-            >
-              {isDark ? <LightModeIcon /> : <DarkModeIcon />}
-            </IconButton>
-          </Box> */}
-
           {/* open settings drawer */}
           <Box sx={{ textAlign: "right", color: colors.textPrimary, flex: 1 }}>
             <Button
@@ -156,6 +80,7 @@ function Navbar() {
                   backgroundColor: `${colors.primary}22`,
                 },
               }}
+              
             >
               Settings
             </Button>

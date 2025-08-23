@@ -15,25 +15,23 @@ import api from "./../services/services";
 import { ClipLoader } from "react-spinners";
 import { setSelectedMinistry } from "../store/allMinistryData";
 import { useThemeContext } from "../themeContext";
-import InputAdornment from '@mui/material/InputAdornment';
-import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from "@mui/material/InputAdornment";
+import SearchIcon from "@mui/icons-material/Search";
 
 const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
-  const { selectedDate, selectedPresident } = useSelector(
-    (state) => state.presidency
-  );
+  const { selectedDate, selectedPresident } = useSelector((state) => state.presidency);
+  const allPersonList = useSelector((state) => state.allPerson.allPerson);
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
-  const allPersonList = useSelector((state) => state.allPerson.allPerson);
   const { colors } = useThemeContext();
 
   useEffect(() => {
-    fetchMinistryList();
-  }, [selectedDate, allMinistryData]);
+    fetchActiveMinistryList();
+  }, [selectedDate, allMinistryData, selectedPresident]);
 
   useEffect(() => {
     const searchedMinistry = searchByText(searchText);
@@ -64,7 +62,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
     setSearchText(event.target.value);
   };
 
-  const fetchMinistryList = async () => {
+  const fetchActiveMinistryList = async () => {
     if (!selectedDate || !allMinistryData || allMinistryData.length === 0)
       return;
 
@@ -75,7 +73,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
         allMinistryData,
         selectedPresident
       );
-      console.log("activeMinistry with start time ", activeMinistry);
 
       const enrichedMinistries = await Promise.all(
         activeMinistry.children.map(async (ministry) => {
@@ -119,8 +116,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
       setActiveMinistryList(enrichedMinistries);
       setFilteredMinistryList(enrichedMinistries);
       setLoading(false);
-      console.log('these are the ministries')
-      console.log(enrichedMinistries)
     } catch (e) {
       console.log("error fetch ministry list : ", e.message);
       setLoading(false);
@@ -176,34 +171,35 @@ const MinistryCardGrid = ({ onCardClick }) => {
               input: {
                 endAdornment: (
                   <InputAdornment position="end">
-                    <SearchIcon />
+                    <SearchIcon sx={{
+                      color: colors.textMuted
+                    }} />
                   </InputAdornment>
                 ),
               },
             }}
             sx={{
               marginBottom: "20px",
-              border: `1px solid ${colors.gray}`, // Apply custom border color
               backgroundColor: colors.backgroundColor, // Apply custom background color
               "& .MuiInputLabel-root": {
-                color: colors.inactiveBorderColor, // Label color
+                color: colors.textMuted, // Label color
               },
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
-                  borderColor: colors.inactiveBorderColor, // Border color when not focused
+                  borderColor: colors.textMuted, // Border color when not focused
                 },
                 "&:hover fieldset": {
-                  borderColor: colors.inactiveBorderColor, // Border color when hovered
+                  borderColor: colors.textMuted, // Border color when hovered
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: colors.inactiveBorderColor, // Border color when focused
+                  borderColor: colors.textMuted, // Border color when focused
                 },
               },
               "& .MuiInputLabel-root.Mui-focused": {
-                color: colors.inactiveBorderColor, // Focused state label color
+                color: colors.textMuted, // Focused state label color
               },
               "& .MuiInputBase-input": {
-                color: colors.inactiveBorderColor, // Input text color
+                color: colors.textMuted, // Input text color
               },
             }}
           />
@@ -264,6 +260,27 @@ const MinistryCardGrid = ({ onCardClick }) => {
                   />
                 </Grid>
               ))
+            ) : activeMinistryList && activeMinistryList.length == 0  ? (
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: "15px",
+                }}
+              >
+                <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
+                  <AlertTitle
+                    sx={{
+                      fontFamily: "poppins",
+                      color: colors.textPrimary,
+                    }}
+                  >
+                    No ministries in the goverment. Sometimes this can be
+                    the president appointed date.
+                  </AlertTitle>
+                </Alert>
+              </Box>
             ) : (
               <Box
                 sx={{
@@ -280,8 +297,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
                       color: colors.textPrimary,
                     }}
                   >
-                    Info: No ministries in the goverment. Sometimes this can be
-                    the president appointed date.
+                    No Search Result
                   </AlertTitle>
                 </Alert>
               </Box>

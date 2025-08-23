@@ -123,7 +123,7 @@ const MinistryCard = ({ card, onClick }) => {
                 <Typography
                   variant="subtitle2"
                   sx={{
-                    color: colors.textSecondary,
+                    // color: colors.textSecondary,
                     color: selectedPresident.themeColorLight,
                     fontFamily: "poppins",
                     py: "5px",

@@ -134,6 +134,13 @@ const MinistryDrawerContent = ({
             fontWeight: "bold",
             color: colors.textPrimary,
             fontFamily: "poppins",
+            fontSize: {
+              xs: "1.2rem", // extra-small screens
+              sm: "1.2rem", // small screens
+              md: "1.3rem", // medium screens
+              lg: "1.3rem", // large screens
+              xl: "1.5rem", // extra-large screens
+            },
           }}
         >
           {selectedCard.name.split(":")[0]}
@@ -198,26 +205,29 @@ const MinistryDrawerContent = ({
                       boxShadow: "none",
                       justifyContent: "flex-start",
                       backgroundColor: colors.backgroundPrimary,
-                      color: "primary.main",
                       textTransform: "none",
+                      border: `1px solid ${colors.backgroundPrimary}10`,
+                      color: `${selectedPresident.themeColorLight}`,
+                      "&:active": {
+                        backgroundColor: `${selectedPresident.themeColorLight}10`,
+                      },
                       "&:hover": {
-                        backgroundColor: colors.buttonLight,
+                        backgroundColor: `${selectedPresident.themeColorLight}10`,
                         boxShadow: "none",
                       },
-                      border: `1px solid ${colors.backgroundPrimary}10`,
                     }}
                     fullWidth
                   >
                     <PersonIcon
                       fontSize="small"
                       sx={{
-                        mr: 1,
+                        mr: 2,
                         // color: colors.backgroundSecondary,
                         color: selectedPresident.themeColorLight,
                       }}
                     />
                     <Typography
-                      sx={{ fontFamily: "poppins", color: colors.textPrimary }}
+                      sx={{ fontFamily: "poppins", color: colors.textPrimary, textAlign: "start" }}
                     >
                       {depName}
                     </Typography>
@@ -323,14 +333,18 @@ const MinistryDrawerContent = ({
                     boxShadow: "none",
                     justifyContent: "flex-start",
                     backgroundColor: colors.backgroundPrimary,
-                    color: "primary.main",
                     textTransform: "none",
-                    "&:hover": {
-                      backgroundColor: colors.buttonLight,
-                      boxShadow: "none",
-                    },
+
                     border: `1px solid ${colors.backgroundPrimary}10`,
                     textAlign: "start",
+                    color: `${selectedPresident.themeColorLight}`,
+                    "&:active": {
+                      backgroundColor: `${selectedPresident.themeColorLight}10`,
+                    },
+                    "&:hover": {
+                      backgroundColor: `${selectedPresident.themeColorLight}10`,
+                      boxShadow: "none",
+                    },
                   }}
                   fullWidth
                   onClick={() => onDepartmentClick(dep)}

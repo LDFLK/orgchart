@@ -9,30 +9,37 @@ import {
   setSelectedDate,
   setSelectedPresident,
 } from "../store/presidencySlice";
+import { setGazetteData } from "../store/gazetteDate";
 import utils from "../utils/utils";
-import StyledBadge from "../assets/materialCustomAvatar";
+import StyledBadge from "../utils/materialCustomAvatar";
 import { useThemeContext } from "../themeContext";
 
 export default function PresidencyTimeline() {
   const dispatch = useDispatch();
+
+  //redux state
   const presidents = useSelector((state) => state.presidency.presidentList);
   const selectedPresident = useSelector(
     (state) => state.presidency.selectedPresident
   );
   const selectedIndex = useSelector((state) => state.presidency.selectedIndex);
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
-  const presidencyRelationList = useSelector(
+  const presidentRelationList  = useSelector(
     (state) => state.presidency.presidentRelationList
   );
   const { gazetteData } = useSelector((state) => state.gazettes);
+  const gazetteDateClassic = useSelector((state) => state.gazettes.gazetteDataClassic);
+
+  //ref
   const scrollRef = useRef(null);
   const avatarRef = useRef(null);
   const dotRef = useRef(null);
+  const initialSelectionDone = useRef(false);
+
+  //states
   const [lineStyle, setLineStyle] = useState(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-
-  const initialSelectionDone = useRef(false);
 
   const { colors } = useThemeContext();
 
@@ -52,9 +59,6 @@ export default function PresidencyTimeline() {
       const lastIndex = presidents.length - 1;
       dispatch(setSelectedIndex(lastIndex));
       dispatch(setSelectedPresident(presidents[lastIndex]));
-      if (gazetteData?.[0]) {
-        dispatch(setSelectedDate(gazetteData[0]));
-      }
     }
     updateScrollButtons();
   }, [presidents, gazetteData]);
@@ -137,6 +141,41 @@ export default function PresidencyTimeline() {
     };
   }, []);
 
+  useEffect(() => {
+    if (selectedPresident?.created) {
+      const matchedPresidentRelation = presidentRelationList.find(
+        (obj) => obj.startTime == selectedPresident.created
+      );
+      fetchGazetteData(matchedPresidentRelation);
+    }
+  }, [selectedPresident]);
+
+  const fetchGazetteData = async (selectedPresident) => {
+    try {
+      const startTime = selectedPresident.startTime.split("T")[0];
+      const endTime = selectedPresident.endTime.split("T")[0];
+
+      var filteredDates = [];
+      if (endTime == "") {
+        filteredDates = gazetteDateClassic.filter((date) => date >= startTime);
+      } else {
+        filteredDates = gazetteDateClassic.filter(
+          (date) => date >= startTime && date < endTime
+        );
+      }
+
+      const transformed = filteredDates.map((date) => ({ date: date }));
+
+      dispatch(setGazetteData(transformed));
+
+      if (transformed.length > 0) {
+        dispatch(setSelectedDate(transformed[transformed.length - 1]));
+      }
+    } catch (e) {
+      console.log(`Error fetching gazette data : ${e.message}`);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -159,7 +198,7 @@ export default function PresidencyTimeline() {
           "&:hover": {
             backgroundColor: colors.backgroundPrimary,
           },
-          color:colors.timelineColor
+          color: colors.timelineColor,
         }}
       >
         <ArrowBackIosNewIcon />
@@ -234,11 +273,6 @@ export default function PresidencyTimeline() {
                       dispatch(setSelectedIndex(null));
                       dispatch(setSelectedPresident(president));
                       dispatch(setSelectedIndex(index));
-                      const firstDate = gazetteData?.[0]?.date;
-                      if (firstDate) {
-                        dispatch(setSelectedDate(null));
-                        dispatch(setSelectedDate(firstDate));
-                      }
                     }
                   }}
                   sx={{
@@ -262,12 +296,11 @@ export default function PresidencyTimeline() {
                         sx={{
                           border: isSelected
                             ? `4px solid ${selectedPresident.themeColorLight}`
-                            // ? `4px solid ${colors.timelineLineActive}`
-                            : `2px solid ${colors.inactiveBorderColor}`,
+                            : // ? `4px solid ${colors.timelineLineActive}`
+                              `2px solid ${colors.inactiveBorderColor}`,
                           backgroundColor: colors.backgroundPrimary,
                           margin: "auto",
-                          borderRadius: 50,
-                          filter: isSelected ? "none" : "grayscale(50%)",
+                          borderRadius: 50
                         }}
                       >
                         <Avatar
@@ -302,7 +335,7 @@ export default function PresidencyTimeline() {
                             width: 50,
                             height: 50,
                             border: `3px solid ${colors.backgroundPrimary}`,
-                            backgroundColor: colors.backgroundColor,
+                            backgroundColor: colors.backgroundPrimary,
                             margin: "auto",
                             filter: isSelected ? "none" : "grayscale(50%)",
                           }}
@@ -331,7 +364,7 @@ export default function PresidencyTimeline() {
                       <>
                         {president.created.split("-")[0]} -{" "}
                         {(() => {
-                          const relation = presidencyRelationList.find(
+                          const relation = presidentRelationList .find(
                             (rel) => rel.relatedEntityId === president.id
                           );
                           if (!relation) return "Unknown";
@@ -357,8 +390,11 @@ export default function PresidencyTimeline() {
                     }}
                   >
                     {gazetteData.map((item) => {
-                      const isDateSelected = item.date === selectedDate.date;
-
+                      var isDateSelected = false;
+                      if(selectedDate){
+                         isDateSelected = item.date === selectedDate.date;
+                      }
+                      
                       return (
                         <Box
                           key={item.date}
@@ -383,8 +419,8 @@ export default function PresidencyTimeline() {
                               borderRadius: "50%",
                               backgroundColor: isDateSelected
                                 ? selectedPresident.themeColorLight
-                                // ? colors.dotColorActive
-                                : colors.dotColorInactive,
+                                : // ? colors.dotColorActive
+                                  colors.dotColorInactive,
                               border: `3px solid ${colors.backgroundPrimary}`,
                             }}
                           />
@@ -394,8 +430,8 @@ export default function PresidencyTimeline() {
                               mt: 0.5,
                               color: isDateSelected
                                 ? selectedPresident.themeColorLight
-                                // ? colors.dotColorActive
-                                : colors.dotColorInactive,
+                                : // ? colors.dotColorActive
+                                  colors.dotColorInactive,
                               fontSize: "0.75rem",
                               fontWeight: isDateSelected ? "bold" : "",
                               fontFamily: "poppins",
