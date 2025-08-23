@@ -189,10 +189,10 @@ const TidyTree = ({
       if (node.x > right.x) right = node;
     });
 
-    const marginTop = 10;
-    const marginBottom = 10;
-    const marginLeft = 40;
-    const height = right.x - left.x + marginTop + marginBottom;
+    // const marginTop = 10;
+    // const marginBottom = 10;
+    // const marginLeft = 40;
+    // const height = right.x - left.x + marginTop + marginBottom;
 
     const nodes = root.descendants();
     const links = root.links();
