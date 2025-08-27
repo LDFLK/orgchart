@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import api from "./../services/services";
 import utils from "./../utils/utils";
 import { setAllMinistryData } from "../store/allMinistryData";
-import {
-  setAllDepartmentData,
-} from "../store/allDepartmentData";
+import { setAllDepartmentData } from "../store/allDepartmentData";
 import presidentDetails from "./../assets/personImages.json";
 import { setAllPerson } from "../store/allPersonList";
 import {
@@ -21,19 +19,26 @@ import { setGazetteDataClassic } from "../store/gazetteDate";
 export default function DataLoadingAnimatedComponent() {
   const [loading, setLoading] = useState(false);
   const [showServerError, setShowServerError] = useState(false);
-  const { presidentList } = useSelector(
-    (state) => state.presidency
-  );
+  const { presidentList } = useSelector((state) => state.presidency);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const initialFetchData = async () => {
       setLoading(true);
       try {
+        const beforeTime = new Date().getTime();
+        console.log(`before time : ${beforeTime}`);
         await fetchPersonData();
         await fetchAllMinistryData();
         await fetchAllDepartmentData();
         await fetchAllGazetteDate();
+        const afterTime = new Date().getTime();
+        console.log(`before time : ${afterTime}`);
+        console.log(
+          `execusion time for initial fetching :  ${
+            afterTime - beforeTime
+          } msec`
+        );
         setLoading(false);
       } catch (e) {
         console.error("Error loading initial data:", e.message);
@@ -51,7 +56,18 @@ export default function DataLoadingAnimatedComponent() {
       dispatch(setAllPerson(personList.body));
 
       //this is for president data
-      const presidentResponse = await api.fetchPresidentsData();
+      const presidentResponseRaw = await api.fetchPresidentsData();
+
+      console.log(`non soreted list`)
+      console.log(presidentResponseRaw)
+
+      const presidentResponse = presidentResponseRaw.sort(
+        (a, b) => new Date(a.startTime) - new Date(b.startTime)
+      );
+
+      console.log(`soreted list`)
+      console.log(presidentResponse)
+
       dispatch(setPresidentRelationList(presidentResponse));
 
       const presidentSet = new Set(
@@ -78,8 +94,11 @@ export default function DataLoadingAnimatedComponent() {
         };
       });
 
+      const selectedPre = enrichedPresidents[enrichedPresidents.length - 1];
+      console.log(`selected pre : ${selectedPre.id}`);
+
       dispatch(setPresidentList(enrichedPresidents));
-      dispatch(setSelectedPresident(enrichedPresidents[enrichedPresidents.length - 1]));
+      dispatch(setSelectedPresident(selectedPre));
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching person data : ${e.message}`);
@@ -100,7 +119,7 @@ export default function DataLoadingAnimatedComponent() {
 
   const fetchAllMinistryData = async () => {
     try {
-      console.log("fetching all ministry data")
+      console.log("fetching all ministry data");
       const response = await api.fetchAllMinistries();
       const ministryList = await response.json();
       dispatch(setAllMinistryData(ministryList.body));
@@ -111,16 +130,16 @@ export default function DataLoadingAnimatedComponent() {
   };
 
   const fetchAllGazetteDate = async () => {
-    try{
-      console.log("fetching all gazette data")
+    try {
+      console.log("fetching all gazette data");
       const response = await api.fetchInitialGazetteData();
       dispatch(setGazetteDataClassic(response.dates));
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching gazette dates : ${e.message}`);
     }
-  }
- 
+  };
+
   return (
     <>
       {loading ? (
@@ -149,7 +168,7 @@ export default function DataLoadingAnimatedComponent() {
                 fontFamily: "poppins",
                 fontSize: 24,
                 marginTop: 1,
-                fontWeight: "semibold"
+                fontWeight: "semibold",
               }}
             >
               Loading...

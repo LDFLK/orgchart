@@ -1,7 +1,7 @@
 import utils from "../utils/utils";
 
-const apiUrl = window?.configs?.apiUrl ? window.configs.apiUrl : "/"
-// const apiUrl = "";
+// const apiUrl = window?.configs?.apiUrl ? window.configs.apiUrl : "/"
+const apiUrl = "";
 
 // Fetch initial gazette dates and all ministry protobuf data
 const fetchInitialGazetteData = async () => {
@@ -89,6 +89,8 @@ const fetchActiveMinistries = async (
   selectedPresident
 ) => {
   try {
+    const beforeTime = new Date().getTime()
+    console.log(`before time : ${beforeTime}`)
     const response = await fetch(
       `${apiUrl}/v1/entities/${selectedPresident.id}/relations`,
       {
@@ -112,6 +114,10 @@ const fetchActiveMinistries = async (
     }
 
     const activeMinistryRelations = await response.json();
+
+    const afterTime = new Date().getTime()
+    console.log(`before time : ${afterTime}`)
+    console.log(`execusion time :  ${afterTime-beforeTime} msec`)
 
     // Extract relatedEntityId and startTime from each relation
     const activeMinistryInfo = activeMinistryRelations
