@@ -58,25 +58,30 @@ export default function DataLoadingAnimatedComponent() {
       //this is for president data
       const presidentResponseRaw = await api.fetchPresidentsData();
 
-      console.log(`non soreted list`)
-      console.log(presidentResponseRaw)
+      console.log(`non sorted list`);
+      console.log(presidentResponseRaw);
 
       const presidentResponse = presidentResponseRaw.sort(
         (a, b) => new Date(a.startTime) - new Date(b.startTime)
       );
 
-      console.log(`soreted list`)
-      console.log(presidentResponse)
+      console.log(`sorted list`);
+      console.log(presidentResponse);
 
       dispatch(setPresidentRelationList(presidentResponse));
 
-      const presidentSet = new Set(
-        presidentResponse.map((p) => p.relatedEntityId)
+      const sortedPresidentIds = presidentResponse.map(
+        (p) => p.relatedEntityId
       );
 
-      const presidentListInDetail = personList.body.filter((person) =>
-        presidentSet.has(person.id)
-      );
+      const personMap = new Map(personList.body.map((p) => [p.id, p]));
+
+      const presidentListInDetail = sortedPresidentIds
+        .map((id) => personMap.get(id))
+        .filter(Boolean);
+
+      console.log("president list in detail");
+      console.log(presidentListInDetail);
 
       const enrichedPresidents = presidentListInDetail.map((president) => {
         const matchedDetail = presidentDetails.find((detail) =>
@@ -93,6 +98,9 @@ export default function DataLoadingAnimatedComponent() {
           themeColorLight: matchedDetail?.themeColorLight || null,
         };
       });
+
+      console.log("Enriched president list");
+      console.log(enrichedPresidents);
 
       const selectedPre = enrichedPresidents[enrichedPresidents.length - 1];
       console.log(`selected pre : ${selectedPre.id}`);
