@@ -26,60 +26,95 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     //     return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
     // };
 
-useEffect(() => {
-    const enrichWithMinisters = async () => {
-        setLoading(true);
-        try {
-            const relationsRes = await api.getMinistriesByDepartment(selectedDepartment?.id);
-            const ministryRelations = await relationsRes.json();
+    useEffect(() => {
+        const enrichWithMinisters = async () => {
+            setLoading(true);
+            try {
+                const relationsRes = await api.getMinistriesByDepartment(selectedDepartment?.id);
+                const ministryRelations = await relationsRes.json();
 
-            const enriched = await Promise.all(
-                ministryRelations.map(async (relation) => {
+                const enriched = [];
+
+                for (const relation of ministryRelations) {
                     const ministryId = relation.relatedEntityId;
                     const ministry = allMinistryData.find((m) => m.id === ministryId);
-
-                    if (!ministry) {
-                        return null; // or skip
-                    }
+                    if (!ministry) continue;
 
                     try {
                         const allRelations = await api.fetchAllRelationsForMinistry(ministryId);
-                        const appointedRelation = allRelations.find(
-                            (r) => r.name === 'AS_APPOINTED'
-                        );
+                        const appointedRelations = allRelations.filter(r => r.name === 'AS_APPOINTED');
 
-                        const minister = appointedRelation
-                            ? allPersonList.find((p) => p.id === appointedRelation.relatedEntityId)
-                            : null;
+                        // Filter only ministers whose tenure overlaps with the department's tenure
+                        const relevantMinisters = appointedRelations
+                            .map(r => {
+                                const person = allPersonList.find(p => p.id === r.relatedEntityId);
+                                if (!person) return null;
 
-                        return {
-                            ...ministry,
-                            minister: minister
-                                ? utils.extractNameFromProtobuf(minister.name)
-                                : null,
-                            startTime: relation.startTime,
-                            endTime: relation.endTime,
-                        };
+                                // Determine overlap
+                                const personMinRelationStart = new Date(r.startTime);
+                                const personMinRelationEnd = r.endTime ? new Date(r.endTime) : null;
+                                const minDepRelationStart = new Date(relation.startTime);
+                                const minDepRelationEnd = relation.endTime ? new Date(relation.endTime) : null;
+
+                                if ((personMinRelationEnd && personMinRelationEnd < minDepRelationStart) || personMinRelationStart > (minDepRelationEnd || new Date())) {
+                                    return null; // no overlap
+                                }
+
+                                const overlapStart = personMinRelationStart > minDepRelationStart ? personMinRelationStart : minDepRelationStart;
+                                let overlapEnd = null;
+
+                                if (personMinRelationEnd && minDepRelationEnd) {
+                                    overlapEnd = personMinRelationEnd < minDepRelationEnd ? personMinRelationEnd : minDepRelationEnd;
+                                } else if (personMinRelationEnd) {
+                                    overlapEnd = personMinRelationEnd;
+                                } else if (minDepRelationEnd) {
+                                    overlapEnd = minDepRelationEnd;
+                                } else {
+                                    overlapEnd = null; // Present
+                                }
+
+                                return {
+                                    ...ministry,
+                                    minister: {
+                                        id: person.id,
+                                        fullName: utils.extractNameFromProtobuf(person.name),
+                                        originalName: person.name,
+                                    },
+                                    startTime: overlapStart.toISOString(),
+                                    endTime: overlapEnd ? overlapEnd.toISOString() : null,
+                                };
+
+                            })
+                            .filter(Boolean); // remove nulls
+
+                        enriched.push(...relevantMinisters);
+
                     } catch (e) {
                         console.log("Minister fetch error:", e.message);
-                        return { ...ministry, minister: null };
+                        enriched.push({
+                            ...ministry,
+                            minister: null,
+                            startTime: relation.startTime,
+                            endTime: relation.endTime,
+                        });
                     }
-                })
-            );
+                }
 
-            setEnrichedMinistries(enriched.filter(Boolean)); // remove nulls
-        } catch (err) {
-            console.error("Error enriching ministries:", err.message);
-        } finally {
-            setLoading(false);
+                // Sort by start time descending
+                enriched.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+
+                setEnrichedMinistries(enriched);
+            } catch (err) {
+                console.error("Error enriching ministries:", err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (selectedDepartment?.id) {
+            enrichWithMinisters();
         }
-    };
-
-    if (selectedDepartment?.id) {
-        enrichWithMinisters();
-    }
-}, [selectedDepartment]);
-
+    }, [selectedDepartment]);
 
     return (
         <>
@@ -122,12 +157,8 @@ useEffect(() => {
                                             ? new Date(entry.endTime).toISOString().slice(0, 10)
                                             : 'Present'}`
                                         : 'Unknown'}
-
-                                    {/* {entry.startTime
-                                        ? `${formatDate(entry.startTime)} - ${entry.endTime ? formatDate(entry.endTime) : 'Present'}`
-                                        : 'Unknown'} */}
-
                                 </TimelineOppositeContent>
+
 
                                 <TimelineSeparator>
                                     <TimelineDot
@@ -179,19 +210,14 @@ useEffect(() => {
                                                 // bgcolor: colors.backgroundSecondary, 
                                                 bgcolor: selectedPresident.themeColorLight, 
                                                 width: 30, height: 30, fontSize: 14 }}>
-                                                {entry.minister ? entry.minister.charAt(0).toUpperCase() : '?'}
+                                                 {entry.minister?.fullName.charAt(0).toUpperCase() || '?'}
                                             </Avatar>
                                             <div style={{ flexGrow: 1 }}>
                                                 <Typography variant="subtitle2" sx={{ fontWeight: '700', fontSize: 15, fontFamily: "poppins" }}>
-                                                    {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
+                                                     {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
                                                 </Typography>
-                                                <Typography
-                                                    variant="caption"
-                                                    color={colors.textMuted2}
-                                                    sx={{ fontSize: 14, fontFamily: "poppins" }}
-
-                                                >
-                                                    {entry.minister}
+                                                <Typography variant="caption" color={colors.textMuted2} sx={{ fontSize: 14, fontFamily: "poppins" }}>
+                                                    {entry.minister?.fullName}
                                                 </Typography>
                                             </div>
                                         </div>
