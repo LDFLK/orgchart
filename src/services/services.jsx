@@ -379,6 +379,33 @@ const getMinistriesByDepartment = async (departmentId) => {
   }
 };
 
+const getDepartmentRenamedInfo = async (departmentId) => {
+  try {
+    const response = await fetch(
+      `${apiUrl}/v1/entities/${departmentId}/relations`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "RENAMED_TO",
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching renamed department info:", error);
+  }
+};
+
+
+
 export default {
   fetchInitialGazetteData,
   fetchAllRelationsForMinistry,
@@ -391,4 +418,5 @@ export default {
   fetchAllDepartments,
   fetchPresidentsData,
   chatbotApiCall,
+  getDepartmentRenamedInfo
 };

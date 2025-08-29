@@ -10,7 +10,7 @@ import { ClipLoader } from "react-spinners";
 const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
     //const dictionary = useSelector((state) => state.allDepartmentData.departmentHistory);
-    const {selectedPresident } = useSelector((state)=>state.presidency);
+    const { selectedPresident } = useSelector((state) => state.presidency);
     const allMinistryData = useSelector((state) => state.allMinistryData.allMinistryData);
     const [enrichedMinistries, setEnrichedMinistries] = useState([]);
     const allPersonList = useSelector((state) => state.allPerson.allPerson);
@@ -30,12 +30,32 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
         const enrichWithMinisters = async () => {
             setLoading(true);
             try {
-                const relationsRes = await api.getMinistriesByDepartment(selectedDepartment?.id);
-                const ministryRelations = await relationsRes.json();
+                // 1. Fetch renamed info for the selected department
+                const renamedRes = await api.getDepartmentRenamedInfo(selectedDepartment.id);
+                const renamedInfo = await renamedRes.json();
+
+                // collect all department IDs we need to fetch ministries for
+                const departmentIds = [selectedDepartment.id];
+                if (renamedInfo && Array.isArray(renamedInfo)) {
+                    renamedInfo.forEach(r => {
+                        if (r.relatedEntityId) {
+                            departmentIds.push(r.relatedEntityId);
+                        }
+                    });
+                }
+
+                // 2. Fetch ministry relations for ALL those department IDs
+                let allDepartmentRelations = [];
+                for (const depId of departmentIds) {
+                    const relationsRes = await api.getMinistriesByDepartment(depId);
+                    const ministryRelations = await relationsRes.json();
+                    allDepartmentRelations.push(...ministryRelations);
+                }
 
                 const enriched = [];
 
-                for (const relation of ministryRelations) {
+                // 3. Process all ministry relations
+                for (const relation of allDepartmentRelations) {
                     const ministryId = relation.relatedEntityId;
                     const ministry = allMinistryData.find((m) => m.id === ministryId);
                     if (!ministry) continue;
@@ -44,19 +64,20 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         const allRelations = await api.fetchAllRelationsForMinistry(ministryId);
                         const appointedRelations = allRelations.filter(r => r.name === 'AS_APPOINTED');
 
-                        // Filter only ministers whose tenure overlaps with the department's tenure
                         const relevantMinisters = appointedRelations
                             .map(r => {
                                 const person = allPersonList.find(p => p.id === r.relatedEntityId);
                                 if (!person) return null;
 
-                                // Determine overlap
                                 const personMinRelationStart = new Date(r.startTime);
                                 const personMinRelationEnd = r.endTime ? new Date(r.endTime) : null;
                                 const minDepRelationStart = new Date(relation.startTime);
                                 const minDepRelationEnd = relation.endTime ? new Date(relation.endTime) : null;
 
-                                if ((personMinRelationEnd && personMinRelationEnd < minDepRelationStart) || personMinRelationStart > (minDepRelationEnd || new Date())) {
+                                if (
+                                    (personMinRelationEnd && personMinRelationEnd < minDepRelationStart) ||
+                                    personMinRelationStart > (minDepRelationEnd || new Date())
+                                ) {
                                     return null; // no overlap
                                 }
 
@@ -83,12 +104,10 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                     startTime: overlapStart.toISOString(),
                                     endTime: overlapEnd ? overlapEnd.toISOString() : null,
                                 };
-
                             })
-                            .filter(Boolean); // remove nulls
+                            .filter(Boolean);
 
                         enriched.push(...relevantMinisters);
-
                     } catch (e) {
                         console.log("Minister fetch error:", e.message);
                         enriched.push({
@@ -100,10 +119,30 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                     }
                 }
 
-                // Sort by start time descending
-                enriched.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+                // Sort ascending first for collapsing
+                enriched.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
 
-                setEnrichedMinistries(enriched);
+                const collapsed = [];
+                for (const entry of enriched) {
+                    const last = collapsed[collapsed.length - 1];
+                    if (
+                        last &&
+                        last.minister?.id === entry.minister?.id &&
+                        last.id === entry.id &&
+                        (!last.endTime || !entry.startTime || new Date(last.endTime) >= new Date(entry.startTime))
+                    ) {
+                        // Merge
+                        last.endTime = entry.endTime && (!last.endTime || new Date(entry.endTime) > new Date(last.endTime))
+                            ? entry.endTime
+                            : last.endTime;
+                    } else {
+                        collapsed.push(entry);
+                    }
+                }
+                collapsed.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+                setEnrichedMinistries(collapsed);
+
+
             } catch (err) {
                 console.error("Error enriching ministries:", err.message);
             } finally {
@@ -115,6 +154,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
             enrichWithMinisters();
         }
     }, [selectedDepartment]);
+
 
     return (
         <>
@@ -130,9 +170,10 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                             <TimelineItem
                                 key={idx}
                                 sx={{
-                                    '&:hover': { 
+                                    '&:hover': {
                                         // backgroundColor: colors.backgroundPrimary, 
-                                        borderRadius: 2 },
+                                        borderRadius: 2
+                                    },
                                     cursor: 'pointer',
                                     transition: 'background-color 0.3s ease',
                                     py: 0.5,
@@ -175,10 +216,11 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                         }}
                                     />
                                     {idx < arr.length && (
-                                        <TimelineConnector sx={{ 
+                                        <TimelineConnector sx={{
                                             // bgcolor: colors.timelineLineActive, 
-                                            bgcolor: selectedPresident.themeColorLight, 
-                                            height: 2 }} />
+                                            bgcolor: selectedPresident.themeColorLight,
+                                            height: 2
+                                        }} />
                                     )}
                                 </TimelineSeparator>
 
@@ -206,15 +248,16 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                                 gap: 8,
                                             }}
                                         >
-                                            <Avatar sx={{ 
+                                            <Avatar sx={{
                                                 // bgcolor: colors.backgroundSecondary, 
-                                                bgcolor: selectedPresident.themeColorLight, 
-                                                width: 30, height: 30, fontSize: 14 }}>
-                                                 {entry.minister?.fullName.charAt(0).toUpperCase() || '?'}
+                                                bgcolor: selectedPresident.themeColorLight,
+                                                width: 30, height: 30, fontSize: 14
+                                            }}>
+                                                {entry.minister?.fullName.charAt(0).toUpperCase() || '?'}
                                             </Avatar>
                                             <div style={{ flexGrow: 1 }}>
                                                 <Typography variant="subtitle2" sx={{ fontWeight: '700', fontSize: 15, fontFamily: "poppins" }}>
-                                                     {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
+                                                    {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
                                                 </Typography>
                                                 <Typography variant="caption" color={colors.textMuted2} sx={{ fontSize: 14, fontFamily: "poppins" }}>
                                                     {entry.minister?.fullName}
