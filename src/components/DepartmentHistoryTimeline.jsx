@@ -30,21 +30,25 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
         const enrichWithMinisters = async () => {
             setLoading(true);
             try {
-                // 1. Fetch renamed info for the selected department
-                const renamedRes = await api.getDepartmentRenamedInfo(selectedDepartment.id);
-                const renamedInfo = await renamedRes.json();
+                const departmentIds = new Set([selectedDepartment.id]);
+                const queue = [selectedDepartment.id];
 
-                // collect all department IDs we need to fetch ministries for
-                const departmentIds = [selectedDepartment.id];
-                if (renamedInfo && Array.isArray(renamedInfo)) {
-                    renamedInfo.forEach(r => {
-                        if (r.relatedEntityId) {
-                            departmentIds.push(r.relatedEntityId);
-                        }
-                    });
+                // Collect all renamed/related department IDs
+                while (queue.length > 0) {
+                    const currentId = queue.shift();
+                    const res = await api.getDepartmentRenamedInfo(currentId);
+                    const info = await res.json();
+                    if (info && Array.isArray(info)) {
+                        info.forEach(r => {
+                            if (r.relatedEntityId && !departmentIds.has(r.relatedEntityId)) {
+                                departmentIds.add(r.relatedEntityId);
+                                queue.push(r.relatedEntityId);
+                            }
+                        });
+                    }
                 }
 
-                // 2. Fetch ministry relations for ALL those department IDs
+                // Fetch all ministry relations for the department(s)
                 let allDepartmentRelations = [];
                 for (const depId of departmentIds) {
                     const relationsRes = await api.getMinistriesByDepartment(depId);
@@ -54,7 +58,6 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
 
                 const enriched = [];
 
-                // 3. Process all ministry relations
                 for (const relation of allDepartmentRelations) {
                     const ministryId = relation.relatedEntityId;
                     const ministry = allMinistryData.find((m) => m.id === ministryId);
@@ -74,11 +77,12 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                 const minDepRelationStart = new Date(relation.startTime);
                                 const minDepRelationEnd = relation.endTime ? new Date(relation.endTime) : null;
 
+                                // Skip if no overlap with department period
                                 if (
                                     (personMinRelationEnd && personMinRelationEnd < minDepRelationStart) ||
                                     personMinRelationStart > (minDepRelationEnd || new Date())
                                 ) {
-                                    return null; // no overlap
+                                    return null;
                                 }
 
                                 const overlapStart = personMinRelationStart > minDepRelationStart ? personMinRelationStart : minDepRelationStart;
@@ -91,7 +95,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                 } else if (minDepRelationEnd) {
                                     overlapEnd = minDepRelationEnd;
                                 } else {
-                                    overlapEnd = null; // Present
+                                    overlapEnd = null;
                                 }
 
                                 return {
@@ -107,9 +111,61 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                             })
                             .filter(Boolean);
 
-                        enriched.push(...relevantMinisters);
+                        // Sort ministers by startTime ascending
+                        relevantMinisters.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+                        const ministryStart = new Date(relation.startTime);
+                        const ministryEnd = relation.endTime ? new Date(relation.endTime) : null;
+
+                        const enrichedForMinistry = [];
+
+                        // Gap before first minister
+                        if (relevantMinisters.length > 0) {
+                            const firstMinisterStart = new Date(relevantMinisters[0].startTime);
+                            if (firstMinisterStart > ministryStart) {
+                                enrichedForMinistry.push({
+                                    ...ministry,
+                                    minister: null,
+                                    startTime: ministryStart.toISOString(),
+                                    endTime: firstMinisterStart.toISOString(),
+                                });
+                            }
+                        }
+
+                        // Add ministers
+                        enrichedForMinistry.push(...relevantMinisters);
+
+                        // Gaps between ministers
+                        for (let i = 0; i < relevantMinisters.length - 1; i++) {
+                            const currentEnd = new Date(relevantMinisters[i].endTime);
+                            const nextStart = new Date(relevantMinisters[i + 1].startTime);
+                            if (nextStart > currentEnd) {
+                                enrichedForMinistry.push({
+                                    ...ministry,
+                                    minister: null,
+                                    startTime: currentEnd.toISOString(),
+                                    endTime: nextStart.toISOString(),
+                                });
+                            }
+                        }
+
+                        // Gap after last minister
+                        if (relevantMinisters.length === 0 || (ministryEnd && new Date(relevantMinisters[relevantMinisters.length - 1]?.endTime) < ministryEnd)) {
+                            enrichedForMinistry.push({
+                                ...ministry,
+                                minister: null,
+                                startTime: relevantMinisters.length > 0
+                                    ? new Date(relevantMinisters[relevantMinisters.length - 1].endTime).toISOString()
+                                    : ministryStart.toISOString(),
+                                endTime: ministryEnd ? ministryEnd.toISOString() : null,
+                            });
+                        }
+
+                        enriched.push(...enrichedForMinistry);
+
                     } catch (e) {
                         console.log("Minister fetch error:", e.message);
+                        // If fetch fails, at least add the ministry with null minister
                         enriched.push({
                             ...ministry,
                             minister: null,
@@ -119,11 +175,9 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                     }
                 }
 
-                // Sort ascending first for collapsing
-                enriched.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-
+                // Collapse consecutive entries with same minister and ministry
                 const collapsed = [];
-                for (const entry of enriched) {
+                for (const entry of enriched.sort((a, b) => new Date(a.startTime) - new Date(b.startTime))) {
                     const last = collapsed[collapsed.length - 1];
                     if (
                         last &&
@@ -131,7 +185,6 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         last.id === entry.id &&
                         (!last.endTime || !entry.startTime || new Date(last.endTime) >= new Date(entry.startTime))
                     ) {
-                        // Merge
                         last.endTime = entry.endTime && (!last.endTime || new Date(entry.endTime) > new Date(last.endTime))
                             ? entry.endTime
                             : last.endTime;
@@ -139,9 +192,9 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         collapsed.push(entry);
                     }
                 }
-                collapsed.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
-                setEnrichedMinistries(collapsed);
 
+                // Sort descending for timeline display
+                setEnrichedMinistries(collapsed.sort((a, b) => new Date(b.startTime) - new Date(a.startTime)));
 
             } catch (err) {
                 console.error("Error enriching ministries:", err.message);
@@ -154,7 +207,6 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
             enrichWithMinisters();
         }
     }, [selectedDepartment]);
-
 
     return (
         <>
@@ -260,7 +312,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                                     {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
                                                 </Typography>
                                                 <Typography variant="caption" color={colors.textMuted2} sx={{ fontSize: 14, fontFamily: "poppins" }}>
-                                                    {entry.minister?.fullName}
+                                                    {entry.minister?.fullName || 'No Minister Assigned'}
                                                 </Typography>
                                             </div>
                                         </div>
