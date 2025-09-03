@@ -4,10 +4,10 @@ import utils from "./../utils/utils";
 import { setAllMinistryData } from "../store/allMinistryData";
 import { setAllDepartmentData } from "../store/allDepartmentData";
 import presidentDetails from "./../assets/personImages.json";
-import { setAllPerson } from "../store/allPersonList";
+import { setAllPerson } from "../store/allPersonData";
 import {
-  setPresidentRelationList,
-  setPresidentList,
+  setPresidentRelationDict,
+  setPresidentDict,
   setSelectedPresident,
 } from "../store/presidencySlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,7 +19,7 @@ import { setGazetteDataClassic } from "../store/gazetteDate";
 export default function DataLoadingAnimatedComponent() {
   const [loading, setLoading] = useState(false);
   const [showServerError, setShowServerError] = useState(false);
-  const { presidentList } = useSelector((state) => state.presidency);
+  const { presidentDict } = useSelector((state) => state.presidency);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -27,16 +27,13 @@ export default function DataLoadingAnimatedComponent() {
       setLoading(true);
       try {
         const beforeTime = new Date().getTime();
-        console.log(`before time : ${beforeTime}`);
         await fetchPersonData();
         await fetchAllMinistryData();
         await fetchAllDepartmentData();
         await fetchAllGazetteDate();
         const afterTime = new Date().getTime();
-        console.log(`before time : ${afterTime}`);
         console.log(
-          `execusion time for initial fetching :  ${
-            afterTime - beforeTime
+          `execusion time for initial fetching of all:  ${afterTime - beforeTime
           } msec`
         );
         setLoading(false);
@@ -48,65 +45,63 @@ export default function DataLoadingAnimatedComponent() {
     initialFetchData();
   }, []);
 
+  const listToDict = (list) => {
+    return list.reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+  };
+
   const fetchPersonData = async () => {
     try {
-      console.log("fetching person data");
+      // console.log("fetching person data");
+      const startTime = new Date().getTime();
       const personResponse = await api.fetchAllPersons();
+      const endTime = new Date().getTime();
+      console.log(`Time taken to fetch person data: ${endTime - startTime} ms`);
       const personList = await personResponse.json();
-      dispatch(setAllPerson(personList.body));
+      //dispatch(setAllPerson(personList.body));
+      const personDict = listToDict(personList.body);
+      dispatch(setAllPerson(personDict));
 
-      //this is for president data
-      const presidentResponseRaw = await api.fetchPresidentsData();
+     const presidentResponseRaw = await api.fetchPresidentsData();
 
-      console.log(`non sorted list`);
-      console.log(presidentResponseRaw);
+// Sort by startTime
+const presidentResponse = presidentResponseRaw.sort(
+  (a, b) => new Date(a.startTime) - new Date(b.startTime)
+);
 
-      const presidentResponse = presidentResponseRaw.sort(
-        (a, b) => new Date(a.startTime) - new Date(b.startTime)
-      );
+// Convert to dictionary keyed by id
+const presidentRelationDict = listToDict(presidentResponse);
+dispatch(setPresidentRelationDict(presidentRelationDict));
 
-      console.log(`sorted list`);
-      console.log(presidentResponse);
+// Map relatedEntityId → person using existing personDict
+const presidentDictInDetail = presidentResponse
+  .map((p) => personDict[p.relatedEntityId])
+  .filter(Boolean);
 
-      dispatch(setPresidentRelationList(presidentResponse));
+// Enrich presidents
+const enrichedPresidents = presidentDictInDetail.map((president) => {
+  const matchedDetail = presidentDetails.find((detail) =>
+    detail.presidentName
+      .toLowerCase()
+      .includes(utils.extractNameFromProtobuf(president.name).toLowerCase())
+  );
 
-      const sortedPresidentIds = presidentResponse.map(
-        (p) => p.relatedEntityId
-      );
+  return {
+    ...president,
+    imageUrl: matchedDetail?.imageUrl || null,
+    themeColorLight: matchedDetail?.themeColorLight || null,
+  };
+});
 
-      const personMap = new Map(personList.body.map((p) => [p.id, p]));
+// Select the last president
+const selectedPre = enrichedPresidents[enrichedPresidents.length - 1];
 
-      const presidentListInDetail = sortedPresidentIds
-        .map((id) => personMap.get(id))
-        .filter(Boolean);
+dispatch(setPresidentDict(enrichedPresidents));
+dispatch(setSelectedPresident(selectedPre));
 
-      console.log("president list in detail");
-      console.log(presidentListInDetail);
 
-      const enrichedPresidents = presidentListInDetail.map((president) => {
-        const matchedDetail = presidentDetails.find((detail) =>
-          detail.presidentName
-            .toLowerCase()
-            .includes(
-              utils.extractNameFromProtobuf(president.name).toLowerCase()
-            )
-        );
-
-        return {
-          ...president,
-          imageUrl: matchedDetail?.imageUrl || null,
-          themeColorLight: matchedDetail?.themeColorLight || null,
-        };
-      });
-
-      console.log("Enriched president list");
-      console.log(enrichedPresidents);
-
-      const selectedPre = enrichedPresidents[enrichedPresidents.length - 1];
-      console.log(`selected pre : ${selectedPre.id}`);
-
-      dispatch(setPresidentList(enrichedPresidents));
-      dispatch(setSelectedPresident(selectedPre));
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching person data : ${e.message}`);
@@ -115,10 +110,16 @@ export default function DataLoadingAnimatedComponent() {
 
   const fetchAllDepartmentData = async () => {
     try {
-      console.log("fetching all department data");
+      //console.log("fetching all department data");
+      const startTime = new Date().getTime();
       const response = await api.fetchAllDepartments();
+      const endTime = new Date().getTime();
+      console.log(`Time taken to fetch department data: ${endTime - startTime} ms`);
       const departmentList = await response.json();
-      dispatch(setAllDepartmentData(departmentList.body));
+      // dispatch(setAllDepartmentData(departmentList.body));
+      const departmentDict = listToDict(departmentList.body);
+      dispatch(setAllDepartmentData(departmentDict));
+
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching department data : ${e.message}`);
@@ -127,10 +128,15 @@ export default function DataLoadingAnimatedComponent() {
 
   const fetchAllMinistryData = async () => {
     try {
-      console.log("fetching all ministry data");
+      //console.log("fetching all ministry data");
+      const startTime = new Date().getTime();
       const response = await api.fetchAllMinistries();
+      const endTime = new Date().getTime();
+      console.log(`Time taken to fetch ministry data: ${endTime - startTime} ms`);
       const ministryList = await response.json();
-      dispatch(setAllMinistryData(ministryList.body));
+      // dispatch(setAllMinistryData(ministryList.body));
+      const ministryDict = listToDict(ministryList.body);
+      dispatch(setAllMinistryData(ministryDict));
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching ministry data : ${e.message}`);
@@ -139,7 +145,7 @@ export default function DataLoadingAnimatedComponent() {
 
   const fetchAllGazetteDate = async () => {
     try {
-      console.log("fetching all gazette data");
+      // console.log("fetching all gazette data");
       const response = await api.fetchInitialGazetteData();
       dispatch(setGazetteDataClassic(response.dates));
     } catch (e) {
@@ -206,7 +212,7 @@ export default function DataLoadingAnimatedComponent() {
           </Box>
         </>
       ) : (
-        presidentList.length > 0 && <Navbar />
+       Object.keys(presidentDict).length > 0 && <Navbar />
       )}
     </>
   );

@@ -13,7 +13,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     const { selectedPresident } = useSelector((state) => state.presidency);
     const allMinistryData = useSelector((state) => state.allMinistryData.allMinistryData);
     const [enrichedMinistries, setEnrichedMinistries] = useState([]);
-    const allPersonList = useSelector((state) => state.allPerson.allPerson);
+    const allPersonDict = useSelector((state) => state.allPerson.allPerson);
     const [loading, setLoading] = useState(false);
     const { colors } = useThemeContext();
 
@@ -28,8 +28,10 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
 
     useEffect(() => {
         const enrichWithMinisters = async () => {
+            const startTime = new Date().getTime()
             setLoading(true);
             try {
+                
                 const departmentIds = new Set([selectedDepartment.id]);
                 const queue = [selectedDepartment.id];
 
@@ -60,7 +62,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
 
                 for (const relation of allDepartmentRelations) {
                     const ministryId = relation.relatedEntityId;
-                    const ministry = allMinistryData.find((m) => m.id === ministryId);
+                    const ministry = allMinistryData[ministryId]; 
                     if (!ministry) continue;
 
                     try {
@@ -69,7 +71,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
 
                         const relevantMinisters = appointedRelations
                             .map(r => {
-                                const person = allPersonList.find(p => p.id === r.relatedEntityId);
+                                const person = allPersonDict[r.relatedEntityId]; 
                                 if (!person) return null;
 
                                 const personMinRelationStart = new Date(r.startTime);
@@ -111,7 +113,6 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                             })
                             .filter(Boolean);
 
-                        // Sort ministers by startTime ascending
                         relevantMinisters.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
 
                         const ministryStart = new Date(relation.startTime);
@@ -165,7 +166,6 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
 
                     } catch (e) {
                         console.log("Minister fetch error:", e.message);
-                        // If fetch fails, at least add the ministry with null minister
                         enriched.push({
                             ...ministry,
                             minister: null,
@@ -193,13 +193,16 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                     }
                 }
 
-                // Sort descending for timeline display
                 setEnrichedMinistries(collapsed.sort((a, b) => new Date(b.startTime) - new Date(a.startTime)));
+               
 
             } catch (err) {
                 console.error("Error enriching ministries:", err.message);
             } finally {
                 setLoading(false);
+                 const endTime = new Date().getTime()
+                console.log("Fetch and Enrichment time for department history timeline:", endTime - startTime, "ms");
+
             }
         };
 
@@ -207,6 +210,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
             enrichWithMinisters();
         }
     }, [selectedDepartment]);
+
 
     return (
         <>

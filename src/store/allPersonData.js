@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit"
 
 
 const initialState = {
-    allPerson: []
+    allPerson: {}
 }
 
 const allPersonSlice = createSlice({
