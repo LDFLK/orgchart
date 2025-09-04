@@ -4,10 +4,10 @@ import utils from "./../utils/utils";
 import { setAllMinistryData } from "../store/allMinistryData";
 import { setAllDepartmentData } from "../store/allDepartmentData";
 import presidentDetails from "./../assets/personImages.json";
-import { setAllPerson } from "../store/allPersonList";
+import { setAllPerson } from "../store/allPersonData";
 import {
-  setPresidentRelationList,
-  setPresidentList,
+  setPresidentRelationDict,
+  setPresidentDict,
   setSelectedPresident,
   setSelectedIndex,
   setSelectedDate,
@@ -19,10 +19,10 @@ import { ClipLoader } from "react-spinners";
 import { setGazetteDataClassic } from "../store/gazetteDate";
 import StatisticMainPage from "./statistics_main_page";
 
-export default function DataLoadingAnimatedComponent({mode="orgchart"}) {
+export default function DataLoadingAnimatedComponent({ mode }) {
   const [loading, setLoading] = useState(false);
   const [showServerError, setShowServerError] = useState(false);
-  const { presidentList } = useSelector((state) => state.presidency);
+  const { presidentDict, selectedPresident } = useSelector((state) => state.presidency);
   const presidents = useSelector((state) => state.presidency.presidentList);
   const { gazetteData } = useSelector((state) => state.gazettes);
   const dispatch = useDispatch();
@@ -31,10 +31,17 @@ export default function DataLoadingAnimatedComponent({mode="orgchart"}) {
     const initialFetchData = async () => {
       setLoading(true);
       try {
+        const beforeTime = new Date().getTime();
         await fetchPersonData();
         await fetchAllMinistryData();
         await fetchAllDepartmentData();
         await fetchAllGazetteDate();
+        const afterTime = new Date().getTime();
+        console.log(
+          `execusion time for initial fetching of all:  ${
+            afterTime - beforeTime
+          } msec`
+        );
         setLoading(false);
       } catch (e) {
         console.error("Error loading initial data:", e.message);
@@ -44,42 +51,43 @@ export default function DataLoadingAnimatedComponent({mode="orgchart"}) {
     initialFetchData();
   }, []);
 
-   // useEffect(() => {
-  //   if (!initialSelectionDone.current && presidents.length > 0) {
-  //     initialSelectionDone.current = true;
-  //     const lastIndex = presidents.length - 1;
-  //     dispatch(setSelectedIndex(lastIndex));
-  //     dispatch(setSelectedPresident(presidents[lastIndex]));
-  //   }
-  //   updateScrollButtons();
-  // }, [presidents, gazetteData]);
+  const listToDict = (list) => {
+    return list.reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+  };
 
   const fetchPersonData = async () => {
     try {
       console.log("fetching person data");
+      const startTime = new Date().getTime();
       const personResponse = await api.fetchAllPersons();
+      const endTime = new Date().getTime();
+      console.log(`Time taken to fetch person data: ${endTime - startTime} ms`);
       const personList = await personResponse.json();
-      dispatch(setAllPerson(personList.body));
+      //dispatch(setAllPerson(personList.body));
+      const personDict = listToDict(personList.body);
+      dispatch(setAllPerson(personDict));
 
-      //this is for president data
       const presidentResponseRaw = await api.fetchPresidentsData();
+
+      // Sort by startTime
       const presidentResponse = presidentResponseRaw.sort(
         (a, b) => new Date(a.startTime) - new Date(b.startTime)
       );
 
-      dispatch(setPresidentRelationList(presidentResponse));
+      // Convert to dictionary keyed by id
+      const presidentRelationDict = listToDict(presidentResponse);
+      dispatch(setPresidentRelationDict(presidentRelationDict));
 
-      const sortedPresidentIds = presidentResponse.map(
-        (p) => p.relatedEntityId
-      );
-
-      const personMap = new Map(personList.body.map((p) => [p.id, p]));
-
-      const presidentListInDetail = sortedPresidentIds
-        .map((id) => personMap.get(id))
+      // Map relatedEntityId → person using existing personDict
+      const presidentDictInDetail = presidentResponse
+        .map((p) => personDict[p.relatedEntityId])
         .filter(Boolean);
 
-      const enrichedPresidents = presidentListInDetail.map((president) => {
+      // Enrich presidents
+      const enrichedPresidents = presidentDictInDetail.map((president) => {
         const matchedDetail = presidentDetails.find((detail) =>
           detail.presidentName
             .toLowerCase()
@@ -95,13 +103,12 @@ export default function DataLoadingAnimatedComponent({mode="orgchart"}) {
         };
       });
 
-      console.log("Enriched president list");
-      console.log(enrichedPresidents);
-
+      // Select the last president
       const selectedPre = enrichedPresidents[enrichedPresidents.length - 1];
-      console.log(`selected pre : ${selectedPre.id}`);
 
-      dispatch(setPresidentList(enrichedPresidents));
+      console.log("this is the selected president ", selectedPre);
+
+      dispatch(setPresidentDict(enrichedPresidents));
       dispatch(setSelectedPresident(selectedPre));
     } catch (e) {
       setShowServerError(true);
@@ -111,10 +118,17 @@ export default function DataLoadingAnimatedComponent({mode="orgchart"}) {
 
   const fetchAllDepartmentData = async () => {
     try {
-      console.log("fetching all department data");
+      //console.log("fetching all department data");
+      const startTime = new Date().getTime();
       const response = await api.fetchAllDepartments();
+      const endTime = new Date().getTime();
+      console.log(
+        `Time taken to fetch department data: ${endTime - startTime} ms`
+      );
       const departmentList = await response.json();
-      dispatch(setAllDepartmentData(departmentList.body));
+      // dispatch(setAllDepartmentData(departmentList.body));
+      const departmentDict = listToDict(departmentList.body);
+      dispatch(setAllDepartmentData(departmentDict));
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching department data : ${e.message}`);
@@ -123,10 +137,17 @@ export default function DataLoadingAnimatedComponent({mode="orgchart"}) {
 
   const fetchAllMinistryData = async () => {
     try {
-      console.log("fetching all ministry data");
+      //console.log("fetching all ministry data");
+      const startTime = new Date().getTime();
       const response = await api.fetchAllMinistries();
+      const endTime = new Date().getTime();
+      console.log(
+        `Time taken to fetch ministry data: ${endTime - startTime} ms`
+      );
       const ministryList = await response.json();
-      dispatch(setAllMinistryData(ministryList.body));
+      // dispatch(setAllMinistryData(ministryList.body));
+      const ministryDict = listToDict(ministryList.body);
+      dispatch(setAllMinistryData(ministryDict));
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching ministry data : ${e.message}`);
@@ -135,7 +156,7 @@ export default function DataLoadingAnimatedComponent({mode="orgchart"}) {
 
   const fetchAllGazetteDate = async () => {
     try {
-      console.log("fetching all gazette data");
+      // console.log("fetching all gazette data");
       const response = await api.fetchInitialGazetteData();
       dispatch(setGazetteDataClassic(response.dates));
     } catch (e) {
@@ -201,8 +222,12 @@ export default function DataLoadingAnimatedComponent({mode="orgchart"}) {
             </Typography>
           </Box>
         </>
+      ) : (Object.keys(presidentDict.length > 0) && mode == "orgchart" && selectedPresident != null) ? (
+        <Navbar />
       ) : (
-        (presidentList.length > 0 && mode=="orgchart") ? <Navbar /> : (presidentList.length > 0 && mode=="statistics") && <StatisticMainPage/>
+        (Object.keys(presidentDict.length > 0) && mode == "statistics" && selectedPresident != null) && (
+          <StatisticMainPage />
+        )
       )}
     </>
   );

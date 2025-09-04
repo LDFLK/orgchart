@@ -22,7 +22,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
   const { selectedDate, selectedPresident } = useSelector((state) => state.presidency);
-  const allPersonList = useSelector((state) => state.allPerson.allPerson);
+  const allPersonDict = useSelector((state) => state.allPerson.allPerson);
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,10 +63,11 @@ const MinistryCardGrid = ({ onCardClick }) => {
   };
 
   const fetchActiveMinistryList = async () => {
-    if (!selectedDate || !allMinistryData || allMinistryData.length === 0)
+    if (!selectedDate || !allMinistryData || Object.keys(allMinistryData).length === 0)
       return;
 
     try {
+      const startTime = new Date().getTime();
       setLoading(true);
       const activeMinistry = await api.fetchActiveMinistries(
         selectedDate,
@@ -91,13 +92,17 @@ const MinistryCardGrid = ({ onCardClick }) => {
             }
           });
 
-          // Enrich each person with their own startTime
-          const personListInDetail = allPersonList
-            .filter((person) => startTimeMap.has(person.id))
-            .map((person) => ({
-              ...person,
-              startTime: startTimeMap.get(person.id) || null,
-            }));
+          // Lookup only the relevant persons directly from allPerson dict
+          const personListInDetail = Array.from(startTimeMap.keys())
+            .map((id) => {
+              const person = allPersonDict[id];
+              if (!person) return null;
+              return {
+                ...person,
+                startTime: startTimeMap.get(id) || null,
+              };
+            })
+            .filter(Boolean); // remove any missing ids
 
           const headMinisterName = personListInDetail[0]?.name || null;
           const headMinisterStartTime =
@@ -116,11 +121,14 @@ const MinistryCardGrid = ({ onCardClick }) => {
       setActiveMinistryList(enrichedMinistries);
       setFilteredMinistryList(enrichedMinistries);
       setLoading(false);
+      const endTime = new Date().getTime();
+      console.log("Fetch and Enrichment time for active ministry list:", endTime - startTime, "ms");
     } catch (e) {
       console.log("error fetch ministry list : ", e.message);
       setLoading(false);
     }
   };
+
 
   return (
     <Box
@@ -260,7 +268,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
                   />
                 </Grid>
               ))
-            ) : activeMinistryList && activeMinistryList.length == 0  ? (
+            ) : activeMinistryList && activeMinistryList.length == 0 ? (
               <Box
                 sx={{
                   width: "100%",

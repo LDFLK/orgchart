@@ -25,7 +25,7 @@ const MinistryDrawerContent = ({
 }) => {
   const { colors } = useThemeContext();
 
-  const allPersonList = useSelector((state) => state.allPerson.allPerson);
+  const allPersonDict = useSelector((state) => state.allPerson.allPerson);
   const allDepartmentList = useSelector(
     (state) => state.allDepartmentData.allDepartmentData
   );
@@ -48,6 +48,7 @@ const MinistryDrawerContent = ({
 
   const fetchPersonListAndDepListForMinistry = async (selectedMinistry) => {
     try {
+      const startTime = new Date().getTime();
       setLoading(true);
       clearCurrentLists();
       const response1 = await api.fetchActiveRelationsForMinistry(
@@ -69,17 +70,20 @@ const MinistryDrawerContent = ({
         res2.map((department) => department.relatedEntityId)
       );
 
-      const personListInDetail = allPersonList.filter((person) => {
-        return personSet.has(person.id);
-      });
+      const personListInDetail = Array.from(personSet)
+        .map((id) => allPersonDict[id])
+        .filter(Boolean);
 
-      const departmentListInDetail = allDepartmentList.filter((department) => {
-        return departmentSet.has(department.id);
-      });
+      const departmentListInDetail = Array.from(departmentSet)
+        .map((id) => allDepartmentList[id])
+        .filter(Boolean);
+
 
       setPersonListForMinistry(personListInDetail);
       setDepartmentListForMinistry(departmentListInDetail);
       setLoading(false);
+      const endTime = new Date().getTime();
+      console.log("Fetch time for person and department list for ministry:", endTime - startTime, "ms");
     } catch (e) {
       console.log(`Error fetching person list for mistry : `, e.message);
     }
@@ -322,7 +326,7 @@ const MinistryDrawerContent = ({
           <Divider sx={{ py: 1 }} />
           <Stack spacing={1}>
             {departmentListForMinistry &&
-            departmentListForMinistry.length > 0 ? (
+              departmentListForMinistry.length > 0 ? (
               departmentListForMinistry?.map((dep, idx) => (
                 <Button
                   key={idx}

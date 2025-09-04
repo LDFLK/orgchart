@@ -115,7 +115,7 @@ export default function StatisticMainPage() {
     };
     if (ministryList.length > 0 || (departmentList.length > 0 && !isDepartmentFetching)) {
       setAllNodes([...ministryList, ...departmentList]);
-      fetchRelationshipData();
+      // fetchRelationshipData();
       setLoading(false);
     }
   }, [ministryList, departmentList]);

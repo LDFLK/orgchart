@@ -18,14 +18,14 @@ export default function PresidencyTimeline() {
   const dispatch = useDispatch();
 
   //redux state
-  const presidents = useSelector((state) => state.presidency.presidentList);
+  const presidents = useSelector((state) => state.presidency.presidentDict);
   const selectedPresident = useSelector(
     (state) => state.presidency.selectedPresident
   );
   const selectedIndex = useSelector((state) => state.presidency.selectedIndex);
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
-  const presidentRelationList  = useSelector(
-    (state) => state.presidency.presidentRelationList
+  const presidentRelationDict = useSelector(
+    (state) => state.presidency.presidentRelationDict
   );
   const { gazetteData } = useSelector((state) => state.gazettes);
   const gazetteDateClassic = useSelector((state) => state.gazettes.gazetteDataClassic);
@@ -143,9 +143,15 @@ export default function PresidencyTimeline() {
 
   useEffect(() => {
     if (selectedPresident?.created) {
-      const matchedPresidentRelation = presidentRelationList.find(
-        (obj) => obj.startTime == selectedPresident.created
-      );
+    
+      const presidentRelationByStartTime = {};
+      Object.values(presidentRelationDict).forEach((rel) => {
+        presidentRelationByStartTime[rel.startTime] = rel;
+      });
+
+      // Lookup the relation by selectedPresident.created
+      const matchedPresidentRelation = presidentRelationByStartTime[selectedPresident.created];
+
       fetchGazetteData(matchedPresidentRelation);
     }
   }, [selectedPresident]);
@@ -297,7 +303,7 @@ export default function PresidencyTimeline() {
                           border: isSelected
                             ? `4px solid ${selectedPresident.themeColorLight}`
                             : // ? `4px solid ${colors.timelineLineActive}`
-                              `2px solid ${colors.inactiveBorderColor}`,
+                            `2px solid ${colors.inactiveBorderColor}`,
                           backgroundColor: colors.backgroundPrimary,
                           margin: "auto",
                           borderRadius: 50
@@ -364,9 +370,7 @@ export default function PresidencyTimeline() {
                       <>
                         {president.created.split("-")[0]} -{" "}
                         {(() => {
-                          const relation = presidentRelationList .find(
-                            (rel) => rel.relatedEntityId === president.id
-                          );
+                         const relation = presidentRelationDict[president.id];
                           if (!relation) return "Unknown";
 
                           return relation.endTime
@@ -391,10 +395,10 @@ export default function PresidencyTimeline() {
                   >
                     {gazetteData.map((item) => {
                       var isDateSelected = false;
-                      if(selectedDate){
-                         isDateSelected = item.date === selectedDate.date;
+                      if (selectedDate) {
+                        isDateSelected = item.date === selectedDate.date;
                       }
-                      
+
                       return (
                         <Box
                           key={item.date}
@@ -420,7 +424,7 @@ export default function PresidencyTimeline() {
                               backgroundColor: isDateSelected
                                 ? selectedPresident.themeColorLight
                                 : // ? colors.dotColorActive
-                                  colors.dotColorInactive,
+                                colors.dotColorInactive,
                               border: `3px solid ${colors.backgroundPrimary}`,
                             }}
                           />
@@ -431,7 +435,7 @@ export default function PresidencyTimeline() {
                               color: isDateSelected
                                 ? selectedPresident.themeColorLight
                                 : // ? colors.dotColorActive
-                                  colors.dotColorInactive,
+                                colors.dotColorInactive,
                               fontSize: "0.75rem",
                               fontWeight: isDateSelected ? "bold" : "",
                               fontFamily: "poppins",

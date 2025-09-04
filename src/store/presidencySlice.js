@@ -2,8 +2,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  presidentList: [],
-  presidentRelationList: [],
+  presidentDict: {},
+  presidentRelationDict: {},
   selectedIndex: null,
   selectedPresident: null,
   selectedDate: null,
@@ -14,11 +14,11 @@ const presidencySlice = createSlice({
   name: 'presidency',
   initialState,
   reducers: {
-    setPresidentList(state, action){
-      state.presidentList = action.payload;
+    setPresidentDict(state, action){
+      state.presidentDict = action.payload;
     },
-    setPresidentRelationList(state, action){
-      state.presidentRelationList = action.payload;
+    setPresidentRelationDict(state, action){
+      state.presidentRelationDict = action.payload;
     },
     setSelectedPresident(state, action){
       state.selectedPresident = action.payload;
@@ -31,7 +31,7 @@ const presidencySlice = createSlice({
       state.selectedDate = action.payload;
     },
     initializeSelection(state) {
-      if (!state.initialized && state.presidentList.length > 0) {
+      if (!state.initialized && state.presidentDict.length > 0) {
         // const lastPresidentIndex = presidents.length - 1;
         // const lastPresident = state.presidentList[lastPresidentIndex];
         // const lastDate = lastPresident?.dates[lastPresident.dates.length - 1]?.date ?? null;
@@ -44,5 +44,5 @@ const presidencySlice = createSlice({
   },
 });
 
-export const { setPresidentList, setPresidentRelationList, setSelectedPresident, setSelectedIndex, setSelectedDate, initializeSelection } = presidencySlice.actions;
+export const { setPresidentDict, setPresidentRelationDict, setSelectedPresident, setSelectedIndex, setSelectedDate, initializeSelection } = presidencySlice.actions;
 export default presidencySlice.reducer;

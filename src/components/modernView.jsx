@@ -2,7 +2,7 @@ import { Box, Card, Typography, Avatar } from "@mui/material";
 import PresidencyTimeline from "./PresidencyTimeline";
 // import colors from "../assets/colors";
 import { useSelector } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InfoTab from "./InfoTab";
 import MinistryCardGrid from "./MinistryCardGrid";
 import utils from "../utils/utils";
@@ -12,7 +12,7 @@ import ChatbotComponent from "./chatbot_screen";
 const ModernView = () => {
   const { selectedDate, selectedPresident } = useSelector((state) => state.presidency);
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
-  const presidencyRelationList = useSelector((state) => state.presidency.presidentRelationList);
+  const presidentRelationDict = useSelector((state) => state.presidency.presidentRelationDict);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
@@ -174,9 +174,8 @@ const ModernView = () => {
                       >
                         {selectedPresident.created.split("-")[0]} -{" "}
                         {(() => {
-                          const relation = presidencyRelationList.find(
-                            (rel) => rel.relatedEntityId === selectedPresident.id
-                          );
+                          const relation = presidentRelationDict[selectedPresident.id];
+
                           if (!relation) return "Unknown";
 
                           return relation.endTime
