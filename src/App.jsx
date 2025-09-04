@@ -17,7 +17,8 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/orgchart" element={<DataLoadingAnimatedComponent/>} />
+        <Route path="/orgchart" element={<DataLoadingAnimatedComponent mode="orgchart"/>} />
+        <Route path="/statistics" element={<DataLoadingAnimatedComponent mode="statistics"/>}/>
         <Route path="*" element={<Error404 />} />
       </Routes>
     </Router>

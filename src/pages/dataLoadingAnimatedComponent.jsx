@@ -9,36 +9,32 @@ import {
   setPresidentRelationList,
   setPresidentList,
   setSelectedPresident,
+  setSelectedIndex,
+  setSelectedDate,
 } from "../store/presidencySlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/NavBar";
 import { Box, Typography } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import { setGazetteDataClassic } from "../store/gazetteDate";
+import StatisticMainPage from "./statistics_main_page";
 
-export default function DataLoadingAnimatedComponent() {
+export default function DataLoadingAnimatedComponent({mode="orgchart"}) {
   const [loading, setLoading] = useState(false);
   const [showServerError, setShowServerError] = useState(false);
   const { presidentList } = useSelector((state) => state.presidency);
+  const presidents = useSelector((state) => state.presidency.presidentList);
+  const { gazetteData } = useSelector((state) => state.gazettes);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const initialFetchData = async () => {
       setLoading(true);
       try {
-        const beforeTime = new Date().getTime();
-        console.log(`before time : ${beforeTime}`);
         await fetchPersonData();
         await fetchAllMinistryData();
         await fetchAllDepartmentData();
         await fetchAllGazetteDate();
-        const afterTime = new Date().getTime();
-        console.log(`before time : ${afterTime}`);
-        console.log(
-          `execusion time for initial fetching :  ${
-            afterTime - beforeTime
-          } msec`
-        );
         setLoading(false);
       } catch (e) {
         console.error("Error loading initial data:", e.message);
@@ -47,6 +43,16 @@ export default function DataLoadingAnimatedComponent() {
 
     initialFetchData();
   }, []);
+
+   // useEffect(() => {
+  //   if (!initialSelectionDone.current && presidents.length > 0) {
+  //     initialSelectionDone.current = true;
+  //     const lastIndex = presidents.length - 1;
+  //     dispatch(setSelectedIndex(lastIndex));
+  //     dispatch(setSelectedPresident(presidents[lastIndex]));
+  //   }
+  //   updateScrollButtons();
+  // }, [presidents, gazetteData]);
 
   const fetchPersonData = async () => {
     try {
@@ -57,16 +63,9 @@ export default function DataLoadingAnimatedComponent() {
 
       //this is for president data
       const presidentResponseRaw = await api.fetchPresidentsData();
-
-      console.log(`non sorted list`);
-      console.log(presidentResponseRaw);
-
       const presidentResponse = presidentResponseRaw.sort(
         (a, b) => new Date(a.startTime) - new Date(b.startTime)
       );
-
-      console.log(`sorted list`);
-      console.log(presidentResponse);
 
       dispatch(setPresidentRelationList(presidentResponse));
 
@@ -79,9 +78,6 @@ export default function DataLoadingAnimatedComponent() {
       const presidentListInDetail = sortedPresidentIds
         .map((id) => personMap.get(id))
         .filter(Boolean);
-
-      console.log("president list in detail");
-      console.log(presidentListInDetail);
 
       const enrichedPresidents = presidentListInDetail.map((president) => {
         const matchedDetail = presidentDetails.find((detail) =>
@@ -206,7 +202,7 @@ export default function DataLoadingAnimatedComponent() {
           </Box>
         </>
       ) : (
-        presidentList.length > 0 && <Navbar />
+        (presidentList.length > 0 && mode=="orgchart") ? <Navbar /> : (presidentList.length > 0 && mode=="statistics") && <StatisticMainPage/>
       )}
     </>
   );

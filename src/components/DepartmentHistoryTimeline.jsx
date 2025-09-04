@@ -43,7 +43,7 @@ useEffect(() => {
                     }
 
                     try {
-                        const allRelations = await api.fetchAllRelationsForMinistry(ministryId);
+                        const allRelations = await api.fetchAllRelationsForMinistry({ministryId:ministryId});
                         const appointedRelation = allRelations.find(
                             (r) => r.name === 'AS_APPOINTED'
                         );
