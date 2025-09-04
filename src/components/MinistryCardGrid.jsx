@@ -1,12 +1,5 @@
 import {
-  Box,
-  Grid,
-  Typography,
-  Alert,
-  AlertTitle,
-  Divider,
-  Chip,
-  TextField,
+  Box, Grid, Typography, Alert, AlertTitle, Divider, Chip, TextField, Select, MenuItem, FormControl, InputLabel
 } from "@mui/material";
 import MinistryCard from "./MinistryCard";
 import { useSelector, useDispatch } from "react-redux";
@@ -17,6 +10,7 @@ import { setSelectedMinistry } from "../store/allMinistryData";
 import { useThemeContext } from "../themeContext";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
+import utils from "./../utils/utils";
 
 const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
@@ -27,6 +21,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [filterType, setFilterType] = useState("all");
   const { colors } = useThemeContext();
 
   useEffect(() => {
@@ -34,27 +29,57 @@ const MinistryCardGrid = ({ onCardClick }) => {
   }, [selectedDate, allMinistryData, selectedPresident]);
 
   useEffect(() => {
-    const searchedMinistry = searchByText(searchText);
-    if (searchedMinistry) {
-      setFilteredMinistryList(searchedMinistry);
-    }
-  }, [searchText]);
+    let result = activeMinistryList;
 
-  const searchByText = (searchText) => {
-    if (searchText != "") {
+    // Apply dropdown filter
+    if (filterType === "newPerson") {
+      result = result.filter((m) => m.newPerson);
+    } else if (filterType === "newMinistry") {
+      result = result.filter((m) => m.newMin);
+    } else if (filterType === "presidentAsMinister") {
+      result = result.filter((m) => {
+        const headName = m.headMinisterName
+          ? utils.extractNameFromProtobuf(m.headMinisterName)
+          : selectedPresident?.name
+            ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
+            : null;
+
+        const presidentName = selectedPresident?.name
+          ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
+          : null;
+
+        return (
+          headName &&
+          presidentName &&
+          headName.toLowerCase().trim() === presidentName.toLowerCase().trim()
+        );
+      });
+
+    }
+
+    // Apply search text filter using your existing function
+    if (searchText !== "") {
+      result = searchByText(searchText, result);
+    }
+
+    setFilteredMinistryList(result);
+  }, [searchText, filterType, activeMinistryList, selectedPresident]);
+
+
+  const searchByText = (searchText, list = activeMinistryList) => {
+    if (searchText !== "") {
       const normalizedSearchText = (
         searchText ? String(searchText).trim() : ""
       ).toLowerCase();
 
-      const filteredMinistry = activeMinistryList.filter((minister) => {
+      return list.filter((minister) => {
         const ministerName = minister.name
           ? minister.name.toLowerCase().trim()
           : "";
-        return ministerName.toLowerCase().includes(normalizedSearchText);
+        return ministerName.includes(normalizedSearchText);
       });
-      return filteredMinistry;
     } else {
-      setFilteredMinistryList(activeMinistryList);
+      return list;
     }
   };
 
@@ -166,153 +191,216 @@ const MinistryCardGrid = ({ onCardClick }) => {
           />
         </Divider>
       </Box>
-
-      <Box width="100%" display="flex" justifyContent="center">
-        <Box sx={{ width: 500, maxWidth: "100%" }}>
-          <TextField
-            fullWidth
-            label="Search By Ministry Name"
-            id="ministry-search"
-            onChange={handleChange}
-            value={searchText}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <SearchIcon sx={{
-                      color: colors.textMuted
-                    }} />
-                  </InputAdornment>
-                ),
-              },
-            }}
-            sx={{
-              marginBottom: "20px",
-              backgroundColor: colors.backgroundColor, // Apply custom background color
-              "& .MuiInputLabel-root": {
-                color: colors.textMuted, // Label color
-              },
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": {
-                  borderColor: colors.textMuted, // Border color when not focused
-                },
-                "&:hover fieldset": {
-                  borderColor: colors.textMuted, // Border color when hovered
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: colors.textMuted, // Border color when focused
-                },
-              },
-              "& .MuiInputLabel-root.Mui-focused": {
-                color: colors.textMuted, // Focused state label color
-              },
-              "& .MuiInputBase-input": {
-                color: colors.textMuted, // Input text color
-              },
-            }}
-          />
-        </Box>
-      </Box>
-
-      {loading ? (
+      {/* Container for Active Ministries Section */}
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          p: 2,
+          borderRadius: 2,
+          backgroundColor: colors.backgroundColor,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        }}
+      >
+        {/* Top Bar with Title + Search + Filter */}
         <Box
           sx={{
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "20vh",
+            flexDirection: { xs: "column", sm: "row" }, // stack on xs, row on sm+
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", sm: "center" },
+            gap: 2,
+            mb: 2,
           }}
         >
-          <ClipLoader
-            // color={colors.timelineLineActive}
-            color={selectedPresident.themeColorLight}
-            loading={loading}
-            size={25}
-            aria-label="Loading Spinner"
-            data-testid="loader"
-          />
-        </Box>
-      ) : (
-        <Box sx={{ width: "100%" }}>
-          <Grid
-            container
-            justifyContent="center"
-            gap={1}
-            sx={{ width: "100%" }}
+          {/* Left Title */}
+          <Box sx={{ display: "flex", ml: 4, flexDirection: "column", mb: { xs: 2, sm: 0 } }}>
+            <Typography
+              variant="h6"
+              sx={{
+                color: colors.textPrimary,
+                fontFamily: "Poppins",
+              }}
+            >
+              Active Ministries
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontWeight: 500,
+                color: colors.textMuted,
+                fontFamily: "Poppins",
+              }}
+            >
+              {selectedDate.date}
+            </Typography>
+          </Box>
+
+          {/* Right Controls (Search + Filter) */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" }, // stack on xs, row on sm+
+              gap: 2,
+              width: { xs: "100%", sm: "auto" },
+              alignItems: { xs: "stretch", sm: "center" },
+            }}
           >
-            {filteredMinistryList && filteredMinistryList.length > 0 ? (
-              filteredMinistryList.map((card) => (
-                <Grid
-                  key={card.id}
+            {/* Search Bar */}
+            <Box sx={{ flex: 1, minWidth: { xs: "100%", sm: 200 }, maxWidth: 600 }}>
+              <TextField
+                fullWidth
+                label="Search By Ministry Name"
+                id="ministry-search"
+                onChange={handleChange}
+                value={searchText}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <SearchIcon sx={{ color: colors.textMuted }} />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{
+                  backgroundColor: colors.backgroundColor,
+                  "& .MuiInputLabel-root": { color: colors.textMuted },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: colors.textMuted },
+                    "&:hover fieldset": { borderColor: colors.textMuted },
+                    "&.Mui-focused fieldset": { borderColor: colors.textMuted },
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": { color: colors.textMuted },
+                  "& .MuiInputBase-input": { color: colors.textMuted },
+                }}
+              />
+            </Box>
+
+            {/* Dropdown Filter */}
+            <FormControl sx={{ minWidth: { xs: "100%", sm: 30 }, mr: 4, flexShrink: 0 }}>
+              <InputLabel>Filter</InputLabel>
+              <Select
+                value={filterType}
+                label="Filter"
+                onChange={(e) => setFilterType(e.target.value)}
+                sx={{
+                  backgroundColor: colors.backgroundColor,
+                  color: colors.textMuted,
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: colors.textMuted,
+                  },
+                }}
+              >
+                <MenuItem value="all">All Ministries</MenuItem>
+                <MenuItem value="newPerson">New Person</MenuItem>
+                <MenuItem value="newMinistry">New Ministry</MenuItem>
+                <MenuItem value="presidentAsMinister">President as Minister</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </Box>
+
+
+        {/* Ministries Grid / Loader / Alerts */}
+        {loading ? (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "20vh",
+            }}
+          >
+            <ClipLoader
+              color={selectedPresident.themeColorLight}
+              loading={loading}
+              size={25}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          </Box>
+        ) : (
+          <Box sx={{ width: "100%" }}>
+            <Grid container justifyContent="center" gap={1} sx={{ width: "100%" }}>
+              {filteredMinistryList && filteredMinistryList.length > 0 ? (
+                filteredMinistryList.map((card) => (
+                  <Grid
+                    key={card.id}
+                    sx={{
+                      display: "grid",
+                      flexBasis: {
+                        xs: "100%",
+                        sm: "48%",
+                        md: "31.5%",
+                        lg: "23.5%",
+                      },
+                      maxWidth: {
+                        xs: "100%",
+                        sm: "48%",
+                        md: "31.5%",
+                        lg: "23.5%",
+                      },
+                    }}
+                  >
+                    <MinistryCard
+                      card={card}
+                      onClick={() => {
+                        dispatch(setSelectedMinistry(card.id));
+                        onCardClick(card);
+                      }}
+                    />
+                  </Grid>
+                ))
+              ) : activeMinistryList && activeMinistryList.length === 0 ? (
+                <Box
                   sx={{
-                    display: "grid",
-                    flexBasis: {
-                      xs: "100%",
-                      sm: "48%",
-                      md: "31.5%",
-                      lg: "23.5%",
-                    },
-                    maxWidth: {
-                      xs: "100%",
-                      sm: "48%",
-                      md: "31.5%",
-                      lg: "23.5%",
-                    },
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "15px",
                   }}
                 >
-                  <MinistryCard
-                    card={card}
-                    onClick={() => {
-                      dispatch(setSelectedMinistry(card.id)), onCardClick(card);
-                    }}
-                  />
-                </Grid>
-              ))
-            ) : activeMinistryList && activeMinistryList.length == 0 ? (
-              <Box
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "15px",
-                }}
-              >
-                <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
-                  <AlertTitle
-                    sx={{
-                      fontFamily: "poppins",
-                      color: colors.textPrimary,
-                    }}
-                  >
-                    No ministries in the goverment. Sometimes this can be
-                    the president appointed date.
-                  </AlertTitle>
-                </Alert>
-              </Box>
-            ) : (
-              <Box
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: "15px",
-                }}
-              >
-                <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
-                  <AlertTitle
-                    sx={{
-                      fontFamily: "poppins",
-                      color: colors.textPrimary,
-                    }}
-                  >
-                    No Search Result
-                  </AlertTitle>
-                </Alert>
-              </Box>
-            )}
-          </Grid>
-        </Box>
-      )}
+                  <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
+                    <AlertTitle
+                      sx={{
+                        fontFamily: "poppins",
+                        color: colors.textPrimary,
+                      }}
+                    >
+                      No ministries in the government. Sometimes this can be the
+                      president appointed date.
+                    </AlertTitle>
+                  </Alert>
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "15px",
+                  }}
+                >
+                  <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
+                    <AlertTitle
+                      sx={{
+                        fontFamily: "poppins",
+                        color: colors.textPrimary,
+                      }}
+                    >
+                      No Search Result
+                    </AlertTitle>
+                  </Alert>
+                </Box>
+              )}
+            </Grid>
+          </Box>
+        )}
+      </Box>
+
     </Box>
   );
 };
