@@ -12,6 +12,7 @@ import {
   setSelectedPresident,
   setSelectedDate,
 } from "../store/presidencySlice";
+import Drawer from "../components/statistics_compoents/drawer";
 
 export default function StatisticMainPage() {
   const [loading, setLoading] = useState(true);
@@ -21,7 +22,8 @@ export default function StatisticMainPage() {
   const [relations, setRelations] = useState([]);
   const [ministryRelationToGov, setMinistryRelationToGov] = useState([]);
 
-  const distance = 1400;
+  //drawer config
+  const [expandDrawer, setExpandDrawer] = useState(true);
 
   const focusRef = useRef();
 
@@ -73,7 +75,12 @@ export default function StatisticMainPage() {
 
       const ministryRelationToGov = Object.keys(ministryDic).map(
         (ministryId) => {
-          return { source: "gov_01", target: ministryId, value: 1, type: 'level1' };
+          return {
+            source: "gov_01",
+            target: ministryId,
+            value: 1,
+            type: "level1",
+          };
         }
       );
 
@@ -104,7 +111,7 @@ export default function StatisticMainPage() {
       setAllNodes([
         { id: "gov_01", name: "Government", group: 1, color: "#00ff00" },
         ...Object.values(ministryDictionary).map((node) => ({ ...node })),
-        // ...Object.values(departmentDictionary).map((node) => ({ ...node })),
+        ...Object.values(departmentDictionary).map((node) => ({ ...node })),
       ]);
     }
     setLoading(false);
@@ -124,7 +131,7 @@ export default function StatisticMainPage() {
             source: ministryId,
             target: department.relatedEntityId,
             value: 2,
-            type: 'level2'
+            type: "level2",
           }));
         }
       );
@@ -153,25 +160,42 @@ export default function StatisticMainPage() {
       console.log("department objects : ", departmentDic);
       setDepartmentDictionary(departmentDic);
       setRelations((prev) => [...prev, ...ministryRelationToGov]);
-      // setRelations((prev) => [...prev, ...flattenedRelations]);
+      setRelations((prev) => [...prev, ...flattenedRelations]);
     } catch (e) {
       console.log(`Error fetching relations fetching : ${e.message}`);
     } finally {
     }
   };
 
-  const graphData = {
-    nodes: allNodes,
-    links: loading ? [] : relations,
-  };
   // const graphData = {
   //   nodes: [],
   //   links: [],
   // };
+  const graphData = {
+    nodes: allNodes,
+    links: loading ? [] : relations,
+  };
 
   const handleNodeClick = useCallback(
-    (node) => {
+    (targetNode) => {
+      console.log('clicked node : ',targetNode)
       // Aim at node from outside it
+
+      // If node already has position, use it
+      let node = targetNode;
+
+      if (typeof node.x !== "number") {
+
+        console.log('these are the nodes : ', graphData.nodes)
+      // Try to find the matching node from the graphData
+      node = graphData.nodes.find((n) => n.id == targetNode.id);
+      if (!node) {
+        console.warn("Node not found in graph:", targetNode);
+        return;
+      }
+    }
+
+
       const distance = 200;
       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
 
@@ -181,21 +205,21 @@ export default function StatisticMainPage() {
         3000 // ms transition duration
       );
     },
-    [focusRef]
+    [focusRef,graphData]
   );
 
   useEffect(() => {
     if (focusRef.current) {
-      focusRef.current.d3Force("link").distance(link => {
-      switch (link.type) {
-        case "level1":
-          return 180;
-        case "level2":
-          return 120;
-        default:
-          return 120;
-      }
-    });
+      focusRef.current.d3Force("link").distance((link) => {
+        switch (link.type) {
+          case "level1":
+            return 80;
+          case "level2":
+            return 120;
+          default:
+            return 120;
+        }
+      });
       focusRef.current.d3Force("charge").theta(0.5).strength(-300);
     }
   }, [graphData]);
@@ -240,54 +264,58 @@ export default function StatisticMainPage() {
   // }, [loading]);
 
   return (
-    <div className="relative">
-      <StatisticsSearchBar />
-      <div className="flex justify-center items-center">
-        {!loading ? (
-          <ForceGraph3D
-            graphData={graphData}
-            backgroundColor="#111111"
-            // linkDirectionalArrowColor="fff"
-            // linkDirectionalArrowLength={5}
-            // linkDirectionalArrowRelPos={10}
-            // linkCurvature={5}
-            linkWidth={2}
-            nodeRelSize={10}
-            // dagMode="lr"
-            // dagLevelDistance={60}
-            nodeResolution={50}
-            ref={focusRef}
-            nodeAutoColorBy="group"
-            nodeThreeObjectExtend={true}
-            nodeThreeObject={(node) => {
-              const sprite = new SpriteText(utils.makeMultilineText(node.name));
-              sprite.color = "#fff";
-              sprite.backgroundColor = "#000";
-              sprite.padding = 2;
-              sprite.borderRadius = 3;
-              sprite.textHeight = 6;
-              sprite.center.y = -0.50; 
-              return sprite;
-            }}
-            onNodeClick={handleNodeClick}
-            cooldownTicks={100}
-            // onEngineStop={() => focusRef.current.zoomToFit(400)}
-            onNodeDragEnd={(node) => {
-              node.fx = node.x;
-              node.fy = node.y;
-              node.fz = node.z;
-            }}
-          />
-        ) : (
-          <ClipLoader
-            color="text-white"
-            loading={loading}
-            size={25}
-            aria-label="Loading Spinner"
-            data-testid="loader"
-          />
-        )}
+    <>
+      <Drawer
+        expandDrawer={expandDrawer}
+        setExpandDrawer={setExpandDrawer}
+        ministerDictionary={ministryDictionary}
+        onMinistryClick={handleNodeClick}
+      />
+      <div className="relative">
+        <StatisticsSearchBar />
+        <div className="flex justify-center items-center">
+          {!loading ? (
+            <ForceGraph3D
+              graphData={graphData}
+              backgroundColor="#111111"
+              linkWidth={2}
+              nodeRelSize={15}
+              nodeResolution={50}
+              ref={focusRef}
+              nodeAutoColorBy="group"
+              nodeThreeObjectExtend={true}
+              nodeThreeObject={(node) => {
+                const sprite = new SpriteText(
+                  utils.makeMultilineText(node.name)
+                );
+                sprite.color = "#fff";
+                sprite.backgroundColor = "#000";
+                sprite.padding = 2;
+                sprite.borderRadius = 3;
+                sprite.textHeight = 6;
+                sprite.center.y = -0.5;
+                return sprite;
+              }}
+              onNodeClick={handleNodeClick}
+              cooldownTicks={100}
+              // onEngineStop={() => focusRef.current.zoomToFit(400)}
+              onNodeDragEnd={(node) => {
+                node.fx = node.x;
+                node.fy = node.y;
+                node.fz = node.z;
+              }}
+            />
+          ) : (
+            <ClipLoader
+              color="text-white"
+              loading={loading}
+              size={25}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

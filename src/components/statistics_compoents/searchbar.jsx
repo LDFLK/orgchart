@@ -12,11 +12,12 @@ export default function StatisticsSearchBar() {
     >
       {/* Expand/Minimize Button */}
       {!isExpanded ? (
+        
         <button
-          className="absolute flex right-0 items-center gap-2 cursor-pointer bg-white/90 px-6 py-4 rounded-full"
+          className="absolute flex right-3 items-center gap-2 cursor-pointer bg-white/90 px-6 py-4 rounded-full"
           onClick={() => setIsExpanded(true)}
         >
-          <h1 className="tracking-tight text-gray-900 font-semibold text-lg">
+          <h1 className="tracking-tight text-gray-900 font-normal text-lg ">
             Xplore Statistics
           </h1>
           <TbWindowMaximize
@@ -26,7 +27,7 @@ export default function StatisticsSearchBar() {
         </button>
       ) : (
         <div
-          className={`relative bg-white/95 shadow-xl p-4 overflow-hidden flex 
+          className={`relative bg-white/90 shadow-xl p-4 overflow-hidden flex 
     flex-col items-center w-11/12 md:w-2/3 lg:w-2/3 rounded-2xl
   `}
         >
@@ -38,6 +39,8 @@ export default function StatisticsSearchBar() {
                 size={28}
                 onClick={() => setIsExpanded(false)}
               />
+
+              
 
               <div className="text-center text-2xl md:text-4xl font-bold mt-2">
                 <h1 className="tracking-tight text-gray-900">
@@ -73,7 +76,7 @@ export default function StatisticsSearchBar() {
                   <label className="text-sm font-semibold text-gray-700 mb-1">
                     Year
                   </label>
-                  <select className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-custom_yellow">
+                  <select className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-custom_yellow">
                     <option hidden>Select year</option>
                     <option>Option 1</option>
                     <option>Option 2</option>
@@ -86,7 +89,7 @@ export default function StatisticsSearchBar() {
                     <label className="text-sm font-semibold text-gray-700 mb-1">
                       Department
                     </label>
-                    <select className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-custom_yellow">
+                    <select className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-custom_yellow">
                       <option hidden>Select Department</option>
                       <option>Option 1</option>
                       <option>Option 2</option>
@@ -98,7 +101,7 @@ export default function StatisticsSearchBar() {
                     <label className="text-sm font-semibold text-gray-700 mb-1">
                       Minister
                     </label>
-                    <select className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-custom_yellow">
+                    <select className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-custom_yellow">
                       <option hidden>Select Ministry</option>
                       <option>Option 1</option>
                       <option>Option 2</option>
@@ -111,7 +114,7 @@ export default function StatisticsSearchBar() {
                   <label className="text-sm font-semibold text-gray-700 mb-1">
                     Statistic Type
                   </label>
-                  <select className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-custom_yellow">
+                  <select className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-1 focus:ring-custom_yellow">
                     <option hidden>Select Statistic Type</option>
                     <option>Option 1</option>
                     <option>Option 2</option>
