@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/home";
 import Error404 from "./components/404Error";
-import Navbar from "./components/NavBar";
 import './animations.css';
 import './components/TidyTree.variables.css';
 import './components/TidyTree.css';

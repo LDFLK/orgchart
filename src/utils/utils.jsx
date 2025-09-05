@@ -31,4 +31,19 @@ const extractNameFromProtobuf = (nameObj) => {
   }
 };
 
-export default {decodeHexString, hexToString, extractNameFromProtobuf};
+const makeMultilineText = (name, wordsPerLine=4) => {
+  if(!name || typeof name !== 'string') return '';
+
+  const words = name.trim().split(" ");
+  const lines = []
+  
+  for(let i=0; i<words.length; i+=wordsPerLine){
+    lines.push(words.slice(i,i+wordsPerLine).join(' '));
+  }
+
+  const finalName = lines.join('\n')
+
+  return finalName;
+}
+
+export default {decodeHexString, hexToString, extractNameFromProtobuf, makeMultilineText};

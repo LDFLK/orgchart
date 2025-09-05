@@ -1,12 +1,10 @@
 import App from "./App.jsx";
-import React from "react";
 import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import store from "./store/store";
 
 import { ThemeProvider as CustomThemeProvider } from "./themeContext.jsx";
 import { ThemeProvider as MUIThemeProvider, createTheme } from "@mui/material/styles";
-import { Badge } from "lucide-react";
 import { BadgeProvider } from "./badgeContext.jsx";
 
 const theme = createTheme({
@@ -20,6 +18,17 @@ const theme = createTheme({
     },
     primary: {
       main: "#1976d2",
+    },
+  },
+  typography: {
+    fontFamily: "'Poppins', 'Roboto', 'Helvetica', 'Arial', sans-serif",
+    h1: {
+      fontWeight: 700,
+      fontSize: "2.5rem",
+    },
+    body1: {
+      fontWeight: 400,
+      fontSize: "1rem",
     },
   },
 });
