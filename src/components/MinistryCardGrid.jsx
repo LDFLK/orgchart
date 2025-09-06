@@ -12,6 +12,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import utils from "./../utils/utils";
 
+
 const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
@@ -191,7 +192,100 @@ const MinistryCardGrid = ({ onCardClick }) => {
           />
         </Divider>
       </Box>
+      {/* Key Highlights Section */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        {/* Heading outside the box */}
+        <Typography
+          variant="h6"
+          sx={{
+            mt: 1,
+            fontFamily: "Poppins",
+            fontWeight: 600,
+            color: colors.textPrimary,
+            mb: 2, // space between heading and card
+          }}
+        >
+          Key Highlights
+        </Typography>
+
+        {/* The Card */}
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: 500,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            p: 3,
+            borderRadius: 2,
+            backgroundColor: colors.backgroundWhite,
+            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+          }}
+        >
+          {/* Rows */}
+          <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
+            {/* Active Ministries */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <SearchIcon sx={{ color: colors.textMuted }} />
+              <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
+                Active Ministries
+              </Typography>
+              <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
+                {activeMinistryList.length}
+              </Typography>
+            </Box>
+
+            {/* New Ministries */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <SearchIcon sx={{ color: colors.textMuted }} />
+              <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
+                New Ministries
+              </Typography>
+              <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
+                {activeMinistryList.filter((m) => m.newMin).length}
+              </Typography>
+            </Box>
+
+            {/* Ministries assigned to president */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <SearchIcon sx={{ color: colors.textMuted }} />
+              <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
+                Ministries assigned to president
+              </Typography>
+              <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
+                {activeMinistryList.filter((m) => {
+                  const headName = m.headMinisterName
+                    ? utils.extractNameFromProtobuf(m.headMinisterName)
+                    : null;
+
+                  const presidentName = selectedPresident?.name
+                    ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
+                    : null;
+
+                  if (!headName && presidentName) return true;
+
+                  return (
+                    headName &&
+                    presidentName &&
+                    headName.toLowerCase().trim() === presidentName.toLowerCase().trim()
+                  );
+                }).length}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+
+
       {/* Container for Active Ministries Section */}
+
       <Box
         sx={{
           width: "100%",
@@ -200,7 +294,8 @@ const MinistryCardGrid = ({ onCardClick }) => {
           gap: 2,
           p: 2,
           borderRadius: 2,
-          backgroundColor: colors.backgroundColor,
+          //backgroundColor: colors.backgroundColor,
+          backgroundColor: colors.backgroundWhite,
           boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
         }}
       >

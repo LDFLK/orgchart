@@ -58,7 +58,7 @@ const ModernView = () => {
 
       <Box
         sx={{
-          border: `2px solid ${colors.primary}10`,
+          //border: `2px solid ${colors.primary}10`,
           p: 3,
           mx: {
             xs: 2,
@@ -66,7 +66,7 @@ const ModernView = () => {
           },
           my: 2,
           borderRadius: "15px",
-          backgroundColor: colors.backgroundWhite,
+         // backgroundColor: colors.backgroundWhite,
         }}
       >
         {/* Selected Info Card */}

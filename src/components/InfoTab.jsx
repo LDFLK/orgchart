@@ -1,4 +1,10 @@
-import { Box, Button, Drawer, IconButton } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  IconButton,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import MinistryDrawerContent from "./MinistryDrawerContent";
 import DepartmentHistoryTimeline from "./DepartmentHistoryTimeline";
@@ -19,26 +25,28 @@ const InfoTab = ({
   const { colors } = useThemeContext();
 
   return (
-    <Drawer anchor="right" open={drawerOpen} onClose={onClose}>
-      <Box
+    <Dialog
+      open={drawerOpen}
+      onClose={onClose}
+      fullWidth
+      maxWidth="md"
+      PaperProps={{
+        sx: {
+           height: "100vh",
+          borderRadius: 2,
+          backgroundColor: colors.backgroundPrimary,
+        },
+      }}
+    >
+      <DialogContent
         sx={{
-          width: {
-            xs: 350,
-            sm: 450,
-            md: 650,
-            lg: 700,
-            xl: 750,
-          },
           p: 2,
-          height: "100vh",
           display: "flex",
           flexDirection: "column",
-          backgroundColor: colors.backgroundPrimary,
-          overflow: "auto",
+          minHeight: 400,
         }}
       >
         {/* Header */}
-
         <Box
           sx={{
             display: "flex",
@@ -67,16 +75,13 @@ const InfoTab = ({
           )}
 
           <IconButton onClick={onClose}>
-            <CloseIcon
-              sx={{
-                color: colors.textPrimary,
-              }}
-            />
+            <CloseIcon sx={{ color: colors.textPrimary }} />
           </IconButton>
         </Box>
+        
 
         {/* Content */}
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
           {drawerMode === "ministry" && selectedCard && (
             <MinistryDrawerContent
               selectedCard={selectedCard}
@@ -91,8 +96,8 @@ const InfoTab = ({
             />
           )}
         </Box>
-      </Box>
-    </Drawer>
+      </DialogContent>
+    </Dialog>
   );
 };
 
