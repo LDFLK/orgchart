@@ -51,6 +51,7 @@ const MinistryDrawerContent = ({
       const startTime = new Date().getTime();
       setLoading(true);
       clearCurrentLists();
+
       const response1 = await api.fetchActiveRelationsForMinistry(
         selectedDate,
         selectedMinistry,
@@ -65,29 +66,66 @@ const MinistryDrawerContent = ({
       const res1 = await response1.json();
       const res2 = await response2.json();
 
-      const personSet = new Set(res1.map((person) => person.relatedEntityId));
-      const departmentSet = new Set(
-        res2.map((department) => department.relatedEntityId)
-      );
+      // --- Persons ---
+      const personStartTimeMap = new Map();
+      res1.forEach((relation) => {
+        if (relation.relatedEntityId) {
+          personStartTimeMap.set(relation.relatedEntityId, relation.startTime);
+        }
+      });
 
-      const personListInDetail = Array.from(personSet)
-        .map((id) => allPersonDict[id])
+      const personListInDetail = Array.from(personStartTimeMap.keys())
+        .map((id) => {
+          const person = allPersonDict[id];
+          if (!person) return null;
+          return {
+            ...person,
+            startTime: personStartTimeMap.get(id) || null,
+            isNew:
+              personStartTimeMap.get(id)?.startsWith(selectedDate) || false,
+          };
+        })
         .filter(Boolean);
 
-      const departmentListInDetail = Array.from(departmentSet)
-        .map((id) => allDepartmentList[id])
-        .filter(Boolean);
+      // --- Departments ---
+      const departmentStartTimeMap = new Map();
+      res2.forEach((relation) => {
+        if (relation.relatedEntityId) {
+          departmentStartTimeMap.set(
+            relation.relatedEntityId,
+            relation.startTime
+          );
+        }
+      });
 
+      const departmentListInDetail = Array.from(departmentStartTimeMap.keys())
+        .map((id) => {
+          const dep = allDepartmentList[id];
+          if (!dep) return null;
+          return {
+            ...dep,
+            startTime: departmentStartTimeMap.get(id) || null,
+            isNew:
+              departmentStartTimeMap.get(id)?.startsWith(selectedDate) || false,
+          };
+        })
+        .filter(Boolean);
 
       setPersonListForMinistry(personListInDetail);
       setDepartmentListForMinistry(departmentListInDetail);
+
       setLoading(false);
       const endTime = new Date().getTime();
-      console.log("Fetch time for person and department list for ministry:", endTime - startTime, "ms");
+      console.log(
+        "Fetch time for person and department list for ministry:",
+        endTime - startTime,
+        "ms"
+      );
     } catch (e) {
-      console.log(`Error fetching person list for mistry : `, e.message);
+      console.log(`Error fetching person list for ministry : `, e.message);
     }
   };
+
 
   return (
     <Box
@@ -325,49 +363,68 @@ const MinistryDrawerContent = ({
 
           <Divider sx={{ py: 1 }} />
           <Stack spacing={1}>
-            {departmentListForMinistry &&
-              departmentListForMinistry.length > 0 ? (
-              departmentListForMinistry?.map((dep, idx) => (
-                <Button
-                  key={idx}
-                  variant="contained"
-                  size="medium"
-                  sx={{
-                    p: 1,
-                    boxShadow: "none",
-                    justifyContent: "flex-start",
-                    backgroundColor: colors.backgroundPrimary,
-                    textTransform: "none",
+            {departmentListForMinistry && departmentListForMinistry.length > 0 ? (
+              departmentListForMinistry.map((dep, idx) => {
+                const depName = utils.extractNameFromProtobuf(dep.name);
 
-                    border: `1px solid ${colors.backgroundPrimary}10`,
-                    textAlign: "start",
-                    color: `${selectedPresident.themeColorLight}`,
-                    "&:active": {
-                      backgroundColor: `${selectedPresident.themeColorLight}10`,
-                    },
-                    "&:hover": {
-                      backgroundColor: `${selectedPresident.themeColorLight}10`,
-                      boxShadow: "none",
-                    },
-                  }}
-                  fullWidth
-                  onClick={() => onDepartmentClick(dep)}
-                >
-                  <AccountBalanceIcon
-                    fontSize="small"
+                return (
+                  <Button
+                    key={idx}
+                    variant="contained"
+                    size="medium"
                     sx={{
-                      mr: 2,
-                      // color: colors.backgroundSecondary,
-                      color: selectedPresident.themeColorLight,
+                      p: 1,
+                      boxShadow: "none",
+                      justifyContent: "flex-start",
+                      backgroundColor: colors.backgroundPrimary,
+                      textTransform: "none",
+                      border: `1px solid ${colors.backgroundPrimary}10`,
+                      textAlign: "start",
+                      color: `${selectedPresident.themeColorLight}`,
+                      "&:active": {
+                        backgroundColor: `${selectedPresident.themeColorLight}10`,
+                      },
+                      "&:hover": {
+                        backgroundColor: `${selectedPresident.themeColorLight}10`,
+                        boxShadow: "none",
+                      },
                     }}
-                  />
-                  <Typography
-                    sx={{ fontFamily: "poppins", color: colors.textPrimary }}
+                    fullWidth
+                    onClick={() => onDepartmentClick(dep)}
                   >
-                    {utils.extractNameFromProtobuf(dep.name)}
-                  </Typography>
-                </Button>
-              ))
+                    <AccountBalanceIcon
+                      fontSize="small"
+                      sx={{
+                        mr: 2,
+                        color: selectedPresident.themeColorLight,
+                      }}
+                    />
+                    <Typography
+                      sx={{ fontFamily: "poppins", color: colors.textPrimary }}
+                    >
+                      {depName}
+                    </Typography>
+
+                    {dep.isNew && (
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          ml: 1,
+                          px: 1,
+                          py: 0.3,
+                          borderRadius: "5px",
+                          backgroundColor: selectedPresident.themeColorLight,
+                          color: colors.white,
+                          fontFamily: "poppins",
+                          fontWeight: 600,
+                        }}
+                      >
+                        New
+                      </Typography>
+                    )}
+                  </Button>
+                );
+              })
             ) : (
               <Box
                 sx={{
@@ -389,6 +446,7 @@ const MinistryDrawerContent = ({
               </Box>
             )}
           </Stack>
+
         </>
       )}
     </Box>
