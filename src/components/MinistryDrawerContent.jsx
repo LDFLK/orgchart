@@ -7,10 +7,13 @@ import {
   Divider,
   Alert,
   AlertTitle,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import SearchIcon from "@mui/icons-material/Search";
 import utils from "../utils/utils";
 import { ClipLoader } from "react-spinners";
 import api from "././../services/services";
@@ -36,6 +39,7 @@ const MinistryDrawerContent = ({
     []
   );
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchPersonListAndDepListForMinistry(selectedMinistry);
@@ -125,6 +129,13 @@ const MinistryDrawerContent = ({
       console.log(`Error fetching person list for ministry : `, e.message);
     }
   };
+  const filteredDepartments =
+    departmentListForMinistry?.filter((dep) =>
+      utils
+        .extractNameFromProtobuf(dep.name)
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+    ) || [];
 
 
   return (
@@ -444,25 +455,77 @@ const MinistryDrawerContent = ({
             </Box>
           </Box>
 
-
-          {/* Departments */}
-          <Typography
-            variant="subtitle1"
+          {/* Departments Header + Search */}
+          <Box
             sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
               mt: 2,
-              fontSize: "1.25rem",
-              color: colors.textPrimary,
-              fontFamily: "poppins",
-              fontWeight: 600,
             }}
           >
-            Departments
-          </Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontSize: "1.25rem",
+                color: colors.textPrimary,
+                fontFamily: "poppins",
+                fontWeight: 600,
+              }}
+            >
+              Departments
+            </Typography>
+
+            <Box sx={{ width: 250}}>
+              <TextField
+                fullWidth
+                label="Search departments"
+                id="department-search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <SearchIcon fontSize="small" sx={{ color: colors.textMuted }} />
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{
+                  backgroundColor: colors.backgroundColor,
+                  "& .MuiInputLabel-root": { color: colors.textMuted },
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": { borderColor: colors.textMuted },
+                    "&:hover fieldset": { borderColor: colors.textMuted },
+                    "&.Mui-focused fieldset": { borderColor: colors.textMuted },
+                  },
+                  "& .MuiInputLabel-root.Mui-focused": { color: colors.textMuted },
+                  "& .MuiInputBase-input": { color: colors.textMuted },
+                }}
+              />
+
+            </Box>
+          </Box>
 
           <Divider sx={{ py: 1 }} />
+          <Box
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    p: 2,
+                    borderRadius: 2,
+                    //backgroundColor: colors.backgroundColor,
+                    backgroundColor: colors.backgroundWhite,
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                  }}
+                >
+
           <Stack spacing={1}>
-            {departmentListForMinistry && departmentListForMinistry.length > 0 ? (
-              departmentListForMinistry.map((dep, idx) => {
+            {filteredDepartments.length > 0 ? (
+              filteredDepartments.map((dep, idx) => {
                 const depName = utils.extractNameFromProtobuf(dep.name);
 
                 return (
@@ -538,13 +601,13 @@ const MinistryDrawerContent = ({
                       color: colors.textPrimary,
                     }}
                   >
-                    Info: No departments created for the ministry.
+                    Info: No departments found.
                   </AlertTitle>
                 </Alert>
               </Box>
             )}
           </Stack>
-
+          </Box>
         </>
       )}
     </Box>
