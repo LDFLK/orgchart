@@ -346,6 +346,104 @@ const MinistryDrawerContent = ({
               </Button>
             )}
           </Stack>
+          {/* Key Highlights Section for Departments */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              mb: 3,
+            }}
+          >
+            {/* Heading */}
+            <Typography
+              variant="h6"
+              sx={{
+                mt: 1,
+                fontFamily: "Poppins",
+                fontWeight: 600,
+                color: colors.textPrimary,
+                mb: 2,
+              }}
+            >
+              Key Highlights
+            </Typography>
+
+            {/* Card */}
+            <Box
+              sx={{
+                width: "100%",
+                maxWidth: 500,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                p: 3,
+                borderRadius: 2,
+                backgroundColor: colors.backgroundWhite,
+                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+              }}
+            >
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1,
+                }}
+              >
+                {/* Total Departments */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <ApartmentIcon sx={{ color: colors.textMuted }} />
+                  <Typography
+                    sx={{
+                      flex: 1,
+                      fontFamily: "Poppins",
+                      fontWeight: 500,
+                      color: colors.textMuted,
+                    }}
+                  >
+                    Total Departments
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontFamily: "Poppins",
+                      fontSize: 20,
+                      fontWeight: 500,
+                      color: colors.textPrimary,
+                    }}
+                  >
+                    {departmentListForMinistry.length}
+                  </Typography>
+                </Box>
+
+                {/* New Departments */}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <ApartmentIcon sx={{ color: colors.textMuted }} />
+                  <Typography
+                    sx={{
+                      flex: 1,
+                      fontFamily: "Poppins",
+                      fontWeight: 500,
+                      color: colors.textMuted,
+                    }}
+                  >
+                    New Departments
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontFamily: "Poppins",
+                      fontSize: 20,
+                      fontWeight: 500,
+                      color: colors.textPrimary,
+                    }}
+                  >
+                    {departmentListForMinistry.filter((dep) => dep.isNew).length}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+
 
           {/* Departments */}
           <Typography
