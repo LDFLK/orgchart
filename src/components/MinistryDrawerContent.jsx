@@ -17,6 +17,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { ClipLoader } from "react-spinners";
 import { useSelector } from "react-redux";
 import DepartmentHistoryTimeline from "./DepartmentHistoryTimeline";
+import DomainAddIcon from '@mui/icons-material/DomainAdd';
 import utils from "../utils/utils";
 import api from "../services/services";
 import { useThemeContext } from "../themeContext";
@@ -86,7 +87,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
           {/* Sticky Back Button */}
           <Box
             sx={{
-              position: 'sticky',
+              //position: 'sticky',
               top: 0,
               zIndex: 10,
               mb: 2,
@@ -158,7 +159,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
                   <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>{departmentListForMinistry.length}</Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <ApartmentIcon sx={{ color: colors.textMuted }} />
+                  <DomainAddIcon sx={{ color: colors.textMuted }} />
                   <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>New Departments</Typography>
                   <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
                     {departmentListForMinistry.filter((dep) => dep.isNew).length}

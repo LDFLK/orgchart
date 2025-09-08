@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Box, Typography, Divider, Stack, Button, Alert, AlertTitle } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import utils from "../utils/utils";
 import api from "../services/services";
 import { useThemeContext } from "../themeContext";
@@ -96,6 +97,29 @@ const PersonsTab = ({ selectedDate }) => {
 
   return (
     <Box sx={{ p: 2 }}>
+
+            {/* Key Highlights */}
+          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", mb: 3 }}>
+            <Typography variant="h6" sx={{ mt: 1, fontFamily: "Poppins", fontWeight: 600, color: colors.textPrimary, mb: 2 }}>
+              Key Highlights
+            </Typography>
+            <Box sx={{ width: "100%", maxWidth: 500, display: "flex", flexDirection: "column", alignItems: "center", p: 3, borderRadius: 2, backgroundColor: colors.backgroundWhite, boxShadow: "0 2px 6px rgba(0,0,0,0.1)" }}>
+              <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <PersonIcon sx={{ color: colors.textMuted }} />
+                  <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>Total Persons</Typography>
+                  <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>{personListForMinistry.length}</Typography>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
+                  <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>New Persons</Typography>
+                  <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
+                    0
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
       <Typography
         variant="subtitle1"
         sx={{

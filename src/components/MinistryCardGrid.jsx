@@ -10,6 +10,12 @@ import { setSelectedMinistry } from "../store/allMinistryData";
 import { useThemeContext } from "../themeContext";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import PersonIcon from '@mui/icons-material/Person';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+
+
 import utils from "./../utils/utils";
 
 
@@ -233,7 +239,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
           <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
             {/* Active Ministries */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <SearchIcon sx={{ color: colors.textMuted }} />
+              <AccountBalanceIcon sx={{ color: colors.textMuted }} />
               <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
                 Active Ministries
               </Typography>
@@ -241,10 +247,11 @@ const MinistryCardGrid = ({ onCardClick }) => {
                 {activeMinistryList.length}
               </Typography>
             </Box>
+            
 
             {/* New Ministries */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <SearchIcon sx={{ color: colors.textMuted }} />
+              <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
               <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
                 New Ministries
               </Typography>
@@ -255,7 +262,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
 
             {/* Ministries assigned to president */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <SearchIcon sx={{ color: colors.textMuted }} />
+              <WorkspacePremiumIcon sx={{ color: colors.textMuted }} />
               <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
                 Ministries assigned to president
               </Typography>
