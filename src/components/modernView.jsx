@@ -161,15 +161,17 @@ const ModernView = () => {
           fullWidth
           PaperProps={{
             sx: {
-              height: 600,        
-              maxHeight: 600,    
-              overflowY: "auto",  
+              height: 600,
+              maxHeight: 600,
+              overflowY: "auto",
+              scrollbarWidth: "none", // Firefox
+              "&::-webkit-scrollbar": { display: "none" }, // Chrome, Safari 
               backgroundColor: colors.backgroundPrimary,
               borderRadius: 3,
             },
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: 2, pt: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", px: 2, pt: 2 }}>
             <IconButton onClick={() => setProfileOpen(false)}>
               <CloseIcon sx={{ color: colors.textPrimary }} />
             </IconButton>

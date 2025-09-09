@@ -22,22 +22,37 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
         sx: { height: "100vh", borderRadius: 2, backgroundColor: colors.backgroundPrimary },
       }}
     >
-      <DialogContent sx={{ p: 2, display: "flex", flexDirection: "column", minHeight: 400 }}>
-        {/* Header */}
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-
+      <DialogContent
+        sx={{
+          p: 2,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: 400,
+          overflowY: "auto",
+          scrollbarWidth: "none",
+          "&::-webkit-scrollbar": { display: "none" },
+        }}
+      >
+    
+        <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 1 }}>
           <IconButton onClick={onClose}>
             <CloseIcon sx={{ color: colors.textPrimary }} />
           </IconButton>
         </Box>
 
         <Box sx={{ p: 2, backgroundColor: colors.backgroundPrimary, mt: -3 }}>
-
           {/* Date */}
           <Typography variant="h6" sx={{ color: `${presidentColor}90`, fontFamily: "poppins" }}>
             Gazette Date
           </Typography>
-          <Typography variant="h5" sx={{ color: presidentColor, fontFamily: "poppins", fontWeight: "bold" }}>
+          <Typography
+            variant="h5"
+            sx={{
+              color: presidentColor,
+              fontFamily: "poppins",
+              fontWeight: "bold",
+            }}
+          >
             {selectedDate ? (selectedDate.date || selectedDate) : "Unknown"}
           </Typography>
 
@@ -50,7 +65,13 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
                 fontWeight: "bold",
                 color: colors.textPrimary,
                 fontFamily: "poppins",
-                fontSize: { xs: "1.2rem", sm: "1.2rem", md: "1.3rem", lg: "1.3rem", xl: "1.5rem" },
+                fontSize: {
+                  xs: "1.2rem",
+                  sm: "1.2rem",
+                  md: "1.3rem",
+                  lg: "1.3rem",
+                  xl: "1.5rem",
+                },
               }}
             >
               {selectedCard?.name?.split(":")[0] || "No Ministry Selected"}
@@ -87,23 +108,20 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
               );
             })}
           </Box>
-
         </Box>
+
         {/* Content */}
-        <Box sx={{ flexGrow: 1, overflowY: "auto", mt: 2 }}>
+        <Box sx={{ flexGrow: 1, mt: 2 }}>
           {selectedCard && activeTab === "departments" && (
             <MinistryDrawerContent selectedDate={selectedDate?.date || selectedDate} />
           )}
           {selectedCard && activeTab === "persons" && (
-            <PersonsTab
-              selectedDate={selectedDate?.date || selectedDate}
-
-            />
+            <PersonsTab selectedDate={selectedDate?.date || selectedDate} />
           )}
-
         </Box>
       </DialogContent>
     </Dialog>
+
   );
 };
 

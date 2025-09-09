@@ -82,9 +82,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
           <ClipLoader color={selectedPresident.themeColorLight} loading={loading} size={25} />
         </Box>
       ) : selectedDepartment ? (
-        // --- Department Timeline with Sticky Back Button ---
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          {/* Sticky Back Button */}
           <Box
             sx={{
               //position: 'sticky',

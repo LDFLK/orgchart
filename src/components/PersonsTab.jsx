@@ -52,7 +52,6 @@ const PersonsTab = ({ selectedDate }) => {
               startTime: personMap.get(id),
               isNew: personMap.get(id)?.startsWith(selectedDate) || false,
               isPresident,
-              imageUrl: imageUrl
             };
           })
           .filter(Boolean);
@@ -62,7 +61,6 @@ const PersonsTab = ({ selectedDate }) => {
           personList.push({
             id: selectedPresident.id,
             name: selectedPresident.name,
-            imageUrl: selectedPresident.imageUrl,
             startTime: selectedDate,
             isNew: true,
             isPresident: true,
@@ -230,10 +228,11 @@ const PersonsTab = ({ selectedDate }) => {
             overflowY: "auto",
             backgroundColor: colors.backgroundPrimary,
             borderRadius: 3,
+            
           },
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: 2, pt: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", px: 2, pt: 2 }}>
           <IconButton onClick={() => setProfileOpen(false)}>
             <CloseIcon sx={{ color: colors.textPrimary }} />
           </IconButton>
