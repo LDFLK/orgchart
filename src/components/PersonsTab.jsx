@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Box, Typography, Divider, Stack, Button, Alert, AlertTitle } from "@mui/material";
+import { Box, Typography, Divider, Stack, Button, Dialog, IconButton } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import utils from "../utils/utils";
 import api from "../services/services";
 import { useThemeContext } from "../themeContext";
+import CloseIcon from "@mui/icons-material/Close";
+import PersonProfile from "./PersonProfile";
 
 const PersonsTab = ({ selectedDate }) => {
   const { colors } = useThemeContext();
   const allPersonDict = useSelector((state) => state.allPerson.allPerson);
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
   const { selectedPresident } = useSelector((state) => state.presidency);
-
-  const [personListForMinistry, setPersonListForMinistry] = useState([]);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [selectedPerson, setSelectedPerson] = useState(null);
+  const [ministerListForMinistry, setministerListForMinistry] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -40,19 +43,16 @@ const PersonsTab = ({ selectedDate }) => {
             let name;
 
             if (personFromDict && personFromDict.name) {
-              name = utils.extractNameFromProtobuf(personFromDict.name);
-            } else {
-              // fallback to president
-              name = utils.extractNameFromProtobuf(selectedPresident.name);
+              name = personFromDict.name
             }
-
-            const isPresident = name === utils.extractNameFromProtobuf(selectedPresident.name);
-
+            const isPresident = utils.extractNameFromProtobuf(name) === utils.extractNameFromProtobuf(selectedPresident.name);
             return {
+              id,
               name,
               startTime: personMap.get(id),
               isNew: personMap.get(id)?.startsWith(selectedDate) || false,
               isPresident,
+              imageUrl: imageUrl
             };
           })
           .filter(Boolean);
@@ -60,26 +60,19 @@ const PersonsTab = ({ selectedDate }) => {
         // If API returned no persons, fallback to president
         if (personList.length === 0) {
           personList.push({
-            name: utils.extractNameFromProtobuf(selectedPresident.name),
+            id: selectedPresident.id,
+            name: selectedPresident.name,
+            imageUrl: selectedPresident.imageUrl,
             startTime: selectedDate,
             isNew: true,
             isPresident: true,
           });
         }
 
-        setPersonListForMinistry(personList);
+        setministerListForMinistry(personList);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching persons:", err);
-        // fallback to president
-        setPersonListForMinistry([
-          {
-            name: utils.extractNameFromProtobuf(selectedPresident.name),
-            startTime: selectedDate,
-            isNew: true,
-            isPresident: true,
-          },
-        ]);
         setLoading(false);
       }
     };
@@ -95,101 +88,163 @@ const PersonsTab = ({ selectedDate }) => {
     );
   }
 
+  const handleOpenProfile = (person) => {
+    setSelectedPerson(person);
+    setProfileOpen(true);
+  };
   return (
-    <Box sx={{ p: 2 }}>
+    <>
+      <Box sx={{ p: 2 }}>
 
-            {/* Key Highlights */}
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", mb: 3 }}>
-            <Typography variant="h6" sx={{ mt: 1, fontFamily: "Poppins", fontWeight: 600, color: colors.textPrimary, mb: 2 }}>
-              Key Highlights
-            </Typography>
-            <Box sx={{ width: "100%", maxWidth: 500, display: "flex", flexDirection: "column", alignItems: "center", p: 3, borderRadius: 2, backgroundColor: colors.backgroundWhite, boxShadow: "0 2px 6px rgba(0,0,0,0.1)" }}>
-              <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <PersonIcon sx={{ color: colors.textMuted }} />
-                  <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>Total Persons</Typography>
-                  <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>{personListForMinistry.length}</Typography>
-                </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
-                  <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>New Persons</Typography>
-                  <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
-                    0
-                  </Typography>
-                </Box>
+        {/* Key Highlights */}
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", mb: 3 }}>
+          <Typography variant="h6" sx={{ mt: 1, fontFamily: "Poppins", fontWeight: 600, color: colors.textPrimary, mb: 2 }}>
+            Key Highlights
+          </Typography>
+          <Box sx={{ width: "100%", maxWidth: 500, display: "flex", flexDirection: "column", alignItems: "center", p: 3, borderRadius: 2, backgroundColor: colors.backgroundWhite, boxShadow: "0 2px 6px rgba(0,0,0,0.1)" }}>
+            <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <PersonIcon sx={{ color: colors.textMuted }} />
+                <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>Total Persons</Typography>
+                <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>{ministerListForMinistry.length}</Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
+                <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>New Persons</Typography>
+                <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
+                  {ministerListForMinistry.filter((p) => p.isNew).length}
+                </Typography>
               </Box>
             </Box>
           </Box>
-      <Typography
-        variant="subtitle1"
-        sx={{
-          mt: -2,
-          fontSize: "1.25rem",
-          color: colors.textPrimary,
-          fontWeight: 600,
-          fontFamily: "poppins",
+        </Box>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            mt: -2,
+            fontSize: "1.25rem",
+            color: colors.textPrimary,
+            fontWeight: 600,
+            fontFamily: "poppins",
+          }}
+        >
+          Ministers
+        </Typography>
+        <Divider sx={{ py: 1 }} />
+
+        <Stack spacing={1} sx={{ mb: 2 }}>
+          {ministerListForMinistry.map((person, idx) => (
+            <Button
+              key={idx}
+              variant="contained"
+              onClick={() => handleOpenProfile(person)}
+              size="medium"
+              sx={{
+                justifyContent: "flex-start",
+                textTransform: "none",
+                backgroundColor: colors.backgroundPrimary,
+                color: selectedPresident?.themeColorLight,
+                boxShadow: "none",
+                "&:hover": { backgroundColor: `${selectedPresident?.themeColorLight}10` },
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+              fullWidth
+            >
+              <PersonIcon fontSize="small" sx={{ color: selectedPresident?.themeColorLight }} />
+
+              {/* Name + badges container */}
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexWrap: "wrap" }}>
+                <Typography sx={{ fontFamily: "poppins", color: colors.textPrimary }}>
+                  {utils.extractNameFromProtobuf(person.name)}
+                </Typography>
+
+                {/* President Badge */}
+                {person.isPresident && (
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      px: 1,
+                      py: 0.3,
+                      borderRadius: "5px",
+                      // backgroundColor: selectedPresident.themeColorLight,
+                      // color: colors.white,
+                      backgroundColor: colors.backgroundPrimary,
+                      color: selectedPresident.themeColorLight,
+                      border: `1px solid ${selectedPresident.themeColorLight}`,
+                      fontFamily: "poppins",
+                      fontWeight: 600,
+                    }}
+                  >
+                    President
+                  </Typography>
+                )}
+
+                {/* New Badge */}
+                {person.isNew && (
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      px: 1,
+                      py: 0.3,
+                      borderRadius: "5px",
+                      backgroundColor: selectedPresident.themeColorLight,
+                      color: colors.white,
+                      fontFamily: "poppins",
+                      fontWeight: 600,
+                    }}
+                  >
+                    New
+                  </Typography>
+                )}
+              </Box>
+            </Button>
+          ))}
+        </Stack>
+
+        <Box sx={{ p: 2 }}></Box>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            mt: -2,
+            fontSize: "1.25rem",
+            color: colors.textPrimary,
+            fontWeight: 600,
+            fontFamily: "poppins",
+          }}
+        >
+          Directors
+        </Typography>
+        <Divider sx={{ py: 1 }} />
+
+      </Box>
+      <Dialog
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            height: "100vh",
+            overflowY: "auto",
+            backgroundColor: colors.backgroundPrimary,
+            borderRadius: 3,
+          },
         }}
       >
-        Ministers
-      </Typography>
-      <Divider sx={{ py: 1 }} />
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: 2, pt: 2 }}>
+          <IconButton onClick={() => setProfileOpen(false)}>
+            <CloseIcon sx={{ color: colors.textPrimary }} />
+          </IconButton>
+        </Box>
 
-      <Stack spacing={1} sx={{ mb: 2 }}>
-        {personListForMinistry.map((person, idx) => (
-          <Button
-            key={idx}
-            variant="contained"
-            size="medium"
-            sx={{
-              justifyContent: "flex-start",
-              textTransform: "none",
-              backgroundColor: colors.backgroundPrimary,
-              color: selectedPresident?.themeColorLight,
-              boxShadow: "none",
-              "&:hover": { backgroundColor: `${selectedPresident?.themeColorLight}10` },
-            }}
-            fullWidth
-          >
-            <PersonIcon fontSize="small" sx={{ mr: 2, color: selectedPresident?.themeColorLight }} />
-            <Typography sx={{ fontFamily: "poppins", color: colors.textPrimary, textAlign: "start" }}>
-              {person.name}
-            </Typography>
-            {person.isPresident && (
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  ml: 1,
-                  px: 1,
-                  py: 0.3,
-                  borderRadius: "5px",
-                  backgroundColor: selectedPresident.themeColorLight,
-                  color: colors.white,
-                  fontFamily: "poppins",
-                  fontWeight: 600,
-                }}
-              >
-                President
-              </Typography>
-            )}
-          </Button>
-        ))}
-      </Stack>
-      <Box sx={{ p: 2 }}></Box>
-      <Typography
-        variant="subtitle1"
-        sx={{
-          mt: -2,
-          fontSize: "1.25rem",
-          color: colors.textPrimary,
-          fontWeight: 600,
-          fontFamily: "poppins",
-        }}
-      >
-        Directors
-      </Typography>
-      <Divider sx={{ py: 1 }} />
+        <Box sx={{ px: 3, pb: 3 }}>
+          <PersonProfile selectedPerson={selectedPerson} />
+        </Box>
+      </Dialog>
+    </>
 
-    </Box>
   );
 };
 

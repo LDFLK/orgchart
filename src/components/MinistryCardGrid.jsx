@@ -247,7 +247,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
                 {activeMinistryList.length}
               </Typography>
             </Box>
-            
+
 
             {/* New Ministries */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -382,17 +382,49 @@ const MinistryCardGrid = ({ onCardClick }) => {
             </Box>
 
             {/* Dropdown Filter */}
-            <FormControl sx={{ minWidth: { xs: "100%", sm: 30 }, mr: 4, flexShrink: 0 }}>
-              <InputLabel>Filter</InputLabel>
+            <FormControl
+              sx={{ minWidth: { xs: "100%", sm: 30 }, mr: 4, flexShrink: 0 }}
+            >
+              <InputLabel
+                sx={{
+                  color: colors.textMuted,
+                  "&.Mui-focused": { color: colors.textMuted },
+                }}
+              >
+                Filter
+              </InputLabel>
               <Select
                 value={filterType}
                 label="Filter"
                 onChange={(e) => setFilterType(e.target.value)}
                 sx={{
                   backgroundColor: colors.backgroundColor,
-                  color: colors.textMuted,
+                  color: colors.textMuted, // selected value color
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: colors.textMuted,
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: colors.textMuted,
+                  },
+                  "& .MuiSvgIcon-root": {
+                    color: colors.textMuted, // dropdown arrow
+                  },
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      backgroundColor: colors.backgroundPrimary, // dropdown background
+                      "& .MuiMenuItem-root": {
+                        color: colors.textPrimary, // menu item text
+                      },
+                      "& .MuiMenuItem-root.Mui-selected": {
+                        color: colors.textMuted, // selected item text
+                        backgroundColor: `${colors.backgroundColor} !important`,
+                      },
+                      "& .MuiMenuItem-root:hover": {
+                        backgroundColor: `${colors.textMuted}10 !important`,
+                      },
+                    },
                   },
                 }}
               >
@@ -402,6 +434,8 @@ const MinistryCardGrid = ({ onCardClick }) => {
                 <MenuItem value="presidentAsMinister">President as Minister</MenuItem>
               </Select>
             </FormControl>
+
+
           </Box>
         </Box>
 

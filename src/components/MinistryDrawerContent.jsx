@@ -76,7 +76,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
       utils.extractNameFromProtobuf(dep.name).toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
   return (
-    <Box sx={{ p: 2, backgroundColor: colors.backgroundPrimary, mt: -3 }}>
+    <Box sx={{ p: 2, backgroundColor: colors.backgroundPrimary, mt: -2 }}>
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "20vh" }}>
           <ClipLoader color={selectedPresident.themeColorLight} loading={loading} size={25} />
@@ -96,16 +96,22 @@ const MinistryDrawerContent = ({ selectedDate }) => {
           >
             <Button
               onClick={() => setSelectedDepartment(null)}
+              disableRipple
               sx={{
-
                 textTransform: 'none',
-                fontFamily: 'poppins',
+                fontFamily: 'Poppins',
+                '&:focus': {
+                  outline: 'none',
+                  boxShadow: 'none',
+
+                },
               }}
             >
               <Typography sx={{ color: colors.textMuted }}>
                 ← Back
               </Typography>
             </Button>
+
 
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', mb: 3, color: colors.textPrimary, fontFamily: "poppins" }}>
               {utils.extractNameFromProtobuf(selectedDepartment.name)}

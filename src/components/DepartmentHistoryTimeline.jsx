@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Typography, Paper, Avatar, Box } from '@mui/material';
+import { Typography, Paper, Avatar, Box, ButtonBase, Dialog, IconButton } from '@mui/material';
 import { useSelector } from "react-redux";
 import utils from '../utils/utils';
 import api from '../services/services';
+import PersonProfile from './PersonProfile';
 import {
     Timeline,
     TimelineItem,
@@ -14,13 +15,20 @@ import {
 } from '@mui/lab';
 import { useThemeContext } from '../themeContext';
 import { ClipLoader } from "react-spinners";
+import CloseIcon from "@mui/icons-material/Close";
 
 const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
     const { selectedPresident } = useSelector((state) => state.presidency);
     const allMinistryData = useSelector((state) => state.allMinistryData.allMinistryData);
+    const presidents = useSelector((state) => state.presidency.presidentDict);
+    const presidentRelationDict = useSelector(
+        (state) => state.presidency.presidentRelationDict
+    );
     const [enrichedMinistries, setEnrichedMinistries] = useState([]);
     const allPersonDict = useSelector((state) => state.allPerson.allPerson);
+    const [profileOpen, setProfileOpen] = useState(false);
+    const [selectedMinister, setSelectedMinister] = useState(null);
     const [loading, setLoading] = useState(false);
     const { colors } = useThemeContext();
 
@@ -52,7 +60,8 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                     const ministryRelations = await relationsRes.json();
                     allDepartmentRelations.push(...ministryRelations);
                 }
-
+                console.log("Presidents", presidents)
+                console.log("Presidents relations", presidentRelationDict)
                 const enriched = [];
 
                 for (const relation of allDepartmentRelations) {
@@ -94,8 +103,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                     ...ministry,
                                     minister: {
                                         id: person.id,
-                                        fullName: utils.extractNameFromProtobuf(person.name),
-                                        originalName: person.name,
+                                        name: person.name,
                                     },
                                     startTime: overlapStart.toISOString(),
                                     endTime: overlapEnd ? overlapEnd.toISOString() : null,
@@ -159,6 +167,39 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         });
                     }
                 }
+                // Fill in missing ministers with president based on relation times
+                for (const entry of enriched) {
+                    if (!entry.minister) {
+                        const entryStart = new Date(entry.startTime);
+                        const entryEnd = entry.endTime ? new Date(entry.endTime) : null;
+
+                        // Loop through president relations object
+                        const presRelKeys = Object.keys(presidentRelationDict);
+                        let matchingPresidentRelation = null;
+
+                        for (const key of presRelKeys) {
+                            const presRel = presidentRelationDict[key];
+                            const presStart = new Date(presRel.startTime);
+                            const presEnd = presRel.endTime ? new Date(presRel.endTime) : null;
+
+                            const overlapStart = entryStart > presStart ? entryStart : presStart;
+                            const overlapEnd = entryEnd && presEnd ? (entryEnd < presEnd ? entryEnd : presEnd) : (entryEnd || presEnd);
+
+                            if (!overlapEnd || overlapStart <= overlapEnd) {
+                                matchingPresidentRelation = presRel;
+                                break; // assuming only one president active
+                            }
+                        }
+
+                        if (matchingPresidentRelation) {
+                            const pres = presidents.find(p => p.id === matchingPresidentRelation.relatedEntityId);
+                            entry.minister = {
+                                id: pres.id,
+                                name: pres.name,
+                            };
+                        }
+                    }
+                }
 
                 const collapsed = [];
                 for (const entry of enriched.sort((a, b) => new Date(a.startTime) - new Date(b.startTime))) {
@@ -191,6 +232,12 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
         }
     }, [selectedDepartment]);
 
+
+    const handleOpenProfile = (minister) => {
+        setSelectedMinister(minister);
+        setProfileOpen(true);
+    };
+
     return (
         <>
             {!loading ? (
@@ -202,7 +249,15 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                 .map((entry, idx, arr) => (
                                     <TimelineItem key={idx} sx={{ cursor: 'pointer', py: 0.5 }}>
                                         <TimelineOppositeContent
-                                            sx={{ m: 'auto 0', color: selectedPresident.themeColorLight, fontWeight: '600', fontSize: 12, minWidth: 70, pr: 1, fontFamily: "poppins" }}
+                                            sx={{
+                                                m: 'auto 0',
+                                                color: selectedPresident.themeColorLight,
+                                                fontWeight: '600',
+                                                fontSize: 12,
+                                                minWidth: 70,
+                                                pr: 1,
+                                                fontFamily: "poppins"
+                                            }}
                                             align="right"
                                             variant="body2"
                                         >
@@ -242,19 +297,31 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                                 }}
                                                 onClick={() => setSelectedIndex(selectedIndex === idx ? null : idx)}
                                             >
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <Avatar sx={{ bgcolor: selectedPresident.themeColorLight, width: 30, height: 30, fontSize: 14 }}>
-                                                        {entry.minister?.fullName.charAt(0).toUpperCase() || '?'}
-                                                    </Avatar>
-                                                    <Box sx={{ flexGrow: 1 }}>
-                                                        <Typography variant="subtitle2" sx={{ fontWeight: '700', fontSize: 15, fontFamily: "poppins" }}>
-                                                            {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
-                                                        </Typography>
-                                                        <Typography variant="caption" color={colors.textMuted2} sx={{ fontSize: 14, fontFamily: "poppins" }}>
-                                                            {entry.minister?.fullName || 'No Minister Assigned'}
-                                                        </Typography>
+                                                <ButtonBase
+                                                    onClick={() => entry.minister && handleOpenProfile(entry.minister)}
+                                                    disabled={!entry.minister}
+                                                    sx={{ width: "100%", textAlign: "left", display: "flex", cursor: "pointer", borderRadius: 2 }}
+                                                >
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                        <Avatar sx={{ bgcolor: selectedPresident.themeColorLight, width: 30, height: 30, fontSize: 14 }}>
+                                                            {entry.minister
+                                                                ? utils.extractNameFromProtobuf(entry.minister.name).charAt(0).toUpperCase()
+                                                                : '?'
+                                                            }
+                                                        </Avatar>
+                                                        <Box sx={{ flexGrow: 1 }}>
+                                                            <Typography variant="subtitle2" sx={{ fontWeight: '700', fontSize: 15, fontFamily: "poppins" }}>
+                                                                {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
+                                                            </Typography>
+                                                            <Typography variant="caption" color={colors.textMuted2} sx={{ fontSize: 14, fontFamily: "poppins" }}>
+                                                                {entry.minister
+                                                                    ? utils.extractNameFromProtobuf(entry.minister.name)
+                                                                    : 'No Minister Assigned'
+                                                                }
+                                                            </Typography>
+                                                        </Box>
                                                     </Box>
-                                                </Box>
+                                                </ButtonBase>
                                             </Paper>
                                         </TimelineContent>
                                     </TimelineItem>
@@ -271,6 +338,32 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                     <ClipLoader color={selectedPresident.themeColorLight} loading={loading} size={25} />
                 </Box>
             )}
+
+            {/* --- Person Profile Dialog --- */}
+            <Dialog
+                open={profileOpen}
+                onClose={() => setProfileOpen(false)}
+                maxWidth="md"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        height: "100vh",
+                        overflowY: "auto",
+                        backgroundColor: colors.backgroundPrimary,
+                        borderRadius: 3,
+                    },
+                }}
+            >
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: 2, pt: 2 }}>
+                    <IconButton onClick={() => setProfileOpen(false)}>
+                        <CloseIcon sx={{ color: colors.textPrimary }} />
+                    </IconButton>
+                </Box>
+
+                <Box sx={{ px: 3, pb: 3 }}>
+                    <PersonProfile selectedPerson={selectedMinister} />
+                </Box>
+            </Dialog>
         </>
     );
 };
