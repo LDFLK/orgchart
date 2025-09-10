@@ -21,6 +21,8 @@
     "@tailwindcss/vite": "^4.1.10",
     "d3": "^7.9.0",
     "eslint-plugin-react": "^7.37.5",
+    "highcharts": "^12.4.0",
+    "highcharts-react-official": "^3.2.2",
     "lucide-react": "^0.515.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -31,7 +33,10 @@
     "react-router-dom": "^7.6.2",
     "react-spinners": "^0.17.0",
     "remark-gfm": "^4.0.1",
-    "tailwindcss": "^4.1.10"
+    "string-similarity": "^4.0.4",
+    "tailwindcss": "^4.1.10",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
