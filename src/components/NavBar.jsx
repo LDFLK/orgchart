@@ -17,6 +17,7 @@ import { useThemeContext } from "../themeContext";
 import { useBadgeContext } from "../badgeContext.jsx";
 import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { useSelector } from "react-redux";
 
 function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -26,6 +27,8 @@ function Navbar() {
     showPersonBadge,
     setShowPersonBadge,
   } = useBadgeContext();
+
+  const { selectedPresident } = useSelector((state) => state.presidency);
 
   const { isDark, toggleTheme, colors } = useThemeContext();
 
@@ -80,7 +83,6 @@ function Navbar() {
                   backgroundColor: `${colors.primary}22`,
                 },
               }}
-              
             >
               Settings
             </Button>
@@ -272,7 +274,7 @@ function Navbar() {
         </Stack>
       </Drawer>
 
-      <ModernView />
+      {selectedPresident && <ModernView />}
     </Box>
   );
 }

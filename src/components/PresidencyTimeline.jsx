@@ -61,7 +61,7 @@ export default function PresidencyTimeline() {
       dispatch(setSelectedPresident(presidents[lastIndex]));
     }
     updateScrollButtons();
-  }, [presidents, gazetteData]);
+  }, [selectedPresident]);
 
   useEffect(() => {
     if (selectedIndex !== null) {

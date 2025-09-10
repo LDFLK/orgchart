@@ -277,17 +277,17 @@ const fetchAllMinistries = async () => {
   return response;
 };
 
-const fetchAllRelationsForMinistry = async (ministryId) => {
+const fetchAllRelationsForMinistry = async ({ministryId,relatedEntityId="",startTime="",endTime="",id="",name="",activeAt=""}) => {
   try {
     const response = await fetch(`${apiUrl}/v1/entities/${ministryId}/relations`, {
       method: "POST",
       body: JSON.stringify({
-        relatedEntityId: "",
-        startTime: "",
-        endTime: "",
-        id: "",
-        name: "",
-        activeAt: "",
+        relatedEntityId: relatedEntityId,
+        startTime: startTime,
+        endTime:endTime,
+        id: id,
+        name: name,
+        activeAt: activeAt,
       }),
       headers: {
         "Content-Type": "application/json",

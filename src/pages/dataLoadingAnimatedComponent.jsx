@@ -9,17 +9,22 @@ import {
   setPresidentRelationDict,
   setPresidentDict,
   setSelectedPresident,
+  setSelectedIndex,
+  setSelectedDate,
 } from "../store/presidencySlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/NavBar";
 import { Box, Typography } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import { setGazetteDataClassic } from "../store/gazetteDate";
+import StatisticMainPage from "./statistics_main_page";
 
-export default function DataLoadingAnimatedComponent() {
+export default function DataLoadingAnimatedComponent({ mode }) {
   const [loading, setLoading] = useState(false);
   const [showServerError, setShowServerError] = useState(false);
-  const { presidentDict } = useSelector((state) => state.presidency);
+  const { presidentDict, selectedPresident } = useSelector((state) => state.presidency);
+  const presidents = useSelector((state) => state.presidency.presidentList);
+  const { gazetteData } = useSelector((state) => state.gazettes);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -33,7 +38,8 @@ export default function DataLoadingAnimatedComponent() {
         await fetchAllGazetteDate();
         const afterTime = new Date().getTime();
         console.log(
-          `execusion time for initial fetching of all:  ${afterTime - beforeTime
+          `execusion time for initial fetching of all:  ${
+            afterTime - beforeTime
           } msec`
         );
         setLoading(false);
@@ -54,7 +60,7 @@ export default function DataLoadingAnimatedComponent() {
 
   const fetchPersonData = async () => {
     try {
-      // console.log("fetching person data");
+      console.log("fetching person data");
       const startTime = new Date().getTime();
       const personResponse = await api.fetchAllPersons();
       const endTime = new Date().getTime();
@@ -64,44 +70,46 @@ export default function DataLoadingAnimatedComponent() {
       const personDict = listToDict(personList.body);
       dispatch(setAllPerson(personDict));
 
-     const presidentResponseRaw = await api.fetchPresidentsData();
+      const presidentResponseRaw = await api.fetchPresidentsData();
 
-// Sort by startTime
-const presidentResponse = presidentResponseRaw.sort(
-  (a, b) => new Date(a.startTime) - new Date(b.startTime)
-);
+      // Sort by startTime
+      const presidentResponse = presidentResponseRaw.sort(
+        (a, b) => new Date(a.startTime) - new Date(b.startTime)
+      );
 
-// Convert to dictionary keyed by id
-const presidentRelationDict = listToDict(presidentResponse);
-dispatch(setPresidentRelationDict(presidentRelationDict));
+      // Convert to dictionary keyed by id
+      const presidentRelationDict = listToDict(presidentResponse);
+      dispatch(setPresidentRelationDict(presidentRelationDict));
 
-// Map relatedEntityId → person using existing personDict
-const presidentDictInDetail = presidentResponse
-  .map((p) => personDict[p.relatedEntityId])
-  .filter(Boolean);
+      // Map relatedEntityId → person using existing personDict
+      const presidentDictInDetail = presidentResponse
+        .map((p) => personDict[p.relatedEntityId])
+        .filter(Boolean);
 
-// Enrich presidents
-const enrichedPresidents = presidentDictInDetail.map((president) => {
-  const matchedDetail = presidentDetails.find((detail) =>
-    detail.presidentName
-      .toLowerCase()
-      .includes(utils.extractNameFromProtobuf(president.name).toLowerCase())
-  );
+      // Enrich presidents
+      const enrichedPresidents = presidentDictInDetail.map((president) => {
+        const matchedDetail = presidentDetails.find((detail) =>
+          detail.presidentName
+            .toLowerCase()
+            .includes(
+              utils.extractNameFromProtobuf(president.name).toLowerCase()
+            )
+        );
 
-  return {
-    ...president,
-    imageUrl: matchedDetail?.imageUrl || null,
-    themeColorLight: matchedDetail?.themeColorLight || null,
-  };
-});
+        return {
+          ...president,
+          imageUrl: matchedDetail?.imageUrl || null,
+          themeColorLight: matchedDetail?.themeColorLight || null,
+        };
+      });
 
-// Select the last president
-const selectedPre = enrichedPresidents[enrichedPresidents.length - 1];
+      // Select the last president
+      const selectedPre = enrichedPresidents[enrichedPresidents.length - 1];
 
-dispatch(setPresidentDict(enrichedPresidents));
-dispatch(setSelectedPresident(selectedPre));
+      console.log("this is the selected president ", selectedPre);
 
-
+      dispatch(setPresidentDict(enrichedPresidents));
+      dispatch(setSelectedPresident(selectedPre));
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching person data : ${e.message}`);
@@ -114,12 +122,13 @@ dispatch(setSelectedPresident(selectedPre));
       const startTime = new Date().getTime();
       const response = await api.fetchAllDepartments();
       const endTime = new Date().getTime();
-      console.log(`Time taken to fetch department data: ${endTime - startTime} ms`);
+      console.log(
+        `Time taken to fetch department data: ${endTime - startTime} ms`
+      );
       const departmentList = await response.json();
       // dispatch(setAllDepartmentData(departmentList.body));
       const departmentDict = listToDict(departmentList.body);
       dispatch(setAllDepartmentData(departmentDict));
-
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching department data : ${e.message}`);
@@ -132,7 +141,9 @@ dispatch(setSelectedPresident(selectedPre));
       const startTime = new Date().getTime();
       const response = await api.fetchAllMinistries();
       const endTime = new Date().getTime();
-      console.log(`Time taken to fetch ministry data: ${endTime - startTime} ms`);
+      console.log(
+        `Time taken to fetch ministry data: ${endTime - startTime} ms`
+      );
       const ministryList = await response.json();
       // dispatch(setAllMinistryData(ministryList.body));
       const ministryDict = listToDict(ministryList.body);
@@ -211,8 +222,12 @@ dispatch(setSelectedPresident(selectedPre));
             </Typography>
           </Box>
         </>
+      ) : (Object.keys(presidentDict.length > 0) && mode == "orgchart" && selectedPresident != null) ? (
+        <Navbar />
       ) : (
-       Object.keys(presidentDict).length > 0 && <Navbar />
+        (Object.keys(presidentDict.length > 0) && mode == "statistics" && selectedPresident != null) && (
+          <StatisticMainPage />
+        )
       )}
     </>
   );
