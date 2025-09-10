@@ -70,7 +70,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                     if (!ministry) continue;
 
                     try {
-                        const allRelations = await api.fetchAllRelationsForMinistry(ministryId);
+                        const allRelations = await api.fetchAllRelationsForMinistry({ministryId});
                         const appointedRelations = allRelations.filter(r => r.name === 'AS_APPOINTED');
 
                         const relevantMinisters = appointedRelations
