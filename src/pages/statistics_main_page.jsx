@@ -13,6 +13,8 @@ import {
   setSelectedDate,
 } from "../store/presidencySlice";
 import Drawer from "../components/statistics_compoents/drawer";
+import BottomPresidentLine from "../components/statistics_compoents/bottom_president_line";
+import PresidencyTimeline from "../components/PresidencyTimeline";
 
 export default function StatisticMainPage() {
   const [loading, setLoading] = useState(true);
@@ -21,6 +23,7 @@ export default function StatisticMainPage() {
   const [allNodes, setAllNodes] = useState([]);
   const [relations, setRelations] = useState([]);
   const [ministryRelationToGov, setMinistryRelationToGov] = useState([]);
+  const [clickedNode, setClickedNode] = useState([]);
 
   //drawer config
   const [expandDrawer, setExpandDrawer] = useState(true);
@@ -152,7 +155,6 @@ export default function StatisticMainPage() {
           created: department.created,
           kind: department.kind,
           terminated: department.terminated,
-          color: "#808080",
         };
         return acc;
       }, {});
@@ -178,23 +180,22 @@ export default function StatisticMainPage() {
 
   const handleNodeClick = useCallback(
     (targetNode) => {
-      console.log('clicked node : ',targetNode)
+      console.log("clicked node : ", targetNode);
       // Aim at node from outside it
 
       // If node already has position, use it
       let node = targetNode;
 
       if (typeof node.x !== "number") {
+        console.log("these are the nodes : ", graphData.nodes);
+        // Try to find the matching node from the graphData
+        node = graphData.nodes.find((n) => n.id == targetNode.id);
 
-        console.log('these are the nodes : ', graphData.nodes)
-      // Try to find the matching node from the graphData
-      node = graphData.nodes.find((n) => n.id == targetNode.id);
-      if (!node) {
-        console.warn("Node not found in graph:", targetNode);
-        return;
+        if (!node) {
+          console.warn("Node not found in graph:", targetNode);
+          return;
+        }
       }
-    }
-
 
       const distance = 200;
       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
@@ -205,22 +206,35 @@ export default function StatisticMainPage() {
         3000 // ms transition duration
       );
     },
-    [focusRef,graphData]
+    [focusRef, graphData]
   );
 
   useEffect(() => {
-    if (focusRef.current) {
-      focusRef.current.d3Force("link").distance((link) => {
-        switch (link.type) {
-          case "level1":
-            return 80;
-          case "level2":
-            return 120;
-          default:
-            return 120;
+    if (
+      focusRef.current &&
+      graphData.nodes.length > 0 &&
+      graphData.links.length > 0
+    ) {
+      // Delay to ensure layout is ready
+      requestAnimationFrame(() => {
+        try {
+          focusRef.current.d3Force("link").distance((link) => {
+            switch (link.type) {
+              case "level1":
+                return 800;
+              case "level2":
+                return 250;
+              default:
+                return 120;
+            }
+          });
+
+          focusRef.current.d3Force("charge").theta(0.5).strength(-300);
+          focusRef.current.d3ReheatSimulation(); // Reheat after forces are configured
+        } catch (e) {
+          console.warn("ForceGraph not ready yet:", e.message);
         }
       });
-      focusRef.current.d3Force("charge").theta(0.5).strength(-300);
     }
   }, [graphData]);
 
@@ -272,47 +286,65 @@ export default function StatisticMainPage() {
         onMinistryClick={handleNodeClick}
       />
       <div className="relative">
-        <StatisticsSearchBar />
-        <div className="flex justify-center items-center">
+        {/* <StatisticsSearchBar /> */}
+        <div className="flex justify-center items-center w-full h-screen">
           {!loading ? (
-            <ForceGraph3D
-              graphData={graphData}
-              backgroundColor="#111111"
-              linkWidth={2}
-              nodeRelSize={15}
-              nodeResolution={50}
-              ref={focusRef}
-              nodeAutoColorBy="group"
-              nodeThreeObjectExtend={true}
-              nodeThreeObject={(node) => {
-                const sprite = new SpriteText(
-                  utils.makeMultilineText(node.name)
-                );
-                sprite.color = "#fff";
-                sprite.backgroundColor = "#000";
-                sprite.padding = 2;
-                sprite.borderRadius = 3;
-                sprite.textHeight = 6;
-                sprite.center.y = -0.5;
-                return sprite;
-              }}
-              onNodeClick={handleNodeClick}
-              cooldownTicks={100}
-              // onEngineStop={() => focusRef.current.zoomToFit(400)}
-              onNodeDragEnd={(node) => {
-                node.fx = node.x;
-                node.fy = node.y;
-                node.fz = node.z;
-              }}
-            />
+            <>
+              <ForceGraph3D
+                graphData={graphData}
+                backgroundColor="#fff"
+                linkWidth={2}
+                linkColor={() => "rgba(0,0,0,1.0)"}
+                nodeRelSize={10}
+                nodeResolution={50}
+                ref={focusRef}
+                nodeAutoColorBy="group"
+                nodeThreeObjectExtend={true}
+                nodeThreeObject={(node) => {
+                  const sprite = new SpriteText(
+                    utils.makeMultilineText(node.name)
+                  );
+                  sprite.color = "#000";
+                  if (clickedNode.id == node.id) {
+                    sprite.backgroundColor = "#000";
+                    sprite.padding = 4;
+                    sprite.borderRadius = 3;
+                    sprite.color = "#fff";
+                  } else {
+                    sprite.backgroundColor = "#fff";
+                    sprite.padding = 4;
+                    sprite.borderRadius = 3;
+                    sprite.color = "#000";
+                  }
+                  sprite.textHeight = 10;
+                  sprite.fontWeight = 700;
+                  sprite.fontFace = "poppins";
+                  sprite.center.y = -0.5;
+                  return sprite;
+                }}
+                onNodeClick={handleNodeClick}
+                cooldownTicks={100}
+                // onEngineStop={() => focusRef.current.zoomToFit(400)}
+                onNodeDragEnd={(node) => {
+                  node.fx = node.x;
+                  node.fy = node.y;
+                  node.fz = node.z;
+                }}
+              />
+              {/* <BottomPresidentLine/> */}
+              {/* <PresidencyTimeline/> */}
+            </>
           ) : (
-            <ClipLoader
-              color="text-white"
-              loading={loading}
-              size={25}
-              aria-label="Loading Spinner"
-              data-testid="loader"
-            />
+            <div className={`flex justify-center bottom-0`}>
+              <ClipLoader
+                color="text-white"
+                loading={loading}
+                size={25}
+                aria-label="Loading Spinner"
+                data-testid="loader"
+              />{" "}
+              Graph Loading
+            </div>
           )}
         </div>
       </div>

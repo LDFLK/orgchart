@@ -1,5 +1,5 @@
 import React from "react";
-import { FiMoreHorizontal } from "react-icons/fi";
+import { IoClose } from "react-icons/io5";
 
 export default function Drawer({
   expandDrawer,
@@ -9,13 +9,13 @@ export default function Drawer({
 }) {
   return (
     <div
-      className={`fixed left-0 bg-white/95 z-[100] m-4 p-4 rounded-2xl overflow-hidden ${
+      className={`fixed right-0 shadow-xl bg-white/95 z-[100] m-4 p-4 pb-14 rounded-2xl overflow-hidden ${
         expandDrawer ? "w-1/3 h-[calc(100vh-32px)]" : ""
       }`}
     >
-      <div className="relative flex items-center w-full">
+      <div className="relative flex items-center w-full cursor-pointer">
         {!expandDrawer && "Show more "}{" "}
-        <FiMoreHorizontal
+        <IoClose 
           className={`px-2 ${expandDrawer ? "absolute right-0" : ""}`}
           size={48}
           onClick={() => setExpandDrawer(!expandDrawer)}

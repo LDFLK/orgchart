@@ -12,7 +12,6 @@ export default function StatisticsSearchBar() {
     >
       {/* Expand/Minimize Button */}
       {!isExpanded ? (
-        
         <button
           className="absolute flex right-3 items-center gap-2 cursor-pointer bg-white/90 px-6 py-4 rounded-full"
           onClick={() => setIsExpanded(true)}
@@ -39,8 +38,6 @@ export default function StatisticsSearchBar() {
                 size={28}
                 onClick={() => setIsExpanded(false)}
               />
-
-              
 
               <div className="text-center text-2xl md:text-4xl font-bold mt-2">
                 <h1 className="tracking-tight text-gray-900">
