@@ -228,6 +228,8 @@ const PersonsTab = ({ selectedDate }) => {
             overflowY: "auto",
             backgroundColor: colors.backgroundPrimary,
             borderRadius: 3,
+            scrollbarWidth: "none",
+          "&::-webkit-scrollbar": { display: "none" },
             
           },
         }}
