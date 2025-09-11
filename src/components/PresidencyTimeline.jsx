@@ -379,11 +379,15 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                       >
                         {selectedPresident && (
                           <>
-                            {president.created.split("-")[0]} -{" "}
+                            {president.created.split("-")[0]} - {" "}
                             {(() => {
                               const relation =
                                 presidentRelationDict[president.id];
-                              if (!relation) return "Unknown";
+
+                                console.log('this is the dictionary of zaeema', presidentRelationDict)
+
+                                console.log('this relation is returened by zaeema', relation)
+                              if (!relation) return "zaeema";
 
                               return relation.endTime
                                 ? new Date(relation.endTime).getFullYear()
