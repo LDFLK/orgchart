@@ -3,6 +3,7 @@ import ForceGraph3D from "react-force-graph-3d";
 import api from "./../services/services";
 import StatisticsSearchBar from "../components/statistics_compoents/searchbar";
 import SpriteText from "https://esm.sh/three-spritetext";
+import modeEnum from "../../src/enums/mode";
 import utils from "../utils/utils";
 import { ClipLoader } from "react-spinners";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,6 +13,8 @@ import {
   setSelectedPresident,
   setSelectedDate,
 } from "../store/presidencySlice";
+
+import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import Drawer from "../components/statistics_compoents/drawer";
 import BottomPresidentLine from "../components/statistics_compoents/bottom_president_line";
 import PresidencyTimeline from "../components/PresidencyTimeline";
@@ -20,6 +23,10 @@ export default function StatisticMainPage() {
   const [loading, setLoading] = useState(true);
   const [ministryDictionary, setMinistryDictionary] = useState({});
   const [departmentDictionary, setDepartmentDictionary] = useState({});
+  const [ministryDictionaryLoading, setMinistryDictionaryLoading] =
+    useState(false);
+  const [departmentDictionaryLoading, setDepartmentDictionaryLoading] =
+    useState(false);
   const [allNodes, setAllNodes] = useState([]);
   const [relations, setRelations] = useState([]);
   const [ministryRelationToGov, setMinistryRelationToGov] = useState([]);
@@ -57,6 +64,15 @@ export default function StatisticMainPage() {
       dispatch(setSelectedDate(date));
     }
   }, [presidents, gazetteDataClassic]);
+
+  useEffect(() => {
+    // setLoading(true);
+    setRelations([]);
+    setAllNodes([]);
+    setMinistryRelationToGov([]);
+    setMinistryDictionary({});
+    setMinistryDictionary({});
+  }, [selectedPresident]);
 
   useEffect(() => {
     const fetchActiveMinistries = async () => {
@@ -117,7 +133,6 @@ export default function StatisticMainPage() {
         ...Object.values(departmentDictionary).map((node) => ({ ...node })),
       ]);
     }
-    setLoading(false);
   }, [departmentDictionary]);
 
   const fetchRelations = async () => {
@@ -166,6 +181,7 @@ export default function StatisticMainPage() {
     } catch (e) {
       console.log(`Error fetching relations fetching : ${e.message}`);
     } finally {
+      setLoading(false);
     }
   };
 
@@ -173,6 +189,7 @@ export default function StatisticMainPage() {
   //   nodes: [],
   //   links: [],
   // };
+
   const graphData = {
     nodes: allNodes,
     links: loading ? [] : relations,
@@ -239,24 +256,24 @@ export default function StatisticMainPage() {
   }, [graphData]);
 
   // uncomment this for glow the graph
-  // useEffect(() => {
-  //   if (!focusRef.current || loading) return;
+  useEffect(() => {
+    if (!focusRef.current || loading) return;
 
-  //   const composer = focusRef.current.postProcessingComposer?.();
-  //   if (!composer) return;
+    const composer = focusRef.current.postProcessingComposer?.();
+    if (!composer) return;
 
-  //   const bloomPass = new UnrealBloomPass();
-  //   bloomPass.strength = 1;
-  //   bloomPass.radius = 2;
-  //   bloomPass.threshold = 1;
+    const bloomPass = new UnrealBloomPass();
+    bloomPass.strength = 1;
+    bloomPass.radius = 2;
+    bloomPass.threshold = 1;
 
-  //   composer.addPass(bloomPass);
+    composer.addPass(bloomPass);
 
-  //   // Optional: clean up on unmount or re-render
-  //   return () => {
-  //     composer.passes = composer.passes.filter((pass) => pass !== bloomPass);
-  //   };
-  // }, [loading]);
+    // Optional: clean up on unmount or re-render
+    return () => {
+      composer.passes = composer.passes.filter((pass) => pass !== bloomPass);
+    };
+  }, [loading]);
 
   // uncomment this to rotate the graph
   //   useEffect(() => {
@@ -277,20 +294,38 @@ export default function StatisticMainPage() {
   //   return () => clearInterval(interval); // Clean up on unmount
   // }, [loading]);
 
+  useEffect(() => {
+    return () => {
+      // Reset before component unmounts
+      if (
+        focusRef.current &&
+        typeof focusRef.current.graphData === "function"
+      ) {
+        focusRef.current.graphData({ nodes: [], links: [] });
+      }
+    };
+  }, [selectedPresident]);
+
   return (
     <>
       <Drawer
         expandDrawer={expandDrawer}
         setExpandDrawer={setExpandDrawer}
         ministerDictionary={ministryDictionary}
+        departmentDictionary={departmentDictionary}
         onMinistryClick={handleNodeClick}
       />
+      {/* <PresidencyTimeline mode={modeEnum.STATISTICS} /> */}
       <div className="relative">
         {/* <StatisticsSearchBar /> */}
-        <div className="flex justify-center items-center w-full h-screen">
+        <div className="flex justify-start items-start h-screen">
           {!loading ? (
             <>
               <ForceGraph3D
+                height={window.innerHeight}
+                width={
+                  expandDrawer ? window.innerWidth / 2 : window.innerWidth
+                }
                 graphData={graphData}
                 backgroundColor="#fff"
                 linkWidth={2}
@@ -332,7 +367,6 @@ export default function StatisticMainPage() {
                 }}
               />
               {/* <BottomPresidentLine/> */}
-              {/* <PresidencyTimeline/> */}
             </>
           ) : (
             <div className={`flex justify-center bottom-0`}>
@@ -342,7 +376,7 @@ export default function StatisticMainPage() {
                 size={25}
                 aria-label="Loading Spinner"
                 data-testid="loader"
-              />{" "}
+              />
               Graph Loading
             </div>
           )}
