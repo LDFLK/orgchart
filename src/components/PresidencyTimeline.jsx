@@ -125,7 +125,9 @@ export default function PresidencyTimeline() {
   };
 
   useEffect(() => {
-    drawLine();
+    setTimeout(() => {
+      drawLine();
+    }, 200);
   }, [selectedIndex, selectedDate]);
 
   useEffect(() => {
@@ -143,7 +145,7 @@ export default function PresidencyTimeline() {
 
   useEffect(() => {
     if (selectedPresident?.created) {
-    
+
       const presidentRelationByStartTime = {};
       Object.values(presidentRelationDict).forEach((rel) => {
         presidentRelationByStartTime[rel.startTime] = rel;
@@ -370,7 +372,7 @@ export default function PresidencyTimeline() {
                       <>
                         {president.created.split("-")[0]} -{" "}
                         {(() => {
-                         const relation = presidentRelationDict[president.id];
+                          const relation = presidentRelationDict[president.id];
                           if (!relation) return "Unknown";
 
                           return relation.endTime
