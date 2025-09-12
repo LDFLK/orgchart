@@ -223,7 +223,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
                       onClick={() => setSelectedDepartment(dep)}
                     >
                       <AccountBalanceIcon fontSize="small" sx={{ mr: 2, color: selectedPresident.themeColorLight }} />
-                      <Typography sx={{ fontFamily: "poppins", color: colors.textPrimary }}>{depName}</Typography>
+                      <Typography sx={{ fontFamily: "poppins", color: colors.textPrimary, textAlign: "left",}}>{depName}</Typography>
                       {dep.isNew && (
                         <Typography variant="caption" sx={{ ml: 1, px: 1, py: 0.3, borderRadius: "5px", backgroundColor: selectedPresident.themeColorLight, color: colors.white, fontFamily: "poppins", fontWeight: 600 }}>
                           New

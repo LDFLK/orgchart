@@ -15,7 +15,6 @@ import { ClipLoader } from "react-spinners";
 import utils from '../utils/utils';
 import api from '../services/services';
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import ApartmentIcon from "@mui/icons-material/Apartment";
 import PersonIcon from "@mui/icons-material/Person"
 import personDetails from "./../assets/personImages.json";
 
@@ -93,7 +92,7 @@ const PersonHistoryTimeline = ({ selectedPerson, onTimelineUpdate, presidentRela
             sx={{
                 width: "100%",
                 alignItems: "center",
-                p: 3,
+                p: { xs: 0, sm: 6 },
                 borderRadius: 2,
                 backgroundColor: colors.backgroundWhite,
                 boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
@@ -150,32 +149,57 @@ const PersonHistoryTimeline = ({ selectedPerson, onTimelineUpdate, presidentRela
                                         boxShadow: '0 1px 5px rgba(0,0,0,0.1)',
                                     }}
                                 >
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                                        {/* Avatar */}
                                         <Avatar sx={{ bgcolor: colors.textMuted2, width: 30, height: 30, fontSize: 14 }}>
                                             <AccountBalanceIcon />
                                         </Avatar>
-                                        <Box sx={{ flexGrow: 1 }}>
-                                            <Typography variant="subtitle2" sx={{ fontWeight: '700', fontSize: 15, fontFamily: "poppins" }}>
-                                                {entry.ministryName.split(":")[0]}
-                                            </Typography>
-                                        </Box>
 
-                                        {wasPresident && (
-                                            <Box
+                                        {/* Text + President badge */}
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'flex-start',
+                                                flexGrow: 1,
+                                                alignSelf: 'flex-start',
+                                            }}
+                                        >
+                                            {/* Ministry Name */}
+                                            <Typography
+                                                variant="subtitle2"
                                                 sx={{
-                                                    px: 1,
-                                                    py: 0.2,
-                                                    borderRadius: 1,
-                                                    bgcolor: colors.textMuted,
-                                                    color: "white",
-                                                    fontSize: 10,
-                                                    fontWeight: 600,
-                                                    fontFamily: "poppins",
+                                                    fontWeight: '700',
+                                                    fontSize: { xs: 12, sm: 15 }, // responsive font
+                                                    fontFamily: 'poppins',
+                                                    wordBreak: 'break-word',
+                                                    width: '100%',
+                                                    textAlign: 'left',
                                                 }}
                                             >
-                                                President
-                                            </Box>
-                                        )}
+                                                {entry.ministryName.split(':')[0]}
+                                            </Typography>
+
+                                            {/* President Badge */}
+                                            {wasPresident && (
+                                                <Box
+                                                    sx={{
+                                                        mt: 0.5,
+                                                        px: 1,
+                                                        py: 0.2,
+                                                        borderRadius: 1,
+                                                        bgcolor: colors.textMuted,
+                                                        color: 'white',
+                                                        fontSize: { xs: 8, sm: 10 }, // responsive font
+                                                        fontWeight: 600,
+                                                        fontFamily: 'poppins',
+                                                        alignSelf: 'flex-start',
+                                                    }}
+                                                >
+                                                    President
+                                                </Box>
+                                            )}
+                                        </Box>
                                     </Box>
                                 </Paper>
                             </TimelineContent>
@@ -211,48 +235,78 @@ const PersonProfile = ({ selectedPerson }) => {
     const tabOptions = ["history", "statistics"];
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, p: 6, backgroundColor: colors.backgroundPrimary, mt: -5 }}>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: { xs: 4, sm: 6 },
+                p: { xs: 0, sm: 6 },
+                mt: -4,
+                backgroundColor: colors.backgroundPrimary,
+                width: '100%',
+                minHeight: { xs: 'auto', sm: '100vh' },
+            }}
+        >
+            <Typography
+                variant="h6"
+                sx={{ fontFamily: "Poppins", fontWeight: 600, color: colors.textPrimary }}
+            >
+                Profile
+            </Typography>
             {/* --- Person Card --- */}
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", mb: 3 }}>
-                <Typography
-                    variant="h6"
-                    sx={{ fontFamily: "Poppins", fontWeight: 600, color: colors.textPrimary, mb: 2 }}
-                >
-                    Profile
-                </Typography>
-
-                <Box
+            <Box
+                sx={{
+                    width: "100%",
+                    maxWidth: 400,
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    p: 3,
+                    borderRadius: 2,
+                    backgroundColor: colors.backgroundWhite,
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                    gap: 2,
+                }}
+            >
+                {/* Avatar */}
+                <Avatar
+                    src={imageUrl}
+                    alt={selectedPerson?.name}
                     sx={{
-                        width: "100%",
-                        maxWidth: 500,
-                        display: "flex",
-                        flexDirection: "row", 
-                        alignItems: "center",
-                        p: 3,
-                        borderRadius: 2,
-                        backgroundColor: colors.backgroundWhite,
-                        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                        gap: 2,
-                        
+                        width: { xs: 80, sm: 100 },
+                        height: { xs: 80, sm: 100 },
+                        bgcolor: colors.textMuted2,
+                        fontSize: { xs: 20, sm: 24 },
                     }}
                 >
-                    {/* Avatar */}
-                    <Avatar
-                        src={imageUrl}
-                        alt={selectedPerson?.name}
-                        sx={{ width: 100, height: 100, bgcolor: colors.textMuted2, fontSize: 24 }}
+                    {personName.charAt(0).toUpperCase() || "?"}
+                </Avatar>
+
+                {/* Info stacked in column */}
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",   // always column, so two lines
+                        gap: 1,
+                        flex: 1,
+                        width: "100%",
+                    }}
+                >
+                    <Typography
+                        sx={{
+                            fontFamily: "Poppins",
+                            fontWeight: 600,
+                            color: colors.textPrimary,
+                            fontSize: { xs: "1rem", sm: "1.1rem" },
+                            wordBreak: "break-word",
+                        }}
                     >
-                        {personName.charAt(0).toUpperCase() || "?"}
-                    </Avatar>
+                        {utils.extractNameFromProtobuf(selectedPerson?.name || "Unknown")}
+                    </Typography>
 
-                    {/* Info stacked in 3 rows */}
-                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1, flex: 1 }}>
-                        <Typography sx={{ fontFamily: "Poppins", fontWeight: 600, color: colors.textPrimary }}>
-                            {utils.extractNameFromProtobuf(selectedPerson?.name || "Unknown")}
-                        </Typography>
-
-                        {/* Worked Ministries */}
-                        <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                    {/* Fields always stacked */}
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                             <Typography sx={{ display: "flex", alignItems: "center", gap: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
                                 <AccountBalanceIcon sx={{ fontSize: 18, color: colors.textMuted }} />
                                 Worked Ministries
@@ -262,8 +316,7 @@ const PersonProfile = ({ selectedPerson }) => {
                             </Typography>
                         </Box>
 
-                        {/* Worked as President */}
-                        <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                             <Typography sx={{ display: "flex", alignItems: "center", gap: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
                                 <PersonIcon sx={{ fontSize: 18, color: colors.textMuted }} />
                                 Worked as President
@@ -276,8 +329,17 @@ const PersonProfile = ({ selectedPerson }) => {
                 </Box>
             </Box>
 
+
             {/* --- Tabs (Elliptical Buttons) --- */}
-            <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 2,
+                    mt: 2,
+                    justifyContent: { xs: "center", sm: "flex-start" },
+                }}
+            >
                 {tabOptions.map((tab) => {
                     const label = tab.charAt(0).toUpperCase() + tab.slice(1);
                     const isActive = activeTab === tab;
@@ -290,14 +352,15 @@ const PersonProfile = ({ selectedPerson }) => {
                             sx={{
                                 textTransform: "none",
                                 borderRadius: "50px",
-                                px: 3,
+                                px: { xs: 2, sm: 3 },
                                 py: 0.8,
                                 fontFamily: "poppins",
-                                color: isActive ? colors.backgroundPrimary : `${colors.textPrimary}`,
-                                backgroundColor: isActive ? `${colors.textPrimary}` : "transparent",
-                                borderColor: `${colors.textPrimary}`,
+                                fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
+                                color: isActive ? colors.backgroundPrimary : colors.textPrimary,
+                                backgroundColor: isActive ? colors.textPrimary : "transparent",
+                                borderColor: colors.textPrimary,
                                 "&:hover": {
-                                    backgroundColor: isActive ? `${colors.textPrimary}` : `${colors.primary}10`,
+                                    backgroundColor: isActive ? colors.textPrimary : `${colors.primary}10`,
                                 },
                             }}
                         >
@@ -309,9 +372,7 @@ const PersonProfile = ({ selectedPerson }) => {
 
             {/* --- Tab Panels --- */}
             {activeTab === "history" && (
-                <Box sx={{ mt: 2 }}>
-                    <PersonHistoryTimeline selectedPerson={selectedPerson} onTimelineUpdate={setTimelineData} presidentRelationDict={presidentRelationDict} />
-                </Box>
+                <PersonHistoryTimeline selectedPerson={selectedPerson} onTimelineUpdate={setTimelineData} presidentRelationDict={presidentRelationDict} />
             )}
             {activeTab === "statistics" && (
                 <Box sx={{ mt: 2 }}>

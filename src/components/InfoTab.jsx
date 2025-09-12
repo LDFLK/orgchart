@@ -17,7 +17,7 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
       open={drawerOpen}
       onClose={onClose}
       fullWidth
-      maxWidth="md"
+      maxWidth="xl"
       PaperProps={{
         sx: { height: "100vh", borderRadius: 2, backgroundColor: colors.backgroundPrimary },
       }}
@@ -33,7 +33,7 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
           "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-    
+
         <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 1 }}>
           <IconButton onClick={onClose}>
             <CloseIcon sx={{ color: colors.textPrimary }} />
@@ -77,10 +77,18 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
               {selectedCard?.name?.split(":")[0] || "No Ministry Selected"}
             </Typography>
           </Box>
-
+          
           {/* Tabs */}
-          <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-            {["departments", "persons", "structure"].map((tab) => {
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",     
+              gap: 2,
+              mt: 2,
+              justifyContent: { xs: "center", sm: "flex-start" }, // center on very small screens
+            }}
+          >
+            {["departments", "persons"].map((tab) => {
               const label = tab.charAt(0).toUpperCase() + tab.slice(1);
               const isActive = activeTab === tab;
 
@@ -92,9 +100,10 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
                   sx={{
                     textTransform: "none",
                     borderRadius: "50px",
-                    px: 3,
+                    px: { xs: 2, sm: 3 }, 
                     py: 0.8,
                     fontFamily: "poppins",
+                    fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" }, 
                     color: isActive ? colors.white : presidentColor,
                     backgroundColor: isActive ? presidentColor : "transparent",
                     borderColor: presidentColor,
@@ -108,6 +117,7 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
               );
             })}
           </Box>
+
         </Box>
 
         {/* Content */}

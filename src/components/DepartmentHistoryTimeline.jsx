@@ -70,7 +70,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                     if (!ministry) continue;
 
                     try {
-                        const allRelations = await api.fetchAllRelationsForMinistry({ministryId});
+                        const allRelations = await api.fetchAllRelationsForMinistry({ ministryId });
                         const appointedRelations = allRelations.filter(r => r.name === 'AS_APPOINTED');
 
                         const relevantMinisters = appointedRelations
@@ -302,14 +302,17 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                                     disabled={!entry.minister}
                                                     sx={{ width: "100%", textAlign: "left", display: "flex", cursor: "pointer", borderRadius: 2 }}
                                                 >
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <Avatar sx={{ bgcolor: selectedPresident.themeColorLight, width: 30, height: 30, fontSize: 14 }}>
+                                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, width: '100%' }}>
+                                                        {/* Avatar */}
+                                                        <Avatar sx={{ bgcolor: selectedPresident.themeColorLight, width: 30, height: 30, fontSize: 14, flexShrink: 0 }}>
                                                             {entry.minister
                                                                 ? utils.extractNameFromProtobuf(entry.minister.name).charAt(0).toUpperCase()
                                                                 : '?'
                                                             }
                                                         </Avatar>
-                                                        <Box sx={{ flexGrow: 1 }}>
+
+                                                        {/* Text stacked vertically */}
+                                                        <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'flex-start' }}>
                                                             <Typography variant="subtitle2" sx={{ fontWeight: '700', fontSize: 15, fontFamily: "poppins" }}>
                                                                 {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
                                                             </Typography>
@@ -322,6 +325,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                                         </Box>
                                                     </Box>
                                                 </ButtonBase>
+
                                             </Paper>
                                         </TimelineContent>
                                     </TimelineItem>
@@ -343,7 +347,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
             <Dialog
                 open={profileOpen}
                 onClose={() => setProfileOpen(false)}
-                maxWidth="md"
+                maxWidth="xl"
                 fullWidth
                 PaperProps={{
                     sx: {

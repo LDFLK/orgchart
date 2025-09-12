@@ -157,7 +157,7 @@ const ModernView = () => {
         <Dialog
           open={profileOpen}
           onClose={() => setProfileOpen(false)}
-          maxWidth="md"
+          maxWidth="xl"
           fullWidth
           PaperProps={{
             sx: {

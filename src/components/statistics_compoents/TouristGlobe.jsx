@@ -229,6 +229,9 @@ function Globe({ selectedCountry, onCountryClick }) {
   const [pinPosition, setPinPosition] = useState(null);
   const [offGlobe, setOffGlobe] = useState(false);
 
+  // NEW: control popup timing
+  const [showCard, setShowCard] = useState(false);
+
   // Use ref to hold the latest selectedCountry for D3 drag
   const selectedCountryRef = useRef(selectedCountry);
   useEffect(() => {
@@ -258,7 +261,7 @@ function Globe({ selectedCountry, onCountryClick }) {
     const center = [-rotate[0], -rotate[1]];
     const dist = d3.geoDistance(center, centroid);
 
-    if (dist > Math.PI / 2) { // country is behind globe
+    if (dist > Math.PI / 2) {
       setOffGlobe(true);
       setPinPosition(null);
       return;
@@ -316,7 +319,7 @@ function Globe({ selectedCountry, onCountryClick }) {
         svg.selectAll("path.country").attr("d", path);
         svg.select("path").attr("d", path);
 
-        updatePinPosition(); // pin follows globe during drag
+        updatePinPosition();
       });
 
     svg.call(drag);
@@ -331,6 +334,24 @@ function Globe({ selectedCountry, onCountryClick }) {
       }
     });
   }, []);
+
+  // Update highlight when selectedCountry changes
+  useEffect(() => {
+    const svg = d3.select(ref.current);
+    const path = pathRef.current;
+    const countries = countriesRef.current;
+    const normalized = selectedCountry
+      ? (nameMapping[selectedCountry] || selectedCountry)
+      : null;
+
+    svg.selectAll("path.country")
+      .attr("d", path)
+      .attr("fill", d =>
+        normalized && d.properties.name === normalized
+          ? "#69261fff"
+          : "#9ca3af"
+      );
+  }, [selectedCountry]);
 
   // Rotate globe when country selected
   useEffect(() => {
@@ -351,6 +372,9 @@ function Globe({ selectedCountry, onCountryClick }) {
 
     const centroid = d3.geoCentroid(country);
 
+    // hide card while rotating
+    setShowCard(false);
+
     d3.transition()
       .duration(1250)
       .tween("rotate", () => {
@@ -362,8 +386,11 @@ function Globe({ selectedCountry, onCountryClick }) {
             .attr("fill", d => d.properties.name === normalized ? "#69261fff" : "#9ca3af");
           svg.select("path").attr("d", path);
 
-          updatePinPosition(); // pin moves with tween
+          updatePinPosition();
         };
+      })
+      .on("end", () => {
+        setShowCard(true); // only show after rotation ends
       });
   }, [selectedCountry]);
 
@@ -372,7 +399,7 @@ function Globe({ selectedCountry, onCountryClick }) {
       <svg ref={ref}></svg>
 
       {/* Floating pinned card */}
-      {selectedCountry && pinPosition && !offGlobe && (
+      {showCard && selectedCountry && pinPosition && !offGlobe && (
         <Box
           sx={{
             position: "absolute",
@@ -388,7 +415,36 @@ function Globe({ selectedCountry, onCountryClick }) {
         >
           <IconButton
             size="small"
-            onClick={() => onCountryClick(null)} // closes popup
+            onClick={() => onCountryClick(null)}
+            sx={{ position: "absolute", top: 4, right: 4, padding: "2px" }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+
+          <Box sx={{ fontWeight: "bold", mt: 1 }}>{selectedCountry}</Box>
+          <Box>
+            {`Tourists: ${countriesData.find(([n]) => n === selectedCountry)?.[1] ?? "Unknown"}`}
+          </Box>
+        </Box>
+      )}
+
+      {showCard && selectedCountry && !pinPosition && offGlobe && (
+        <Box
+          sx={{
+            position: "absolute",
+            right: -220,
+            top: 50,
+            width: 200,
+            p: 1.5,
+            borderRadius: 2,
+            boxShadow: 3,
+            backgroundColor: "white",
+            pointerEvents: "auto",
+          }}
+        >
+          <IconButton
+            size="small"
+            onClick={() => onCountryClick(null)}
             sx={{ position: "absolute", top: 4, right: 4, padding: "2px" }}
           >
             <CloseIcon fontSize="small" />
@@ -402,7 +458,7 @@ function Globe({ selectedCountry, onCountryClick }) {
       )}
 
       {/* Connector line */}
-      {selectedCountry && pinPosition && !offGlobe && (
+      {showCard && selectedCountry && pinPosition && !offGlobe && (
         <svg
           style={{
             position: "absolute",
@@ -423,10 +479,10 @@ function Globe({ selectedCountry, onCountryClick }) {
           />
         </svg>
       )}
-
     </Box>
   );
 }
+
 
 export default function TouristGlobe() {
   const [selectedCountry, setSelectedCountry] = useState(null);

@@ -153,8 +153,20 @@ const PersonsTab = ({ selectedDate }) => {
               <PersonIcon fontSize="small" sx={{ color: selectedPresident?.themeColorLight }} />
 
               {/* Name + badges container */}
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, flexWrap: "wrap" }}>
-                <Typography sx={{ fontFamily: "poppins", color: colors.textPrimary }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 0.5,
+                  flexWrap: "wrap",
+                  justifyContent: "flex-start", 
+                  textAlign: "left",             
+                  width: "100%",        
+                }}
+              >
+                <Typography
+                  sx={{fontFamily: "poppins",color: colors.textPrimary,textAlign: "left",width: "100%"}}
+                >
                   {utils.extractNameFromProtobuf(person.name)}
                 </Typography>
 
@@ -220,7 +232,7 @@ const PersonsTab = ({ selectedDate }) => {
       <Dialog
         open={profileOpen}
         onClose={() => setProfileOpen(false)}
-        maxWidth="md"
+        maxWidth="xl"
         fullWidth
         PaperProps={{
           sx: {
@@ -229,8 +241,8 @@ const PersonsTab = ({ selectedDate }) => {
             backgroundColor: colors.backgroundPrimary,
             borderRadius: 3,
             scrollbarWidth: "none",
-          "&::-webkit-scrollbar": { display: "none" },
-            
+            "&::-webkit-scrollbar": { display: "none" },
+
           },
         }}
       >
