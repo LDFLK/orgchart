@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import ForceGraph3D from "react-force-graph-3d";
 import api from "./../services/services";
-import StatisticsSearchBar from "../components/statistics_compoents/searchbar";
+import StatisticsSearchBar from "../components/statistics_components/searchbar";
 import modeEnum from "../../src/enums/mode";
 import utils from "../utils/utils";
 import { ClipLoader } from "react-spinners";
@@ -18,14 +18,16 @@ import {
   setSelectedDate,
 } from "../store/presidencySlice";
 import { Box, Avatar, Typography, IconButton } from "@mui/material";
-import Drawer from "../components/statistics_compoents/drawer";
-import BottomPresidentLine from "../components/statistics_compoents/bottom_president_line";
+import Drawer from "../components/statistics_components/drawer";
+import BottomPresidentLine from "../components/statistics_components/bottom_president_line";
 import PresidencyTimeline from "../components/PresidencyTimeline";
 import SpriteText from "three-spritetext";
-import AlertToOrgchart from "../components/statistics_compoents/alertToOrgchart";
+import AlertToOrgchart from "../components/statistics_components/alertToOrgchart";
+import WebGLChecker, { isWebGLAvailable } from "../components/common_components/webgl_checker";
 
 export default function StatisticMainPage() {
   const [loading, setLoading] = useState(true);
+  const [webgl, setWebgl] = useState(true);
   const [clickedNode, setClickedNode] = useState({});
   const [expandDrawer, setExpandDrawer] = useState(true);
 
@@ -52,6 +54,10 @@ export default function StatisticMainPage() {
   const allDepartmentData = useSelector(
     (state) => state.allDepartmentData.allDepartmentData
   );
+
+  useEffect(() => {
+    setWebgl(isWebGLAvailable());
+  }, []);
 
   // Initial selection of president & date
   useEffect(() => {
@@ -269,13 +275,13 @@ export default function StatisticMainPage() {
   }, [graphData.nodes.length, graphData.links.length]);
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (focusRef.current?.graphData) {
-        focusRef.current.graphData({ nodes: [], links: [] });
-      }
-    };
-  }, [selectedPresident]);
+  // useEffect(() => {
+  //   return () => {
+  //     if (focusRef.current?.graphData) {
+  //       focusRef.current.graphData({ nodes: [], links: [] });
+  //     }
+  //   };
+  // }, [selectedPresident]);
 
   return (
     <>
@@ -301,17 +307,29 @@ export default function StatisticMainPage() {
           <PresidencyTimeline mode={modeEnum.STATISTICS} />
           {!loading ? (
             <div>
-              <AlertToOrgchart />
+              <AlertToOrgchart selectedPresident={selectedPresident} />
+              {webgl ? (
               <ForceGraph3D
                 height={window.innerHeight}
                 width={expandDrawer ? window.innerWidth / 2 : window.innerWidth}
                 graphData={graphData}
                 backgroundColor="#fff"
-                linkWidth={2}
+                linkWidth={3}
                 linkColor={() => "rgba(0,0,0,1.0)"}
                 nodeRelSize={10}
-                nodeResolution={50}
+                nodeResolution={8}
                 ref={focusRef}
+                rendererConfig={{
+                  alpha: true,
+                  antialias: false,
+                  powerPreference: "low-power",
+                  precision: "mediump",
+                  failIfMajorPerformanceCaveat: false,
+                  preserveDrawingBuffer: false,
+                  stencil: false,
+                  depth: true,
+                  logarithmicDepthBuffer: false
+                }}
                 nodeAutoColorBy="group"
                 nodeThreeObjectExtend={true}
                 nodeThreeObject={getNodeObject}
@@ -323,6 +341,11 @@ export default function StatisticMainPage() {
                   node.fz = node.z;
                 }}
               />
+              ) : (
+                <div className="flex justify-center items-center w-full h-full">
+                  <span className="ml-2">WebGL is unavailable on this device. Showing fallback.</span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex justify-center items-center w-full h-full">
@@ -332,6 +355,7 @@ export default function StatisticMainPage() {
           )}
         </div>
       </div>
+      <WebGLChecker />
     </>
   );
 }

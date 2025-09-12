@@ -46,10 +46,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
 
   const { colors } = useThemeContext();
 
-  useEffect(() => {
-    console.log("this is the mode", mode);
-  }, [mode]);
-
   const updateScrollButtons = () => {
     const scrollEl = scrollRef.current;
     if (!scrollEl) return;

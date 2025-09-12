@@ -6,9 +6,10 @@ import './components/TidyTree.variables.css';
 import './components/TidyTree.css';
 import { useThemeContext } from "./themeContext";
 import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
-import TouristGlobe from "./components/statistics_compoents/TouristGlobe";
-import DistrictMap from "./components/statistics_compoents/DistrictMap";
-import ChartDashboard from "./components/statistics_compoents/ChartDashboard";
+import TouristGlobe from "./components/statistics_components/TouristGlobe";
+import DistrictMap from "./components/statistics_components/DistrictMap";
+import ChartDashboard from "./components/statistics_components/ChartDashboard";
+import WebGLChecker from "./components/common_components/webgl_checker";
 
 
 const App = () => {
@@ -17,6 +18,7 @@ const App = () => {
   
   return(
     <div className={isDark ? "dark-mode" : ""}>
+      {/* <WebGLChecker/> */}
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -25,8 +27,7 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
         <Route path="/globe" element={<TouristGlobe/>}/>
         <Route path="/map" element={<DistrictMap/>}/>
-         <Route path="/dashboard" element={<ChartDashboard/>}/>
-      
+        <Route path="/dashboard" element={<ChartDashboard/>}/>
       </Routes>
     </Router>
     </div>
