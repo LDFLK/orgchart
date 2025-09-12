@@ -22,6 +22,7 @@ import Drawer from "../components/statistics_compoents/drawer";
 import BottomPresidentLine from "../components/statistics_compoents/bottom_president_line";
 import PresidencyTimeline from "../components/PresidencyTimeline";
 import SpriteText from "three-spritetext";
+import AlertToOrgchart from "../components/statistics_compoents/alertToOrgchart";
 
 export default function StatisticMainPage() {
   const [loading, setLoading] = useState(true);
@@ -45,8 +46,12 @@ export default function StatisticMainPage() {
   const gazetteDataClassic = useSelector(
     (state) => state.gazettes.gazetteDataClassic
   );
-  const allMinistryData = useSelector((state) => state.allMinistryData.allMinistryData);
-  const allDepartmentData = useSelector((state) => state.allDepartmentData.allDepartmentData);
+  const allMinistryData = useSelector(
+    (state) => state.allMinistryData.allMinistryData
+  );
+  const allDepartmentData = useSelector(
+    (state) => state.allDepartmentData.allDepartmentData
+  );
 
   // Initial selection of president & date
   useEffect(() => {
@@ -57,7 +62,11 @@ export default function StatisticMainPage() {
     }
 
     if (gazetteDataClassic?.length > 0) {
-      dispatch(setSelectedDate({ date: gazetteDataClassic[gazetteDataClassic.length - 1] }));
+      dispatch(
+        setSelectedDate({
+          date: gazetteDataClassic[gazetteDataClassic.length - 1],
+        })
+      );
     }
   }, [presidents, gazetteDataClassic]);
 
@@ -84,20 +93,22 @@ export default function StatisticMainPage() {
         }, {});
 
         // Fetch relations: ministries → departments
-        const relationPromises = Object.keys(ministryDic).map(async (ministryId) => {
-          const response = await api.fetchAllRelationsForMinistry({
-            ministryId,
-            name: "AS_DEPARTMENT",
-            activeAt: selectedDate.date,
-          });
+        const relationPromises = Object.keys(ministryDic).map(
+          async (ministryId) => {
+            const response = await api.fetchAllRelationsForMinistry({
+              ministryId,
+              name: "AS_DEPARTMENT",
+              activeAt: selectedDate.date,
+            });
 
-          return response.map((department) => ({
-            source: ministryId,
-            target: department.relatedEntityId,
-            value: 2,
-            type: "level2",
-          }));
-        });
+            return response.map((department) => ({
+              source: ministryId,
+              target: department.relatedEntityId,
+              value: 2,
+              type: "level2",
+            }));
+          }
+        );
 
         const allRelations = (await Promise.all(relationPromises)).flat();
 
@@ -167,10 +178,13 @@ export default function StatisticMainPage() {
   }, [selectedDate, selectedPresident]);
 
   // Memoized graph data
-  const graphData = useMemo(() => ({
-    nodes: allNodes,
-    links: loading ? [] : relations,
-  }), [allNodes, relations, loading]);
+  const graphData = useMemo(
+    () => ({
+      nodes: allNodes,
+      links: loading ? [] : relations,
+    }),
+    [allNodes, relations, loading]
+  );
 
   // Memoized node rendering function
   const getNodeObject = useCallback(
@@ -191,45 +205,48 @@ export default function StatisticMainPage() {
 
   // Handle clicking a node
   const handleNodeClick = useCallback(
-  (targetNode) => {
-    setClickedNode(targetNode);
+    (targetNode) => {
+      setClickedNode(targetNode);
 
-    let node = targetNode;
+      let node = targetNode;
 
-    // Ensure node position is ready
-    if (
-      typeof node.x !== "number" ||
-      typeof node.y !== "number" ||
-      typeof node.z !== "number"
-    ) {
-      node = graphData.nodes.find((n) => n.id === targetNode.id);
+      // Ensure node position is ready
+      if (
+        typeof node.x !== "number" ||
+        typeof node.y !== "number" ||
+        typeof node.z !== "number"
+      ) {
+        node = graphData.nodes.find((n) => n.id === targetNode.id);
 
-      if (!node || typeof node.x !== "number") {
-        console.warn("Node position not ready, skipping camera move.");
-        return;
+        if (!node || typeof node.x !== "number") {
+          console.warn("Node position not ready, skipping camera move.");
+          return;
+        }
       }
-    }
 
-    const distance = 200;
-    const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+      const distance = 200;
+      const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
 
-    focusRef.current.cameraPosition(
-      {
-        x: node.x * distRatio,
-        y: node.y * distRatio,
-        z: node.z * distRatio,
-      },
-      node,
-      1000 // <- 1s for a snappy transition
-    );
-  },
-  [graphData]
-);
-
+      focusRef.current.cameraPosition(
+        {
+          x: node.x * distRatio,
+          y: node.y * distRatio,
+          z: node.z * distRatio,
+        },
+        node,
+        1000 // <- 1s for a snappy transition
+      );
+    },
+    [graphData]
+  );
 
   // Configure forces
   useEffect(() => {
-    if (focusRef.current && graphData.nodes.length > 0 && graphData.links.length > 0) {
+    if (
+      focusRef.current &&
+      graphData.nodes.length > 0 &&
+      graphData.links.length > 0
+    ) {
       requestAnimationFrame(() => {
         try {
           focusRef.current.d3Force("link").distance((link) => {
@@ -283,27 +300,30 @@ export default function StatisticMainPage() {
         <div className="flex justify-start items-start h-full">
           <PresidencyTimeline mode={modeEnum.STATISTICS} />
           {!loading ? (
-            <ForceGraph3D
-              height={window.innerHeight}
-              width={expandDrawer ? window.innerWidth / 2 : window.innerWidth}
-              graphData={graphData}
-              backgroundColor="#fff"
-              linkWidth={2}
-              linkColor={() => "rgba(0,0,0,1.0)"}
-              nodeRelSize={10}
-              nodeResolution={50}
-              ref={focusRef}
-              nodeAutoColorBy="group"
-              nodeThreeObjectExtend={true}
-              nodeThreeObject={getNodeObject}
-              onNodeClick={handleNodeClick}
-              cooldownTicks={100}
-              onNodeDragEnd={(node) => {
-                node.fx = node.x;
-                node.fy = node.y;
-                node.fz = node.z;
-              }}
-            />
+            <div>
+              <AlertToOrgchart />
+              <ForceGraph3D
+                height={window.innerHeight}
+                width={expandDrawer ? window.innerWidth / 2 : window.innerWidth}
+                graphData={graphData}
+                backgroundColor="#fff"
+                linkWidth={2}
+                linkColor={() => "rgba(0,0,0,1.0)"}
+                nodeRelSize={10}
+                nodeResolution={50}
+                ref={focusRef}
+                nodeAutoColorBy="group"
+                nodeThreeObjectExtend={true}
+                nodeThreeObject={getNodeObject}
+                onNodeClick={handleNodeClick}
+                cooldownTicks={100}
+                onNodeDragEnd={(node) => {
+                  node.fx = node.x;
+                  node.fy = node.y;
+                  node.fz = node.z;
+                }}
+              />
+            </div>
           ) : (
             <div className="flex justify-center items-center w-full h-full">
               <ClipLoader size={25} />
