@@ -38,8 +38,7 @@ export default function DataLoadingAnimatedComponent({ mode }) {
         await fetchAllGazetteDate();
         const afterTime = new Date().getTime();
         console.log(
-          `execusion time for initial fetching of all:  ${
-            afterTime - beforeTime
+          `execusion time for initial fetching of all:  ${afterTime - beforeTime
           } msec`
         );
         setLoading(false);
@@ -78,7 +77,12 @@ export default function DataLoadingAnimatedComponent({ mode }) {
       );
 
       // Convert to dictionary keyed by id
-      const presidentRelationDict = listToDict(presidentResponse);
+      const presidentRelationDict = listToDict(
+        presidentResponse.map(item => ({
+          ...item,
+          id: item.relatedEntityId
+        }))
+      );
       dispatch(setPresidentRelationDict(presidentRelationDict));
 
       // Map relatedEntityId → person using existing personDict

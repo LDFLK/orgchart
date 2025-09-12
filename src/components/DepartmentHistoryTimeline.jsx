@@ -183,7 +183,12 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                             const presEnd = presRel.endTime ? new Date(presRel.endTime) : null;
 
                             const overlapStart = entryStart > presStart ? entryStart : presStart;
-                            const overlapEnd = entryEnd && presEnd ? (entryEnd < presEnd ? entryEnd : presEnd) : (entryEnd || presEnd);
+                            const overlapEnd =
+                                entryEnd && presEnd
+                                    ? entryEnd < presEnd
+                                        ? entryEnd
+                                        : presEnd
+                                    : entryEnd || presEnd;
 
                             if (!overlapEnd || overlapStart <= overlapEnd) {
                                 matchingPresidentRelation = presRel;
@@ -192,7 +197,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         }
 
                         if (matchingPresidentRelation) {
-                            const pres = presidents.find(p => p.id === matchingPresidentRelation.relatedEntityId);
+                            const pres = presidents.find(p => p.id === matchingPresidentRelation.id);
                             entry.minister = {
                                 id: pres.id,
                                 name: pres.name,
@@ -200,6 +205,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         }
                     }
                 }
+
 
                 const collapsed = [];
                 for (const entry of enriched.sort((a, b) => new Date(a.startTime) - new Date(b.startTime))) {

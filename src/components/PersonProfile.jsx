@@ -75,7 +75,7 @@ const PersonHistoryTimeline = ({ selectedPerson, onTimelineUpdate, presidentRela
     }
     const isPresidentDuring = (ministryStart, ministryEnd) => {
         return Object.values(presidentRelationDict).some(rel => {
-            if (rel.relatedEntityId !== selectedPerson?.id) return false;
+            if (rel.id !== selectedPerson?.id) return false;
             const presStart = new Date(rel.startTime);
             const presEnd = rel.endTime ? new Date(rel.endTime) : null;
 
@@ -222,7 +222,7 @@ const PersonProfile = ({ selectedPerson }) => {
 
     const workedMinistries = timelineData.length || 0;
     const workedAsPresident = Object.values(presidentRelationDict).filter(
-        (rel) => rel.relatedEntityId === selectedPerson?.id
+        (rel) => rel.id === selectedPerson?.id
     ).length;
 
     const personName = utils.extractNameFromProtobuf(selectedPerson?.name || "Unknown");
