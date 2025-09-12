@@ -1,198 +1,225 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import ForceGraph3D from "react-force-graph-3d";
 import api from "./../services/services";
 import StatisticsSearchBar from "../components/statistics_compoents/searchbar";
-import SpriteText from "https://esm.sh/three-spritetext";
+import modeEnum from "../../src/enums/mode";
 import utils from "../utils/utils";
 import { ClipLoader } from "react-spinners";
 import { useDispatch, useSelector } from "react-redux";
-import { UnrealBloomPass } from "https://esm.sh/three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import {
   setSelectedIndex,
   setSelectedPresident,
   setSelectedDate,
 } from "../store/presidencySlice";
+import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import Drawer from "../components/statistics_compoents/drawer";
 import BottomPresidentLine from "../components/statistics_compoents/bottom_president_line";
 import PresidencyTimeline from "../components/PresidencyTimeline";
+import SpriteText from "three-spritetext";
+import AlertToOrgchart from "../components/statistics_compoents/alertToOrgchart";
 
 export default function StatisticMainPage() {
   const [loading, setLoading] = useState(true);
-  const [ministryDictionary, setMinistryDictionary] = useState({});
-  const [departmentDictionary, setDepartmentDictionary] = useState({});
-  const [allNodes, setAllNodes] = useState([]);
-  const [relations, setRelations] = useState([]);
-  const [ministryRelationToGov, setMinistryRelationToGov] = useState([]);
-  const [clickedNode, setClickedNode] = useState([]);
-
-  //drawer config
+  const [clickedNode, setClickedNode] = useState({});
   const [expandDrawer, setExpandDrawer] = useState(true);
 
+  const [allNodes, setAllNodes] = useState([]);
+  const [relations, setRelations] = useState([]);
+  const [ministryDictionary, setMinistryDictionary] = useState({});
+  const [departmentDictionary, setDepartmentDictionary] = useState({});
+  const [ministerToDepartments, setMinisterToDepartment] = useState({});
+
   const focusRef = useRef();
+  const dispatch = useDispatch();
 
   const presidents = useSelector((state) => state.presidency.presidentList);
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
-  const { selectedPresident } = useSelector((state) => state.presidency);
-  const { gazetteDataClassic } = useSelector((state) => state.gazettes);
-  const { allMinistryData } = useSelector((state) => state.allMinistryData);
-  const { allDepartmentData } = useSelector((state) => state.allDepartmentData);
+  const selectedPresident = useSelector(
+    (state) => state.presidency.selectedPresident
+  );
+  const gazetteDataClassic = useSelector(
+    (state) => state.gazettes.gazetteDataClassic
+  );
+  const allMinistryData = useSelector(
+    (state) => state.allMinistryData.allMinistryData
+  );
+  const allDepartmentData = useSelector(
+    (state) => state.allDepartmentData.allDepartmentData
+  );
 
-  const dispatch = useDispatch();
-
+  // Initial selection of president & date
   useEffect(() => {
-    setLoading(true);
-    if (selectedPresident) {
-      console.log("president is here. no need to select again");
-    } else {
-      console.log("need to select again");
-      if (presidents.length > 0) {
-        const lastIndex = presidents.length - 1;
-        dispatch(setSelectedIndex(lastIndex));
-        dispatch(setSelectedPresident(presidents[lastIndex]));
-      }
+    if (!selectedPresident && presidents.length > 0) {
+      const lastIndex = presidents.length - 1;
+      dispatch(setSelectedIndex(lastIndex));
+      dispatch(setSelectedPresident(presidents[lastIndex]));
     }
 
-    if (gazetteDataClassic) {
-      const date = { date: gazetteDataClassic[gazetteDataClassic.length - 1] };
-      dispatch(setSelectedDate(date));
+    if (gazetteDataClassic?.length > 0) {
+      dispatch(
+        setSelectedDate({
+          date: gazetteDataClassic[gazetteDataClassic.length - 1],
+        })
+      );
     }
   }, [presidents, gazetteDataClassic]);
 
+  // Master loader: fetch ministries, departments, and build graph
   useEffect(() => {
-    const fetchActiveMinistries = async () => {
-      const activeMinistry = await api.fetchActiveMinistries(
-        selectedDate,
-        allMinistryData,
-        selectedPresident
-      );
+    const buildGraph = async () => {
+      setLoading(true);
+      try {
+        // Fetch ministries
+        const activeMinistry = await api.fetchActiveMinistries(
+          selectedDate,
+          allMinistryData,
+          selectedPresident
+        );
 
-      const ministryDic = activeMinistry.children.reduce((acc, ministry) => {
-        acc[ministry.id] = {
-          id: ministry.id,
-          name: ministry.name,
-          group: 2,
-          color: "#D3AF37",
-        };
-        return acc;
-      }, {});
-
-      const ministryRelationToGov = Object.keys(ministryDic).map(
-        (ministryId) => {
-          return {
-            source: "gov_01",
-            target: ministryId,
-            value: 1,
-            type: "level1",
+        const ministryDic = activeMinistry.children.reduce((acc, ministry) => {
+          acc[ministry.id] = {
+            id: ministry.id,
+            name: ministry.name,
+            group: 2,
+            color: "#D3AF37",
           };
-        }
-      );
+          return acc;
+        }, {});
 
-      // setRelations((prev) => [...prev, ...ministryRelationToGov]);
-      setMinistryRelationToGov(ministryRelationToGov);
+        // Fetch relations: ministries → departments
+        const relationPromises = Object.keys(ministryDic).map(
+          async (ministryId) => {
+            const response = await api.fetchAllRelationsForMinistry({
+              ministryId,
+              name: "AS_DEPARTMENT",
+              activeAt: selectedDate.date,
+            });
 
-      console.log("ministry list :  ", ministryDic);
-      setMinistryDictionary(ministryDic);
-    };
-    if (selectedDate) {
-      fetchActiveMinistries();
-    }
-  }, [selectedDate]);
+            return response.map((department) => ({
+              source: ministryId,
+              target: department.relatedEntityId,
+              value: 2,
+              type: "level2",
+            }));
+          }
+        );
 
-  useEffect(() => {
-    const fetchRelationshipData = async () => {
-      await fetchRelations();
-    };
-    fetchRelationshipData();
-  }, [ministryDictionary]);
+        const allRelations = (await Promise.all(relationPromises)).flat();
 
-  useEffect(() => {
-    const ministryReady = Object.keys(ministryDictionary).length > 0;
-    const departmentReady = Object.keys(departmentDictionary).length > 0;
-    const hasDepartmentData = Object.keys(allDepartmentData || {}).length > 0;
+        // Build department dictionary
+        const departmentDic = allRelations
+          .map((rel) => allDepartmentData[rel.target])
+          .filter(Boolean)
+          .reduce((acc, department) => {
+            acc[department.id] = {
+              id: department.id,
+              name: utils.extractNameFromProtobuf(department.name),
+              created: department.created,
+              kind: department.kind,
+              terminated: department.terminated,
+            };
+            return acc;
+          }, {});
 
-    if ((ministryReady || departmentReady) && hasDepartmentData) {
-      setAllNodes([
-        { id: "gov_01", name: "Government", group: 1, color: "#00ff00" },
-        ...Object.values(ministryDictionary).map((node) => ({ ...node })),
-        ...Object.values(departmentDictionary).map((node) => ({ ...node })),
-      ]);
-    }
-    setLoading(false);
-  }, [departmentDictionary]);
+        // Minister to departments map
+        const ministerToDepartments = {};
+        allRelations.forEach((rel) => {
+          if (!ministerToDepartments[rel.source]) {
+            ministerToDepartments[rel.source] = [];
+          }
+          ministerToDepartments[rel.source].push(rel.target);
+        });
 
-  const fetchRelations = async () => {
-    try {
-      const allRelationPromises = Object.keys(ministryDictionary).map(
-        async (ministryId) => {
-          const response = await api.fetchAllRelationsForMinistry({
-            ministryId: ministryId,
-            name: "AS_DEPARTMENT",
-            activeAt: selectedDate.date,
-          });
-
-          return response.map((department) => ({
-            source: ministryId,
-            target: department.relatedEntityId,
-            value: 2,
-            type: "level2",
-          }));
-        }
-      );
-
-      const allRelations = await Promise.all(allRelationPromises);
-      const flattenedRelations = allRelations.flat();
-
-      const departments = flattenedRelations
-        .map((relation) => {
-          return allDepartmentData[relation.target];
-        })
-        .filter(Boolean);
-
-      const departmentDic = departments.reduce((acc, department) => {
-        acc[department.id] = {
-          id: department.id,
-          name: utils.extractNameFromProtobuf(department.name),
-          created: department.created,
-          kind: department.kind,
-          terminated: department.terminated,
+        // Build nodes & links
+        const govNode = {
+          id: "gov_01",
+          name: "Government",
+          group: 1,
+          color: "#00ff00",
         };
-        return acc;
-      }, {});
 
-      console.log("department objects : ", departmentDic);
-      setDepartmentDictionary(departmentDic);
-      setRelations((prev) => [...prev, ...ministryRelationToGov]);
-      setRelations((prev) => [...prev, ...flattenedRelations]);
-    } catch (e) {
-      console.log(`Error fetching relations fetching : ${e.message}`);
-    } finally {
+        const ministryToGovLinks = Object.keys(ministryDic).map((id) => ({
+          source: "gov_01",
+          target: id,
+          value: 1,
+          type: "level1",
+        }));
+
+        const allGraphNodes = [
+          govNode,
+          ...Object.values(ministryDic),
+          ...Object.values(departmentDic),
+        ];
+
+        const allGraphLinks = [...ministryToGovLinks, ...allRelations];
+
+        // Set all states in batch
+        setMinistryDictionary(ministryDic);
+        setDepartmentDictionary(departmentDic);
+        setMinisterToDepartment(ministerToDepartments);
+        setAllNodes(allGraphNodes);
+        setRelations(allGraphLinks);
+      } catch (e) {
+        console.error("Error building graph:", e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (selectedDate && selectedPresident) {
+      buildGraph();
     }
-  };
+  }, [selectedDate, selectedPresident]);
 
-  // const graphData = {
-  //   nodes: [],
-  //   links: [],
-  // };
-  const graphData = {
-    nodes: allNodes,
-    links: loading ? [] : relations,
-  };
+  // Memoized graph data
+  const graphData = useMemo(
+    () => ({
+      nodes: allNodes,
+      links: loading ? [] : relations,
+    }),
+    [allNodes, relations, loading]
+  );
 
+  // Memoized node rendering function
+  const getNodeObject = useCallback(
+    (node) => {
+      const sprite = new SpriteText(utils.makeMultilineText(node.name));
+      sprite.textHeight = 10;
+      sprite.fontWeight = 700;
+      sprite.fontFace = "poppins";
+      sprite.center.y = -0.5;
+      sprite.backgroundColor = clickedNode.id === node.id ? "#000" : "#fff";
+      sprite.color = clickedNode.id === node.id ? "#fff" : "#000";
+      sprite.padding = 4;
+      sprite.borderRadius = 3;
+      return sprite;
+    },
+    [clickedNode]
+  );
+
+  // Handle clicking a node
   const handleNodeClick = useCallback(
     (targetNode) => {
-      console.log("clicked node : ", targetNode);
-      // Aim at node from outside it
+      setClickedNode(targetNode);
 
-      // If node already has position, use it
       let node = targetNode;
 
-      if (typeof node.x !== "number") {
-        console.log("these are the nodes : ", graphData.nodes);
-        // Try to find the matching node from the graphData
-        node = graphData.nodes.find((n) => n.id == targetNode.id);
+      // Ensure node position is ready
+      if (
+        typeof node.x !== "number" ||
+        typeof node.y !== "number" ||
+        typeof node.z !== "number"
+      ) {
+        node = graphData.nodes.find((n) => n.id === targetNode.id);
 
-        if (!node) {
-          console.warn("Node not found in graph:", targetNode);
+        if (!node || typeof node.x !== "number") {
+          console.warn("Node position not ready, skipping camera move.");
           return;
         }
       }
@@ -201,21 +228,25 @@ export default function StatisticMainPage() {
       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
 
       focusRef.current.cameraPosition(
-        { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
-        node, // lookAt ({ x, y, z })
-        3000 // ms transition duration
+        {
+          x: node.x * distRatio,
+          y: node.y * distRatio,
+          z: node.z * distRatio,
+        },
+        node,
+        1000 // <- 1s for a snappy transition
       );
     },
-    [focusRef, graphData]
+    [graphData]
   );
 
+  // Configure forces
   useEffect(() => {
     if (
       focusRef.current &&
       graphData.nodes.length > 0 &&
       graphData.links.length > 0
     ) {
-      // Delay to ensure layout is ready
       requestAnimationFrame(() => {
         try {
           focusRef.current.d3Force("link").distance((link) => {
@@ -228,54 +259,23 @@ export default function StatisticMainPage() {
                 return 120;
             }
           });
-
           focusRef.current.d3Force("charge").theta(0.5).strength(-300);
-          focusRef.current.d3ReheatSimulation(); // Reheat after forces are configured
+          focusRef.current.d3ReheatSimulation();
         } catch (e) {
-          console.warn("ForceGraph not ready yet:", e.message);
+          console.warn("ForceGraph not ready:", e.message);
         }
       });
     }
-  }, [graphData]);
+  }, [graphData.nodes.length, graphData.links.length]);
 
-  // uncomment this for glow the graph
-  // useEffect(() => {
-  //   if (!focusRef.current || loading) return;
-
-  //   const composer = focusRef.current.postProcessingComposer?.();
-  //   if (!composer) return;
-
-  //   const bloomPass = new UnrealBloomPass();
-  //   bloomPass.strength = 1;
-  //   bloomPass.radius = 2;
-  //   bloomPass.threshold = 1;
-
-  //   composer.addPass(bloomPass);
-
-  //   // Optional: clean up on unmount or re-render
-  //   return () => {
-  //     composer.passes = composer.passes.filter((pass) => pass !== bloomPass);
-  //   };
-  // }, [loading]);
-
-  // uncomment this to rotate the graph
-  //   useEffect(() => {
-  //   if (!focusRef.current) return;
-
-  //   focusRef.current.cameraPosition({ z: distance });
-
-  //   let angle = 0;
-  //   const interval = setInterval(() => {
-  //     if (!focusRef.current) return;
-  //     focusRef.current.cameraPosition({
-  //       x: distance * Math.sin(angle),
-  //       z: distance * Math.cos(angle),
-  //     });
-  //     angle += Math.PI / 300;
-  //   }, 10);
-
-  //   return () => clearInterval(interval); // Clean up on unmount
-  // }, [loading]);
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (focusRef.current?.graphData) {
+        focusRef.current.graphData({ nodes: [], links: [] });
+      }
+    };
+  }, [selectedPresident]);
 
   return (
     <>
@@ -283,14 +283,28 @@ export default function StatisticMainPage() {
         expandDrawer={expandDrawer}
         setExpandDrawer={setExpandDrawer}
         ministerDictionary={ministryDictionary}
+        departmentDictionary={departmentDictionary}
+        ministerToDepartments={ministerToDepartments}
         onMinistryClick={handleNodeClick}
       />
-      <div className="relative">
-        {/* <StatisticsSearchBar /> */}
-        <div className="flex justify-center items-center w-full h-screen">
+
+      <div
+        className="relative"
+        style={{
+          marginRight: expandDrawer ? window.innerWidth / 2 : 0,
+          transition: "margin-right 0.3s ease",
+          height: "100vh",
+          overflow: "hidden",
+        }}
+      >
+        <div className="flex justify-start items-start h-full">
+          <PresidencyTimeline mode={modeEnum.STATISTICS} />
           {!loading ? (
-            <>
+            <div>
+              <AlertToOrgchart />
               <ForceGraph3D
+                height={window.innerHeight}
+                width={expandDrawer ? window.innerWidth / 2 : window.innerWidth}
                 graphData={graphData}
                 backgroundColor="#fff"
                 linkWidth={2}
@@ -300,50 +314,20 @@ export default function StatisticMainPage() {
                 ref={focusRef}
                 nodeAutoColorBy="group"
                 nodeThreeObjectExtend={true}
-                nodeThreeObject={(node) => {
-                  const sprite = new SpriteText(
-                    utils.makeMultilineText(node.name)
-                  );
-                  sprite.color = "#000";
-                  if (clickedNode.id == node.id) {
-                    sprite.backgroundColor = "#000";
-                    sprite.padding = 4;
-                    sprite.borderRadius = 3;
-                    sprite.color = "#fff";
-                  } else {
-                    sprite.backgroundColor = "#fff";
-                    sprite.padding = 4;
-                    sprite.borderRadius = 3;
-                    sprite.color = "#000";
-                  }
-                  sprite.textHeight = 10;
-                  sprite.fontWeight = 700;
-                  sprite.fontFace = "poppins";
-                  sprite.center.y = -0.5;
-                  return sprite;
-                }}
+                nodeThreeObject={getNodeObject}
                 onNodeClick={handleNodeClick}
                 cooldownTicks={100}
-                // onEngineStop={() => focusRef.current.zoomToFit(400)}
                 onNodeDragEnd={(node) => {
                   node.fx = node.x;
                   node.fy = node.y;
                   node.fz = node.z;
                 }}
               />
-              {/* <BottomPresidentLine/> */}
-              {/* <PresidencyTimeline/> */}
-            </>
+            </div>
           ) : (
-            <div className={`flex justify-center bottom-0`}>
-              <ClipLoader
-                color="text-white"
-                loading={loading}
-                size={25}
-                aria-label="Loading Spinner"
-                data-testid="loader"
-              />{" "}
-              Graph Loading
+            <div className="flex justify-center items-center w-full h-full">
+              <ClipLoader size={25} />
+              <span className="ml-2">Graph Loading</span>
             </div>
           )}
         </div>
