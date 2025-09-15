@@ -9,46 +9,49 @@ import {
   setPresidentRelationDict,
   setPresidentDict,
   setSelectedPresident,
-  setSelectedIndex,
-  setSelectedDate,
+  setSelectedIndex
 } from "../store/presidencySlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/NavBar";
 import { Box, Typography } from "@mui/material";
-import { ClipLoader } from "react-spinners";
 import { setGazetteDataClassic } from "../store/gazetteDate";
 import StatisticMainPage from "./statistics_main_page";
+import LoadingComponent from "../components/common_components/loading_component";
 
 export default function DataLoadingAnimatedComponent({ mode }) {
   const [loading, setLoading] = useState(false);
   const [showServerError, setShowServerError] = useState(false);
-  const { presidentDict, selectedPresident } = useSelector((state) => state.presidency);
-  const presidents = useSelector((state) => state.presidency.presidentList);
-  const { gazetteData } = useSelector((state) => state.gazettes);
+  const { presidentDict, selectedPresident } = useSelector(
+    (state) => state.presidency
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
     const initialFetchData = async () => {
-      setLoading(true);
-      try {
-        const beforeTime = new Date().getTime();
-        await fetchPersonData();
-        await fetchAllMinistryData();
-        await fetchAllDepartmentData();
-        await fetchAllGazetteDate();
-        const afterTime = new Date().getTime();
-        console.log(
-          `execusion time for initial fetching of all:  ${afterTime - beforeTime
-          } msec`
-        );
-        setLoading(false);
-      } catch (e) {
-        console.error("Error loading initial data:", e.message);
+      // Only fetch data if presidentDict is empty (first time loading)
+      if (Object.keys(presidentDict).length === 0) {
+        setLoading(true);
+        try {
+          const beforeTime = new Date().getTime();
+          await fetchPersonData();
+          await fetchAllMinistryData();
+          await fetchAllDepartmentData();
+          await fetchAllGazetteDate();
+          const afterTime = new Date().getTime();
+          console.log(
+            `execusion time for initial fetching of all:  ${
+              afterTime - beforeTime
+            } msec`
+          );
+          setLoading(false);
+        } catch (e) {
+          console.error("Error loading initial data:", e.message);
+        }
       }
     };
 
     initialFetchData();
-  }, []);
+  }, [presidentDict]);
 
   const listToDict = (list) => {
     return list.reduce((acc, item) => {
@@ -78,9 +81,9 @@ export default function DataLoadingAnimatedComponent({ mode }) {
 
       // Convert to dictionary keyed by id
       const presidentRelationDict = listToDict(
-        presidentResponse.map(item => ({
+        presidentResponse.map((item) => ({
           ...item,
-          id: item.relatedEntityId
+          id: item.relatedEntityId,
         }))
       );
       dispatch(setPresidentRelationDict(presidentRelationDict));
@@ -107,13 +110,16 @@ export default function DataLoadingAnimatedComponent({ mode }) {
         };
       });
 
-      // Select the last president
-      const selectedPre = enrichedPresidents[enrichedPresidents.length - 1];
-
-      console.log("this is the selected president ", selectedPre);
-
       dispatch(setPresidentDict(enrichedPresidents));
-      dispatch(setSelectedPresident(selectedPre));
+
+      // Only select the last president if no president is currently selected
+      if (!selectedPresident) {
+        const selectedPre = enrichedPresidents[enrichedPresidents.length - 1];
+        console.log("this is the selected president ", selectedPre);
+        const lastIndex = enrichedPresidents.length - 1;
+        dispatch(setSelectedIndex(lastIndex));
+        dispatch(setSelectedPresident(selectedPre));
+      }
     } catch (e) {
       setShowServerError(true);
       console.log(`Error fetching person data : ${e.message}`);
@@ -172,38 +178,7 @@ export default function DataLoadingAnimatedComponent({ mode }) {
   return (
     <>
       {loading ? (
-        <>
-          <Box
-            sx={{
-              width: "100%",
-              height: "100vh",
-              color: "blue",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <ClipLoader
-              color="text-white"
-              loading={loading}
-              size={45}
-              aria-label="Loading Spinner"
-              data-testid="loader"
-            />
-            <Typography
-              color="black"
-              sx={{
-                fontFamily: "poppins",
-                fontSize: 24,
-                marginTop: 1,
-                fontWeight: "semibold",
-              }}
-            >
-              Loading...
-            </Typography>
-          </Box>
-        </>
+        <LoadingComponent />
       ) : showServerError ? (
         <>
           <Box
@@ -226,12 +201,14 @@ export default function DataLoadingAnimatedComponent({ mode }) {
             </Typography>
           </Box>
         </>
-      ) : (Object.keys(presidentDict.length > 0) && mode == "orgchart" && selectedPresident != null) ? (
+      ) : Object.keys(presidentDict.length > 0) &&
+        mode == "orgchart" &&
+        selectedPresident != null ? (
         <Navbar />
       ) : (
-        (Object.keys(presidentDict.length > 0) && mode == "statistics" && selectedPresident != null) && (
-          <StatisticMainPage />
-        )
+        Object.keys(presidentDict.length > 0) &&
+        mode == "statistics" &&
+        selectedPresident != null && <StatisticMainPage />
       )}
     </>
   );

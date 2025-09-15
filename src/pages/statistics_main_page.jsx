@@ -10,7 +10,6 @@ import api from "./../services/services";
 import StatisticsSearchBar from "../components/statistics_components/searchbar";
 import modeEnum from "../../src/enums/mode";
 import utils from "../utils/utils";
-import { ClipLoader } from "react-spinners";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setSelectedIndex,
@@ -23,7 +22,10 @@ import BottomPresidentLine from "../components/statistics_components/bottom_pres
 import PresidencyTimeline from "../components/PresidencyTimeline";
 import SpriteText from "three-spritetext";
 import AlertToOrgchart from "../components/statistics_components/alertToOrgchart";
-import WebGLChecker, { isWebGLAvailable } from "../components/common_components/webgl_checker";
+import WebGLChecker, {
+  isWebGLAvailable,
+} from "../components/common_components/webgl_checker";
+import LoadingComponent from "../components/common_components/loading_component";
 
 export default function StatisticMainPage() {
   const [loading, setLoading] = useState(true);
@@ -183,14 +185,67 @@ export default function StatisticMainPage() {
     }
   }, [selectedDate, selectedPresident]);
 
+  // Add this to your component
+  useEffect(() => {
+    const canvas = focusRef.current?.renderer()?.domElement;
+
+    if (canvas) {
+      const handleContextLost = (event) => {
+        console.warn("WebGL context lost");
+        event.preventDefault();
+        setWebgl(false);
+      };
+
+      const handleContextRestored = () => {
+        console.log("WebGL context restored");
+        setWebgl(true);
+        // Optionally rebuild the graph
+        // buildGraph();
+      };
+
+      canvas.addEventListener("webglcontextlost", handleContextLost);
+      canvas.addEventListener("webglcontextrestored", handleContextRestored);
+
+      return () => {
+        if (canvas) {
+          canvas.removeEventListener("webglcontextlost", handleContextLost);
+          canvas.removeEventListener(
+            "webglcontextrestored",
+            handleContextRestored
+          );
+        }
+      };
+    }
+  }, [focusRef.current]);
+
   // Memoized graph data
-  const graphData = useMemo(
-    () => ({
-      nodes: allNodes,
-      links: loading ? [] : relations,
-    }),
-    [allNodes, relations, loading]
-  );
+  const graphData = useMemo(() => {
+    // Only return valid graph data when not loading and we have both nodes and relations
+    if (loading || allNodes.length === 0 || relations.length === 0) {
+      return { nodes: [], links: [] };
+    }
+
+    // Validate that all nodes have required properties
+    const validNodes = allNodes.filter(
+      (node) =>
+        node &&
+        typeof node.id !== "undefined" &&
+        typeof node.name !== "undefined"
+    );
+
+    // Validate that all links have required properties
+    const validLinks = relations.filter(
+      (link) =>
+        link &&
+        typeof link.source !== "undefined" &&
+        typeof link.target !== "undefined"
+    );
+
+    return {
+      nodes: validNodes,
+      links: validLinks,
+    };
+  }, [allNodes, relations, loading]);
 
   // Memoized node rendering function
   const getNodeObject = useCallback(
@@ -251,33 +306,82 @@ export default function StatisticMainPage() {
     if (
       focusRef.current &&
       graphData.nodes.length > 0 &&
-      graphData.links.length > 0
+      graphData.links.length > 0 &&
+      !loading
     ) {
       requestAnimationFrame(() => {
         try {
-          focusRef.current.d3Force("link").distance((link) => {
-            switch (link.type) {
-              case "level1":
-                return 800;
-              case "level2":
-                return 250;
-              default:
-                return 120;
-            }
-          });
-          focusRef.current.d3Force("charge").theta(0.5).strength(-300);
-          focusRef.current.d3ReheatSimulation();
+          // Ensure the graph is properly initialized before configuring forces
+          if (focusRef.current.d3Force) {
+            focusRef.current.d3Force("link").distance((link) => {
+              switch (link.type) {
+                case "level1":
+                  return 800;
+                case "level2":
+                  return 250;
+                default:
+                  return 120;
+              }
+            });
+            focusRef.current.d3Force("charge").theta(0.5).strength(-300);
+            focusRef.current.d3ReheatSimulation();
+          }
         } catch (e) {
           console.warn("ForceGraph not ready:", e.message);
         }
       });
     }
-  }, [graphData.nodes.length, graphData.links.length]);
+  }, [graphData.nodes.length, graphData.links.length, loading]);
+
+  useEffect(() => {
+    return () => {
+      if (focusRef.current) {
+        // Stop the animation loop
+        focusRef.current.pauseAnimation();
+
+        // Clear graph data
+        focusRef.current.graphData({ nodes: [], links: [] });
+
+        // Get the renderer and dispose of resources
+        const renderer = focusRef.current.renderer();
+        if (renderer) {
+          renderer.dispose();
+          renderer.forceContextLoss();
+        }
+
+        // Clear the scene
+        const scene = focusRef.current.scene();
+        if (scene) {
+          scene.traverse((object) => {
+            if (object.geometry) {
+              object.geometry.dispose();
+            }
+            if (object.material) {
+              if (Array.isArray(object.material)) {
+                object.material.forEach((material) => material.dispose());
+              } else {
+                object.material.dispose();
+              }
+            }
+          });
+        }
+      }
+    };
+  }, []);
 
   // Cleanup on unmount
   // useEffect(() => {
   //   return () => {
   //     if (focusRef.current?.graphData) {
+  //       focusRef.current.graphData({ nodes: [], links: [] });
+  //     }
+  //   };
+  // }, [selectedPresident]);
+
+  //   useEffect(() => {
+  //   return () => {
+  //     // Force garbage collection of old graph
+  //     if (focusRef.current) {
   //       focusRef.current.graphData({ nodes: [], links: [] });
   //     }
   //   };
@@ -309,49 +413,56 @@ export default function StatisticMainPage() {
             <div>
               <AlertToOrgchart selectedPresident={selectedPresident} />
               {webgl ? (
-              <ForceGraph3D
-                height={window.innerHeight}
-                width={expandDrawer ? window.innerWidth / 2 : window.innerWidth}
-                graphData={graphData}
-                backgroundColor="#fff"
-                linkWidth={3}
-                linkColor={() => "rgba(0,0,0,1.0)"}
-                nodeRelSize={10}
-                nodeResolution={8}
-                ref={focusRef}
-                rendererConfig={{
-                  alpha: true,
-                  antialias: false,
-                  powerPreference: "low-power",
-                  precision: "mediump",
-                  failIfMajorPerformanceCaveat: false,
-                  preserveDrawingBuffer: false,
-                  stencil: false,
-                  depth: true,
-                  logarithmicDepthBuffer: false
-                }}
-                nodeAutoColorBy="group"
-                nodeThreeObjectExtend={true}
-                nodeThreeObject={getNodeObject}
-                onNodeClick={handleNodeClick}
-                cooldownTicks={100}
-                onNodeDragEnd={(node) => {
-                  node.fx = node.x;
-                  node.fy = node.y;
-                  node.fz = node.z;
-                }}
-              />
+                graphData.nodes.length > 0 && graphData.links.length > 0 ? (
+                  <ForceGraph3D
+                    height={window.innerHeight}
+                    width={
+                      expandDrawer ? window.innerWidth / 2 : window.innerWidth
+                    }
+                    graphData={graphData}
+                    backgroundColor="#fff"
+                    linkWidth={3}
+                    linkColor={() => "rgba(0,0,0,1.0)"}
+                    nodeRelSize={10}
+                    nodeResolution={8}
+                    ref={focusRef}
+                    rendererConfig={{
+                      alpha: true,
+                      antialias: false,
+                      powerPreference: "low-power",
+                      precision: "mediump",
+                      failIfMajorPerformanceCaveat: false,
+                      preserveDrawingBuffer: false,
+                      stencil: false,
+                      depth: true,
+                      logarithmicDepthBuffer: false,
+                    }}
+                    nodeAutoColorBy="group"
+                    nodeThreeObjectExtend={true}
+                    nodeThreeObject={getNodeObject}
+                    onNodeClick={handleNodeClick}
+                    cooldownTicks={100}
+                    onNodeDragEnd={(node) => {
+                      node.fx = node.x;
+                      node.fy = node.y;
+                      node.fz = node.z;
+                    }}
+                  />
+                ) : (
+                  <div className="flex justify-center items-center w-full h-full">
+                    <LoadingComponent message="Preparing Graph Data" />
+                  </div>
+                )
               ) : (
                 <div className="flex justify-center items-center w-full h-full">
-                  <span className="ml-2">WebGL is unavailable on this device. Showing fallback.</span>
+                  <span className="ml-2">
+                    WebGL is unavailable on this device. Showing fallback.
+                  </span>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex justify-center items-center w-full h-full">
-              <ClipLoader size={25} />
-              <span className="ml-2">Graph Loading</span>
-            </div>
+            <LoadingComponent message="Graph Loading" />
           )}
         </div>
       </div>

@@ -1,25 +1,22 @@
-import React from "react";
-import { setSelectedPresident } from "../../store/presidencySlice";
-import { useDispatch } from "react-redux";
+import React,{useEffect} from "react";
 import utils from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 
-export default function AlertToOrgchart({selectedPresident}) {
-
-  const dispatch = useDispatch();
+export default function AlertToOrgchart({ selectedPresident }) {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    console.log('this is the selected president in alert to orgchart');
+    console.log(selectedPresident);
+  }, [selectedPresident]);
+
   const handleClick = () => {
-    try{
-
-      navigate('/orgchart')
-      
-
-    }catch(e){
-      console.log(e)
+    try {
+      navigate("/orgchart");
+    } catch (e) {
+      console.log(e);
     }
-  }
-
+  };
 
   return (
     <div className="fixed bottom-4 left-0 right-0 flex justify-center z-100">
@@ -30,7 +27,10 @@ export default function AlertToOrgchart({selectedPresident}) {
       >
         <div className="flex">
           <div className="mt-2 mb-4 text-sm text-gray-800 dark:text-gray-300 mr-4">
-            The final government structure for <a href="" className="text-blue-500 underline">{utils.extractNameFromProtobuf(selectedPresident.name)}.</a>
+            The final government structure for{" "}
+            <a href="" className="text-blue-500 underline">
+              {utils.extractNameFromProtobuf(selectedPresident.name)}.
+            </a>
           </div>
           <button
             type="button"
@@ -46,7 +46,7 @@ export default function AlertToOrgchart({selectedPresident}) {
             >
               <path d="M10 0C4.612 0 0 5.336 0 7c0 1.742 3.546 7 10 7 6.454 0 10-5.258 10-7 0-1.664-4.612-7-10-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
             </svg>
-            View Full
+            See how it changes
           </button>
         </div>
       </div>

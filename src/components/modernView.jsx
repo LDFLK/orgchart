@@ -5,7 +5,7 @@ import MinistryCardGrid from "./MinistryCardGrid";
 import InfoTab from "./InfoTab";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useThemeContext } from "../themeContext";
 import PersonProfile from "./PersonProfile";
 

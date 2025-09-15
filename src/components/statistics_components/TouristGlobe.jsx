@@ -217,10 +217,10 @@ export const nameMapping = {
   "Saint Lucia": "Saint Lucia",
   "Trinidad And Tobago": "Trinidad and Tobago",
   "Congo, Republic Of.": "Congo",
-  "Palestinian Territories": "Palestine",
   "Czech Republic": "Czechia",
   "Ivory Coast": "Ivory Coast",
 };
+
 function Globe({ selectedCountry, onCountryClick }) {
   const ref = useRef();
   const projectionRef = useRef();
