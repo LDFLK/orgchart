@@ -9,6 +9,11 @@ import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
 import TouristGlobe from "./components/statistics_compoents/TouristGlobe";
 import DistrictMap from "./components/statistics_compoents/DistrictMap";
 import Dashboard from "./pages/StatComparison";
+import TouristGlobe from "./components/statistics_components/TouristGlobe";
+import DistrictMap from "./components/statistics_components/DistrictMap";
+import ChartDashboard from "./components/statistics_components/ChartDashboard";
+import WebGLChecker from "./components/common_components/webgl_checker";
+
 
 const App = () => {
 
@@ -16,6 +21,7 @@ const App = () => {
   
   return(
     <div className={isDark ? "dark-mode" : ""}>
+      {/* <WebGLChecker/> */}
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -27,6 +33,7 @@ const App = () => {
          <Route path="/comparison" element={<Dashboard/>}/>
          
       
+        <Route path="/dashboard" element={<ChartDashboard/>}/>
       </Routes>
     </Router>
     </div>

@@ -12,12 +12,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+import { BiStats } from "react-icons/bi";
 import { Switch, FormControlLabel } from "@mui/material";
 import { useThemeContext } from "../themeContext";
 import { useBadgeContext } from "../badgeContext.jsx";
 import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -31,6 +33,12 @@ function Navbar() {
   const { selectedPresident } = useSelector((state) => state.presidency);
 
   const { isDark, toggleTheme, colors } = useThemeContext();
+
+  const navigate = useNavigate();
+
+  const handleNavigateToStatistics = () => {
+    navigate("/statistics");
+  };
 
   return (
     <Box
@@ -66,6 +74,28 @@ function Navbar() {
         >
           {/* open settings drawer */}
           <Box sx={{ textAlign: "right", color: colors.textPrimary, flex: 1 }}>
+            
+            <Button
+              onClick={handleNavigateToStatistics}
+              startIcon={<BiStats/>}
+              sx={{
+                justifyContent: "flex-start",
+                textTransform: "none",
+                fontWeight: 500,
+                color: colors.textPrimary,
+                border: `1px solid ${colors.textPrimary}33`,
+                borderRadius: "10px",
+                px: 2,
+                py: 1,
+                cursor: "pointer",
+                "&:hover": {
+                  backgroundColor: `${colors.primary}22`,
+                },
+                mx: 1,
+              }}
+            >
+              Statistics
+            </Button>
             <Button
               onClick={() => setDrawerOpen(true)}
               startIcon={<SettingsIcon />}

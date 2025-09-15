@@ -46,10 +46,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
 
   const { colors } = useThemeContext();
 
-  useEffect(() => {
-    console.log("this is the mode", mode);
-  }, [mode]);
-
   const updateScrollButtons = () => {
     const scrollEl = scrollRef.current;
     if (!scrollEl) return;
@@ -60,13 +56,26 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
     );
   };
 
+  // useEffect(() => {
+  //   if (presidents.length > 0 && !selectedPresident) {
+  //     const lastIndex = presidents.length - 1;
+  //     dispatch(setSelectedIndex(lastIndex));
+  //     dispatch(setSelectedPresident(presidents[lastIndex]));
+  //   }
+  // }, [presidents]);
+
   useEffect(() => {
-    if (!initialSelectionDone.current && presidents.length > 0) {
-      initialSelectionDone.current = true;
-      const lastIndex = presidents.length - 1;
-      dispatch(setSelectedIndex(lastIndex));
-      dispatch(setSelectedPresident(presidents[lastIndex]));
-    }
+    console.log('initialization on loading : ', initialSelectionDone.current)
+  }, [presidents]);
+
+  useEffect(() => {
+    // if (!initialSelectionDone.current && presidents.length > 0) {
+    //   initialSelectionDone.current = true;
+    //   const lastIndex = presidents.length - 1;
+    //   dispatch(setSelectedIndex(lastIndex));
+    //   dispatch(setSelectedPresident(presidents[lastIndex]));
+    // }
+    
     updateScrollButtons();
   }, [selectedPresident]);
 
@@ -286,8 +295,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                     <Box
                       onClick={() => {
                         if (!isSelected) {
-                          dispatch(setSelectedPresident(null));
-                          dispatch(setSelectedIndex(null));
                           dispatch(setSelectedPresident(president));
                           dispatch(setSelectedIndex(index));
                         }
@@ -379,7 +386,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                       >
                         {selectedPresident && (
                           <>
-                            {president.created.split("-")[0]} - {" "}
+                            {president.created.split("-")[0]} -{" "}
                             {(() => {
                               const relation =
                                 presidentRelationDict[president.id];
@@ -485,6 +492,9 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
       ) : (
         <Box
           sx={{
+            backgroundColor: colors.backgroundPrimary,
+            height: "100%",
+            boxShadow: "0 100px 50px 0 rgba(0, 0, 0, 0.1)",
             // position: "relative",
             // display: "flex",
             // alignItems: "center",
@@ -493,22 +503,24 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
             // width: "80%",
           }}
         >
-          <IconButton
+          {/* <IconButton
             onClick={() => scroll("left")}
             sx={{
-              // zIndex: 2,
-              // mt: -6.8,
-              // backgroundColor: colors.backgroundPrimary,
+              zIndex: 2,
+              backgroundColor: colors.backgroundPrimary,
               // visibility: canScrollLeft ? "visible" : "hidden",
-              // borderRadius: "50%",
-              // "&:hover": {
-              //   backgroundColor: colors.backgroundPrimary,
-              // },
-              // color: colors.timelineColor,
+              borderRadius: "50%",
+              "&:hover": {
+                backgroundColor: colors.backgroundPrimary,
+              },
+              color: colors.timelineColor,
+              rotate: "90deg",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <ArrowBackIosNewIcon />
-          </IconButton>
+          </IconButton> */}
 
           <Box
             sx={{
@@ -518,44 +530,44 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
               // left: 50,
               // right: 50,
               // height: "2px",
-              // backgroundColor: colors.timelineColor,
+              backgroundColor: colors.timelineColor,
               // zIndex: 0,
             }}
           />
 
           {lineStyle && selectedIndex !== null && selectedDate && (
             <Box
-              sx={{
-                // position: "absolute",
-                // height: "5px",
-                // // backgroundColor: colors.timelineLineActive,
-                // backgroundColor: selectedPresident.themeColorLight,
-                // top: `${lineStyle.top}px`,
-                // left: `${lineStyle.left}px`,
-                // width: `${lineStyle.width}px`,
-                // zIndex: 1,
-                // transition: "left 0.3s ease, width 0.3s ease",
-              }}
+              sx={
+                {
+                  // position: "absolute",
+                  // height: "5px",
+                  // // backgroundColor: colors.timelineLineActive,
+                  // backgroundColor: selectedPresident.themeColorLight,
+                  // top: `${lineStyle.top}px`,
+                  // left: `${lineStyle.left}px`,
+                  // width: `${lineStyle.width}px`,
+                  // zIndex: 1,
+                  // transition: "left 0.3s ease, width 0.3s ease",
+                }
+              }
             />
           )}
 
           <Box
             ref={scrollRef}
             sx={{
-              // display: "flex",
-              // overflowX: "auto",
-              // gap: 14,
-              // padding: 4,
-              // paddingLeft: 6,
-              // paddingRight: 14,
-              // flexWrap: "nowrap",
-              // scrollBehavior: "smooth",
-              // flexGrow: 1,
-              // position: "relative",
-              // zIndex: 1,
-              // "&::-webkit-scrollbar": { display: "none" },
-              // scrollbarWidth: "none",
-              // msOverflowStyle: "none",
+              display: "block",
+              overflowY: "auto",
+              gap: 4,
+              padding: 2,
+              flexWrap: "nowrap",
+              scrollBehavior: "smooth",
+              flexGrow: 1,
+              position: "relative",
+              zIndex: 1,
+              "&::-webkit-scrollbar": { display: "none" },
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
             }}
           >
             {presidents &&
@@ -570,13 +582,12 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                       gap: 2,
                       flexShrink: 0,
                       transition: "all 0.3s ease",
+                      marginBottom: 2,
                     }}
                   >
                     <Box
                       onClick={() => {
                         if (!isSelected) {
-                          dispatch(setSelectedPresident(null));
-                          dispatch(setSelectedIndex(null));
                           dispatch(setSelectedPresident(president));
                           dispatch(setSelectedIndex(index));
                         }
