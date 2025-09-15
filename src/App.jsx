@@ -8,7 +8,6 @@ import { useThemeContext } from "./themeContext";
 import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
 import TouristGlobe from "./components/statistics_compoents/TouristGlobe";
 import DistrictMap from "./components/statistics_compoents/DistrictMap";
-import ChartDashboard from "./components/statistics_compoents/ChartDashboard";
 import Dashboard from "./pages/StatComparison";
 
 const App = () => {
@@ -25,7 +24,6 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
         <Route path="/globe" element={<TouristGlobe/>}/>
         <Route path="/map" element={<DistrictMap/>}/>
-         <Route path="/dashboard" element={<ChartDashboard/>}/>
          <Route path="/comparison" element={<Dashboard/>}/>
          
       
