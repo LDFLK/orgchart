@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { IoClose } from "react-icons/io5";
 import { CiCircleChevLeft } from "react-icons/ci";
 import * as d3 from "d3";
@@ -10,8 +10,6 @@ export default function Drawer({
   departmentDictionary,
   ministerToDepartments,
   onMinistryClick,
-  drawerData,
-  setDrawerData,
 }) {
   const containerRef = useRef(null);
 
@@ -25,6 +23,7 @@ export default function Drawer({
       name: "Ministers",
       children: Object.keys(ministerDictionary).map((ministerId) => ({
         name: ministerDictionary[ministerId].name,
+        node: ministerDictionary[ministerId],
         children: [{
           name: "Data",
           value: 1,
@@ -34,6 +33,7 @@ export default function Drawer({
             const department = departmentDictionary[departmentId];
             return {
               name: department ? department.name : "Unknown Department",
+              node: department,
               children: [{
                 name: "Data",
                 value: 1,
@@ -48,11 +48,6 @@ export default function Drawer({
     // Specify the chart’s dimensions.
     const width = 928;
     const height = 2000;
-
-    // Create the color scale.
-    const color = d3.scaleOrdinal(
-      d3.quantize(d3.interpolateRainbow, data.children.length + 1)
-    );
 
     // Compute the layout.
     const hierarchy = d3
@@ -69,7 +64,6 @@ export default function Drawer({
     const INNER_PADDING = 3;   // padding inside the label container
 
     function nodeLabel(d) {
-      const formatLocal = d3.format(",d");
       return `${d.data.name}`;
     }
 
@@ -109,6 +103,7 @@ export default function Drawer({
     }
 
     // Create an offscreen measurer for text sizing
+    const containerEl = containerRef.current;
     const measurer = document.createElement("div");
     measurer.style.position = "absolute";
     measurer.style.visibility = "hidden";
@@ -122,7 +117,7 @@ export default function Drawer({
     measurer.style.fontFamily = "inherit";
     // measurer.style.boxSizing = "border-box";
     measurer.style.padding = `${INNER_PADDING}px`;
-    (containerRef.current || document.body).appendChild(measurer);
+    (containerEl || document.body).appendChild(measurer);
 
     allocateChildrenHeightsByText(root, measurer);
 
@@ -165,11 +160,14 @@ export default function Drawer({
           .attr("stroke", "#d5ecff")
           .style("filter", null);
       })
-      .on("click", (event, d) => clicked(event, d));
+      .on("click", (event, d) => {
+        clicked(event, d);
+        if (d && d.data && d.data.node) {
+          onMinistryClick(d.data.node);
+        }
+      });
 
-    const format = d3.format(",d");
-
-    const foreign = cell.append("foreignObject")
+    cell.append("foreignObject")
       .attr("x", OUTER_GAP)
       .attr("y", OUTER_GAP)
       .attr("width", (d) => d.y1 - d.y0 - 2 * OUTER_GAP)
@@ -194,6 +192,10 @@ export default function Drawer({
     
     function clicked(event, p) {
       focus = focus === p ? (p = p.parent) : p;
+
+      console.log('clicked node from drawer : ', p)
+
+      
 
       root.each(
         (d) =>
@@ -223,12 +225,8 @@ export default function Drawer({
       return d.x1 - d.x0;
     }
 
-    function labelVisible(d) {
-      return d.y1 <= width && d.y0 >= 0 && d.x1 - d.x0 > 16;
-    }
-
     // Append the created SVG to the container
-    containerRef.current.appendChild(svg.node());
+    containerEl && containerEl.appendChild(svg.node());
 
     // Optional: Cleanup on unmount
 
@@ -236,12 +234,14 @@ export default function Drawer({
     //   containerRef.current.innerHTML = "";
     // };
     return () => {
-       try { measurer.remove(); } catch (e) {}
-       d3.select(containerRef.current).selectAll("*").remove();
+       measurer.remove();
+       if (containerEl) {
+         d3.select(containerEl).selectAll("*").remove();
+       }
     };
 
     // return svg.node();
-  }, [ministerDictionary, ministerToDepartments]);
+  }, [ministerDictionary, ministerToDepartments, departmentDictionary, onMinistryClick]);
 
   return (
     <div

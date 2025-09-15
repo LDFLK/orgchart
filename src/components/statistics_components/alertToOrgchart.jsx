@@ -1,14 +1,9 @@
-import React,{useEffect} from "react";
+import React from "react";
 import utils from "../../utils/utils";
 import { useNavigate } from "react-router-dom";
 
 export default function AlertToOrgchart({ selectedPresident }) {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    console.log('this is the selected president in alert to orgchart');
-    console.log(selectedPresident);
-  }, [selectedPresident]);
 
   const handleClick = () => {
     try {

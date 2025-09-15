@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import ForceGraph3D from "react-force-graph-3d";
 import api from "./../services/services";
-import StatisticsSearchBar from "../components/statistics_components/searchbar";
 import modeEnum from "../../src/enums/mode";
 import utils from "../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,7 +29,7 @@ import LoadingComponent from "../components/common_components/loading_component"
 export default function StatisticMainPage() {
   const [loading, setLoading] = useState(true);
   const [webgl, setWebgl] = useState(true);
-  const [clickedNode, setClickedNode] = useState({});
+  const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [expandDrawer, setExpandDrawer] = useState(true);
 
   const [allNodes, setAllNodes] = useState([]);
@@ -40,6 +39,7 @@ export default function StatisticMainPage() {
   const [ministerToDepartments, setMinisterToDepartment] = useState({});
 
   const focusRef = useRef();
+  const cameraAnimTimeoutRef = useRef();
   const dispatch = useDispatch();
 
   const presidents = useSelector((state) => state.presidency.presidentList);
@@ -255,51 +255,71 @@ export default function StatisticMainPage() {
       sprite.fontWeight = 700;
       sprite.fontFace = "poppins";
       sprite.center.y = -0.5;
-      sprite.backgroundColor = clickedNode.id === node.id ? "#000" : "#fff";
-      sprite.color = clickedNode.id === node.id ? "#fff" : "#000";
+      const isSelected = selectedNodeId === node.id;
+      sprite.backgroundColor = isSelected ? "#000" : "#fff";
+      sprite.color = isSelected ? "#fff" : "#000";
       sprite.padding = 4;
       sprite.borderRadius = 3;
       return sprite;
     },
-    [clickedNode]
+    [selectedNodeId]
   );
+
+  const handleNodeClick = useCallback((node) => {
+    const distance = 400;
+    const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+    const transitionMs = 3000;
+
+    focusRef.current.cameraPosition(
+      { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+      node,
+      transitionMs
+    );
+
+    if (cameraAnimTimeoutRef.current) {
+      clearTimeout(cameraAnimTimeoutRef.current);
+    }
+    cameraAnimTimeoutRef.current = setTimeout(() => {
+      // setSelectedNodeId(node.id);
+    }, transitionMs + 2);
+  }, []);
 
   // Handle clicking a node
-  const handleNodeClick = useCallback(
-    (targetNode) => {
-      setClickedNode(targetNode);
+  // const handleNodeClickk = useCallback(
+  //   (targetNode) => {
+  //     setClickedNode(targetNode);
 
-      let node = targetNode;
+  //     let node = targetNode;
 
-      // Ensure node position is ready
-      if (
-        typeof node.x !== "number" ||
-        typeof node.y !== "number" ||
-        typeof node.z !== "number"
-      ) {
-        node = graphData.nodes.find((n) => n.id === targetNode.id);
+  //     // Ensure node position is ready
+  //     if (
+  //       typeof node.x !== "number" ||
+  //       typeof node.y !== "number" ||
+  //       typeof node.z !== "number"
+  //     ) {
+  //       node = graphData.nodes.find((n) => n.id === targetNode.id);
 
-        if (!node || typeof node.x !== "number") {
-          console.warn("Node position not ready, skipping camera move.");
-          return;
-        }
-      }
+  //       if (!node || typeof node.x !== "number") {
+  //         console.warn("Node position not ready, skipping camera move.");
+  //         return;
+  //       }
+  //     }
 
-      const distance = 200;
-      const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+  //     const distance = 200;
+  //     const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
 
-      focusRef.current.cameraPosition(
-        {
-          x: node.x * distRatio,
-          y: node.y * distRatio,
-          z: node.z * distRatio,
-        },
-        node,
-        1000 // <- 1s for a snappy transition
-      );
-    },
-    [graphData]
-  );
+  //     focusRef.current.cameraPosition(
+  //       {
+  //         x: node.x * distRatio,
+  //         y: node.y * distRatio,
+  //         z: node.z * distRatio,
+  //       },
+  //       node,
+  //       1000 // <- 1s for a snappy transition
+  //     );
+  //   },
+  //   [graphData]
+  // );
 
   // Configure forces
   useEffect(() => {
@@ -365,6 +385,9 @@ export default function StatisticMainPage() {
             }
           });
         }
+      }
+      if (cameraAnimTimeoutRef.current) {
+        clearTimeout(cameraAnimTimeoutRef.current);
       }
     };
   }, []);
