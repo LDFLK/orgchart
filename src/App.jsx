@@ -6,11 +6,11 @@ import './components/TidyTree.variables.css';
 import './components/TidyTree.css';
 import { useThemeContext } from "./themeContext";
 import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
+import Dashboard from "./pages/StatComparison";
 import TouristGlobe from "./components/statistics_components/TouristGlobe";
 import DistrictMap from "./components/statistics_components/DistrictMap";
-import ChartDashboard from "./components/statistics_components/ChartDashboard";
 import WebGLChecker from "./components/common_components/webgl_checker";
-
+import SearchBar from "./components/statistics_components/searchbar"
 
 const App = () => {
 
@@ -27,7 +27,8 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
         <Route path="/globe" element={<TouristGlobe/>}/>
         <Route path="/map" element={<DistrictMap/>}/>
-        <Route path="/dashboard" element={<ChartDashboard/>}/>
+         {/* <Route path="/comparison" element={<Dashboard/>}/> */}
+         <Route path="/comparison" element={<Dashboard/>}/>
       </Routes>
     </Router>
     </div>
