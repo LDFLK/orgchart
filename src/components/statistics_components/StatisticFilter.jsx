@@ -16,30 +16,24 @@ const menuProps = {
   PaperProps: {
     sx: {
       "& .MuiMenuItem-root": {
-        "&.Mui-selected": {
-          backgroundColor: "#e0e0e0 !important",
-        },
-        "&:hover": {
-          backgroundColor: "#e0e0e0",
-        },
+        "&.Mui-selected": { backgroundColor: "#e0e0e0 !important" },
+        "&:hover": { backgroundColor: "#e0e0e0" },
       },
     },
   },
 };
 
 export default function StatisticsFilters({
-  selectedYear,
-  setSelectedYear,
+  selection,
+  setSelection,
+  selectedCategory,
+  setSelectedCategory,
   availableYears,
-  selectedDept,
-  setSelectedDept,
   availableDepartments,
-  selectedStat,
-  setSelectedStat,
   availableStats,
   handleShowData,
 }) {
-  const [selectedCategory, setSelectedCategory] = useState("Department"); // default
+  const current = selection[selectedCategory];
 
   return (
     <Box>
@@ -97,62 +91,54 @@ export default function StatisticsFilters({
         </Box>
 
         {/* Dropdowns */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", md: "row" },
-            gap: 2,
-          }}
-        >
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2 }}>
           {selectedCategory === "Yearly" && (
             <>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                sx={{ borderRadius: 3 }}
-              >
+              <FormControl fullWidth variant="outlined" sx={{
+                borderRadius: 3, "& .MuiOutlinedInput-root": {
+                  borderRadius: 3,
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#3d3b3bff",
+                },
+                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                  borderColor: "#343434ff",
+                },
+              }}>
                 <InputLabel>Year</InputLabel>
-                <Select label="Year">
-                  <MenuItem value="1">Option 1</MenuItem>
-                  <MenuItem value="2">Option 2</MenuItem>
+                <Select
+                  value={current.year || ""}
+                  onChange={(e) => setSelection(prev => ({ ...prev, Yearly: { ...prev.Yearly, year: e.target.value } }))}
+                  label="Year"
+                  MenuProps={menuProps}
+                >
+                  {availableYears.map((y) => (
+                    <MenuItem key={y} value={y}>{y}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                sx={{ borderRadius: 3 }}
-              >
-                <InputLabel>Statistic</InputLabel>
-                <Select label="Statistic">
-                  <MenuItem value="1">Option 1</MenuItem>
-                  <MenuItem value="2">Option 2</MenuItem>
-                </Select>
-              </FormControl>
-            </>
-          )}
 
-          {selectedCategory === "Ministry" && (
-            <>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                sx={{ borderRadius: 3 }}
-              >
-                <InputLabel>Minister</InputLabel>
-                <Select label="Minister">
-                  <MenuItem value="1">Option 1</MenuItem>
-                  <MenuItem value="2">Option 2</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                sx={{ borderRadius: 3 }}
-              >
+              <FormControl fullWidth variant="outlined" sx={{
+                borderRadius: 3, "& .MuiOutlinedInput-root": {
+                  borderRadius: 3,
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#3d3b3bff",
+                },
+                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                  borderColor: "#343434ff",
+                },
+              }}>
                 <InputLabel>Statistic</InputLabel>
-                <Select label="Statistic">
-                  <MenuItem value="1">Option 1</MenuItem>
-                  <MenuItem value="2">Option 2</MenuItem>
+                <Select
+                  value={current.stat || ""}
+                  onChange={(e) => setSelection(prev => ({ ...prev, Yearly: { ...prev.Yearly, stat: e.target.value } }))}
+                  label="Statistic"
+                  MenuProps={menuProps}
+                >
+                  {availableStats.map((s) => (
+                    <MenuItem key={s} value={s}>{s}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </>
@@ -160,86 +146,74 @@ export default function StatisticsFilters({
 
           {selectedCategory === "Department" && (
             <>
-              <FormControl
-                fullWidth
-                variant="outlined"
-                sx={{
+              <FormControl fullWidth variant="outlined" sx={{
+                borderRadius: 3, "& .MuiOutlinedInput-root": {
                   borderRadius: 3,
-                  "& .MuiOutlinedInput-root": { borderRadius: 3 },
-                  "& .MuiOutlinedInput-root.Mui-focused fieldset": {
-                    borderColor: "#000",
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": { color: "#000" },
-                }}
-              >
-                <InputLabel>Year</InputLabel>
-                <Select
-                  value={selectedYear || ""}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  label="Year"
-                  MenuProps={menuProps}
-                  sx={{ borderRadius: 3 }}
-                >
-                  {availableYears.map((y) => (
-                    <MenuItem key={y} value={y}>
-                      {y}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <FormControl
-                fullWidth
-                variant="outlined"
-                sx={{
-                  borderRadius: 3,
-                  "& .MuiOutlinedInput-root": { borderRadius: 3 },
-                  "& .MuiOutlinedInput-root.Mui-focused fieldset": {
-                    borderColor: "#000",
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": { color: "#000" },
-                }}
-              >
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#3d3b3bff",
+                },
+                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                  borderColor: "#343434ff",
+                },
+              }}>
                 <InputLabel>Department</InputLabel>
                 <Select
-                  value={selectedDept || ""}
-                  onChange={(e) => setSelectedDept(e.target.value)}
+                  value={current.dept || ""}
+                  onChange={(e) => setSelection(prev => ({ ...prev, Department: { ...prev.Department, dept: e.target.value } }))}
                   label="Department"
                   MenuProps={menuProps}
-                  sx={{ borderRadius: 3 }}
                 >
                   {availableDepartments.map((d) => (
-                    <MenuItem key={d} value={d}>
-                      {d}
-                    </MenuItem>
+                    <MenuItem key={d} value={d}>{d}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
 
-              <FormControl
-                fullWidth
-                variant="outlined"
-                sx={{
+              <FormControl fullWidth variant="outlined" sx={{
+                borderRadius: 3, "& .MuiOutlinedInput-root": {
                   borderRadius: 3,
-                  "& .MuiOutlinedInput-root": { borderRadius: 3 },
-                  "& .MuiOutlinedInput-root.Mui-focused fieldset": {
-                    borderColor: "#000",
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": { color: "#000" },
-                }}
-              >
-                <InputLabel>Statistic Type</InputLabel>
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#3d3b3bff",
+                },
+                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                  borderColor: "#343434ff",
+                },
+              }}>
+                <InputLabel>Year</InputLabel>
                 <Select
-                  value={selectedStat || ""}
-                  onChange={(e) => setSelectedStat(e.target.value)}
-                  label="Statistic Type"
+                  value={current.year || ""}
+                  onChange={(e) => setSelection(prev => ({ ...prev, Department: { ...prev.Department, year: e.target.value } }))}
+                  label="Year"
                   MenuProps={menuProps}
-                  sx={{ borderRadius: 3 }}
+                >
+                  {availableYears.map((y) => (
+                    <MenuItem key={y} value={y}>{y}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth variant="outlined" sx={{
+                borderRadius: 3, "& .MuiOutlinedInput-root": {
+                  borderRadius: 3,
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#3d3b3bff",
+                },
+                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                  borderColor: "#343434ff",
+                },
+              }}>
+                <InputLabel>Statistic</InputLabel>
+                <Select
+                  value={current.stat || ""}
+                  onChange={(e) => setSelection(prev => ({ ...prev, Department: { ...prev.Department, stat: e.target.value } }))}
+                  label="Statistic"
+                  MenuProps={menuProps}
                 >
                   {availableStats.map((s) => (
-                    <MenuItem key={s} value={s}>
-                      {s}
-                    </MenuItem>
+                    <MenuItem key={s} value={s}>{s}</MenuItem>
                   ))}
                 </Select>
               </FormControl>

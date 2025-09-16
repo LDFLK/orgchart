@@ -9,7 +9,7 @@ const COLORS = ["#2563eb", "#16a34a", "#f59e0b", "#dc2626", "#8b5cf6"];
 export const SimpleBarChart = ({ data, xDataKey, yDataKey, barFill = "#2563eb", xLabel = "", yLabel = "", showGrid = true, showLegend = false,
 }) => (
     <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 20, right: 20, left: 20, bottom: 40 }}>
+        <BarChart data={data} margin={{ top: 20, right: 20, left: 45, bottom: 40 }}>
             {showGrid && <CartesianGrid strokeDasharray="3 3" />}
             <XAxis dataKey={xDataKey} label={{ value: xLabel, position: "insideBottom", offset: -5 }} />
             <YAxis label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
