@@ -127,6 +127,41 @@ export const mockData = {
     },
 };
 
+export const yearlyMockData = {
+  2019: {
+    Population: { type: "single", data: [{ label: "2019", value: 21200000 }] },
+    GDP: { type: "single", data: [{ label: "2019", value: 88.7 }] },
+    Inflation: { type: "single", data: [{ label: "2019", value: 4.0 }] },
+    Unemployment: { type: "single", data: [{ label: "2019", value: 4.9 }] },
+  },
+  2020: {
+    Population: { type: "single", data: [{ label: "2020", value: 21400000 }] },
+    GDP: { type: "single", data: [{ label: "2020", value: 82.1 }] },
+    Inflation: { type: "single", data: [{ label: "2020", value: 5.6 }] },
+    Unemployment: { type: "single", data: [{ label: "2020", value: 6.8 }] },
+  },
+  2021: {
+    Population: { type: "single", data: [{ label: "2021", value: 21600000 }] },
+    GDP: { type: "single", data: [{ label: "2021", value: 90.2 }] },
+    Inflation: { type: "single", data: [{ label: "2021", value: 6.3 }] },
+    Unemployment: { type: "single", data: [{ label: "2021", value: 6.5 }] },
+  },
+  2022: {
+    Population: { type: "single", data: [{ label: "2022", value: 21800000 }] },
+    GDP: { type: "single", data: [{ label: "2022", value: 95.6 }] },
+    Inflation: { type: "single", data: [{ label: "2022", value: 5.0 }] },
+    Unemployment: { type: "single", data: [{ label: "2022", value: 5.7 }] },
+  },
+  2023: {
+    Population: { type: "single", data: [{ label: "2023", value: 22000000 }] },
+    GDP: { type: "single", data: [{ label: "2023", value: 102.4 }] },
+    Inflation: { type: "single", data: [{ label: "2023", value: 4.5 }] },
+    Unemployment: { type: "single", data: [{ label: "2023", value: 5.0 }] },
+  },
+};
+
+
+
 // Tourist arrivals data
 export const countriesData = [
     ["Afghanistan", 39],
