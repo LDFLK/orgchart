@@ -10,6 +10,7 @@ import {
   MenuItem,
   Button,
 } from "@mui/material";
+import PresidentComparison from "./president_comparison";
 
 const menuProps = {
   PaperProps: {
@@ -41,14 +42,14 @@ export default function StatisticsFilters({
   const [selectedCategory, setSelectedCategory] = useState("Department"); // default
 
   return (
-    <Box sx={{ mt: 5 }}>
+    <Box>
       <Paper
-        elevation={6}
+        elevation={3}
         sx={{
           p: { xs: 3, md: 4 },
           mb: 4,
           borderRadius: 4,
-          maxWidth: "1200px",
+          maxWidth: "full",
           margin: "0 auto",
           backgroundColor: "#fff",
         }}
@@ -64,29 +65,35 @@ export default function StatisticsFilters({
 
         {/* Tabs */}
         <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 4 }}>
-          {["Yearly", "Ministry", "Department"].map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "contained" : "outlined"}
-              sx={{
-                borderRadius: 3,
-                fontWeight: 600,
-                textTransform: "none",
-                bgcolor: selectedCategory === category ? "#000" : "#fff",
-                color: selectedCategory === category ? "#fff" : "#000",
-                border:
-                  selectedCategory === category ? "none" : "1px solid #f0f0f0",
-                "&:hover": {
-                  bgcolor: selectedCategory === category ? "#222" : "#f0f0f0",
+          {["Yearly", "Ministry", "Department", "Presidents"].map(
+            (category) => (
+              <Button
+                key={category}
+                variant={
+                  selectedCategory === category ? "contained" : "outlined"
+                }
+                sx={{
+                  borderRadius: 3,
+                  fontWeight: 600,
+                  textTransform: "none",
+                  bgcolor: selectedCategory === category ? "#000" : "#fff",
+                  color: selectedCategory === category ? "#fff" : "#000",
                   border:
-                    selectedCategory === category ? "none" : "1px solid #000",
-                },
-              }}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </Button>
-          ))}
+                    selectedCategory === category
+                      ? "none"
+                      : "1px solid #f0f0f0",
+                  "&:hover": {
+                    bgcolor: selectedCategory === category ? "#222" : "#f0f0f0",
+                    border:
+                      selectedCategory === category ? "none" : "1px solid #000",
+                  },
+                }}
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </Button>
+            )
+          )}
         </Box>
 
         {/* Dropdowns */}
@@ -238,26 +245,30 @@ export default function StatisticsFilters({
               </FormControl>
             </>
           )}
+
+          {selectedCategory === "Presidents" && <PresidentComparison />}
         </Box>
 
         {/* Show Data Button */}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-          <Button
-            variant="contained"
-            sx={{
-              width: 160,
-              py: 1,
-              borderRadius: 3,
-              fontWeight: 600,
-              textTransform: "none",
-              backgroundColor: "#000",
-              "&:hover": { backgroundColor: "#222" },
-            }}
-            onClick={handleShowData}
-          >
-            Show Data
-          </Button>
-        </Box>
+        {selectedCategory != "Presidents" && (
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+            <Button
+              variant="contained"
+              sx={{
+                width: 160,
+                py: 1,
+                borderRadius: 3,
+                fontWeight: 600,
+                textTransform: "none",
+                backgroundColor: "#000",
+                "&:hover": { backgroundColor: "#222" },
+              }}
+              onClick={handleShowData}
+            >
+              Show Data
+            </Button>
+          </Box>
+        )}
       </Paper>
     </Box>
   );

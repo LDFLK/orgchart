@@ -436,7 +436,7 @@ export default function StatisticMainPage() {
         group: selectedNode.group,
         color: selectedNode.color,
       };
-      navigate('/dashboard', { state: { selectedNode: serializableNode } });
+      navigate('/comparison', { state: { selectedNode: serializableNode } });
       handleClosePopup();
     }
   }, [selectedNode, navigate, handleClosePopup]);

@@ -11,6 +11,7 @@ import TouristGlobe from "./components/statistics_components/TouristGlobe";
 import DistrictMap from "./components/statistics_components/DistrictMap";
 import WebGLChecker from "./components/common_components/webgl_checker";
 import SearchBar from "./components/statistics_components/searchbar"
+import PresidentComparison from "./components/statistics_components/president_comparison";
 
 const App = () => {
 
@@ -29,6 +30,7 @@ const App = () => {
         <Route path="/map" element={<DistrictMap/>}/>
          {/* <Route path="/comparison" element={<Dashboard/>}/> */}
          <Route path="/comparison" element={<Dashboard/>}/>
+         <Route path="/president-comparison" element={<PresidentComparison/>}/>
       </Routes>
     </Router>
     </div>
