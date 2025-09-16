@@ -13,10 +13,11 @@ import {
 } from "../store/presidencySlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/NavBar";
-import { Box, Typography } from "@mui/material";
+import { Box, colors, Typography } from "@mui/material";
 import { setGazetteDataClassic } from "../store/gazetteDate";
 import StatisticMainPage from "./statistics_main_page";
 import LoadingComponent from "../components/common_components/loading_component";
+import { useThemeContext } from "../themeContext";
 
 export default function DataLoadingAnimatedComponent({ mode }) {
   const [loading, setLoading] = useState(false);
@@ -25,6 +26,12 @@ export default function DataLoadingAnimatedComponent({ mode }) {
     (state) => state.presidency
   );
   const dispatch = useDispatch();
+
+  const {colors, isDark} = useThemeContext();
+
+  useEffect(()=>{
+    console.log('is this dark : ',isDark)
+  },[])
 
   useEffect(() => {
     const initialFetchData = async () => {
@@ -183,6 +190,7 @@ export default function DataLoadingAnimatedComponent({ mode }) {
         <>
           <Box
             sx={{
+              backgroundColor: colors.backgroundPrimary,
               width: "100%",
               height: "100vh",
               display: "flex",

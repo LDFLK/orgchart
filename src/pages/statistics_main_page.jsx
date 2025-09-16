@@ -15,7 +15,7 @@ import {
   setSelectedPresident,
   setSelectedDate,
 } from "../store/presidencySlice";
-import { Box, Avatar, Typography, IconButton } from "@mui/material";
+ 
 import Drawer from "../components/statistics_components/drawer";
 import BottomPresidentLine from "../components/statistics_components/bottom_president_line";
 import PresidencyTimeline from "../components/PresidencyTimeline";
@@ -25,12 +25,16 @@ import WebGLChecker, {
   isWebGLAvailable,
 } from "../components/common_components/webgl_checker";
 import LoadingComponent from "../components/common_components/loading_component";
+import { useThemeContext } from "../themeContext";
+import { useNavigate } from "react-router-dom";
 
 export default function StatisticMainPage() {
   const [loading, setLoading] = useState(true);
   const [webgl, setWebgl] = useState(true);
-  const [selectedNodeId, setSelectedNodeId] = useState(null);
   const [expandDrawer, setExpandDrawer] = useState(true);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
+  const [selectedNode, setSelectedNode] = useState(null);
 
   const [allNodes, setAllNodes] = useState([]);
   const [relations, setRelations] = useState([]);
@@ -38,9 +42,12 @@ export default function StatisticMainPage() {
   const [departmentDictionary, setDepartmentDictionary] = useState({});
   const [ministerToDepartments, setMinisterToDepartment] = useState({});
 
+  const { colors, isDark } = useThemeContext();
+
   const focusRef = useRef();
   const cameraAnimTimeoutRef = useRef();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const presidents = useSelector((state) => state.presidency.presidentList);
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
@@ -58,7 +65,46 @@ export default function StatisticMainPage() {
   );
 
   useEffect(() => {
-    setWebgl(isWebGLAvailable());
+    const checkWebGL = () => {
+      const webglAvailable = isWebGLAvailable();
+      console.log('WebGL detection result:', webglAvailable);
+      console.log('Browser info:', {
+        userAgent: navigator.userAgent,
+        webgl: !!window.WebGLRenderingContext,
+        webgl2: !!window.WebGL2RenderingContext
+      });
+      
+      setWebgl(webglAvailable);
+      
+      if (!webglAvailable) {
+        console.warn('WebGL not available. This may be due to:');
+        console.warn('1. Hardware acceleration disabled in browser');
+        console.warn('2. Outdated graphics drivers');
+        console.warn('3. Browser security settings');
+        console.warn('4. Corporate firewall blocking WebGL');
+        console.warn('5. WebGL context lost or not ready yet');
+      }
+    };
+
+    // Check immediately
+    checkWebGL();
+    
+    // Check again after a short delay (in case of timing issues)
+    const timeoutId = setTimeout(checkWebGL, 1000);
+    
+    // Check again when page becomes visible (handles tab switching)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        setTimeout(checkWebGL, 500);
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Initial selection of president & date
@@ -78,9 +124,9 @@ export default function StatisticMainPage() {
     }
   }, [presidents, gazetteDataClassic]);
 
-  // Master loader: fetch ministries, departments, and build graph
   useEffect(() => {
     const buildGraph = async () => {
+      handleClosePopup();
       setLoading(true);
       try {
         // Fetch ministries
@@ -185,22 +231,31 @@ export default function StatisticMainPage() {
     }
   }, [selectedDate, selectedPresident]);
 
-  // Add this to your component
+  // Handle WebGL context loss and restoration
   useEffect(() => {
     const canvas = focusRef.current?.renderer()?.domElement;
 
     if (canvas) {
       const handleContextLost = (event) => {
-        console.warn("WebGL context lost");
+        console.warn("WebGL context lost - this is normal and can happen due to:");
+        console.warn("- GPU memory pressure");
+        console.warn("- Browser tab switching");
+        console.warn("- System resource constraints");
         event.preventDefault();
         setWebgl(false);
       };
 
       const handleContextRestored = () => {
-        console.log("WebGL context restored");
-        setWebgl(true);
-        // Optionally rebuild the graph
-        // buildGraph();
+        console.log("WebGL context restored - checking availability again");
+        // Re-check WebGL availability
+        const webglAvailable = isWebGLAvailable();
+        setWebgl(webglAvailable);
+        
+        if (webglAvailable) {
+          console.log("WebGL is now available again");
+        } else {
+          console.warn("WebGL context restored but still not available");
+        }
       };
 
       canvas.addEventListener("webglcontextlost", handleContextLost);
@@ -209,10 +264,7 @@ export default function StatisticMainPage() {
       return () => {
         if (canvas) {
           canvas.removeEventListener("webglcontextlost", handleContextLost);
-          canvas.removeEventListener(
-            "webglcontextrestored",
-            handleContextRestored
-          );
+          canvas.removeEventListener("webglcontextrestored", handleContextRestored);
         }
       };
     }
@@ -220,7 +272,6 @@ export default function StatisticMainPage() {
 
   // Memoized graph data
   const graphData = useMemo(() => {
-    // Only return valid graph data when not loading and we have both nodes and relations
     if (loading || allNodes.length === 0 || relations.length === 0) {
       return { nodes: [], links: [] };
     }
@@ -252,21 +303,37 @@ export default function StatisticMainPage() {
     (node) => {
       const sprite = new SpriteText(utils.makeMultilineText(node.name));
       sprite.textHeight = 10;
-      sprite.fontWeight = 700;
+      sprite.fontWeight = 400;
       sprite.fontFace = "poppins";
       sprite.center.y = -0.5;
-      const isSelected = selectedNodeId === node.id;
-      sprite.backgroundColor = isSelected ? "#000" : "#fff";
-      sprite.color = isSelected ? "#fff" : "#000";
-      sprite.padding = 4;
+      sprite.color = colors.textPrimary;
+      // sprite.padding = 4;
       sprite.borderRadius = 3;
       return sprite;
     },
-    [selectedNodeId]
+    [colors.textPrimary]
   );
 
   const handleNodeClick = useCallback((node) => {
-    const distance = 400;
+    console.log('Node clicked:', node); // Debug log
+    
+    // Set popup data first
+    setSelectedNode(node);
+    setPopupVisible(true);
+    
+    // Use mouse position for popup positioning (more reliable)
+    const canvas = focusRef.current?.renderer()?.domElement;
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect();
+      // Use center of canvas as fallback position
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      setPopupPosition({ x: centerX, y: centerY });
+    }
+
+    // Still do camera movement for better UX
+    const distance = 600;
     const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
     const transitionMs = 3000;
 
@@ -284,50 +351,14 @@ export default function StatisticMainPage() {
     }, transitionMs + 2);
   }, []);
 
-  // Handle clicking a node
-  // const handleNodeClickk = useCallback(
-  //   (targetNode) => {
-  //     setClickedNode(targetNode);
-
-  //     let node = targetNode;
-
-  //     // Ensure node position is ready
-  //     if (
-  //       typeof node.x !== "number" ||
-  //       typeof node.y !== "number" ||
-  //       typeof node.z !== "number"
-  //     ) {
-  //       node = graphData.nodes.find((n) => n.id === targetNode.id);
-
-  //       if (!node || typeof node.x !== "number") {
-  //         console.warn("Node position not ready, skipping camera move.");
-  //         return;
-  //       }
-  //     }
-
-  //     const distance = 200;
-  //     const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
-
-  //     focusRef.current.cameraPosition(
-  //       {
-  //         x: node.x * distRatio,
-  //         y: node.y * distRatio,
-  //         z: node.z * distRatio,
-  //       },
-  //       node,
-  //       1000 // <- 1s for a snappy transition
-  //     );
-  //   },
-  //   [graphData]
-  // );
-
   // Configure forces
   useEffect(() => {
     if (
       focusRef.current &&
       graphData.nodes.length > 0 &&
       graphData.links.length > 0 &&
-      !loading
+      !loading && 
+      focusRef.current.d3Force
     ) {
       requestAnimationFrame(() => {
         try {
@@ -359,17 +390,13 @@ export default function StatisticMainPage() {
         // Stop the animation loop
         focusRef.current.pauseAnimation();
 
-        // Clear graph data
-        focusRef.current.graphData({ nodes: [], links: [] });
-
-        // Get the renderer and dispose of resources
         const renderer = focusRef.current.renderer();
+        
         if (renderer) {
           renderer.dispose();
           renderer.forceContextLoss();
         }
 
-        // Clear the scene
         const scene = focusRef.current.scene();
         if (scene) {
           scene.traverse((object) => {
@@ -392,23 +419,63 @@ export default function StatisticMainPage() {
     };
   }, []);
 
-  // Cleanup on unmount
-  // useEffect(() => {
-  //   return () => {
-  //     if (focusRef.current?.graphData) {
-  //       focusRef.current.graphData({ nodes: [], links: [] });
-  //     }
-  //   };
-  // }, [selectedPresident]);
+  // Handle popup close
+  const handleClosePopup = useCallback(() => {
+    setPopupVisible(false);
+    setSelectedNode(null);
+  }, []);
 
-  //   useEffect(() => {
-  //   return () => {
-  //     // Force garbage collection of old graph
-  //     if (focusRef.current) {
-  //       focusRef.current.graphData({ nodes: [], links: [] });
-  //     }
-  //   };
-  // }, [selectedPresident]);
+  // Handle navigation to another page
+  const handleNavigateToPage = useCallback(() => {
+    if (selectedNode) {
+      console.log('this is going to statistic page : ',selectedNode)
+      // Navigate with only serializable data
+      const serializableNode = {
+        id: selectedNode.id,
+        name: selectedNode.name,
+        group: selectedNode.group,
+        color: selectedNode.color,
+      };
+      navigate('/dashboard', { state: { selectedNode: serializableNode } });
+      handleClosePopup();
+    }
+  }, [selectedNode, navigate, handleClosePopup]);
+
+  // Popup component
+  const NodePopup = () => {
+    
+    if (!selectedNode || !popupVisible) return null;
+
+    return (
+      <div
+        className="fixed z-[1000] p-4 rounded-lg shadow-lg"
+        style={{
+          left: popupPosition.x + 20,
+          top: popupPosition.y - 10,
+          backgroundColor: colors.backgroundPrimary,
+          color: isDark ? '#fff' : '#000',
+        }}
+      >
+        <div className="text-lg font-semibold mb-2">{selectedNode.name}</div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleNavigateToPage}
+            className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
+            style={{ backgroundColor: colors.primary || '#1976d2' }}
+          >
+            View Details
+          </button>
+          <button
+            onClick={handleClosePopup}
+            className="text-sm px-3 py-1 rounded border cursor-pointer"
+            style={{ borderColor: isDark ? '#666' : '#ccc', color: isDark ? '#fff' : '#000' }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -443,17 +510,19 @@ export default function StatisticMainPage() {
                       expandDrawer ? window.innerWidth / 2 : window.innerWidth
                     }
                     graphData={graphData}
-                    backgroundColor="#fff"
+                    backgroundColor={ isDark ? "#222" : "#fff"}
+                    // backgroundColor={colors.backgroundColor}
                     linkWidth={3}
-                    linkColor={() => "rgba(0,0,0,1.0)"}
-                    nodeRelSize={10}
+                    // linkColor={() => "rgba(0,0,0,1.0)"}
+                    linkColor={colors.timelineLineActive}
+                    nodeRelSize={15}
                     nodeResolution={8}
                     ref={focusRef}
                     rendererConfig={{
                       alpha: true,
                       antialias: false,
                       powerPreference: "low-power",
-                      precision: "mediump",
+                      precision: "lowp",
                       failIfMajorPerformanceCaveat: false,
                       preserveDrawingBuffer: false,
                       stencil: false,
@@ -477,10 +546,65 @@ export default function StatisticMainPage() {
                   </div>
                 )
               ) : (
-                <div className="flex justify-center items-center w-full h-full">
-                  <span className="ml-2">
-                    WebGL is unavailable on this device. Showing fallback.
-                  </span>
+                <div className="flex flex-col justify-center items-center w-full h-full p-8">
+                  <div className="text-center max-w-2xl">
+                    <h2 className="text-2xl font-bold mb-4 text-red-600">
+                      WebGL Not Available
+                    </h2>
+                    <p className="text-lg mb-6 text-gray-700">
+                      Your browser doesn't support WebGL or it's currently disabled. 
+                      The 3D visualization requires WebGL to function properly.
+                    </p>
+                    
+                    <div className="bg-blue-50 p-4 rounded-lg mb-6 text-left">
+                      <h3 className="font-semibold mb-2">To enable WebGL:</h3>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        <li><strong>Chrome:</strong> Settings → Advanced → System → Enable "Use hardware acceleration"</li>
+                        <li><strong>Firefox:</strong> about:config → webgl.force-enabled → true</li>
+                        <li><strong>Edge:</strong> Settings → System → Enable "Use hardware acceleration"</li>
+                        <li>Update your graphics drivers</li>
+                        <li>Disable browser extensions that might block WebGL</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="flex gap-4 justify-center">
+                      <button 
+                        onClick={() => window.location.reload()}
+                        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                      >
+                        Reload Page
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const webglAvailable = isWebGLAvailable();
+                          console.log('Manual WebGL check:', webglAvailable);
+                          setWebgl(webglAvailable);
+                        }}
+                        className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
+                      >
+                        Retry WebGL
+                      </button>
+                      <button 
+                        onClick={() => {
+                          // Force retry with multiple attempts
+                          let attempts = 0;
+                          const retryInterval = setInterval(() => {
+                            attempts++;
+                            const webglAvailable = isWebGLAvailable();
+                            console.log(`WebGL retry attempt ${attempts}:`, webglAvailable);
+                            setWebgl(webglAvailable);
+                            
+                            if (webglAvailable || attempts >= 3) {
+                              clearInterval(retryInterval);
+                            }
+                          }, 500);
+                        }}
+                        className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                      >
+                        Force Retry
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -489,6 +613,7 @@ export default function StatisticMainPage() {
           )}
         </div>
       </div>
+      <NodePopup />
       <WebGLChecker />
     </>
   );

@@ -1,16 +1,51 @@
 import { useEffect, useState } from "react";
 
 export const isWebGLAvailable = () => {
-        try {
-            const canvas = document.createElement('canvas');
-            if (!window.WebGLRenderingContext) return false;
-            const attributes = { failIfMajorPerformanceCaveat: false, antialias: false, preserveDrawingBuffer: false };
-            const ctx = canvas.getContext('webgl', attributes) || canvas.getContext('experimental-webgl', attributes);
-            return !!ctx;
-        } catch (e) {
+    try {
+        const canvas = document.createElement('canvas');
+        
+        // Check if WebGL context is available
+        if (!window.WebGLRenderingContext) {
+            console.log('WebGL: WebGLRenderingContext not available');
             return false;
         }
-    };
+        
+        // Try different context attributes
+        const attributes = { 
+            failIfMajorPerformanceCaveat: false, 
+            antialias: false, 
+            preserveDrawingBuffer: false,
+            powerPreference: 'low-power'
+        };
+        
+        // Try WebGL 1.0
+        let ctx = canvas.getContext('webgl', attributes);
+        if (ctx) {
+            console.log('WebGL: WebGL 1.0 context created successfully');
+            return true;
+        }
+        
+        // Try experimental WebGL
+        ctx = canvas.getContext('experimental-webgl', attributes);
+        if (ctx) {
+            console.log('WebGL: Experimental WebGL context created successfully');
+            return true;
+        }
+        
+        // Try WebGL 2.0
+        ctx = canvas.getContext('webgl2', attributes);
+        if (ctx) {
+            console.log('WebGL: WebGL 2.0 context created successfully');
+            return true;
+        }
+        
+        console.log('WebGL: No WebGL context could be created');
+        return false;
+    } catch (e) {
+        console.log('WebGL: Error creating WebGL context:', e);
+        return false;
+    }
+};
 
 export default function WebGLChecker() {
 
