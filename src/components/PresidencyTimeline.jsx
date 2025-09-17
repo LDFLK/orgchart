@@ -161,14 +161,9 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
 
   useEffect(() => {
     if (selectedPresident?.created) {
-      const presidentRelationByStartTime = {};
-      Object.values(presidentRelationDict).forEach((rel) => {
-        presidentRelationByStartTime[rel.startTime] = rel;
-      });
 
-      // Lookup the relation by selectedPresident.created
       const matchedPresidentRelation =
-        presidentRelationByStartTime[selectedPresident.created];
+        presidentRelationDict[selectedPresident.id];
 
       fetchGazetteData(matchedPresidentRelation);
     }
