@@ -16,7 +16,7 @@ export default function Dashboard() {
         Presidents: { presidents: [] },
     });
 
-    const [selectedCategory, setSelectedCategory] = useState("Department"); // default
+    const [selectedCategory, setSelectedCategory] = useState("Yearly"); // default
     const [cards, setCards] = useState([]);
     const [displayDept, setDisplayDept] = useState("");
     const [displayStat, setDisplayStat] = useState("");
@@ -271,9 +271,9 @@ export default function Dashboard() {
                     return (
                         <div
                             key={metric.key}
-                            className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md"
+                            className="bg-white p-4 rounded-lg"
                         >
-                            <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+                            <h3 className="text-lg font-semibold mb-4 text-gray-800">
                                 {metric.title}
                             </h3>
                             <div className="h-64">
@@ -293,7 +293,7 @@ export default function Dashboard() {
 
 
     return (
-        <Container maxWidth="xl" sx={{ mt: 5 }}>
+        <>
             <StatisticsFilters
                 selection={selection}
                 setSelection={setSelection}
@@ -306,7 +306,7 @@ export default function Dashboard() {
             />
 
             {cards.length > 0 && selectedCategory === "Department" && (
-                <Typography sx={{ maxWidth: "1200px", margin: "0 auto", mt: 3 }} variant="subtitle1" color="text.secondary">
+                <Typography sx={{ maxWidth: "1200px", margin: "0 auto", mt: 3, fontWeight: "bold" }} variant="subtitle1" color="text.secondary">
                     {displayDept} - {displayStat}
                 </Typography>
             )}
@@ -348,11 +348,11 @@ export default function Dashboard() {
                             }}
                             size="small"
                         >
-                            <InputLabel id="year-label">Compare With</InputLabel>
+                            <InputLabel id="year-label">Compare</InputLabel>
                             <Select
                                 labelId="year-label"
                                 multiple
-                                value={cards.map((c) => c.year)} // pre-checks all years in cards
+                                value={cards.map((c) => c.year)}
                                 onChange={handleYearChange}
                                 renderValue={() => null}
                                 MenuProps={menuProps}
@@ -384,6 +384,6 @@ export default function Dashboard() {
                     </Card>
                 </Paper>
             )}
-        </Container>
+        </>
     );
 }

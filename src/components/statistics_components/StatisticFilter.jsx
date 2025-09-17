@@ -15,10 +15,8 @@ import PresidentFilter from "./presidentFilter";
 const menuProps = {
   PaperProps: {
     sx: {
-      "& .MuiMenuItem-root": {
-        "&.Mui-selected": { backgroundColor: "#e0e0e0 !important" },
-        "&:hover": { backgroundColor: "#e0e0e0" },
-      },
+      border: "1px solid #BABABA", 
+      borderRadius: 2,
     },
   },
 };
@@ -36,29 +34,25 @@ export default function StatisticsFilters({
   const current = selection[selectedCategory];
 
   return (
-    <Box>
+    <Box p="4px">
+      <Typography
+          variant="h5"
+          align="left"
+          sx={{ fontWeight: "bold", my:1 }}
+        >
+          Xplore
+        </Typography>
       <Paper
-        elevation={3}
         sx={{
-          p: { xs: 3, md: 4 },
-          mb: 4,
           borderRadius: 4,
           maxWidth: "full",
           margin: "0 auto",
           backgroundColor: "#fff",
+          boxShadow: "none"
         }}
       >
-        {/* Title */}
-        <Typography
-          variant="h4"
-          align="center"
-          sx={{ fontWeight: "bold", mb: 4 }}
-        >
-          Xplore Statistics
-        </Typography>
-
         {/* Tabs */}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 4 }}>
           {["Yearly", "Department", "Presidents"].map(
             (category) => (
               <Button
@@ -67,8 +61,10 @@ export default function StatisticsFilters({
                   selectedCategory === category ? "contained" : "outlined"
                 }
                 sx={{
-                  borderRadius: 3,
-                  fontWeight: 600,
+                  px: 2,
+                  py: 1,
+                  borderRadius: 2,
+                  fontWeight: 400,
                   textTransform: "none",
                   bgcolor: selectedCategory === category ? "#000" : "#fff",
                   color: selectedCategory === category ? "#fff" : "#000",
@@ -94,17 +90,7 @@ export default function StatisticsFilters({
         <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 2 }}>
           {selectedCategory === "Yearly" && (
             <>
-              <FormControl fullWidth variant="outlined" sx={{
-                borderRadius: 3, "& .MuiOutlinedInput-root": {
-                  borderRadius: 3,
-                },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: "#3d3b3bff",
-                },
-                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
-                  borderColor: "#343434ff",
-                },
-              }}>
+              <FormControl fullWidth>
                 <InputLabel>Year</InputLabel>
                 <Select
                   value={current.year || ""}
@@ -119,8 +105,8 @@ export default function StatisticsFilters({
               </FormControl>
 
               <FormControl fullWidth variant="outlined" sx={{
-                borderRadius: 3, "& .MuiOutlinedInput-root": {
-                  borderRadius: 3,
+                borderRadius: 2, "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
                 },
                 "& .MuiInputLabel-root.Mui-focused": {
                   color: "#3d3b3bff",
@@ -147,8 +133,8 @@ export default function StatisticsFilters({
           {selectedCategory === "Department" && (
             <>
               <FormControl fullWidth variant="outlined" sx={{
-                borderRadius: 3, "& .MuiOutlinedInput-root": {
-                  borderRadius: 3,
+                borderRadius: 2, "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
                 },
                 "& .MuiInputLabel-root.Mui-focused": {
                   color: "#3d3b3bff",
@@ -171,8 +157,8 @@ export default function StatisticsFilters({
               </FormControl>
 
               <FormControl fullWidth variant="outlined" sx={{
-                borderRadius: 3, "& .MuiOutlinedInput-root": {
-                  borderRadius: 3,
+                borderRadius: 2, "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
                 },
                 "& .MuiInputLabel-root.Mui-focused": {
                   color: "#3d3b3bff",
@@ -195,8 +181,8 @@ export default function StatisticsFilters({
               </FormControl>
 
               <FormControl fullWidth variant="outlined" sx={{
-                borderRadius: 3, "& .MuiOutlinedInput-root": {
-                  borderRadius: 3,
+                borderRadius: 2, "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
                 },
                 "& .MuiInputLabel-root.Mui-focused": {
                   color: "#3d3b3bff",
@@ -240,10 +226,10 @@ export default function StatisticsFilters({
             <Button
               variant="contained"
               sx={{
-                width: 160,
+                px: 2,
                 py: 1,
-                borderRadius: 3,
-                fontWeight: 600,
+                borderRadius: 2,
+                fontWeight: 400,
                 textTransform: "none",
                 backgroundColor: "#000",
                 "&:hover": { backgroundColor: "#222" },

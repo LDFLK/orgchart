@@ -17,7 +17,6 @@ import {
 } from "../store/presidencySlice";
  
 import Drawer from "../components/statistics_components/drawer";
-import BottomPresidentLine from "../components/statistics_components/bottom_president_line";
 import PresidencyTimeline from "../components/PresidencyTimeline";
 import SpriteText from "three-spritetext";
 import AlertToOrgchart from "../components/statistics_components/alertToOrgchart";
@@ -128,6 +127,7 @@ export default function StatisticMainPage() {
     const buildGraph = async () => {
       handleClosePopup();
       setLoading(true);
+      
       try {
         // Fetch ministries
         const activeMinistry = await api.fetchActiveMinistries(
@@ -212,6 +212,10 @@ export default function StatisticMainPage() {
         ];
 
         const allGraphLinks = [...ministryToGovLinks, ...allRelations];
+
+        if (focusRef.current) {
+          focusRef.current.stopAnimation?.(); // important: prevent ticking
+        }
 
         // Set all states in batch
         setMinistryDictionary(ministryDic);
@@ -375,7 +379,9 @@ export default function StatisticMainPage() {
               }
             });
             focusRef.current.d3Force("charge").theta(0.5).strength(-300);
-            focusRef.current.d3ReheatSimulation();
+            setTimeout(() => {
+              focusRef.current?.d3ReheatSimulation?.();
+            }, 50);            
           }
         } catch (e) {
           console.warn("ForceGraph not ready:", e.message);
@@ -500,7 +506,7 @@ export default function StatisticMainPage() {
         <div className="flex justify-start items-start h-full">
           <PresidencyTimeline mode={modeEnum.STATISTICS} />
           {!loading ? (
-            <div>
+            <div className="w-full" style={{ backgroundColor: colors.backgroundPrimary }}>
               <AlertToOrgchart selectedPresident={selectedPresident} />
               {webgl ? (
                 graphData.nodes.length > 0 && graphData.links.length > 0 ? (
@@ -510,8 +516,8 @@ export default function StatisticMainPage() {
                       expandDrawer ? window.innerWidth / 2 : window.innerWidth
                     }
                     graphData={graphData}
-                    backgroundColor={ isDark ? "#222" : "#fff"}
-                    // backgroundColor={colors.backgroundColor}
+                    // backgroundColor={ isDark ? "#222" : "#fff"}
+                    backgroundColor={colors.backgroundPrimary}
                     linkWidth={3}
                     // linkColor={() => "rgba(0,0,0,1.0)"}
                     linkColor={colors.timelineLineActive}
@@ -609,7 +615,7 @@ export default function StatisticMainPage() {
               )}
             </div>
           ) : (
-            <LoadingComponent message="Graph Loading" />
+            <LoadingComponent message="Graph Loading" OsColorMode={false} />
           )}
         </div>
       </div>

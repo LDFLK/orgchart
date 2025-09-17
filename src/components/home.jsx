@@ -11,6 +11,7 @@ import "./../index.css";
 import Version from "./version";
 import "../assets/chatbotCSS.css";
 import ForceGraph3D from "react-force-graph-3d";
+import { colors } from "@mui/material";
 
 export function genRandomTree(N = 200, reverse = false) {
   return {
@@ -29,85 +30,6 @@ const Home = () => {
   const navigate = useNavigate();
 
   const graphData = genRandomTree();
-
-  // useEffect(() => {
-  //   // Clear previous content
-  //   d3.select(svgRef.current).selectAll("*").remove();
-
-  //   // Sample government hierarchy data
-  //   const data = {
-  //     name: "Prime Minister",
-  //     children: [
-  //       {
-  //         name: "Finance Ministry",
-  //         children: [{ name: "Dept-A" }, { name: "Dept-B" }],
-  //       },
-  //       {
-  //         name: "Health Ministry",
-  //         children: [{ name: "Dept-A" }, { name: "Dept-B" }],
-  //       },
-  //       {
-  //         name: "Education Ministry",
-  //         children: [{ name: "Dept-A" }, { name: "Dept-B" }],
-  //       },
-  //     ],
-  //   };
-
-  //   const width = 400;
-  //   const height = 250;
-
-  //   const svg = d3
-  //     .select(svgRef.current)
-  //     .attr("width", width)
-  //     .attr("height", height);
-
-  //   const root = d3.hierarchy(data);
-  //   const treeLayout = d3.tree().size([width - 40, height - 40]);
-  //   treeLayout(root);
-
-  //   // Create links
-  //   svg
-  //     .selectAll(".link")
-  //     .data(root.links())
-  //     .enter()
-  //     .append("path")
-  //     .attr("class", "link")
-  //     .attr(
-  //       "d",
-  //       d3
-  //         .linkVertical()
-  //         .x((d) => d.x + 20)
-  //         .y((d) => d.y + 20)
-  //     )
-  //     .attr("fill", "none")
-  //     .attr("stroke", "#94a3b8")
-  //     .attr("stroke-width", 1.5);
-
-  //   // Create nodes
-  //   const nodes = svg
-  //     .selectAll(".node")
-  //     .data(root.descendants())
-  //     .enter()
-  //     .append("g")
-  //     .attr("class", "node")
-  //     .attr("transform", (d) => `translate(${d.x + 20}, ${d.y + 20})`);
-
-  //   nodes
-  //     .append("circle")
-  //     .attr("r", 6)
-  //     .attr("fill", (d) =>
-  //       d.depth === 0 ? "#06b6d4" : d.depth === 1 ? "#3b82f6" : "#8b5cf6"
-  //     );
-
-  //   nodes
-  //     .append("text")
-  //     .attr("dy", -10)
-  //     .attr("text-anchor", "middle")
-  //     .style("font-size", "10px")
-  //     .style("font-weight", "500")
-  //     .style("fill", "#94a3b8")
-  //     .text((d) => d.data.name);
-  // }, []);
 
   const distance = 1400;
   useEffect(() => {
@@ -133,20 +55,29 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-950 to-black py-12 px-6">
+    <div
+      className={`min-h-screen bg-gradient-to-br dark:from-gray-950 dark:via-slate-950 dark:to-black py-12 px-6`}
+      style={{ backgroundColor: colors.backgroundPrimary }}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <Version />
-          <h1 className="text-5xl font-bold text-white mb-6">
+          <h1
+            className={`text-5xl font-bold mb-6 text-[#181818] dark:text-[#EBF2F5]`}
+            // style={{ color: colors.textPrimary }}
+          >
             Open{" "}
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              General Information
+              General Information,
             </span>
-            , <br />
+            <br />
             Network
           </h1>
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+          <p
+            className="text-md mb-8 max-w-3xl mx-auto text-[#181818] dark:text-[#EBF2F5]"
+            
+          >
             Understand your role, track policy implementations, and collaborate
             effectively with GovTrack - the comprehensive governance management
             platform for public servants.
@@ -154,40 +85,50 @@ const Home = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-gray-950/70 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-800/50">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
+          <div
+            className="dark:bg-gray-950/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-800/50"
+            style={{ backgroundColor: colors.backgroundPrimary }}
+          >
+            <h3
+              className="text-xl font-bold mb-6 flex items-center space-x-2 text-[#181818] dark:text-[#EBF2F5]"
+            >
               <div>
                 <span>Compare Statistics</span>
                 <br />
-                <span className="text-sm font-normal text-gray-400">
+                <span
+                  className="text-sm font-normal"
+                  style={{ color: colors.textMuted }}
+                >
                   Compare data across various categories
                 </span>
               </div>
             </h3>
 
             <div className="flex flex-col items-center">
-              {/* <svg ref={svgRef}></svg>*/}
               <ForceGraph3D
                 ref={svgRef}
                 graphData={graphData}
                 enableNodeDrag={false}
                 enableNavigationControls={false}
+                backgroundColor={null}
+                glOptions={{ alpha: true, antialias: true, preserveDrawingBuffer: true }}
+                nodeRelSize={20}
                 showNavInfo={false}
+                width={500}
                 height={window.innerHeight / 4}
               />
-              ;
               <div className="mt-4 text-center">
-                <p className="text-sm text-gray-300 mb-2">
-                  Interactive Government Hierarchy
+                <p className="text-sm mb-2" style={{ color: colors.textMuted }}>
+                  How the things are conntect
                 </p>
                 <div className="flex items-center justify-center space-x-4 text-xs">
                   <div className="flex items-center space-x-1">
                     <div className="w-3 h-3 bg-blue-500 rounded-full shadow-lg shadow-blue-500/50"></div>
-                    <span className="text-gray-300">Ministry</span>
+                    <span className="text-[#181818] dark:text-[#EBF2F5]">Ministry</span>
                   </div>
                   <div className="flex items-center space-x-1">
                     <div className="w-3 h-3 bg-purple-500 rounded-full shadow-lg shadow-purple-500/50"></div>
-                    <span className="text-gray-300">Department</span>
+                    <span  className="text-[#181818] dark:text-[#EBF2F5]">Department</span>
                   </div>
                 </div>
               </div>
@@ -200,12 +141,20 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="bg-gray-950/70 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-800/50">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
+          <div
+            className="backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-800/50"
+            style={{ backgroundColor: colors.backgroundPrimary }}
+          >
+            <h3
+              className="text-xl font-bold mb-6 flex items-center space-x-2 text-[#181818] dark:text-[#EBF2F5]"
+            >
               <div>
                 <span>Modern View</span>
                 <br />
-                <span className="text-sm font-normal text-gray-400">
+                <span
+                  className="text-sm font-normal"
+                  style={{ color: colors.textMuted }}
+                >
                   Easy Navigation Interface
                 </span>
               </div>
@@ -213,7 +162,7 @@ const Home = () => {
 
             <div className="space-y-3">
               {/* Executive Level */}
-              <div className="bg-gradient-to-r from-cyan-950/40 to-cyan-900/40 rounded-lg p-4 border-l-4 border-cyan-400 hover:from-cyan-900/50 hover:to-cyan-800/50 transition-all duration-300">
+              <div className="bg-gradient-to-r  rounded-lg p-4 border-l-4 border-cyan-400 hover:from-cyan-900/50 hover:to-cyan-800/50 transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <Building2 className="w-5 h-5 text-cyan-400" />
@@ -288,7 +237,7 @@ const Home = () => {
             </div>
           </div>
 
-          {/* <div className="bg-gray-950/70 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-800/50">
+          {/* <div className="bg-gray-950/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-800/50">
             <h3 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
               <MessageCircle className="w-5 h-5 text-cyan-400" />
               <span>AI Assistant</span>

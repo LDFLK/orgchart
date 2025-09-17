@@ -31,10 +31,57 @@ const theme = createTheme({
       fontSize: "1rem",
     },
   },
-});
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+            borderColor: "#343434ff",
+          },
+        },
+        input: {
+          padding: "6px 12px", 
+        },
+        notchedOutline: {
+          legend: {
+            display: "0px", 
+          },
+        },
+        
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          padding: "12px 15px !important", // aligns value with label
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          transform: "translate(12px, 12px) scale(1)", // default position
+          "&.MuiInputLabel-shrink": {
+            transform: "translate(12px, -10px) scale(0.85)", // floating position
+          },
+          "&.Mui-focused": {
+            color: "#3d3b3bff", // focused label color
+          },
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8, // dropdown menu border radius
+          boxShadow: 'none',
+        },
+      },
+    },
+  }});
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  //<React.StrictMode>
     <Provider store={store}>
       <CustomThemeProvider>
         <MUIThemeProvider theme={theme}>
@@ -44,5 +91,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </MUIThemeProvider>
       </CustomThemeProvider>
     </Provider>
-//  </React.StrictMode>
 );
