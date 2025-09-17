@@ -210,12 +210,23 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                 const collapsed = [];
                 for (const entry of enriched.sort((a, b) => new Date(a.startTime) - new Date(b.startTime))) {
                     const last = collapsed[collapsed.length - 1];
-                    if (
+
+                    const entryMinName = entry.minister ? utils.extractNameFromProtobuf(entry.minister.name) : null;
+                    const lastMinName = last?.minister ? utils.extractNameFromProtobuf(last.minister.name) : null;
+                    const entryName = utils.extractNameFromProtobuf(entry.name);
+                    const lastName = last ? utils.extractNameFromProtobuf(last.name) : null;
+
+                    const sameMinistryAndMinister =
                         last &&
-                        last.minister?.id === entry.minister?.id &&
-                        last.id === entry.id &&
-                        (!last.endTime || !entry.startTime || new Date(last.endTime) >= new Date(entry.startTime))
-                    ) {
+                        (
+                            (last.id === entry.id && last.minister?.id === entry.minister?.id) ||
+                            (lastName === entryName && last.minister?.id === entry.minister?.id) ||
+                            (last.id === entry.id && lastMinName === entryMinName) ||
+                            (lastName === entryName && lastMinName === entryMinName)
+                        ) &&
+                        (!last.endTime || !entry.startTime || new Date(last.endTime) >= new Date(entry.startTime));
+
+                    if (sameMinistryAndMinister) {
                         last.endTime = entry.endTime && (!last.endTime || new Date(entry.endTime) > new Date(last.endTime))
                             ? entry.endTime
                             : last.endTime;
