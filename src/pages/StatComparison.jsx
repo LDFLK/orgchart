@@ -14,6 +14,7 @@ export default function Dashboard() {
         Department: { year: "", dept: "", stat: "" },
         Yearly: { year: "", stat: "" },
         Presidents: { presidents: [] },
+        Ministries: {ministries: []}
     });
 
     const [selectedCategory, setSelectedCategory] = useState("Yearly"); // default

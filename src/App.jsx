@@ -29,7 +29,7 @@ const App = () => {
         <Route path="/globe" element={<TouristGlobe/>}/>
         <Route path="/map" element={<DistrictMap/>}/>
          {/* <Route path="/comparison" element={<Dashboard/>}/> */}
-         <Route path="/comparison" element={<Dashboard/>}/>
+         <Route path="/comparison"element={<DataLoadingAnimatedComponent mode="comparison"/>}/>
          <Route path="/president-comparison" element={<PresidentComparison/>}/>
       </Routes>
     </Router>

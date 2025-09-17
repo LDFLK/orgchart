@@ -18,6 +18,7 @@ import { setGazetteDataClassic } from "../store/gazetteDate";
 import StatisticMainPage from "./statistics_main_page";
 import LoadingComponent from "../components/common_components/loading_component";
 import { useThemeContext } from "../themeContext";
+import Dashboard from "./StatComparison";
 
 export default function DataLoadingAnimatedComponent({ mode }) {
   const [loading, setLoading] = useState(false);
@@ -27,11 +28,11 @@ export default function DataLoadingAnimatedComponent({ mode }) {
   );
   const dispatch = useDispatch();
 
-  const {colors, isDark} = useThemeContext();
+  const { colors, isDark } = useThemeContext();
 
-  useEffect(()=>{
-    console.log('is this dark : ',isDark)
-  },[])
+  useEffect(() => {
+    console.log('is this dark : ', isDark)
+  }, [])
 
   useEffect(() => {
     const initialFetchData = async () => {
@@ -46,8 +47,7 @@ export default function DataLoadingAnimatedComponent({ mode }) {
           await fetchAllGazetteDate();
           const afterTime = new Date().getTime();
           console.log(
-            `execusion time for initial fetching of all:  ${
-              afterTime - beforeTime
+            `execusion time for initial fetching of all:  ${afterTime - beforeTime
             } msec`
           );
           setLoading(false);
@@ -187,37 +187,39 @@ export default function DataLoadingAnimatedComponent({ mode }) {
       {loading ? (
         <LoadingComponent />
       ) : showServerError ? (
-        <>
-          <Box
-            sx={{
-              backgroundColor: colors.backgroundPrimary,
-              width: "100%",
-              height: "100vh",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+        <Box
+          sx={{
+            backgroundColor: colors.backgroundPrimary,
+            width: "100%",
+            height: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            color="black"
+            sx={{ fontFamily: "poppins", fontSize: 24 }}
           >
-            <Typography
-              color="black"
-              sx={{
-                fontFamily: "poppins",
-                fontSize: 24,
-              }}
-            >
-              Oops.. Something Went Wrong... Refresh Please
-            </Typography>
-          </Box>
-        </>
-      ) : Object.keys(presidentDict.length > 0) &&
-        mode == "orgchart" &&
-        selectedPresident != null ? (
-        <Navbar />
+            Oops.. Something Went Wrong... Refresh Please
+          </Typography>
+        </Box>
       ) : (
-        Object.keys(presidentDict.length > 0) &&
-        mode == "statistics" &&
-        selectedPresident != null && <StatisticMainPage />
+        <>
+
+          {Object.keys(presidentDict).length > 0 &&
+            mode === "orgchart" &&
+            selectedPresident && <Navbar />}
+
+          {Object.keys(presidentDict).length > 0 &&
+            mode === "statistics" &&
+            selectedPresident && <StatisticMainPage />}
+
+          {mode === "comparison" &&
+            Object.keys(presidentDict).length > 0 && <Dashboard />}
+        </>
       )}
     </>
   );
+
 }
