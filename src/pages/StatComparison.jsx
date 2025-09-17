@@ -1,15 +1,19 @@
 import { useRef, useState, useEffect } from "react";
-import {Container,Grid,Paper,Typography,FormControl,InputLabel,Select,MenuItem,Card,CardContent,Checkbox,ListItemText,Box,
+import {
+    Container, Grid, Paper, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardContent, Checkbox, ListItemText, Box,
 } from "@mui/material";
-import {SimpleBarChart,SimpleLineChart,SimplePieChart,MultiBarChart,MultiHorizontalBarChart,BubbleChart,CirclePackingChart,
+import {
+    SimpleBarChart, SimpleLineChart, SimplePieChart, MultiBarChart, MultiHorizontalBarChart, BubbleChart, CirclePackingChart,
 } from "./../components/statistics_components/Charts";
-import { years, departments, statTypes, mockData, yearlyMockData } from "./../../public/statMockData";
+import { years, departments, statTypes, mockData, yearlyMockData } from "../assets/statMockData";
 import StatisticsFilters from "./../components/statistics_components/StatisticFilter";
+
 
 export default function Dashboard() {
     const [selection, setSelection] = useState({
         Department: { year: "", dept: "", stat: "" },
         Yearly: { year: "", stat: "" },
+        Presidents: { presidents: [] },
     });
 
     const [selectedCategory, setSelectedCategory] = useState("Department"); // default
@@ -19,7 +23,8 @@ export default function Dashboard() {
     const [displayYearlyStat, setDisplayYearlyStat] = useState("")
     const bubbleRef = useRef(null);
     const [bubbleWidth, setBubbleWidth] = useState(0);
-    const { year, dept, stat } = selection[selectedCategory];
+    const { year, dept, stat } = selection[selectedCategory] || {};
+
 
     useEffect(() => {
         setCards([]);
@@ -27,6 +32,7 @@ export default function Dashboard() {
         setDisplayStat("");
         setDisplayYearlyStat("");
     }, [selectedCategory]);
+
 
     // Filter dropdowns
     const availableYears = years.filter((y) => {
@@ -88,7 +94,6 @@ export default function Dashboard() {
             }
         }
     };
-
     const compareYears = selectedCategory === "Department"
         ? years.filter((y) => mockData[y]?.[displayDept]?.[displayStat])
         : years.filter((y) => yearlyMockData[y]?.[displayYearlyStat]);
@@ -144,7 +149,7 @@ export default function Dashboard() {
             },
         },
     };
-    
+
     const combinedChart = () => {
         if (cards.length === 0) return null;
         const type = cards[0].value.type;
@@ -245,6 +250,48 @@ export default function Dashboard() {
         return null;
     };
 
+    const renderPresidentChart = () => {
+        if (!selection.Presidents.presidents.length) return null;
+
+        const metrics = [
+            { key: "cabinetSize", title: "Cabinet Size", color: "#2563eb" },
+            { key: "departments", title: "Departments", color: "#16a34a" },
+        ];
+
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                {metrics.map((metric) => {
+                    const chartData = selection.Presidents.presidents.map((p) => ({
+                        name: p.name.split(" ").slice(-1)[0], // last name
+                        fullName: p.name,
+                        value: p[metric.key],
+                        term: p.term,
+                    }));
+
+                    return (
+                        <div
+                            key={metric.key}
+                            className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md"
+                        >
+                            <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+                                {metric.title}
+                            </h3>
+                            <div className="h-64">
+                                <SimpleBarChart
+                                    data={chartData}
+                                    xDataKey="name"
+                                    yDataKey="value"
+                                    barFill={metric.color}
+                                />
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
+
     return (
         <Container maxWidth="xl" sx={{ mt: 5 }}>
             <StatisticsFilters
@@ -270,6 +317,8 @@ export default function Dashboard() {
                 </Typography>
             )}
 
+
+            {selectedCategory === "Presidents" && renderPresidentChart()}
             {cards.length > 0 && (
                 <Paper
                     elevation={1}

@@ -10,7 +10,7 @@ import {
   MenuItem,
   Button,
 } from "@mui/material";
-import PresidentComparison from "./president_comparison";
+import PresidentFilter from "./presidentFilter";
 
 const menuProps = {
   PaperProps: {
@@ -59,7 +59,7 @@ export default function StatisticsFilters({
 
         {/* Tabs */}
         <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 4 }}>
-          {["Yearly", "Ministry", "Department", "Presidents"].map(
+          {["Yearly", "Department", "Presidents"].map(
             (category) => (
               <Button
                 key={category}
@@ -220,7 +220,18 @@ export default function StatisticsFilters({
             </>
           )}
 
-          {selectedCategory === "Presidents" && <PresidentComparison />}
+          {selectedCategory === "Presidents" && (
+            <PresidentFilter
+              selectedPresidents={selection.Presidents.presidents}
+              onSelectPresident={(pres) =>
+                setSelection((prev) => ({
+                  ...prev,
+                  Presidents: { presidents: pres },
+                }))
+              }
+            />
+          )}
+
         </Box>
 
         {/* Show Data Button */}
