@@ -13,7 +13,7 @@ import {
 } from "../store/presidencySlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/NavBar";
-import { Box, colors, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { setGazetteDataClassic } from "../store/gazetteDate";
 import StatisticMainPage from "./statistics_main_page";
 import LoadingComponent from "../components/common_components/loading_component";
