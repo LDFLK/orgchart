@@ -59,7 +59,7 @@ export default function StatisticsFilters({
 
         {/* Tabs */}
         <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 4 }}>
-          {["Yearly", "Department", "Presidents"].map(
+          {["Yearly", "Ministry", "Department", "Presidents"].map(
             (category) => (
               <Button
                 key={category}
@@ -219,6 +219,45 @@ export default function StatisticsFilters({
               </FormControl>
             </>
           )}
+          {selectedCategory === "Ministry" && (
+            <>
+              <FormControl fullWidth variant="outlined" sx={{
+                borderRadius: 3, "& .MuiOutlinedInput-root": {
+                  borderRadius: 3,
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#3d3b3bff",
+                },
+                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                  borderColor: "#343434ff",
+                },
+              }}>
+                <InputLabel>Ministry</InputLabel>
+                <Select label="Minister">
+                  <MenuItem value="1">Option 1</MenuItem>
+                  <MenuItem value="2">Option 2</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl fullWidth variant="outlined" sx={{
+                borderRadius: 3, "& .MuiOutlinedInput-root": {
+                  borderRadius: 3,
+                },
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "#3d3b3bff",
+                },
+                "& .MuiOutlinedInput-root.Mui-focused fieldset": {
+                  borderColor: "#343434ff",
+                },
+              }}>
+                <InputLabel>Statistic</InputLabel>
+                <Select label="Statistic">
+                  <MenuItem value="1">Option 1</MenuItem>
+                  <MenuItem value="2">Option 2</MenuItem>
+                </Select>
+              </FormControl>
+            </>
+          )}
+
 
           {selectedCategory === "Presidents" && (
             <PresidentFilter
@@ -233,6 +272,8 @@ export default function StatisticsFilters({
           )}
 
         </Box>
+
+
 
         {/* Show Data Button */}
         {selectedCategory != "Presidents" && (
