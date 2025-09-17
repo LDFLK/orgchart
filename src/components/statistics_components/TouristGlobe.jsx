@@ -5,7 +5,7 @@ import countries110m from "world-atlas/countries-110m.json";
 import { Box, List, ListItemButton, ListItemText } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import IconButton from "@mui/material/IconButton";
-import {countriesData} from './../../../public/statMockData'
+import {countriesData} from '../../assets/statMockData'
 
 // Mapping for mismatched names
 export const nameMapping = {

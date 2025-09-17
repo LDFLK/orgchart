@@ -4,9 +4,9 @@ import "../../assets/presidentdata";
 import { useSelector } from "react-redux";
 import utils from "../../utils/utils";
 
-export default function PresidentComparison({
+export default function PresidentFilter({
   selectedPresidents = [],
-  onSelectPresident = () => {},
+  onSelectPresident = () => { },
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const presidents = useSelector((state) => state.presidency.presidentDict);
@@ -29,15 +29,18 @@ export default function PresidentComparison({
         ? new Date(rel.endTime).getFullYear()
         : "Present";
       const termText = startYear ? `${startYear} - ${endYear}` : "";
+
       return {
         id: p.id,
         name: nameText,
         term: termText,
         image: p.imageUrl || p.image || "",
+
+        // random dummy data
+        cabinetSize: Math.floor(Math.random() * 30) + 20, 
+        departments: Math.floor(Math.random() * 10) + 10,
       };
     });
-
-    console.log('normalized : ', normalized)
 
     if (!searchTerm) return normalized;
 
@@ -48,6 +51,22 @@ export default function PresidentComparison({
         (president.term && president.term.toLowerCase().includes(q))
     );
   }, [presidents, presidentRelationDict, searchTerm]);
+
+  const handleSelect = (president) => {
+    const isSelected = selectedPresidents.some((p) => p.id === president.id);
+    let updated;
+
+    if (isSelected) {
+      updated = selectedPresidents.filter((p) => p.id !== president.id);
+    } else {
+      updated =
+        selectedPresidents.length < 3
+          ? [...selectedPresidents, president]
+          : selectedPresidents;
+    }
+
+    onSelectPresident(updated);
+  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg p-4 w-full">
@@ -67,20 +86,17 @@ export default function PresidentComparison({
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mt-4">
-        {filteredPresidents &&
-          filteredPresidents.map((president) => (
+        {filteredPresidents.map((president) => {
+          const isSelected = selectedPresidents.some((p) => p.id === president.id);
+          return (
             <button
               key={president.id}
-              onClick={() => onSelectPresident(president.id)}
-              className={`flex items-center p-3 rounded-lg border transition-colors cursor-pointer ${
-                selectedPresidents.includes(president.id)
-                  ? "bg-blue-50 border-blue-300 dark:bg-blue-900/30 dark:border-blue-700"
-                  : "bg-gray-50 border-gray-200 hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600"
-              }`}
-              disabled={
-                selectedPresidents.length >= 3 &&
-                !selectedPresidents.includes(president.id)
-              }
+              onClick={() => handleSelect(president)}
+              className={`flex items-center p-3 rounded-lg border transition-colors cursor-pointer ${isSelected
+                ? "bg-blue-50 border-blue-300 dark:bg-blue-900/30 dark:border-blue-700"
+                : "bg-gray-50 border-gray-200 hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600"
+                }`}
+              disabled={selectedPresidents.length >= 3 && !isSelected}
             >
               <img
                 src={president.image}
@@ -89,11 +105,8 @@ export default function PresidentComparison({
               />
               <div className="text-left">
                 <p
-                  className={`text-sm font-medium ${
-                    selectedPresidents.includes(president.id)
-                      ? "text-blue-700 dark:text-blue-300"
-                      : "text-gray-700 dark:text-gray-200"
-                  }`}
+                  className={`text-sm font-medium ${isSelected ? "text-blue-700 dark:text-blue-300" : "text-gray-700 dark:text-gray-200"
+                    }`}
                 >
                   {president.name}
                 </p>
@@ -102,12 +115,12 @@ export default function PresidentComparison({
                 </p>
               </div>
             </button>
-          ))}
+          );
+        })}
       </div>
-      {selectedPresidents && selectedPresidents.length >= 3 && (
+      {selectedPresidents.length >= 3 && (
         <p className="text-sm text-amber-600 dark:text-amber-400 mt-3">
-          You can compare up to 3 presidents at a time. Remove one to add
-          another.
+          You can compare up to 3 presidents at a time. Remove one to add another.
         </p>
       )}
     </div>
