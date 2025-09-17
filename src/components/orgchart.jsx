@@ -354,7 +354,7 @@ export default function OrgChart() {
   const [loadingDepartments, setLoadingDepartments] = useState(new Set());
   const [expandedMinistries, setExpandedMinistries] = useState(new Set());
   const { gazetteData } = useSelector((state) => state.gazettes);
-  const { selectedPresident, selectedDate, presidentRelationList } =
+  const { selectedPresident, selectedDate, presidentRelationDict } =
     useSelector((state) => state.presidency);
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
   const [loading, setLoading] = useState(false);
@@ -368,9 +368,7 @@ export default function OrgChart() {
       if (!selectedPresident?.created) return;
       console.log(loading)
       setLoading(true);
-      const matchedPresidentRelation = presidentRelationList.find(
-        (obj) => obj.startTime == selectedPresident.created
-      );
+      const matchedPresidentRelation = presidentRelationDict[selectedPresident.id];
 
       const startTime = matchedPresidentRelation.startTime.split("T")[0];
       const endTime = matchedPresidentRelation.endTime.split("T")[0];

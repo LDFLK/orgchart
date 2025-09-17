@@ -1,7 +1,6 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
-
 export default function Error404() {
     const navigate = useNavigate();
 
@@ -13,6 +12,7 @@ export default function Error404() {
         return () => clearTimeout(timer);
 
     },[navigate])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-950 to-black ">
       <div className="flex items-center justify-center min-h-screen">

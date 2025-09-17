@@ -1,12 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/home";
 import Error404 from "./components/404Error";
-import Navbar from "./components/NavBar";
 import './animations.css';
 import './components/TidyTree.variables.css';
 import './components/TidyTree.css';
 import { useThemeContext } from "./themeContext";
 import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
+import Dashboard from "./pages/StatComparison";
+import TouristGlobe from "./components/statistics_components/TouristGlobe";
+import DistrictMap from "./components/statistics_components/DistrictMap";
+import WebGLChecker from "./components/common_components/webgl_checker";
+import SearchBar from "./components/statistics_components/searchbar"
+import PresidentComparison from "./components/statistics_components/presidentFilter";
 
 const App = () => {
 
@@ -14,11 +19,18 @@ const App = () => {
   
   return(
     <div className={isDark ? "dark-mode" : ""}>
+      {/* <WebGLChecker/> */}
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/orgchart" element={<DataLoadingAnimatedComponent/>} />
+        <Route path="/orgchart" element={<DataLoadingAnimatedComponent mode="orgchart"/>} />
+        <Route path="/statistics" element={<DataLoadingAnimatedComponent mode="statistics"/>}/>
         <Route path="*" element={<Error404 />} />
+        <Route path="/globe" element={<TouristGlobe/>}/>
+        <Route path="/map" element={<DistrictMap/>}/>
+         {/* <Route path="/comparison" element={<Dashboard/>}/> */}
+         <Route path="/comparison"element={<DataLoadingAnimatedComponent mode="comparison"/>}/>
+         <Route path="/president-comparison" element={<PresidentComparison/>}/>
       </Routes>
     </Router>
     </div>

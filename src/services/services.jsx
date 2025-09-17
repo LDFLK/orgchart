@@ -1,7 +1,7 @@
 import utils from "../utils/utils";
 
-const apiUrl = window?.configs?.apiUrl ? window.configs.apiUrl : "/"
-// const apiUrl = "";
+// const apiUrl = window?.configs?.apiUrl ? window.configs.apiUrl : "/"
+const apiUrl = "";
 
 // Fetch initial gazette dates and all ministry protobuf data
 const fetchInitialGazetteData = async () => {
@@ -85,10 +85,12 @@ const fetchPresidentsData = async (governmentNodeId = "gov_01") => {
 
 const fetchActiveMinistries = async (
   selectedDate,
-  allMinistryData,
+  allMinistryData, // now a dict { id: ministryObj }
   selectedPresident
 ) => {
   try {
+    const beforeTime = new Date().getTime();
+
     const response = await fetch(
       `${apiUrl}/v1/entities/${selectedPresident.id}/relations`,
       {
@@ -102,7 +104,7 @@ const fetchActiveMinistries = async (
           endTime: "",
           id: "",
           name: "AS_MINISTER",
-          activeAt:  `${selectedDate.date}T00:00:00Z`,
+          activeAt: `${selectedDate.date}T00:00:00Z`,
         }),
       }
     );
@@ -113,6 +115,13 @@ const fetchActiveMinistries = async (
 
     const activeMinistryRelations = await response.json();
 
+    const afterTime = new Date().getTime();
+    console.log(
+      `execusion time to fetch active ministries :  ${
+        afterTime - beforeTime
+      } msec`
+    );
+
     // Extract relatedEntityId and startTime from each relation
     const activeMinistryInfo = activeMinistryRelations
       .filter((relation) => relation.relatedEntityId)
@@ -121,9 +130,9 @@ const fetchActiveMinistries = async (
         startTime: relation.startTime || null,
       }));
 
-    // Map ministry info using protobuf data
+    // Map ministry info using dict lookup instead of .find()
     const activeMinistries = activeMinistryInfo.map(({ id, startTime }) => {
-      const ministry = allMinistryData.find((min) => min.id === id);
+      const ministry = allMinistryData[id];
       let name = ministry?.name || "Unknown Ministry";
 
       try {
@@ -159,6 +168,7 @@ const fetchActiveMinistries = async (
     };
   }
 };
+
 
 const fetchAllPersons = async () => {
   try {
@@ -267,17 +277,17 @@ const fetchAllMinistries = async () => {
   return response;
 };
 
-const fetchAllRelationsForMinistry = async (ministryId) => {
+const fetchAllRelationsForMinistry = async ({ministryId,relatedEntityId="",startTime="",endTime="",id="",name="",activeAt=""}) => {
   try {
     const response = await fetch(`${apiUrl}/v1/entities/${ministryId}/relations`, {
       method: "POST",
       body: JSON.stringify({
-        relatedEntityId: "",
-        startTime: "",
-        endTime: "",
-        id: "",
-        name: "",
-        activeAt: "",
+        relatedEntityId: relatedEntityId,
+        startTime: startTime,
+        endTime:endTime,
+        id: id,
+        name: name,
+        activeAt: activeAt,
       }),
       headers: {
         "Content-Type": "application/json",
@@ -373,6 +383,59 @@ const getMinistriesByDepartment = async (departmentId) => {
   }
 };
 
+const getDepartmentRenamedInfo = async (departmentId) => {
+  try {
+    const response = await fetch(
+      `${apiUrl}/v1/entities/${departmentId}/relations`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "RENAMED_TO",
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching renamed department info:", error);
+  }
+};
+
+const getMinistriesByPerson = async (personId) => {
+  try {
+    const response = await fetch(
+      `${apiUrl}/v1/entities/${personId}/relations`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: "AS_APPOINTED",
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+
+    return response;
+  } catch (error) {
+    console.error("Error fetching renamed department info:", error);
+  }
+};
+
+
+
+
 export default {
   fetchInitialGazetteData,
   fetchAllRelationsForMinistry,
@@ -385,4 +448,6 @@ export default {
   fetchAllDepartments,
   fetchPresidentsData,
   chatbotApiCall,
+  getDepartmentRenamedInfo,
+  getMinistriesByPerson
 };

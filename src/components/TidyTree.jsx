@@ -63,6 +63,7 @@ const TidyTree = ({
     () => Array.from(expandedMinistries),
     [expandedMinistries]
   );
+  
   const loadingDepartmentsArray = useMemo(
     () => Array.from(loadingDepartments),
     [loadingDepartments]

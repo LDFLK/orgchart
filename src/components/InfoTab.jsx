@@ -1,98 +1,137 @@
-import { Box, Button, Drawer, IconButton } from "@mui/material";
+import { Box, Dialog, DialogContent, IconButton, Typography, Button } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import ApartmentIcon from "@mui/icons-material/Apartment";
 import MinistryDrawerContent from "./MinistryDrawerContent";
-import DepartmentHistoryTimeline from "./DepartmentHistoryTimeline";
-
+import { useState } from "react";
 import { useThemeContext } from "../themeContext";
+import PersonsTab from "./PersonsTab";
 
-const InfoTab = ({
-  drawerOpen,
-  drawerMode,
-  selectedCard,
-  selectedDepartment,
-  selectedDate,
-  onClose,
-  onBack,
-  onDepartmentClick,
-  selectedPresident,
-}) => {
+const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPresident }) => {
   const { colors } = useThemeContext();
+  const [activeTab, setActiveTab] = useState("departments");
+
+  const presidentColor = selectedPresident?.themeColorLight || colors.textPrimary;
 
   return (
-    <Drawer anchor="right" open={drawerOpen} onClose={onClose}>
-      <Box
+    <Dialog
+      open={drawerOpen}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xl"
+      PaperProps={{
+        sx: { height: "100vh", borderRadius: 2, backgroundColor: colors.backgroundPrimary },
+      }}
+    >
+      <DialogContent
         sx={{
-          width: {
-            xs: 350,
-            sm: 450,
-            md: 650,
-            lg: 700,
-            xl: 750,
-          },
           p: 2,
-          height: "100vh",
           display: "flex",
           flexDirection: "column",
-          backgroundColor: colors.backgroundPrimary,
-          overflow: "auto",
+          minHeight: 400,
+          overflowY: "auto",
+          scrollbarWidth: "none",
+          "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-        {/* Header */}
 
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            mb: 2,
-          }}
-        >
-          {drawerMode === "department" ? (
-            <Button
-              onClick={onBack}
-              sx={{
-                color: `${selectedPresident.themeColorLight}`,
-                "&:active": {
-                  backgroundColor: `${selectedPresident.themeColorLight}10`,
-                },
-                "&:hover": {
-                  backgroundColor: `${selectedPresident.themeColorLight}10`,
-                },
-              }}
-            >
-              ← Back
-            </Button>
-          ) : (
-            <Box width={75} /> // spacer
-          )}
-
+        <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 1 }}>
           <IconButton onClick={onClose}>
-            <CloseIcon
-              sx={{
-                color: colors.textPrimary,
-              }}
-            />
+            <CloseIcon sx={{ color: colors.textPrimary }} />
           </IconButton>
         </Box>
 
-        {/* Content */}
-        <Box sx={{ flexGrow: 1 }}>
-          {drawerMode === "ministry" && selectedCard && (
-            <MinistryDrawerContent
-              selectedCard={selectedCard}
-              selectedDate={selectedDate.date}
-              onDepartmentClick={onDepartmentClick}
-            />
-          )}
+        <Box sx={{ p: 2, backgroundColor: colors.backgroundPrimary, mt: -3 }}>
+          {/* Date */}
+          <Typography variant="h6" sx={{ color: `${presidentColor}90`, fontFamily: "poppins" }}>
+            Gazette Date
+          </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              color: presidentColor,
+              fontFamily: "poppins",
+              fontWeight: "bold",
+            }}
+          >
+            {selectedDate ? (selectedDate.date || selectedDate) : "Unknown"}
+          </Typography>
 
-          {drawerMode === "department" && selectedDepartment && (
-            <DepartmentHistoryTimeline
-              selectedDepartment={selectedDepartment}
-            />
+          {/* Ministry Name */}
+          <Box display="flex" alignItems="center" my={1}>
+            <ApartmentIcon sx={{ mr: 1, color: presidentColor }} />
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: "bold",
+                color: colors.textPrimary,
+                fontFamily: "poppins",
+                fontSize: {
+                  xs: "1.2rem",
+                  sm: "1.2rem",
+                  md: "1.3rem",
+                  lg: "1.3rem",
+                  xl: "1.5rem",
+                },
+              }}
+            >
+              {selectedCard?.name?.split(":")[0] || "No Ministry Selected"}
+            </Typography>
+          </Box>
+          
+          {/* Tabs */}
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",     
+              gap: 2,
+              mt: 2,
+              justifyContent: { xs: "center", sm: "flex-start" }, // center on very small screens
+            }}
+          >
+            {["departments", "persons"].map((tab) => {
+              const label = tab.charAt(0).toUpperCase() + tab.slice(1);
+              const isActive = activeTab === tab;
+
+              return (
+                <Button
+                  key={tab}
+                  variant={isActive ? "contained" : "outlined"}
+                  onClick={() => setActiveTab(tab)}
+                  sx={{
+                    textTransform: "none",
+                    borderRadius: "50px",
+                    px: { xs: 2, sm: 3 }, 
+                    py: 0.8,
+                    fontFamily: "poppins",
+                    fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" }, 
+                    color: isActive ? colors.white : presidentColor,
+                    backgroundColor: isActive ? presidentColor : "transparent",
+                    borderColor: presidentColor,
+                    "&:hover": {
+                      backgroundColor: isActive ? presidentColor : `${presidentColor}10`,
+                    },
+                  }}
+                >
+                  {label}
+                </Button>
+              );
+            })}
+          </Box>
+
+        </Box>
+
+        {/* Content */}
+        <Box sx={{ flexGrow: 1, mt: 2 }}>
+          {selectedCard && activeTab === "departments" && (
+            <MinistryDrawerContent selectedDate={selectedDate?.date || selectedDate} />
+          )}
+          {selectedCard && activeTab === "persons" && (
+            <PersonsTab selectedDate={selectedDate?.date || selectedDate} />
           )}
         </Box>
-      </Box>
-    </Drawer>
+      </DialogContent>
+    </Dialog>
+
   );
 };
 
