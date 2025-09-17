@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Highcharts from "highcharts/highmaps";
 import HighchartsReact from "highcharts-react-official";
-import stringSimilarity from "string-similarity";
 import { Card, CardContent, Typography } from "@mui/material";
 
 const DistrictMap = ({ values = [], title = "Sri Lanka Districts Map", seriesName = "Value" }) => {
@@ -18,11 +17,11 @@ const DistrictMap = ({ values = [], title = "Sri Lanka Districts Map", seriesNam
         geometries.forEach((f) => {
           if (f.properties["alt-name"]) {
             const names = f.properties["alt-name"].split("|").map((n) => n.trim());
-            const { bestMatch } = stringSimilarity.findBestMatch(
-              names.join(" "),
-              values.map((r) => r[0])
-            );
-            f.properties.name = bestMatch.target;
+            // const { bestMatch } = stringSimilarity.findBestMatch(
+            //   names.join(" "),
+            //   values.map((r) => r[0])
+            // );
+            // f.properties.name = bestMatch.target;
           }
         });
 
