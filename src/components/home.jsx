@@ -55,189 +55,161 @@ const Home = () => {
   };
 
   return (
-    <div
-      className={`min-h-screen bg-gradient-to-br dark:from-gray-950 dark:via-slate-950 dark:to-black py-12 px-6`}
-      style={{ backgroundColor: colors.backgroundPrimary }}
-    >
-      <div className="max-w-6xl mx-auto">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <Version />
-          <h1
-            className={`text-5xl font-bold mb-6 text-[#181818] dark:text-[#EBF2F5]`}
-            // style={{ color: colors.textPrimary }}
-          >
-            Open{" "}
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-              General Information,
-            </span>
-            <br />
-            Network
-          </h1>
-          <p
-            className="text-md mb-8 max-w-3xl mx-auto text-[#181818] dark:text-[#EBF2F5]"
-            
-          >
-            Understand your role, track policy implementations, and collaborate
-            effectively with GovTrack - the comprehensive governance management
-            platform for public servants.
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div
-            className="dark:bg-gray-950/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-800/50"
-            style={{ backgroundColor: colors.backgroundPrimary }}
-          >
-            <h3
-              className="text-xl font-bold mb-6 flex items-center space-x-2 text-[#181818] dark:text-[#EBF2F5]"
-            >
-              <div>
-                <span>Compare Statistics</span>
-                <br />
-                <span
-                  className="text-sm font-normal"
-                  style={{ color: colors.textMuted }}
-                >
-                  Compare data across various categories
+    <div className="relative min-h-screen">
+      {/* Background ForceGraph3D */}
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <ForceGraph3D
+          ref={svgRef}
+          graphData={graphData}
+          enableNodeDrag={false}
+          enableNavigationControls={false}
+          showNavInfo={false}
+
+        />
+      </div>
+      {/* Overlay content */}
+      <div className="relative z-10 min-h-screen px-6 overflow-x-hidden bg-gray-950/50">
+        <div className="max-w-6xl mx-auto">
+          {/* Hero Section */}
+          <div className="relative">
+
+            {/* OpenGIN logo*/}
+            <div className="absolute top-0 left-0 p-4 z-10">
+              <h1 className="text-3xl font-bold text-white">
+                Open
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  GIN
                 </span>
-              </div>
-            </h3>
+              </h1>
+            </div>
 
-            <div className="flex flex-col items-center">
-              <ForceGraph3D
-                ref={svgRef}
-                graphData={graphData}
-                enableNodeDrag={false}
-                enableNavigationControls={false}
-                backgroundColor={null}
-                glOptions={{ alpha: true, antialias: true, preserveDrawingBuffer: true }}
-                nodeRelSize={20}
-                showNavInfo={false}
-                width={500}
-                height={window.innerHeight / 4}
-              />
-              <div className="mt-4 text-center">
-                <p className="text-sm mb-2" style={{ color: colors.textMuted }}>
-                  How the things are conntect
-                </p>
-                <div className="flex items-center justify-center space-x-4 text-xs">
-                  <div className="flex items-center space-x-1">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full shadow-lg shadow-blue-500/50"></div>
-                    <span className="text-[#181818] dark:text-[#EBF2F5]">Ministry</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <div className="w-3 h-3 bg-purple-500 rounded-full shadow-lg shadow-purple-500/50"></div>
-                    <span  className="text-[#181818] dark:text-[#EBF2F5]">Department</span>
-                  </div>
-                </div>
-              </div>
-              <a
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-4 py-2 mt-4 rounded-full text-lg font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 border border-cyan-400/20 cursor-pointer"
-                href="/orgchart"
-              >
-                Orgchart
-              </a>
+            {/* Hero Section */}
+            <div className="text-center pt-18">
+              <Version />
+              <h2 className="text-5xl font-bold text-white mb-6">
+                Open{" "}
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  General Information Network
+                </span>
+              </h2>
+              <h2 className="text-3xl font-bold text-white mb-6">
+                Sri Lanka
+              </h2>
+              <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+                Understand your role, track policy implementations, and collaborate
+                effectively with GovTrack
+              </p>
             </div>
           </div>
 
-          <div
-            className="backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-800/50"
-            style={{ backgroundColor: colors.backgroundPrimary }}
-          >
-            <h3
-              className="text-xl font-bold mb-6 flex items-center space-x-2 text-[#181818] dark:text-[#EBF2F5]"
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-1">
+
+            <div
+              className="rounded-2xl p-6 bg-gray-950/70 shadow-2xl hover:scale-101 transition-transform duration-300 relative overflow-hidden"
+              style={{
+                boxShadow:
+                  "0 1px 3px rgba(0,255,255,0.4), 0 1px 3px rgba(0,123,255,0.3), 0 1px 3px rgba(128,0,255,0.2)",
+              }}
             >
-              <div>
-                <span>Modern View</span>
-                <br />
-                <span
-                  className="text-sm font-normal"
-                  style={{ color: colors.textMuted }}
-                >
-                  Easy Navigation Interface
-                </span>
-              </div>
-            </h3>
-
-            <div className="space-y-3">
-              {/* Executive Level */}
-              <div className="bg-gradient-to-r  rounded-lg p-4 border-l-4 border-cyan-400 hover:from-cyan-900/50 hover:to-cyan-800/50 transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Building2 className="w-5 h-5 text-cyan-400" />
-                    <div>
-                      <h4 className="font-semibold text-white">
-                        Executive Branch
-                      </h4>
-                      <p className="text-sm text-gray-300">
-                        Prime Minister's Office
-                      </p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
+              <h3 className="text-xl font-bold text-white mb-6 text-left">
+                <div>
+                  <span>Orgchart</span>
+                  <br />
+                  <span className="text-sm font-normal text-gray-400">
+                    Navigate versions of organisational structures
+                  </span>
                 </div>
-              </div>
+              </h3>
 
-              {/* Ministry Level */}
-              <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 rounded-lg p-4 border-l-4 border-blue-400 hover:from-blue-900/50 hover:to-blue-800/50 transition-all duration-300">
-                <div className="flex items-center justify-between">
+              <div className="space-y-3">
+                {/* Ministry Level */}
+                <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 rounded-lg p-4 border-l-4 border-blue-400">
                   <div className="flex items-center space-x-3">
                     <Users className="w-5 h-5 text-blue-400" />
                     <div>
-                      <h4 className="font-semibold text-white">
-                        Ministry Level
-                      </h4>
-                      <p className="text-sm text-gray-300">
-                        3 Active Ministries
-                      </p>
+                      <h4 className="font-semibold text-white">Ministry Level</h4>
+                      <p className="text-sm text-gray-300">3 Active Ministries</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </div>
-              </div>
 
-              {/* Department Level */}
-              <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 rounded-lg p-4 border-l-4 border-purple-400 hover:from-purple-900/50 hover:to-purple-800/50 transition-all duration-300">
-                <div className="flex items-center justify-between">
+                {/* Department Level */}
+                <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 rounded-lg p-4 border-l-4 border-purple-400">
                   <div className="flex items-center space-x-3">
                     <User className="w-5 h-5 text-purple-400" />
                     <div>
-                      <h4 className="font-semibold text-white">
-                        Department Level
-                      </h4>
-                      <p className="text-sm text-gray-300">
-                        8 Active Departments
-                      </p>
+                      <h4 className="font-semibold text-white">Department Level</h4>
+                      <p className="text-sm text-gray-300">8 Active Departments</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </div>
+
+                {/* Quick Stats */}
+                <div className="bg-black/50 rounded-lg p-3 mt-4 border border-gray-800/40">
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div>
+                      <p className="text-lg font-bold text-cyan-400">23</p>
+                      <p className="text-xs text-gray-400">Total Ministries</p>
+                    </div>
+                    <div>
+                      <p className="text-lg font-bold text-blue-400">847</p>
+                      <p className="text-xs text-gray-400">Active Departments</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Quick Stats */}
-              <div className="bg-black/50 rounded-lg p-3 mt-4 border border-gray-800/40">
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <p className="text-lg font-bold text-cyan-400">23</p>
-                    <p className="text-xs text-gray-400">Total Ministries</p>
-                  </div>
-                  <div>
-                    <p className="text-lg font-bold text-blue-400">847</p>
-                    <p className="text-xs text-gray-400">Active Departments</p>
-                  </div>
-                </div>
+              {/*Button */}
+              <div className="flex justify-center mt-6">
+                <a
+                  href="/orgchart"
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-1 rounded-full text-lg font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 border border-cyan-400/20"
+                >
+                  Orgchart
+                </a>
               </div>
-              <a
-                className="bg-gradient-to-r mx-1 from-cyan-500 to-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 border border-cyan-400/20 cursor-pointer"
-                href="/statistics"
-              >
-                Xplore
-              </a>
             </div>
-          </div>
 
-          {/* <div className="bg-gray-950/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-800/50">
+
+            {/* Card 2 */}
+            <div
+              className="rounded-2xl p-6 bg-gray-950/70 shadow-2xl hover:scale-101 transition-transform duration-300 relative overflow-hidden"
+              style={{
+                boxShadow:
+                  "0 1px 3px rgba(0,255,255,0.4), 0 1px 3px rgba(0,123,255,0.3), 0 1px 3px rgba(128,0,255,0.2)",
+              }}
+            >
+              <div className="flex flex-col items-start space-y-4 max-w-md mx-auto">
+                <h3 className="text-xl font-bold text-white text-left">
+                  <span>Xplore</span>
+                  <br />
+                  <span className="text-sm font-normal text-gray-400">
+                    Compare data across various categories
+                  </span>
+                </h3>
+
+                <img
+                  src="src/assets/animatedChart.gif"
+                  alt="Animated illustration"
+                  className="w-full h-auto rounded-xl"
+                />
+              </div>
+
+              {/* Button */}
+              <div className="flex justify-center mt-6">
+                <a
+                  href="/statistics"
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-1 rounded-full text-lg font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 border border-cyan-400/20"
+                >
+                  Xplore
+                </a>
+              </div>
+            </div>
+
+
+            {/* <div className="bg-gray-950/70 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-800/50">
             <h3 className="text-xl font-bold text-white mb-6 flex items-center space-x-2">
               <MessageCircle className="w-5 h-5 text-cyan-400" />
               <span>AI Assistant</span>
@@ -424,10 +396,12 @@ const Home = () => {
               <span>AI Assistant Online</span>
             </div>
           </div> */}
+          </div>
         </div>
       </div>
     </div>
   );
+
 };
 
 export default Home;
