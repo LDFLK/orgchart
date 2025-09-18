@@ -8,6 +8,7 @@ import {
 } from "./../components/statistics_components/Charts";
 import { years, departments, statTypes, mockData, yearlyMockData } from "../assets/statMockData";
 import StatisticsFilters from "./../components/statistics_components/StatisticFilter";
+import PresidentCard from "./../components/statistics_components/president_card"
 
 
 export default function Dashboard({selectedNode}) {
@@ -15,7 +16,7 @@ export default function Dashboard({selectedNode}) {
         Department: { year: "", dept: "", stat: "" },
         Yearly: { year: "", stat: "" },
         Presidents: { presidents: [] },
-        Ministries: {ministries: []}
+        Ministries: { ministries: [] }
     });
 
     const [selectedCategory, setSelectedCategory] = useState("Yearly"); // default
@@ -271,7 +272,7 @@ export default function Dashboard({selectedNode}) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 {metrics.map((metric) => {
                     const chartData = selection.Presidents.presidents.map((p) => ({
-                        name: p.name.split(" ").slice(-1)[0], // last name
+                        name: p.name.split(" ").slice(0)[0], // first name
                         fullName: p.name,
                         value: p[metric.key],
                         term: p.term,
@@ -329,7 +330,34 @@ export default function Dashboard({selectedNode}) {
             )}
 
 
-            {selectedCategory === "Presidents" && renderPresidentChart()}
+            {selectedCategory === "Presidents" && selection.Presidents.presidents.length > 0 && (
+                <>
+                    {/* President Metrics Charts */}
+                    {renderPresidentChart()}
+
+                    {/* selected President Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                        {selection.Presidents.presidents.map((p) => (
+                            <PresidentCard
+                                key={p.id}
+                                president={p}
+                                onRemove={() =>
+                                    setSelection((prev) => ({
+                                        ...prev,
+                                        Presidents: {
+                                            ...prev.Presidents,
+                                            presidents: prev.Presidents.presidents.filter(
+                                                (pr) => pr.id !== p.id
+                                            ),
+                                        },
+                                    }))
+                                }
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+
             {cards.length > 0 && (
                 <Paper
                 

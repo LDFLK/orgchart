@@ -13,6 +13,21 @@ export default function AlertToOrgchart({ selectedPresident }) {
     }
   };
 
+ function PresidentLink({ president }) {
+    const navigate = useNavigate();
+
+    const handleClick = (e) => {
+      e.preventDefault();
+      navigate("/orgchart", { state: { president, openProfile: true } });
+    };
+
+    return (
+      <a href="#" onClick={handleClick} className="text-blue-500 underline">
+        {utils.extractNameFromProtobuf(president.name)}
+      </a>
+    );
+  }
+
   return (
     <div className="fixed bottom-4 left-0 right-0 flex justify-center z-100">
       <div
@@ -23,9 +38,10 @@ export default function AlertToOrgchart({ selectedPresident }) {
         <div className="flex">
           <div className="mt-2 mb-4 text-sm text-gray-800 mr-4">
             The final government structure for{" "}
-            <a href="" className="text-blue-500 underline">
+            {/* <a href="" className="text-blue-500 underline">
               {utils.extractNameFromProtobuf(selectedPresident.name)}.
-            </a>
+            </a> */}
+            <PresidentLink president={selectedPresident} />.
           </div>
           <button
             type="button"
