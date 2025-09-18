@@ -188,6 +188,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
       dispatch(setGazetteData(transformed));
 
       if (transformed.length > 0) {
+        console.log('this is the selected date : ', transformed[transformed.length - 1])
         dispatch(setSelectedDate(transformed[transformed.length - 1]));
       }
     } catch (e) {

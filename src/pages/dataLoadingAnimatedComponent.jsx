@@ -214,9 +214,6 @@ export default function DataLoadingAnimatedComponent({ mode }) {
           {Object.keys(presidentDict).length > 0 &&
             mode === "statistics" &&
             selectedPresident && <StatisticMainPage />}
-
-          {mode === "comparison" &&
-            Object.keys(presidentDict).length > 0 && <Dashboard />}
         </>
       )}
     </>

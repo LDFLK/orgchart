@@ -6,18 +6,24 @@ import { useThemeContext } from "../../themeContext";
 import Dashboard from "../../pages/StatComparison";
 import LoadingComponent from "../common_components/loading_component";
 import { useSelector } from "react-redux";
+import { color } from "highcharts";
+import { IoChevronBack } from "react-icons/io5";
 
 export default function Drawer({
   expandDrawer,
   setExpandDrawer,
   ministerDictionary,
-  departmentDictionary,
+  selectedNode,
   ministerToDepartments,
   onMinistryClick,
+  mode,
+  setMode
 }) {
   const { colors, isDark } = useThemeContext();
-  const [mode, setMode] = useState("Details");
   const [drawerMinisterDictionary, setDrawerMinisterDictionary] = useState({});
+  const [showDepartment, setShowDepartment] = useState(false);
+  const [selectedMinistry, setSelectedMinistry] = useState("");
+  const [departmentListtoShow, setDepartmentListtoShow] = useState([]);
 
   //redux access
   const { selectedPresident } = useSelector((state) => state.presidency);
@@ -27,6 +33,10 @@ export default function Drawer({
     setDrawerMinisterDictionary({});
   }, [selectedPresident]);
 
+  useEffect(()=>{
+    console.log('this is from the selected name from drawer',selectedNode)
+  },[selectedNode])
+  
   //set new data
   useEffect(() => {
     setDrawerMinisterDictionary(ministerDictionary);
@@ -367,12 +377,10 @@ export default function Drawer({
 
   return (
     <div
-      className={`fixed right-0 z-[100] p-4 scroll-auto transition-all duration-300 ease-in-out ${
-        expandDrawer ? `w-1/2 h-screen shadow-xl ` : "w-0"
-      } scroll-y-auto`}
+      className={`fixed right-0 z-[100] p-4 transition-all duration-300  ease-in-out ${
+        expandDrawer ? `w-1/2 h-screen shadow-xl` : "w-0"
+      }`}
       style={{
-        overflowX: "auto",
-        overflowY: "auto",
         backgroundColor: colors.backgroundPrimary,
         color: colors.textPrimary,
       }}
@@ -403,41 +411,70 @@ export default function Drawer({
       {/* <div
         ref={containerRef}
       ></div> */}
-      {expandDrawer && (<div className="flex">
-        {["Details", "Filters"].map((category) => {
-          return (
-            <div
-              key={category}
-              className={`px-4 py-2 m-1 rounded-md cursor-pointer transition-all duration-300 ease-in-out ${
-                category == mode
-                  ? "bg-black text-white border-2 border-black"
-                  : "bg-white text-black border-2 border-gray-300"
-              }`}
-              onClick={() => setMode(category)}
-            >
-              {category}
-            </div>
-          );
-        })}
-      </div>)}
+      {expandDrawer && (
+        <div className="flex">
+          {["Structure", "Statistics"].map((category) => {
+            return (
+              <div
+                key={category}
+                className={`px-4 py-2 m-1 rounded-md cursor-pointer transition-all duration-300 ease-in-out ${
+                  category == mode
+                    ? `${
+                        isDark
+                          ? "bg-white text-black border-1 border-white"
+                          : "bg-black text-white border-1 border-black"
+                      }`
+                    : `${
+                        isDark
+                          ? `bg-black text-white border-1 border-gray-300`
+                          : "bg-white text-black border-1 border-gray-300"
+                      }`
+                }`}
+                onClick={() => setMode(category)}
+              >
+                {category}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {expandDrawer && (
-        <>
-          {mode == "Details" ? (
-            Object.keys(drawerMinisterDictionary).length > 0 ? (
+        <div className="flex flex-col h-[90%] p-2">
+          {mode === "Structure" ? (
+            !showDepartment ? (
               <>
-                <h2 className="text-xl font-semibold mb-2 mt-4">
+                {/* Header (stays visible) */}
+                <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
                   {Object.keys(drawerMinisterDictionary).length} Active
                   Ministries
                 </h2>
-                <div className="overflow-y-auto max-h-full pr-2">
+
+                {/* Scrollable content */}
+                <div className="flex-1 overflow-y-auto pr-2">
                   {drawerMinisterDictionary &&
                     Object.entries(drawerMinisterDictionary).map(
                       ([key, minister], index) => (
                         <div
                           key={key}
-                          className="bg-gray-200 my-2 p-2 rounded-md cursor-pointer hover:bg-gray-300 transition"
-                          onClick={() => onMinistryClick(minister)}
+                          className={`my-2 p-2 rounded-md cursor-pointer ${
+                            isDark
+                              ? colors.backgroundWhite
+                              : "bg-gray-200 hover:bg-gray-300"
+                          }`}
+                          style={{
+                            backgroundColor: isDark
+                              ? colors.backgroundWhite
+                              : "bg-gray-200",
+                          }}
+                          onClick={() => {
+                            onMinistryClick(minister);
+                            setSelectedMinistry(minister);
+                            setShowDepartment(true);
+                            setDepartmentListtoShow(
+                              ministerToDepartments[minister.id]
+                            );
+                          }}
                         >
                           <span className="font-semibold mr-2">
                             {index + 1}.
@@ -448,15 +485,59 @@ export default function Drawer({
                     )}
                 </div>
               </>
-            ) : (
+            ) : departmentListtoShow &&
+              departmentListtoShow.length > 0 &&
+              showDepartment ? (
               <>
-                <LoadingComponent message="Data Loading" OsColorMode={false} />
+                {/* Header */}
+                <div className="shrink-0">
+                  <button
+                    onClick={() => setShowDepartment(false)}
+                    className="mt-4 mb-2 cursor-pointer"
+                    style={{ color: colors.textMuted }}
+                  >
+                    <div className="flex justify-center items-center">
+                      <IoChevronBack className="mr-1" /> <p>Back to previous</p>
+                    </div>
+                  </button>
+                  <p className="text-xl font-semibold">
+                    {selectedMinistry.name}
+                  </p>
+                  <p style={{ color: colors.textPrimary }}>
+                    {departmentListtoShow.length} departments
+                  </p>
+                </div>
+
+                {/* Scrollable department list */}
+                <div className="flex-1 overflow-y-auto mt-2">
+                  {departmentListtoShow.map((department, index) => (
+                    <div
+                      key={index}
+                      className={`my-2 p-2 rounded-md cursor-pointer ${
+                        isDark
+                          ? colors.backgroundWhite
+                          : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                      style={{
+                        backgroundColor: isDark
+                          ? colors.backgroundWhite
+                          : "red",
+                      }}
+                      onClick={() => onMinistryClick(department.target)}
+                    >
+                      <span className="font-semibold mr-2">{index + 1}.</span>
+                      {department.target.name}
+                    </div>
+                  ))}
+                </div>
               </>
+            ) : (
+              <LoadingComponent message="Data Loading" OsColorMode={false} />
             )
           ) : (
-            <Dashboard />
+            <Dashboard selectedNode={selectedNode} />
           )}
-        </>
+        </div>
       )}
     </div>
   );

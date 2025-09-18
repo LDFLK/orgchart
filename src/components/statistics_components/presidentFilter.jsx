@@ -3,12 +3,16 @@ import { Search } from "lucide-react";
 import "../../assets/presidentdata";
 import { useSelector } from "react-redux";
 import utils from "../../utils/utils";
+import { useThemeContext } from "../../themeContext";
 
 export default function PresidentFilter({
   selectedPresidents = [],
   onSelectPresident = () => { },
 }) {
   const [searchTerm, setSearchTerm] = useState("");
+
+  const {colors} = useThemeContext()
+
   const presidents = useSelector((state) => state.presidency.presidentDict);
   const presidentRelationDict = useSelector(
     (state) => state.presidency.presidentRelationDict
@@ -69,14 +73,15 @@ export default function PresidentFilter({
   };
 
   return (
-    <div className="bg-white rounded-lg w-full">
+    <div className={` rounded-lg w-full`} style={{backgroundColor: colors.backgroundWhite}}>
       <div className="relative mb-4">
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           <Search className="h-5 w-5 text-gray-400" />
         </div>
         <input
           type="text"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+          className="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+          style={{backgroundColor: colors.backgroundWhite, color: colors.textMuted}}
           placeholder="Search presidents by name or term..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

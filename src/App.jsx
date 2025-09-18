@@ -6,12 +6,8 @@ import './components/TidyTree.variables.css';
 import './components/TidyTree.css';
 import { useThemeContext } from "./themeContext";
 import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
-import Dashboard from "./pages/StatComparison";
 import TouristGlobe from "./components/statistics_components/TouristGlobe";
 import DistrictMap from "./components/statistics_components/DistrictMap";
-import WebGLChecker from "./components/common_components/webgl_checker";
-import SearchBar from "./components/statistics_components/searchbar"
-import PresidentComparison from "./components/statistics_components/presidentFilter";
 
 const App = () => {
 
@@ -28,9 +24,6 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
         <Route path="/globe" element={<TouristGlobe/>}/>
         <Route path="/map" element={<DistrictMap/>}/>
-         {/* <Route path="/comparison" element={<Dashboard/>}/> */}
-         <Route path="/comparison"element={<DataLoadingAnimatedComponent mode="comparison"/>}/>
-         <Route path="/president-comparison" element={<PresidentComparison/>}/>
       </Routes>
     </Router>
     </div>
