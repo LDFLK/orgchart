@@ -6,7 +6,7 @@ import InfoTab from "./InfoTab";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useThemeContext } from "../themeContext";
 import PersonProfile from "./PersonProfile";
 
@@ -22,13 +22,15 @@ const ModernView = () => {
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false); // <-- Dialog open state
   const location = useLocation();
+  const navigate = useNavigate();
   const { president, openProfile } = location.state || {};
 
-  useEffect(() => {
-    if (openProfile && president) {
-      setProfileOpen(true);
-    }
-  }, [openProfile, president]);
+useEffect(() => {
+  if (openProfile && president) {
+    setProfileOpen(true);
+    navigate(location.pathname, { replace: true });
+  }
+}, [openProfile, president, navigate, location.pathname]);
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
