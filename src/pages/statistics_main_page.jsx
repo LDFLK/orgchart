@@ -45,6 +45,8 @@ export default function StatisticMainPage() {
   const [personDictionary, setPersonDictionary] = useState({});
   const [ministerToDepartments, setMinisterToDepartment] = useState({});
 
+  const [isDateTaken, setIsDateTake] = useState(false);
+
   const { colors, isDark } = useThemeContext();
 
   const focusRef = useRef();
@@ -58,7 +60,7 @@ export default function StatisticMainPage() {
     (state) => state.presidency.selectedPresident
   );
   const gazetteDataClassic = useSelector(
-    (state) => state.gazettes.gazetteDataClassic
+    (state) => state.gazettes.gazetteData
   );
   const allMinistryData = useSelector(
     (state) => state.allMinistryData.allMinistryData
@@ -122,11 +124,14 @@ export default function StatisticMainPage() {
     }
 
     if (gazetteDataClassic?.length > 0) {
+      console.log('gazette data fix')
+      console.log(gazetteDataClassic)
       dispatch(
-        setSelectedDate({
-          date: gazetteDataClassic[gazetteDataClassic.length - 1],
-        })
+        setSelectedDate(
+          gazetteDataClassic[gazetteDataClassic.length - 1],
+        )
       );
+      setIsDateTake(true)
     }
   }, [presidents, gazetteDataClassic]);
 
@@ -334,10 +339,10 @@ export default function StatisticMainPage() {
       }
     };
 
-    if (selectedDate && selectedPresident) {
+    if (isDateTaken && selectedDate && selectedPresident) {
       buildGraph();
     }
-  }, [selectedDate, selectedPresident]);
+  }, [selectedDate, selectedPresident, isDateTaken]);
 
   // Handle WebGL context loss and restoration
   useEffect(() => {

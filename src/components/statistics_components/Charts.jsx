@@ -6,19 +6,53 @@ import * as d3 from "d3";
 
 const COLORS = ["#2563eb", "#16a34a", "#f59e0b", "#dc2626", "#8b5cf6"];
 
-export const SimpleBarChart = ({ data, xDataKey, yDataKey, barFill = "#2563eb", xLabel = "", yLabel = "", showGrid = true, showLegend = false,
-}) => (
+export const SimpleBarChart = ({
+  data,
+  xDataKey,
+  yDataKey,
+  barFill = "#2563eb",
+  xLabel = "",
+  yLabel = "",
+  showGrid = true,
+  showLegend = false,
+}) => {
+  // Responsive tick function
+  const renderXAxisTick = (props) => {
+    const { x, y, payload } = props;
+
+    // You can adjust font size based on window width
+    const fontSize = window.innerWidth < 768 ? 10 : 14;
+
+    return (
+      <text
+        x={x}
+        y={y + 10}
+        textAnchor="middle"
+        fill="#666"
+        fontSize={fontSize}
+      >
+        {payload.value}
+      </text>
+    );
+  };
+
+  return (
     <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 20, right: 20, left: 45, bottom: 40 }}>
-            {showGrid && <CartesianGrid strokeDasharray="3 3" />}
-            <XAxis dataKey={xDataKey} label={{ value: xLabel, position: "insideBottom", offset: -5 }} />
-            <YAxis label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
-            <Tooltip />
-            {showLegend && <Legend />}
-            <Bar dataKey={yDataKey} fill={barFill} />
-        </BarChart>
+      <BarChart data={data} margin={{ top: 20, right: 20, bottom: 40 }}>
+        {showGrid && <CartesianGrid strokeDasharray="3 3" />}
+        <XAxis
+          dataKey={xDataKey}
+          tick={renderXAxisTick} // use custom tick
+          label={{ value: xLabel, position: "insideBottom", offset: -5 }}
+        />
+        <YAxis label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
+        <Tooltip />
+        {showLegend && <Legend />}
+        <Bar dataKey={yDataKey} fill={barFill} />
+      </BarChart>
     </ResponsiveContainer>
-);
+  );
+};
 
 export const SimplePieChart = ({ data, dataKey, nameKey, colors = COLORS }) => (
     <ResponsiveContainer width="100%" height="100%">
