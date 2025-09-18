@@ -521,7 +521,7 @@ export default function Drawer({
                       style={{
                         backgroundColor: isDark
                           ? colors.backgroundWhite
-                          : "red",
+                          : "bg-gray-200 hover:bg-gray-300",
                       }}
                       onClick={() => onMinistryClick(department.target)}
                     >
