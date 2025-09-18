@@ -17,11 +17,11 @@ export default function AlertToOrgchart({ selectedPresident }) {
     <div className="fixed bottom-4 left-0 right-0 flex justify-center z-100">
       <div
         id="alert-additional-content-5"
-        className="p-4  border border-gray-300 rounded-lg dark:border-gray-600 dark:bg-gray-800 bg-white"
+        className="p-4  border border-gray-300 rounded-lg bg-white"
         role="alert"
       >
         <div className="flex">
-          <div className="mt-2 mb-4 text-sm text-gray-800 dark:text-gray-300 mr-4">
+          <div className="mt-2 mb-4 text-sm text-gray-800 mr-4">
             The final government structure for{" "}
             <a href="" className="text-blue-500 underline">
               {utils.extractNameFromProtobuf(selectedPresident.name)}.
@@ -29,11 +29,11 @@ export default function AlertToOrgchart({ selectedPresident }) {
           </div>
           <button
             type="button"
-            className="text-white cursor-pointer bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center dark:bg-gray-600 dark:hover:bg-gray-500 dark:focus:ring-gray-800"
+            className="text-white cursor-pointer bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-1.5 me-2 text-center inline-flex items-center"
             onClick={handleClick}
           >
             <svg
-              className="me-2 h-3 w-3 dark:text-gray-300"
+              className="me-2 h-3 w-3 "
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="currentColor"

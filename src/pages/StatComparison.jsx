@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import {
     Container, Grid, Paper, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardContent, Checkbox, ListItemText, Box,
+    colors,
 } from "@mui/material";
 import {
     SimpleBarChart, SimpleLineChart, SimplePieChart, MultiBarChart, MultiHorizontalBarChart, BubbleChart, CirclePackingChart,
@@ -9,7 +10,7 @@ import { years, departments, statTypes, mockData, yearlyMockData } from "../asse
 import StatisticsFilters from "./../components/statistics_components/StatisticFilter";
 
 
-export default function Dashboard() {
+export default function Dashboard({selectedNode}) {
     const [selection, setSelection] = useState({
         Department: { year: "", dept: "", stat: "" },
         Yearly: { year: "", stat: "" },
@@ -33,6 +34,13 @@ export default function Dashboard() {
         setDisplayStat("");
         setDisplayYearlyStat("");
     }, [selectedCategory]);
+
+    useEffect(()=>{console.log('selectedNode from comparison : ', selectedNode)},[selectedNode])
+
+
+    // if(selectedNode.type == "department"){
+    //     setSelectedCategory("Department");
+    // }
 
 
     // Filter dropdowns
@@ -176,7 +184,7 @@ export default function Dashboard() {
                 return row;
             });
             return (
-                <Box sx={{ height: 300, mt: 2 }}>
+                <Box sx={{ height: 300, mt: 2 ,width: 'full'}}>
                     <MultiBarChart data={combined} xDataKey="label" barKeys={cards.map((c) => c.year.toString())} />
                 </Box>
             );
@@ -294,7 +302,9 @@ export default function Dashboard() {
 
 
     return (
-        <>
+        <Box sx={{
+            overflow: "auto"
+        }}>
             <StatisticsFilters
                 selection={selection}
                 setSelection={setSelection}
@@ -307,13 +317,13 @@ export default function Dashboard() {
             />
 
             {cards.length > 0 && selectedCategory === "Department" && (
-                <Typography sx={{ maxWidth: "1200px", margin: "0 auto", mt: 3, fontWeight: "bold" }} variant="subtitle1" color="text.secondary">
+                <Typography sx={{margin: "0 auto", mt: 3, fontWeight: "bold" }} variant="subtitle1" color={colors.textMuted}>
                     {displayDept} - {displayStat}
                 </Typography>
             )}
 
             {cards.length > 0 && selectedCategory === "Yearly" && (
-                <Typography sx={{ maxWidth: "1200px", margin: "0 auto", mt: 3 }} variant="subtitle1" color="text.secondary">
+                <Typography sx={{margin: "0 auto", mt: 3, fontWeight: "bold" }} variant="subtitle1" color={colors.textMuted}>
                     {displayYearlyStat}
                 </Typography>
             )}
@@ -322,15 +332,16 @@ export default function Dashboard() {
             {selectedCategory === "Presidents" && renderPresidentChart()}
             {cards.length > 0 && (
                 <Paper
+                
                     elevation={1}
                     sx={{
                         p: { xs: 3, md: 4 },
                         mb: 4,
                         borderRadius: 4,
-                        maxWidth: "1200px",
                         margin: "0 auto",
                         mt: 3,
                         backgroundColor: "#fafafa",
+                        width: '100%'
                     }}
                 >
                     <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
@@ -378,13 +389,13 @@ export default function Dashboard() {
                         sx={{
                             borderRadius: 4,
                             boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                            width: "100%",
+                            width: "100%"
                         }}
                     >
-                        <CardContent>{combinedChart()}</CardContent>
+                        <CardContent >{combinedChart()}</CardContent>
                     </Card>
                 </Paper>
             )}
-        </>
+        </Box>
     );
 }

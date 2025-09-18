@@ -15,7 +15,7 @@ import {
   setSelectedPresident,
   setSelectedDate,
 } from "../store/presidencySlice";
- 
+
 import Drawer from "../components/statistics_components/drawer";
 import PresidencyTimeline from "../components/PresidencyTimeline";
 import SpriteText from "three-spritetext";
@@ -26,6 +26,7 @@ import WebGLChecker, {
 import LoadingComponent from "../components/common_components/loading_component";
 import { useThemeContext } from "../themeContext";
 import { useNavigate } from "react-router-dom";
+import { jaJP } from "@mui/x-date-pickers/locales";
 
 export default function StatisticMainPage() {
   const [loading, setLoading] = useState(true);
@@ -34,11 +35,14 @@ export default function StatisticMainPage() {
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState(null);
+  
+  const [mode, setMode] = useState("Structure");
 
   const [allNodes, setAllNodes] = useState([]);
   const [relations, setRelations] = useState([]);
   const [ministryDictionary, setMinistryDictionary] = useState({});
   const [departmentDictionary, setDepartmentDictionary] = useState({});
+  const [personDictionary, setPersonDictionary] = useState({});
   const [ministerToDepartments, setMinisterToDepartment] = useState({});
 
   const { colors, isDark } = useThemeContext();
@@ -62,47 +66,50 @@ export default function StatisticMainPage() {
   const allDepartmentData = useSelector(
     (state) => state.allDepartmentData.allDepartmentData
   );
+  const allPersonData = useSelector(
+    (state) => state.allPerson.allPerson
+  );
 
   useEffect(() => {
     const checkWebGL = () => {
       const webglAvailable = isWebGLAvailable();
-      console.log('WebGL detection result:', webglAvailable);
-      console.log('Browser info:', {
+      console.log("WebGL detection result:", webglAvailable);
+      console.log("Browser info:", {
         userAgent: navigator.userAgent,
         webgl: !!window.WebGLRenderingContext,
-        webgl2: !!window.WebGL2RenderingContext
+        webgl2: !!window.WebGL2RenderingContext,
       });
-      
+
       setWebgl(webglAvailable);
-      
+
       if (!webglAvailable) {
-        console.warn('WebGL not available. This may be due to:');
-        console.warn('1. Hardware acceleration disabled in browser');
-        console.warn('2. Outdated graphics drivers');
-        console.warn('3. Browser security settings');
-        console.warn('4. Corporate firewall blocking WebGL');
-        console.warn('5. WebGL context lost or not ready yet');
+        console.warn("WebGL not available. This may be due to:");
+        console.warn("1. Hardware acceleration disabled in browser");
+        console.warn("2. Outdated graphics drivers");
+        console.warn("3. Browser security settings");
+        console.warn("4. Corporate firewall blocking WebGL");
+        console.warn("5. WebGL context lost or not ready yet");
       }
     };
 
     // Check immediately
     checkWebGL();
-    
+
     // Check again after a short delay (in case of timing issues)
     const timeoutId = setTimeout(checkWebGL, 1000);
-    
+
     // Check again when page becomes visible (handles tab switching)
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         setTimeout(checkWebGL, 500);
       }
     };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
       clearTimeout(timeoutId);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
@@ -127,21 +134,23 @@ export default function StatisticMainPage() {
     const buildGraph = async () => {
       handleClosePopup();
       setLoading(true);
-      
+
       try {
-        // Fetch ministries
+        // Fetch active ministries
         const activeMinistry = await api.fetchActiveMinistries(
           selectedDate,
           allMinistryData,
           selectedPresident
         );
 
+        //create a dictionary
         const ministryDic = activeMinistry.children.reduce((acc, ministry) => {
           acc[ministry.id] = {
             id: ministry.id,
             name: ministry.name,
             group: 2,
             color: "#D3AF37",
+            type: "minister"
           };
           return acc;
         }, {});
@@ -177,6 +186,9 @@ export default function StatisticMainPage() {
               created: department.created,
               kind: department.kind,
               terminated: department.terminated,
+              group: 3,
+              // color: "#D3AF37",
+              type: "department"
             };
             return acc;
           }, {});
@@ -187,8 +199,98 @@ export default function StatisticMainPage() {
           if (!ministerToDepartments[rel.source]) {
             ministerToDepartments[rel.source] = [];
           }
-          ministerToDepartments[rel.source].push(rel.target);
+          ministerToDepartments[rel.source].push(rel);
         });
+
+        // Fetch relations: ministries → person
+        const relationPromisesPerson = Object.keys(ministryDic).map(
+          async (ministryId) => {
+            const response = await api.fetchAllRelationsForMinistry({
+              ministryId,
+              name: "AS_APPOINTED",
+              activeAt: selectedDate.date,
+            });
+
+            return response.map((person) => ({
+              source: ministryId,
+              target: person.relatedEntityId,
+              value: 3,
+              type: "level3",
+            }));
+          }
+        );
+
+        const allRelationsPerson = (await Promise.all(relationPromisesPerson)).flat();
+
+        // Build person dictionary
+        const personDic = allRelationsPerson
+          .map((rel) => allPersonData[rel.target])
+          .filter(Boolean)
+          .reduce((acc, person) => {
+            acc[person.id] = {
+              id: person.id,
+              name: utils.extractNameFromProtobuf(person.name),
+              created: person.created,
+              kind: person.kind,
+              terminated: person.terminated,
+            };
+            return acc;
+          }, {});
+
+        // Minister to departments map
+        const ministerToPerson = {};
+        allRelationsPerson.forEach((rel) => {
+          if (!ministerToPerson[rel.source]) {
+            ministerToPerson[rel.source] = [];
+          }
+          ministerToPerson[rel.source].push(rel.target);
+        });
+
+        // Fetch relations: ministries → departments
+        // const relationDepartmentPersonPromises = Object.keys(departmentDic).map(
+        //   async (departmentId) => {
+        //     const response = await api.fetchAllRelationsForMinistry({
+        //       departmentId,
+        //       name: "AS_APPOINTED",
+        //       activeAt: selectedDate.date,
+        //     });
+
+        //     return response.map((person) => ({
+        //       source: departmentId,
+        //       target: person.relatedEntityId,
+        //       value: 4,
+        //       type: "level4",
+        //     }));
+        //   }
+        // );
+
+        // const allRelationsDepartmentPerson = (await Promise.all(relationDepartmentPersonPromises)).flat();
+
+        // // Build person dictionary
+        // const personDepartmentDic = allRelationsDepartmentPerson
+        //   .map((rel) => allPersonData[rel.target])
+        //   .filter(Boolean)
+        //   .reduce((acc, person) => {
+        //     acc[person.id] = {
+        //       id: person.id,
+        //       name: utils.extractNameFromProtobuf(person.name),
+        //       created: person.created,
+        //       kind: person.kind,
+        //       terminated: person.terminated,
+        //     };
+        //     return acc;
+        //   }, {});
+
+        // console.log(Object.assign(personDic, personDepartmentDic))
+
+        // // Department to person map
+        // const departmentToPerson = {};
+        // allRelationsDepartmentPerson.forEach((rel) => {
+        //   if (!departmentToPerson[rel.source]) {
+        //     departmentToPerson[rel.source] = [];
+        //   }
+        //   departmentToPerson[rel.source].push(rel.target);
+        // });
 
         // Build nodes & links
         const govNode = {
@@ -209,9 +311,10 @@ export default function StatisticMainPage() {
           govNode,
           ...Object.values(ministryDic),
           ...Object.values(departmentDic),
+          ...Object.values(personDic)
         ];
 
-        const allGraphLinks = [...ministryToGovLinks, ...allRelations];
+        const allGraphLinks = [...ministryToGovLinks, ...allRelations, ...allRelationsPerson,];
 
         if (focusRef.current) {
           focusRef.current.stopAnimation?.(); // important: prevent ticking
@@ -220,6 +323,7 @@ export default function StatisticMainPage() {
         // Set all states in batch
         setMinistryDictionary(ministryDic);
         setDepartmentDictionary(departmentDic);
+        setPersonDictionary(personDic);
         setMinisterToDepartment(ministerToDepartments);
         setAllNodes(allGraphNodes);
         setRelations(allGraphLinks);
@@ -241,7 +345,9 @@ export default function StatisticMainPage() {
 
     if (canvas) {
       const handleContextLost = (event) => {
-        console.warn("WebGL context lost - this is normal and can happen due to:");
+        console.warn(
+          "WebGL context lost - this is normal and can happen due to:"
+        );
         console.warn("- GPU memory pressure");
         console.warn("- Browser tab switching");
         console.warn("- System resource constraints");
@@ -254,7 +360,7 @@ export default function StatisticMainPage() {
         // Re-check WebGL availability
         const webglAvailable = isWebGLAvailable();
         setWebgl(webglAvailable);
-        
+
         if (webglAvailable) {
           console.log("WebGL is now available again");
         } else {
@@ -268,7 +374,10 @@ export default function StatisticMainPage() {
       return () => {
         if (canvas) {
           canvas.removeEventListener("webglcontextlost", handleContextLost);
-          canvas.removeEventListener("webglcontextrestored", handleContextRestored);
+          canvas.removeEventListener(
+            "webglcontextrestored",
+            handleContextRestored
+          );
         }
       };
     }
@@ -319,12 +428,12 @@ export default function StatisticMainPage() {
   );
 
   const handleNodeClick = useCallback((node) => {
-    console.log('Node clicked:', node); // Debug log
-    
+    console.log("Node clicked:", node); // Debug log
+
     // Set popup data first
     setSelectedNode(node);
     setPopupVisible(true);
-    
+
     // Use mouse position for popup positioning (more reliable)
     const canvas = focusRef.current?.renderer()?.domElement;
     if (canvas) {
@@ -332,7 +441,7 @@ export default function StatisticMainPage() {
       // Use center of canvas as fallback position
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      
+
       setPopupPosition({ x: centerX, y: centerY });
     }
 
@@ -361,7 +470,7 @@ export default function StatisticMainPage() {
       focusRef.current &&
       graphData.nodes.length > 0 &&
       graphData.links.length > 0 &&
-      !loading && 
+      !loading &&
       focusRef.current.d3Force
     ) {
       requestAnimationFrame(() => {
@@ -374,6 +483,8 @@ export default function StatisticMainPage() {
                   return 800;
                 case "level2":
                   return 250;
+                case "level3":
+                  return 1000;
                 default:
                   return 120;
               }
@@ -381,7 +492,7 @@ export default function StatisticMainPage() {
             focusRef.current.d3Force("charge").theta(0.5).strength(-300);
             setTimeout(() => {
               focusRef.current?.d3ReheatSimulation?.();
-            }, 50);            
+            }, 50);
           }
         } catch (e) {
           console.warn("ForceGraph not ready:", e.message);
@@ -397,7 +508,7 @@ export default function StatisticMainPage() {
         focusRef.current.pauseAnimation();
 
         const renderer = focusRef.current.renderer();
-        
+
         if (renderer) {
           renderer.dispose();
           renderer.forceContextLoss();
@@ -434,7 +545,6 @@ export default function StatisticMainPage() {
   // Handle navigation to another page
   const handleNavigateToPage = useCallback(() => {
     if (selectedNode) {
-      console.log('this is going to statistic page : ',selectedNode)
       // Navigate with only serializable data
       const serializableNode = {
         id: selectedNode.id,
@@ -442,14 +552,14 @@ export default function StatisticMainPage() {
         group: selectedNode.group,
         color: selectedNode.color,
       };
-      navigate('/comparison', { state: { selectedNode: serializableNode } });
+
+      setMode("Statistics")
       handleClosePopup();
     }
   }, [selectedNode, navigate, handleClosePopup]);
 
   // Popup component
   const NodePopup = () => {
-    
     if (!selectedNode || !popupVisible) return null;
 
     return (
@@ -459,22 +569,25 @@ export default function StatisticMainPage() {
           left: popupPosition.x + 20,
           top: popupPosition.y - 10,
           backgroundColor: colors.backgroundPrimary,
-          color: isDark ? '#fff' : '#000',
+          color: isDark ? "#fff" : "#000",
         }}
       >
         <div className="text-lg font-semibold mb-2">{selectedNode.name}</div>
         <div className="flex gap-2">
-          <button
+          {selectedNode.type == "department" && (<button
             onClick={handleNavigateToPage}
             className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
-            style={{ backgroundColor: colors.primary || '#1976d2' }}
+            style={{ backgroundColor: colors.primary || "#1976d2" }}
           >
             View Details
-          </button>
+          </button>)}
           <button
             onClick={handleClosePopup}
             className="text-sm px-3 py-1 rounded border cursor-pointer"
-            style={{ borderColor: isDark ? '#666' : '#ccc', color: isDark ? '#fff' : '#000' }}
+            style={{
+              borderColor: isDark ? "#666" : "#ccc",
+              color: isDark ? "#fff" : "#000",
+            }}
           >
             Close
           </button>
@@ -492,8 +605,10 @@ export default function StatisticMainPage() {
         departmentDictionary={departmentDictionary}
         ministerToDepartments={ministerToDepartments}
         onMinistryClick={handleNodeClick}
+        mode={mode}
+        setMode={setMode}
+        selectedNode={selectedNode}
       />
-
       <div
         className="relative"
         style={{
@@ -506,7 +621,10 @@ export default function StatisticMainPage() {
         <div className="flex justify-start items-start h-full">
           <PresidencyTimeline mode={modeEnum.STATISTICS} />
           {!loading ? (
-            <div className="w-full" style={{ backgroundColor: colors.backgroundPrimary }}>
+            <div
+              className="w-full"
+              style={{ backgroundColor: colors.backgroundPrimary }}
+            >
               <AlertToOrgchart selectedPresident={selectedPresident} />
               {webgl ? (
                 graphData.nodes.length > 0 && graphData.links.length > 0 ? (
@@ -516,8 +634,8 @@ export default function StatisticMainPage() {
                       expandDrawer ? window.innerWidth / 2 : window.innerWidth
                     }
                     graphData={graphData}
-                    // backgroundColor={ isDark ? "#222" : "#fff"}
-                    backgroundColor={colors.backgroundPrimary}
+                    backgroundColor={ isDark ? "#222" : "#fff"}
+                    // backgroundColor={colors.backgroundPrimary}
                     linkWidth={3}
                     // linkColor={() => "rgba(0,0,0,1.0)"}
                     linkColor={colors.timelineLineActive}
@@ -558,48 +676,63 @@ export default function StatisticMainPage() {
                       WebGL Not Available
                     </h2>
                     <p className="text-lg mb-6 text-gray-700">
-                      Your browser doesn't support WebGL or it's currently disabled. 
-                      The 3D visualization requires WebGL to function properly.
+                      Your browser doesn't support WebGL or it's currently
+                      disabled. The 3D visualization requires WebGL to function
+                      properly.
                     </p>
-                    
+
                     <div className="bg-blue-50 p-4 rounded-lg mb-6 text-left">
                       <h3 className="font-semibold mb-2">To enable WebGL:</h3>
                       <ul className="list-disc list-inside space-y-1 text-sm">
-                        <li><strong>Chrome:</strong> Settings → Advanced → System → Enable "Use hardware acceleration"</li>
-                        <li><strong>Firefox:</strong> about:config → webgl.force-enabled → true</li>
-                        <li><strong>Edge:</strong> Settings → System → Enable "Use hardware acceleration"</li>
+                        <li>
+                          <strong>Chrome:</strong> Settings → Advanced → System
+                          → Enable "Use hardware acceleration"
+                        </li>
+                        <li>
+                          <strong>Firefox:</strong> about:config →
+                          webgl.force-enabled → true
+                        </li>
+                        <li>
+                          <strong>Edge:</strong> Settings → System → Enable "Use
+                          hardware acceleration"
+                        </li>
                         <li>Update your graphics drivers</li>
-                        <li>Disable browser extensions that might block WebGL</li>
+                        <li>
+                          Disable browser extensions that might block WebGL
+                        </li>
                       </ul>
                     </div>
-                    
+
                     <div className="flex gap-4 justify-center">
-                      <button 
+                      <button
                         onClick={() => window.location.reload()}
                         className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
                       >
                         Reload Page
                       </button>
-                      <button 
+                      <button
                         onClick={() => {
                           const webglAvailable = isWebGLAvailable();
-                          console.log('Manual WebGL check:', webglAvailable);
+                          console.log("Manual WebGL check:", webglAvailable);
                           setWebgl(webglAvailable);
                         }}
                         className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
                       >
                         Retry WebGL
                       </button>
-                      <button 
+                      <button
                         onClick={() => {
                           // Force retry with multiple attempts
                           let attempts = 0;
                           const retryInterval = setInterval(() => {
                             attempts++;
                             const webglAvailable = isWebGLAvailable();
-                            console.log(`WebGL retry attempt ${attempts}:`, webglAvailable);
+                            console.log(
+                              `WebGL retry attempt ${attempts}:`,
+                              webglAvailable
+                            );
                             setWebgl(webglAvailable);
-                            
+
                             if (webglAvailable || attempts >= 3) {
                               clearInterval(retryInterval);
                             }

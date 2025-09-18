@@ -290,9 +290,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
         </Box>
       </Box>
 
-
       {/* Container for Active Ministries Section */}
-
       <Box
         sx={{
           width: "100%",
