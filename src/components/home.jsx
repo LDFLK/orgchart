@@ -93,13 +93,17 @@ const Home = () => {
                   General Information Network
                 </span>
               </h2>
-              <h2 className="text-3xl font-bold text-white mb-6">
-                Sri Lanka
+              <h2 className="inline-flex items-center text-4xl font-bold text-white mb-6">
+                <span>SRI LANKA</span>
+                <span className="text-2xl font-thin italic text-white ml-2">
+                  ~ connected through data
+                </span>
               </h2>
               <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-                Understand your role, track policy implementations, and collaborate
-                effectively with GovTrack
+                Track government changes and discover ministry statistics,<br />
+                all in one place
               </p>
+
             </div>
           </div>
 
@@ -115,10 +119,10 @@ const Home = () => {
             >
               <h3 className="text-xl font-bold text-white mb-6 text-left">
                 <div>
-                  <span>Orgchart</span>
+                  <span>OpenGov</span>
                   <br />
                   <span className="text-sm font-normal text-gray-400">
-                    Navigate versions of organisational structures
+                    Track the evolution of Sri Lanka’s government, from ministries to departments, across presidencies
                   </span>
                 </div>
               </h3>
@@ -167,7 +171,7 @@ const Home = () => {
                   href="/orgchart"
                   className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-1 rounded-full text-lg font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 border border-cyan-400/20"
                 >
-                  Orgchart
+                  OpenGov
                 </a>
               </div>
             </div>
@@ -181,21 +185,20 @@ const Home = () => {
                   "0 1px 3px rgba(0,255,255,0.4), 0 1px 3px rgba(0,123,255,0.3), 0 1px 3px rgba(128,0,255,0.2)",
               }}
             >
-              <div className="flex flex-col items-start space-y-4 max-w-md mx-auto">
-                <h3 className="text-xl font-bold text-white text-left">
-                  <span>Xplore</span>
-                  <br />
-                  <span className="text-sm font-normal text-gray-400">
-                    Compare data across various categories
-                  </span>
-                </h3>
+              <h3 className="text-xl font-bold text-white mb-4 text-left">
+                <span>XploreGov</span>
+                <br />
+                <span className="text-sm font-normal text-gray-400">
+                  Explore statistics on ministries, departments, and the people shaping Sri Lanka’s government
+                </span>
+              </h3>
 
-                <img
-                  src="src/assets/animatedChart.gif"
-                  alt="Animated illustration"
-                  className="w-full h-auto rounded-xl"
-                />
-              </div>
+              <img
+                src="src/assets/animatedChart.gif"
+                alt="Animated illustration"
+                className="w-full h-65 object-contain rounded-xl opacity-60"
+              />
+
 
               {/* Button */}
               <div className="flex justify-center mt-6">
@@ -203,10 +206,11 @@ const Home = () => {
                   href="/statistics"
                   className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-1 rounded-full text-lg font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 border border-cyan-400/20"
                 >
-                  Xplore
+                  XploreGov
                 </a>
               </div>
             </div>
+
 
 
             {/* <div className="bg-gray-950/70 backdrop-blur-sm rounded-2xl p-6 shadow-2xl border border-gray-800/50">
