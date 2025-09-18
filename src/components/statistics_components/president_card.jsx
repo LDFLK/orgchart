@@ -1,12 +1,11 @@
 import React from 'react'
 import { X } from 'lucide-react'
-import { President } from '../data/presidentsData'
 
 export default function PresidentCard({
   president,
   onRemove,
 }) {
-  return (  
+  return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <div className="relative">
         <img
@@ -40,7 +39,7 @@ export default function PresidentCard({
             <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
               {president.departments}
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
+            <p className="text-sm text-gray-600 dark:text-gray-300 break-words">
               Departments
             </p>
           </div>

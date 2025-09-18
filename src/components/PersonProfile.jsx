@@ -232,7 +232,7 @@ const PersonProfile = ({ selectedPerson }) => {
     );
     const imageUrl = matchingPresident ? matchingPresident.imageUrl : null;
 
-    const tabOptions = ["history", "statistics"];
+    const tabOptions = ["history"];
 
     return (
         <Box
@@ -374,11 +374,11 @@ const PersonProfile = ({ selectedPerson }) => {
             {activeTab === "history" && (
                 <PersonHistoryTimeline selectedPerson={selectedPerson} onTimelineUpdate={setTimelineData} presidentRelationDict={presidentRelationDict} />
             )}
-            {activeTab === "statistics" && (
+            {/* {activeTab === "statistics" && (
                 <Box sx={{ mt: 2 }}>
                     <Typography sx={{ color: colors.textMuted }}>coming soon...</Typography>
                 </Box>
-            )}
+            )} */}
         </Box>
     );
 };

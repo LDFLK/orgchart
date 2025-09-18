@@ -25,14 +25,45 @@ export default function PresidentFilter({
       : Object.values(presidents);
     if (presidentArray.length === 0) return [];
 
+    const keyPositions = [
+      "Vice President",
+      "Defense Minister",
+      "Finance Minister",
+      "Foreign Minister",
+      "Interior Minister",
+      "Education Minister",
+      "Health Minister",
+      "Justice Minister",
+    ];
+
+    const keyEventsSamples = [
+      "Signed historic trade deal",
+      "Launched nationwide education reform",
+      "Declared state of emergency",
+      "Hosted international summit",
+      "Implemented healthcare policy",
+      "Visited foreign countries",
+      "Passed landmark legislation",
+      "Oversaw economic recovery plan",
+    ];
+
     const normalized = presidentArray.map((p) => {
       const nameText = utils.extractNameFromProtobuf(p.name);
       const rel = presidentRelationDict ? presidentRelationDict[p.id] : null;
       const startYear = p?.created ? p.created.split("-")[0] : "";
-      const endYear = rel?.endTime
-        ? new Date(rel.endTime).getFullYear()
-        : "Present";
+      const endYear = rel?.endTime ? new Date(rel.endTime).getFullYear() : "Present";
       const termText = startYear ? `${startYear} - ${endYear}` : "";
+
+      // Randomly pick 3-5 key cabinet members
+      const shuffledPositions = keyPositions.sort(() => 0.5 - Math.random());
+      const keyCabinetMembers = shuffledPositions.slice(0, Math.floor(Math.random() * 3) + 3).map((pos) => ({
+        position: pos,
+        name: `${pos.split(" ")[0]}siri`,
+      }));
+
+      // Randomly pick 2-5 key events
+      const shuffledEvents = keyEventsSamples.sort(() => 0.5 - Math.random());
+      const keyEvents = shuffledEvents.slice(0, Math.floor(Math.random() * 4) + 2);
 
       return {
         id: p.id,
@@ -41,10 +72,13 @@ export default function PresidentFilter({
         image: p.imageUrl || p.image || "",
 
         // random dummy data
-        cabinetSize: Math.floor(Math.random() * 30) + 20, 
+        cabinetSize: Math.floor(Math.random() * 30) + 20,
         departments: Math.floor(Math.random() * 10) + 10,
+        keyCabinetMembers,
+        keyEvents,
       };
     });
+
 
     if (!searchTerm) return normalized;
 
