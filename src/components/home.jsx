@@ -127,30 +127,41 @@ const Home = () => {
                 </div>
               </h3>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {/* Ministry Level */}
-                <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 rounded-lg p-4 border-l-4 border-blue-400">
+                <div className="bg-gradient-to-r from-blue-950/40 to-blue-900/40 rounded-lg p-6 border-l-4 border-blue-400">
                   <div className="flex items-center space-x-3">
                     <Users className="w-5 h-5 text-blue-400" />
                     <div>
                       <h4 className="font-semibold text-white">Ministry Level</h4>
-                      <p className="text-sm text-gray-300">3 Active Ministries</p>
+                      <p className="text-sm text-gray-300"></p>
                     </div>
                   </div>
                 </div>
 
                 {/* Department Level */}
-                <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 rounded-lg p-4 border-l-4 border-purple-400">
+                <div className="bg-gradient-to-r from-purple-950/40 to-purple-900/40 rounded-lg p-6 border-l-4 border-purple-400">
                   <div className="flex items-center space-x-3">
-                    <User className="w-5 h-5 text-purple-400" />
+                    <Users className="w-5 h-5 text-purple-400" />
                     <div>
                       <h4 className="font-semibold text-white">Department Level</h4>
-                      <p className="text-sm text-gray-300">8 Active Departments</p>
+                      <p className="text-sm text-gray-300"></p>
                     </div>
                   </div>
                 </div>
 
-                {/* Quick Stats */}
+                {/* Person Level */}
+                <div className="bg-gradient-to-r from-green-950/40 to-green-900/40 rounded-lg p-6 border-l-4 border-green-400">
+                  <div className="flex items-center space-x-3">
+                    <User className="w-5 h-5 text-green-400" />
+                    <div>
+                      <h4 className="font-semibold text-white">Person Level</h4>
+                      <p className="text-sm text-gray-300"></p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Quick Stats
                 <div className="bg-black/50 rounded-lg p-3 mt-4 border border-gray-800/40">
                   <div className="grid grid-cols-2 gap-4 text-center">
                     <div>
@@ -162,11 +173,11 @@ const Home = () => {
                       <p className="text-xs text-gray-400">Active Departments</p>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
 
               {/*Button */}
-              <div className="flex justify-center mt-6">
+              <div className="flex justify-center mt-7">
                 <a
                   href="/orgchart"
                   className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-1 rounded-full text-lg font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 shadow-lg hover:shadow-cyan-500/25 border border-cyan-400/20"
@@ -193,12 +204,14 @@ const Home = () => {
                 </span>
               </h3>
 
-              <img
-                src="https://i.pinimg.com/originals/2b/6e/47/2b6e47e760f7955adf668d62851aee50.gif"
-                alt="Animated illustration"
-                className="w-full h-65 object-contain rounded-xl opacity-60"
-              />
-
+              <div className="relative w-full h-65 overflow-hidden rounded-xl">
+                <img
+                  src="https://cdn.dribbble.com/userupload/20142494/file/original-70ed1db9d4f370ff3d9b76de0a0a7b66.gif"
+                  alt="Animated illustration"
+                  className="w-full h-full object-cover opacity-60"
+                  style={{ marginBottom: "-10%" }} 
+                />
+              </div>
 
               {/* Button */}
               <div className="flex justify-center mt-6">

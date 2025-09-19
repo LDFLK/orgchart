@@ -14,6 +14,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PersonIcon from '@mui/icons-material/Person';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import InfoTooltip from "./common_components/InfoToolTip";
 
 
 import utils from "./../utils/utils";
@@ -241,7 +242,14 @@ const MinistryCardGrid = ({ onCardClick }) => {
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <AccountBalanceIcon sx={{ color: colors.textMuted }} />
               <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
-                Active Ministries
+                Active Ministries 
+                {" "}
+                <InfoTooltip
+                  message="Ministry portfolios active on selected gazette date"
+                  iconColor={colors.textPrimary}
+                  iconSize={14}
+                />
+
               </Typography>
               <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
                 {activeMinistryList.length}
@@ -254,6 +262,12 @@ const MinistryCardGrid = ({ onCardClick }) => {
               <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
               <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
                 New Ministries
+                {" "}
+                <InfoTooltip
+                  message="New ministry portfolios created on selected gazette date"
+                  iconColor={colors.textPrimary}
+                  iconSize={14}
+                />
               </Typography>
               <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
                 {activeMinistryList.filter((m) => m.newMin).length}
@@ -265,6 +279,12 @@ const MinistryCardGrid = ({ onCardClick }) => {
               <WorkspacePremiumIcon sx={{ color: colors.textMuted }} />
               <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
                 Ministries assigned to president
+                {" "}
+                <InfoTooltip
+                  message="Ministry portfolios under the president on selected gazette date"
+                  iconColor={colors.textPrimary}
+                  iconSize={14}
+                />
               </Typography>
               <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
                 {activeMinistryList.filter((m) => {

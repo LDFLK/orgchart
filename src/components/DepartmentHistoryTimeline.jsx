@@ -305,7 +305,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                                 sx={{
                                                     p: 1,
                                                     borderRadius: 2,
-                                                    backgroundColor: selectedIndex === idx ? colors.backgroundTertiary : 'background.paper',
+                                                    backgroundColor: colors.backgroundWhite,
                                                     boxShadow: selectedIndex === idx
                                                         ? `0 0 10px ${selectedPresident.themeColorLight}`
                                                         : '0 1px 5px rgba(0,0,0,0.1)',
@@ -330,10 +330,10 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
 
                                                         {/* Text stacked vertically */}
                                                         <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'flex-start' }}>
-                                                            <Typography variant="subtitle2" sx={{ fontWeight: '700', fontSize: 15, fontFamily: "poppins" }}>
+                                                            <Typography variant="subtitle2" color={colors.textPrimary} sx={{ fontWeight: '700', fontSize: 15, fontFamily: "poppins" }}>
                                                                 {utils.extractNameFromProtobuf(entry.name).split(":")[0]}
                                                             </Typography>
-                                                            <Typography variant="caption" color={colors.textMuted2} sx={{ fontSize: 14, fontFamily: "poppins" }}>
+                                                            <Typography variant="caption" color={colors.textPrimary} sx={{ fontSize: 14, fontFamily: "poppins" }}>
                                                                 {entry.minister
                                                                     ? utils.extractNameFromProtobuf(entry.minister.name)
                                                                     : 'No Minister Assigned'

@@ -8,6 +8,7 @@ import api from "../services/services";
 import { useThemeContext } from "../themeContext";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonProfile from "./PersonProfile";
+import InfoTooltip from "./common_components/InfoToolTip";
 
 const PersonsTab = ({ selectedDate }) => {
   const { colors } = useThemeContext();
@@ -103,12 +104,22 @@ const PersonsTab = ({ selectedDate }) => {
             <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <PersonIcon sx={{ color: colors.textMuted }} />
-                <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>Total Persons</Typography>
+                <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>Total Persons{" "}
+                  <InfoTooltip
+                    message="Total people under the minister on this date"
+                    iconColor={colors.textPrimary}
+                    iconSize={14}
+                  /></Typography>
                 <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>{ministerListForMinistry.length}</Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
-                <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>New Persons</Typography>
+                <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>New Persons{" "}
+                  <InfoTooltip
+                    message="New people assigned to this ministry on this date"
+                    iconColor={colors.textPrimary}
+                    iconSize={14}
+                  /></Typography>
                 <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
                   {ministerListForMinistry.filter((p) => p.isNew).length}
                 </Typography>
@@ -159,13 +170,13 @@ const PersonsTab = ({ selectedDate }) => {
                   alignItems: "flex-start",
                   gap: 0.5,
                   flexWrap: "wrap",
-                  justifyContent: "flex-start", 
-                  textAlign: "left",             
-                  width: "100%",        
+                  justifyContent: "flex-start",
+                  textAlign: "left",
+                  width: "100%",
                 }}
               >
                 <Typography
-                  sx={{fontFamily: "poppins",color: colors.textPrimary,textAlign: "left",width: "100%"}}
+                  sx={{ fontFamily: "poppins", color: colors.textPrimary, textAlign: "left", width: "100%" }}
                 >
                   {utils.extractNameFromProtobuf(person.name)}
                 </Typography>

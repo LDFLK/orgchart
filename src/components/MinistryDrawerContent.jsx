@@ -23,6 +23,7 @@ import api from "../services/services";
 import { useThemeContext } from "../themeContext";
 import enumMode from "../enums/mode";
 import { useNavigate } from "react-router-dom";
+import InfoTooltip from "./common_components/InfoToolTip";
 
 const MinistryDrawerContent = ({ selectedDate }) => {
   const { colors } = useThemeContext();
@@ -163,6 +164,12 @@ const MinistryDrawerContent = ({ selectedDate }) => {
                 }}
               >
                 Department History Timeline
+                {" "}
+                                <InfoTooltip
+                                  message="Ministers the department was under throughout the history"
+                                  iconColor={colors.textPrimary}
+                                  iconSize={14}
+                                />
               </Typography>
 
               <Button
@@ -240,6 +247,12 @@ const MinistryDrawerContent = ({ selectedDate }) => {
                     }}
                   >
                     Total Departments
+                    {" "}
+                    <InfoTooltip
+                      message="Total of departments under the minister on this date"
+                      iconColor={colors.textPrimary}
+                      iconSize={14}
+                    />
                   </Typography>
                   <Typography
                     sx={{
@@ -263,6 +276,12 @@ const MinistryDrawerContent = ({ selectedDate }) => {
                     }}
                   >
                     New Departments
+                    {" "}
+                    <InfoTooltip
+                      message="Total of newly added departments to this minister on this date"
+                      iconColor={colors.textPrimary}
+                      iconSize={14}
+                    />
                   </Typography>
                   <Typography
                     sx={{
