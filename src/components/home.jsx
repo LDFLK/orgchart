@@ -194,7 +194,7 @@ const Home = () => {
               </h3>
 
               <img
-                src="./public/animatedChart.gif"
+                src="./../public/animatedChart.gif"
                 alt="Animated illustration"
                 className="w-full h-65 object-contain rounded-xl opacity-60"
               />
