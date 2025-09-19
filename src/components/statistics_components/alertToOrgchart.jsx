@@ -29,7 +29,7 @@ export default function AlertToOrgchart({ selectedPresident }) {
   }
 
   return (
-    <div className="fixed bottom-4 left-0 right-0 flex justify-center z-100">
+    <div className="fixed bottom-4 left-4 right-0 flex justify-start z-100">
       <div
         id="alert-additional-content-5"
         className="p-4  border border-gray-300 rounded-lg bg-white"
