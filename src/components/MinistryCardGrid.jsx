@@ -1,5 +1,16 @@
 import {
-  Box, Grid, Typography, Alert, AlertTitle, Divider, Chip, TextField, Select, MenuItem, FormControl, InputLabel
+  Box,
+  Grid,
+  Typography,
+  Alert,
+  AlertTitle,
+  Divider,
+  Chip,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import MinistryCard from "./MinistryCard";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,26 +21,30 @@ import { setSelectedMinistry } from "../store/allMinistryData";
 import { useThemeContext } from "../themeContext";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import PersonIcon from '@mui/icons-material/Person';
-import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
-import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import PersonIcon from "@mui/icons-material/Person";
+import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import InfoTooltip from "./common_components/InfoToolTip";
 
-
 import utils from "./../utils/utils";
-
+import MinistryViewModeToggleButton from "./ministryViewModeToggleButton";
+import GraphComponent from "./graphComponent";
+import { clearTimeout } from "highcharts";
 
 const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
-  const { selectedDate, selectedPresident } = useSelector((state) => state.presidency);
+  const { selectedDate, selectedPresident } = useSelector(
+    (state) => state.presidency
+  );
   const allPersonDict = useSelector((state) => state.allPerson.allPerson);
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [viewMode, setViewMode] = useState("Grid");
   const { colors } = useThemeContext();
 
   useEffect(() => {
@@ -49,8 +64,8 @@ const MinistryCardGrid = ({ onCardClick }) => {
         const headName = m.headMinisterName
           ? utils.extractNameFromProtobuf(m.headMinisterName)
           : selectedPresident?.name
-            ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
-            : null;
+          ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
+          : null;
 
         const presidentName = selectedPresident?.name
           ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
@@ -62,7 +77,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
           headName.toLowerCase().trim() === presidentName.toLowerCase().trim()
         );
       });
-
     }
 
     // Apply search text filter using your existing function
@@ -70,9 +84,14 @@ const MinistryCardGrid = ({ onCardClick }) => {
       result = searchByText(searchText, result);
     }
 
-    setFilteredMinistryList(result);
-  }, [searchText, filterType, activeMinistryList, selectedPresident]);
+    const delayDebounceFunction = setTimeout(() => {
 
+      setFilteredMinistryList(result);
+    }, 2500)
+
+    return () => clearTimeout(delayDebounceFunction)
+
+  }, [searchText, filterType, activeMinistryList, selectedPresident]);
 
   const searchByText = (searchText, list = activeMinistryList) => {
     if (searchText !== "") {
@@ -96,7 +115,11 @@ const MinistryCardGrid = ({ onCardClick }) => {
   };
 
   const fetchActiveMinistryList = async () => {
-    if (!selectedDate || !allMinistryData || Object.keys(allMinistryData).length === 0)
+    if (
+      !selectedDate ||
+      !allMinistryData ||
+      Object.keys(allMinistryData).length === 0
+    )
       return;
 
     try {
@@ -155,13 +178,16 @@ const MinistryCardGrid = ({ onCardClick }) => {
       setFilteredMinistryList(enrichedMinistries);
       setLoading(false);
       const endTime = new Date().getTime();
-      console.log("Fetch and Enrichment time for active ministry list:", endTime - startTime, "ms");
+      console.log(
+        "Fetch and Enrichment time for active ministry list:",
+        endTime - startTime,
+        "ms"
+      );
     } catch (e) {
       console.log("error fetch ministry list : ", e.message);
       setLoading(false);
     }
   };
-
 
   return (
     <Box
@@ -237,39 +263,70 @@ const MinistryCardGrid = ({ onCardClick }) => {
           }}
         >
           {/* Rows */}
-          <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: 1 }}>
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+            }}
+          >
             {/* Active Ministries */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <AccountBalanceIcon sx={{ color: colors.textMuted }} />
-              <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
-                Active Ministries 
-                {" "}
+              <Typography
+                sx={{
+                  flex: 1,
+                  fontFamily: "Poppins",
+                  fontWeight: 500,
+                  color: colors.textMuted,
+                }}
+              >
+                Active Ministries{" "}
                 <InfoTooltip
                   message="Ministry portfolios active on selected gazette date"
                   iconColor={colors.textPrimary}
                   iconSize={14}
                 />
-
               </Typography>
-              <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
+              <Typography
+                sx={{
+                  fontFamily: "Poppins",
+                  fontSize: 20,
+                  fontWeight: 500,
+                  color: colors.textPrimary,
+                }}
+              >
                 {activeMinistryList.length}
               </Typography>
             </Box>
 
-
             {/* New Ministries */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
-              <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
-                New Ministries
-                {" "}
+              <Typography
+                sx={{
+                  flex: 1,
+                  fontFamily: "Poppins",
+                  fontWeight: 500,
+                  color: colors.textMuted,
+                }}
+              >
+                New Ministries{" "}
                 <InfoTooltip
                   message="New ministry portfolios created on selected gazette date"
                   iconColor={colors.textPrimary}
                   iconSize={14}
                 />
               </Typography>
-              <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
+              <Typography
+                sx={{
+                  fontFamily: "Poppins",
+                  fontSize: 20,
+                  fontWeight: 500,
+                  color: colors.textPrimary,
+                }}
+              >
                 {activeMinistryList.filter((m) => m.newMin).length}
               </Typography>
             </Box>
@@ -277,33 +334,51 @@ const MinistryCardGrid = ({ onCardClick }) => {
             {/* Ministries assigned to president */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <WorkspacePremiumIcon sx={{ color: colors.textMuted }} />
-              <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted }}>
-                Ministries assigned to president
-                {" "}
+              <Typography
+                sx={{
+                  flex: 1,
+                  fontFamily: "Poppins",
+                  fontWeight: 500,
+                  color: colors.textMuted,
+                }}
+              >
+                Ministries assigned to president{" "}
                 <InfoTooltip
                   message="Ministry portfolios under the president on selected gazette date"
                   iconColor={colors.textPrimary}
                   iconSize={14}
                 />
               </Typography>
-              <Typography sx={{ fontFamily: "Poppins", fontSize: 20, fontWeight: 500, color: colors.textPrimary }}>
-                {activeMinistryList.filter((m) => {
-                  const headName = m.headMinisterName
-                    ? utils.extractNameFromProtobuf(m.headMinisterName)
-                    : null;
+              <Typography
+                sx={{
+                  fontFamily: "Poppins",
+                  fontSize: 20,
+                  fontWeight: 500,
+                  color: colors.textPrimary,
+                }}
+              >
+                {
+                  activeMinistryList.filter((m) => {
+                    const headName = m.headMinisterName
+                      ? utils.extractNameFromProtobuf(m.headMinisterName)
+                      : null;
 
-                  const presidentName = selectedPresident?.name
-                    ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
-                    : null;
+                    const presidentName = selectedPresident?.name
+                      ? utils
+                          .extractNameFromProtobuf(selectedPresident.name)
+                          .split(":")[0]
+                      : null;
 
-                  if (!headName && presidentName) return true;
+                    if (!headName && presidentName) return true;
 
-                  return (
-                    headName &&
-                    presidentName &&
-                    headName.toLowerCase().trim() === presidentName.toLowerCase().trim()
-                  );
-                }).length}
+                    return (
+                      headName &&
+                      presidentName &&
+                      headName.toLowerCase().trim() ===
+                        presidentName.toLowerCase().trim()
+                    );
+                  }).length
+                }
               </Typography>
             </Box>
           </Box>
@@ -317,7 +392,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
           display: "flex",
           flexDirection: "column",
           gap: 2,
-          p: 2,
+          py: 2,
           borderRadius: 2,
           //backgroundColor: colors.backgroundColor,
           backgroundColor: colors.backgroundWhite,
@@ -332,11 +407,19 @@ const MinistryCardGrid = ({ onCardClick }) => {
             justifyContent: "space-between",
             alignItems: { xs: "flex-start", sm: "center" },
             gap: 2,
-            mb: 2,
+            mb: 1,
+            px: 5,
+            pt: 3,
           }}
         >
           {/* Left Title */}
-          <Box sx={{ display: "flex", ml: 4, flexDirection: "column", mb: { xs: 2, sm: 0 } }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              mb: { xs: 2, sm: 0 },
+            }}
+          >
             <Typography
               variant="h6"
               sx={{
@@ -369,7 +452,9 @@ const MinistryCardGrid = ({ onCardClick }) => {
             }}
           >
             {/* Search Bar */}
-            <Box sx={{ flex: 1, minWidth: { xs: "100%", sm: 200 }, maxWidth: 600 }}>
+            <Box
+              sx={{ flex: 1, minWidth: { xs: "100%", sm: 200 }, maxWidth: 600 }}
+            >
               <TextField
                 fullWidth
                 label="Search By Ministry Name"
@@ -393,7 +478,9 @@ const MinistryCardGrid = ({ onCardClick }) => {
                     "&:hover fieldset": { borderColor: colors.textMuted },
                     "&.Mui-focused fieldset": { borderColor: colors.textMuted },
                   },
-                  "& .MuiInputLabel-root.Mui-focused": { color: colors.textMuted },
+                  "& .MuiInputLabel-root.Mui-focused": {
+                    color: colors.textMuted,
+                  },
                   "& .MuiInputBase-input": { color: colors.textMuted },
                 }}
               />
@@ -401,7 +488,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
 
             {/* Dropdown Filter */}
             <FormControl
-              sx={{ minWidth: { xs: "100%", sm: 30 }, mr: 4, flexShrink: 0 }}
+              sx={{ minWidth: { xs: "100%", sm: 30 }, flexShrink: 0 }}
             >
               <InputLabel
                 sx={{
@@ -449,14 +536,18 @@ const MinistryCardGrid = ({ onCardClick }) => {
                 <MenuItem value="all">All Ministries</MenuItem>
                 <MenuItem value="newPerson">New Person</MenuItem>
                 <MenuItem value="newMinistry">New Ministry</MenuItem>
-                <MenuItem value="presidentAsMinister">President as Minister</MenuItem>
+                <MenuItem value="presidentAsMinister">
+                  President as Minister
+                </MenuItem>
               </Select>
             </FormControl>
-
-
           </Box>
         </Box>
 
+        <MinistryViewModeToggleButton
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+        />
 
         {/* Ministries Grid / Loader / Alerts */}
         {loading ? (
@@ -478,36 +569,46 @@ const MinistryCardGrid = ({ onCardClick }) => {
           </Box>
         ) : (
           <Box sx={{ width: "100%" }}>
-            <Grid container justifyContent="center" gap={1} sx={{ width: "100%" }}>
+            <Grid
+            position={"relative"}
+              container
+              justifyContent="center"
+              gap={1}
+              sx={{ width: "100%" }}
+            >
               {filteredMinistryList && filteredMinistryList.length > 0 ? (
-                filteredMinistryList.map((card) => (
-                  <Grid
-                    key={card.id}
-                    sx={{
-                      display: "grid",
-                      flexBasis: {
-                        xs: "100%",
-                        sm: "48%",
-                        md: "31.5%",
-                        lg: "23.5%",
-                      },
-                      maxWidth: {
-                        xs: "100%",
-                        sm: "48%",
-                        md: "31.5%",
-                        lg: "23.5%",
-                      },
-                    }}
-                  >
-                    <MinistryCard
-                      card={card}
-                      onClick={() => {
-                        dispatch(setSelectedMinistry(card.id));
-                        onCardClick(card);
+                viewMode == "Grid" ? (
+                  filteredMinistryList.map((card) => (
+                    <Grid
+                      key={card.id}
+                      sx={{
+                        display: "grid",
+                        flexBasis: {
+                          xs: "100%",
+                          sm: "48%",
+                          md: "31.5%",
+                          lg: "23.5%",
+                        },
+                        maxWidth: {
+                          xs: "100%",
+                          sm: "48%",
+                          md: "31.5%",
+                          lg: "23.5%",
+                        },
                       }}
-                    />
-                  </Grid>
-                ))
+                    >
+                      <MinistryCard
+                        card={card}
+                        onClick={() => {
+                          dispatch(setSelectedMinistry(card.id));
+                          onCardClick(card);
+                        }}
+                      />
+                    </Grid>
+                  ))
+                ) : (
+                  <GraphComponent  activeMinistries={filteredMinistryList} />
+                )
               ) : activeMinistryList && activeMinistryList.length === 0 ? (
                 <Box
                   sx={{
@@ -517,7 +618,10 @@ const MinistryCardGrid = ({ onCardClick }) => {
                     marginTop: "15px",
                   }}
                 >
-                  <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
+                  <Alert
+                    severity="info"
+                    sx={{ backgroundColor: "transparent" }}
+                  >
                     <AlertTitle
                       sx={{
                         fontFamily: "poppins",
@@ -538,7 +642,10 @@ const MinistryCardGrid = ({ onCardClick }) => {
                     marginTop: "15px",
                   }}
                 >
-                  <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
+                  <Alert
+                    severity="info"
+                    sx={{ backgroundColor: "transparent" }}
+                  >
                     <AlertTitle
                       sx={{
                         fontFamily: "poppins",
@@ -554,7 +661,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
           </Box>
         )}
       </Box>
-
     </Box>
   );
 };

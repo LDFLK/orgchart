@@ -6,8 +6,8 @@ import React, {
   useMemo,
 } from "react";
 import ForceGraph3D from "react-force-graph-3d";
-import api from "./../services/services";
-import modeEnum from "../../src/enums/mode";
+import api from "../services/services";
+import modeEnum from "../enums/mode";
 import utils from "../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -16,19 +16,16 @@ import {
   setSelectedDate,
 } from "../store/presidencySlice";
 
-import Drawer from "../components/statistics_components/drawer";
-import PresidencyTimeline from "../components/PresidencyTimeline";
+import Drawer from "./statistics_components/drawer";
 import SpriteText from "three-spritetext";
-import AlertToOrgchart from "../components/statistics_components/alertToOrgchart";
 import WebGLChecker, {
   isWebGLAvailable,
-} from "../components/common_components/webgl_checker";
-import LoadingComponent from "../components/common_components/loading_component";
+} from "./common_components/webgl_checker";
+import LoadingComponent from "./common_components/loading_component";
 import { useThemeContext } from "../themeContext";
 import { useNavigate } from "react-router-dom";
-import { jaJP } from "@mui/x-date-pickers/locales";
 
-export default function StatisticMainPage() {
+export default function GraphComponent({activeMinistries}) {
   const [loading, setLoading] = useState(true);
   const [webgl, setWebgl] = useState(true);
   const [expandDrawer, setExpandDrawer] = useState(true);
@@ -117,20 +114,7 @@ export default function StatisticMainPage() {
 
   // Initial selection of president & date
   useEffect(() => {
-    if (!selectedPresident && presidents.length > 0) {
-      const lastIndex = presidents.length - 1;
-      dispatch(setSelectedIndex(lastIndex));
-      dispatch(setSelectedPresident(presidents[lastIndex]));
-    }
-
-    if (gazetteDataClassic?.length > 0) {
-      console.log('gazette data fix')
-      console.log(gazetteDataClassic)
-      dispatch(
-        setSelectedDate(
-          gazetteDataClassic[gazetteDataClassic.length - 1],
-        )
-      );
+      if (gazetteDataClassic?.length > 0) {
       setIsDateTake(true)
     }
   }, [presidents, gazetteDataClassic]);
@@ -141,15 +125,8 @@ export default function StatisticMainPage() {
       setLoading(true);
 
       try {
-        // Fetch active ministries
-        const activeMinistry = await api.fetchActiveMinistries(
-          selectedDate,
-          allMinistryData,
-          selectedPresident
-        );
-
         //create a dictionary
-        const ministryDic = activeMinistry.children.reduce((acc, ministry) => {
+        const ministryDic = activeMinistries.reduce((acc, ministry) => {
           acc[ministry.id] = {
             id: ministry.id,
             name: ministry.name,
@@ -342,7 +319,7 @@ export default function StatisticMainPage() {
     if (isDateTaken && selectedDate && selectedPresident) {
       buildGraph();
     }
-  }, [selectedDate, selectedPresident, isDateTaken]);
+  }, [selectedDate, selectedPresident, isDateTaken, activeMinistries]);
 
   // Handle WebGL context loss and restoration
   useEffect(() => {
@@ -602,7 +579,7 @@ export default function StatisticMainPage() {
   };
 
   return (
-    <>
+    <div className="" >
       <Drawer
         expandDrawer={expandDrawer}
         setExpandDrawer={setExpandDrawer}
@@ -621,22 +598,21 @@ export default function StatisticMainPage() {
           transition: "margin-right 0.3s ease",
           height: "100vh",
           overflow: "hidden",
+          left: 0
         }}
       >
         <div className="flex justify-start items-start h-full">
-          <PresidencyTimeline mode={modeEnum.STATISTICS} />
           {!loading ? (
             <div
               className="w-full"
-              style={{ backgroundColor: colors.backgroundPrimary }}
+              style={{ backgroundColor: colors.backgroundPrimary, overflow: 'hidden'}}
             >
-              <AlertToOrgchart selectedPresident={selectedPresident} />
               {webgl ? (
                 graphData.nodes.length > 0 && graphData.links.length > 0 ? (
                   <ForceGraph3D
                     height={window.innerHeight}
                     width={
-                      expandDrawer ? window.innerWidth / 2 : window.innerWidth
+                      expandDrawer ? ( window.innerWidth / 2)  : (window.innerWidth - 205)
                     }
                     graphData={graphData}
                     backgroundColor={ isDark ? "#222" : "#fff"}
@@ -759,6 +735,6 @@ export default function StatisticMainPage() {
       </div>
       <NodePopup />
       <WebGLChecker />
-    </>
+    </div>
   );
 }
