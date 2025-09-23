@@ -3,7 +3,7 @@ import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-export default function EnhancedYearRangeSelector({
+export default function YearRangeSelector({
     startYear = 2010,
     dates = ["2010-09-23T00:00:00Z",
         "2024-09-23T00:00:00Z", "2024-09-25T00:00:00Z", "2024-09-25T00:00:00Z",
@@ -19,6 +19,7 @@ export default function EnhancedYearRangeSelector({
         "2024-08-23T00:00:00Z", "2025-08-23T00:00:00Z"
     ],
     latestPresStartDate = new Date(Date.UTC(2022, 4, 24)),
+    onDateChange,
 }) {
 
     const endYear = new Date().getFullYear();
@@ -68,6 +69,10 @@ export default function EnhancedYearRangeSelector({
         const endDateUTC = new Date(Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate()));
         return endDateUTC.getTime() === todayUTC.getTime();
     }
+
+    useEffect(() => {
+        onDateChange?.([startDate, endDate]);
+    }, [startDate, endDate, onDateChange]);
 
     // Get overlay metrics (left, width) for selected range
     function getPreciseOverlayMetrics() {
