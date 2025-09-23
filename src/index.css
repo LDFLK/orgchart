@@ -6,3 +6,12 @@ body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
 }
+
+.react-datepicker {
+  display: flex !important;
+  gap: 1rem; 
+}
+
+.react-datepicker__month-container {
+  float: none !important;
+}
