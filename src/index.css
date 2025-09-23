@@ -15,3 +15,12 @@ body {
 .react-datepicker__month-container {
   float: none !important;
 }
+
+.scroll-wrapper {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: transparent transparent; /* hide thumb by default */
+  transition: scrollbar-color 0.3s;
+}
+
+
+
