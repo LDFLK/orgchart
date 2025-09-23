@@ -3,13 +3,29 @@ import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-export default function EnhancedYearRangeSelector() {
-    const startYear = 2010;
+export default function EnhancedYearRangeSelector({
+    startYear = 2010,
+    dates = ["2010-09-23T00:00:00Z",
+        "2024-09-23T00:00:00Z", "2024-09-25T00:00:00Z", "2024-09-25T00:00:00Z",
+        "2024-11-18T00:00:00Z", "2024-11-18T00:00:00Z", "2024-09-27T00:00:00Z",
+        "2024-11-25T00:00:00Z", "2024-09-23T00:00:00Z", "2022-07-20T00:00:00Z",
+        "2022-07-26T00:00:00Z", "2022-08-04T00:00:00Z", "2022-11-04T00:00:00Z",
+        "2023-01-19T00:00:00Z", "2023-10-12T00:00:00Z", "2023-10-23T00:00:00Z",
+        "2023-12-01T00:00:00Z", "2022-07-22T00:00:00Z", "2022-09-16T00:00:00Z",
+        "2022-10-05T00:00:00Z", "2022-10-26T00:00:00Z", "2022-12-22T00:00:00Z",
+        "2023-01-19T00:00:00Z", "2023-04-27T00:00:00Z", "2023-05-30T00:00:00Z",
+        "2023-07-31T00:00:00Z", "2023-10-23T00:00:00Z", "2023-10-23T00:00:00Z",
+        "2023-12-22T00:00:00Z", "2024-02-27T00:00:00Z", "2024-08-23T00:00:00Z",
+        "2024-08-23T00:00:00Z", "2025-08-23T00:00:00Z"
+    ],
+    latestPresStartDate = new Date(Date.UTC(2022, 4, 24)),
+}) {
+
     const endYear = new Date().getFullYear();
     const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
 
     const [selectedRange, setSelectedRange] = useState([2022, endYear]);
-    const [startDate, setStartDate] = useState(new Date(Date.UTC(2022, 4, 24)));
+    const [startDate, setStartDate] = useState(latestPresStartDate);
     const [endDate, setEndDate] = useState(new Date());
     const [calendarOpen, setCalendarOpen] = useState(false);
     const [isDragging, setIsDragging] = useState(null);
@@ -22,28 +38,24 @@ export default function EnhancedYearRangeSelector() {
     const dragStartRef = useRef(null);
     const scrollWrapperRef = useRef(null);
 
-    // Generate mini chart data
-    const generateYearData = (year) => {
-        const baseValue = Math.random() * 50 + 20;
-        const months = year === 2025 ? 8 : 12;
-        return Array.from({ length: months }, (_, i) => {
-            const seasonality = Math.sin((i / 12) * 2 * Math.PI) * 15;
-            const noise = (Math.random() - 0.5) * 10;
-            return Math.max(0, baseValue + seasonality + noise);
-        });
-    };
+    // Preprocess dates into a lookup: year -> month -> count
+    const dateCounts = dates.reduce((acc, d) => {
+        const dt = new Date(d);
+        const year = dt.getUTCFullYear();
+        const month = dt.getUTCMonth(); // 0 = Jan, 11 = Dec
+        if (!acc[year]) acc[year] = Array(12).fill(0);
+        acc[year][month] += 1;
+        return acc;
+    }, {});
 
+    // Generate mini chart data
     const yearData = useRef(
         years.reduce((acc, year) => {
-            if (year >= 2010 && year <= 2014) {
-                acc[year] = Array.from({ length: 12 }, (_, i) => {
-                    const baseValue = Math.random() * 50 + 20;
-                    const seasonality = Math.sin((i / 12) * 2 * Math.PI) * 15;
-                    const noise = (Math.random() - 0.5) * 10;
-                    return Math.max(0, baseValue + seasonality + noise);
-                });
+            if (dateCounts[year]) {
+                acc[year] = dateCounts[year];
             } else {
-                acc[year] = generateYearData(year);
+                // fallback: zero for months with no data
+                acc[year] = Array.from({ length: 12 }, () => 0);
             }
             return acc;
         }, {})
@@ -418,18 +430,17 @@ export default function EnhancedYearRangeSelector() {
                 style={{ paddingLeft: "24px", paddingRight: "24px" }}
             >
 
-                <div ref={containerRef} className="relative bg-gray-50 dark:bg-gray-700 rounded-lg mb-6" style={{ height: "70px", minWidth: `${years.length * 80}px` }}>
+                <div ref={containerRef} className="relative bg-gray-50 dark:bg-gray-700 mb-6" style={{ height: "70px", minWidth: `${years.length * 80}px` }}>
                     <div className="flex h-full items-end">
                         {years.map(year => {
                             const isInRange = year >= selectedRange[0] && year <= selectedRange[1];
                             return (
                                 <div
                                     key={year}
-                                    className={`relative transition-all duration-200 ${isInRange ? "opacity-100" : "opacity-40"}`}
+                                    className={`relative transition-all duration-200 ${isInRange ? "opacity-100" : "opacity-40"} border-l-1 border-r-1 border-gray-500`}
                                     style={{ height: "80px", width: "120px" }}
                                     onClick={() => {
                                         setSelectedRange([year, year]);
-
                                         const newStartDate = new Date(Date.UTC(year, 0, 1));
                                         let newEndDate;
                                         const currentYear = new Date().getUTCFullYear();
