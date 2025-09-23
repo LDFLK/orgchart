@@ -170,6 +170,27 @@ export default function EnhancedYearRangeSelector() {
         });
     }, [overlayMetrics, selectedRange]);
 
+    const updateDatesFromRange = (range) => {
+        const [startYearVal, endYearVal] = range;
+
+        // Start date is always Jan 1 of start year
+        const newStartDate = new Date(Date.UTC(startYearVal, 0, 1));
+
+        // End date: if current year, use today; otherwise, use Dec 31
+        const today = new Date();
+        const currentYear = today.getUTCFullYear();
+        let newEndDate;
+        if (endYearVal === currentYear) {
+            newEndDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+        } else {
+            newEndDate = new Date(Date.UTC(endYearVal, 11, 31));
+        }
+
+        setStartDate(newStartDate);
+        setEndDate(newEndDate);
+    };
+
+
     // Dragging logic
     const handleMouseDown = (e, handle) => {
         e.stopPropagation();
@@ -180,18 +201,29 @@ export default function EnhancedYearRangeSelector() {
 
     const handleMouseMove = (e) => {
         if (!isDragging || !containerRef.current) return;
+
         const rect = containerRef.current.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const yearWidth = rect.width / years.length;
         const yearIndex = Math.round(x / yearWidth);
         const year = years[Math.max(0, Math.min(yearIndex, years.length - 1))];
 
-        if (isDragging === "start") setSelectedRange([Math.min(year, selectedRange[1]), selectedRange[1]]);
-        if (isDragging === "end") setSelectedRange([selectedRange[0], Math.max(year, selectedRange[0])]);
+        if (isDragging === "start") {
+            const newRange = [Math.min(year, selectedRange[1]), selectedRange[1]];
+            setSelectedRange(newRange);
+            updateDatesFromRange(newRange);
+        }
+
+        if (isDragging === "end") {
+            const newRange = [selectedRange[0], Math.max(year, selectedRange[0])];
+            setSelectedRange(newRange);
+            updateDatesFromRange(newRange);
+        }
     };
 
     const handleWindowMove = (e) => {
         if (!isMovingWindow || !containerRef.current) return;
+
         const rect = containerRef.current.getBoundingClientRect();
         const deltaX = e.clientX - dragStartRef.current;
         const yearWidth = rect.width / years.length;
@@ -200,6 +232,7 @@ export default function EnhancedYearRangeSelector() {
         let newStart = selectedRange[0] + deltaYears;
         let newEnd = selectedRange[1] + deltaYears;
 
+        // Clamp to available years
         if (newStart < startYear) {
             newEnd += startYear - newStart;
             newStart = startYear;
@@ -209,7 +242,10 @@ export default function EnhancedYearRangeSelector() {
             newEnd = endYear;
         }
 
-        setSelectedRange([newStart, newEnd]);
+        const newRange = [newStart, newEnd];
+        setSelectedRange(newRange);
+        updateDatesFromRange(newRange);
+
         dragStartRef.current = e.clientX;
     };
 
@@ -359,11 +395,11 @@ export default function EnhancedYearRangeSelector() {
                             <div className="flex gap-4">
                                 <div className="flex-1 flex flex-col">
                                     <p className="text-xs text-gray-500 mb-2">From</p>
-                                    <DatePicker selected={tempStartDate} onChange={setTempStartDate} inline monthsShown={1} minDate={new Date(startYear, 0, 1)} maxDate={new Date(endYear, 11, 31)} />
+                                    <DatePicker selected={tempStartDate} onChange={setTempStartDate} inline monthsShown={1} minDate={new Date(startYear, 0, 1)} maxDate={new Date()} />
                                 </div>
                                 <div className="flex-1 flex flex-col">
                                     <p className="text-xs text-gray-500 mb-2">To</p>
-                                    <DatePicker selected={tempEndDate} onChange={setTempEndDate} inline monthsShown={1} minDate={tempStartDate} maxDate={new Date(endYear, 11, 31)} />
+                                    <DatePicker selected={tempEndDate} onChange={setTempEndDate} inline monthsShown={1} minDate={tempStartDate} maxDate={new Date()} />
                                 </div>
                             </div>
                             <div className="flex justify-end gap-2 mt-4">
@@ -378,8 +414,8 @@ export default function EnhancedYearRangeSelector() {
             {/* Scrollable chart */}
             <div
                 ref={scrollWrapperRef}
-                  className="overflow-x-auto overflow-y-hidden scroll-wrapper"
-                style={{ paddingLeft: "24px", paddingRight: "24px" }} 
+                className="overflow-x-auto overflow-y-hidden scroll-wrapper"
+                style={{ paddingLeft: "24px", paddingRight: "24px" }}
             >
 
                 <div ref={containerRef} className="relative bg-gray-50 dark:bg-gray-700 rounded-lg mb-6" style={{ height: "70px", minWidth: `${years.length * 80}px` }}>
@@ -387,7 +423,27 @@ export default function EnhancedYearRangeSelector() {
                         {years.map(year => {
                             const isInRange = year >= selectedRange[0] && year <= selectedRange[1];
                             return (
-                                <div key={year} className={`relative transition-all duration-200 ${isInRange ? "opacity-100" : "opacity-40"}`} style={{ height: "80px", width: "120px" }} onClick={() => { setSelectedRange([year, year]); setStartDate(new Date(Date.UTC(year, 0, 1))); setEndDate(new Date(Date.UTC(year, 11, 31))) }}>
+                                <div
+                                    key={year}
+                                    className={`relative transition-all duration-200 ${isInRange ? "opacity-100" : "opacity-40"}`}
+                                    style={{ height: "80px", width: "120px" }}
+                                    onClick={() => {
+                                        setSelectedRange([year, year]);
+
+                                        const newStartDate = new Date(Date.UTC(year, 0, 1));
+                                        let newEndDate;
+                                        const currentYear = new Date().getUTCFullYear();
+                                        if (year === currentYear) {
+                                            const today = new Date();
+                                            newEndDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+                                        } else {
+                                            newEndDate = new Date(Date.UTC(year, 11, 31));
+                                        }
+
+                                        setStartDate(newStartDate);
+                                        setEndDate(newEndDate);
+                                    }}
+                                >
                                     <MiniChart data={yearData[year]} year={year} isInRange={isInRange} />
                                     <div className={`absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${isInRange ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}>{year}</div>
                                 </div>
