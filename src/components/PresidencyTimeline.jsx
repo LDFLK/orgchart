@@ -399,7 +399,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                             minWidth: { xs: 60, sm: 80 },
                           }}
                         >
-                          {index === filteredPresidents.length - 1 ? ( //Change here the active stylized button
+                          { presidents[presidents.length - 1].id === president.id ? (
                             <Box sx={{ display: "flex", justifyContent: "center" }}>
                               <StyledBadge
                                 ref={isSelected ? avatarRef : null}
