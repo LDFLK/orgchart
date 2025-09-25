@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { set } from "date-fns";
+import { useSelector } from "react-redux";
+import utils from "../../utils/utils";
 
 export default function YearRangeSelector({
     startYear,
@@ -28,15 +29,41 @@ export default function YearRangeSelector({
     const [activePreset, setActivePreset] = useState(null);
     const [activePresident, setActivePresident] = useState("");
     //const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: '' });
-
+    const presidentsArray = useSelector((state) => state.presidency.presidentDict);
+    const presidentRelationDict = useSelector(
+        (state) => state.presidency.presidentRelationDict
+    );
     const containerRef = useRef(null);
     const dragStartRef = useRef(null);
     const scrollWrapperRef = useRef(null);
+
+
+    const presidents = React.useMemo(() => {
+        if (!presidentsArray || !presidentRelationDict) return {};
+        const obj = {};
+        presidentsArray.forEach((president) => {
+            const relation = presidentRelationDict[president.id];
+            if (!relation) return;
+
+            const displayName = utils.extractNameFromProtobuf(president.name);
+
+            obj[president.id] = {
+                name: displayName.split(" ")[0],
+                start: relation.startTime,
+                end: relation.endTime || new Date().toISOString().slice(0, 10),
+            };
+        });
+
+        return obj;
+    }, [presidentsArray, presidentRelationDict]);
+
 
     useEffect(() => {
         const latestYear = latestPresStartDate.getFullYear();
         const validStartYear = Math.max(startYear, latestYear);
         const validEndYear = Math.min(endYear, new Date().getFullYear());
+        console.log("President array", presidentsArray);
+        console.log("President relation dict", presidentRelationDict);
 
         setStartDate(latestPresStartDate);
         setSelectedRange([validStartYear, validEndYear]);
@@ -532,37 +559,29 @@ export default function YearRangeSelector({
                     value={activePresident}
                     onChange={(e) => {
                         const selected = e.target.value;
-                        const presidents = {
-                            Gota: { start: "2019-11-18", end: "2022-07-14" },
-                            Ranil: { start: "2022-07-21", end: "2024-09-23" },
-                            Anura: { start: "2024-09-23", end: new Date().toISOString().slice(0, 10) },
-                        };
-
                         if (selected && presidents[selected]) {
                             const { start, end } = presidents[selected];
-                            const startDateObj = new Date(start);
-                            const endDateObj = new Date(end);
-                            setStartDate(startDateObj);
-                            setEndDate(endDateObj);
-                            setSelectedRange([startDateObj.getUTCFullYear(), endDateObj.getUTCFullYear()]);
+                            setStartDate(new Date(start));
+                            setEndDate(new Date(end));
+                            setSelectedRange([new Date(start).getUTCFullYear(), new Date(end).getUTCFullYear()]);
                             setPreciseMode(true);
                             setActivePreset(null);
                             setActivePresident(selected);
                         }
                     }}
                     className="px-4 py-2 text-sm font-medium rounded-lg transition-colors
-               bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600
-               text-gray-700 dark:text-gray-300"
+             bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600
+             text-gray-700 dark:text-gray-300"
                 >
                     <option value="" disabled>
                         President
                     </option>
-                    <option value="Gota">Gotabaya</option>
-                    <option value="Ranil">Ranil</option>
-                    <option value="Anura">Anura</option>
+                    {Object.entries(presidents).map(([id, data]) => (
+                        <option key={id} value={id}>
+                            {data.name}
+                        </option>
+                    ))}
                 </select>
-
-
                 {/* Calendar button */}
                 <div className="ml-auto relative w-full sm:w-auto">
                     <button
