@@ -37,6 +37,25 @@ export const componentConfigs = {
     }
   },
 
+  MinistryDrawer: {
+    id: 'MinistryDrawer',
+    shareableKeys: ['selectedMinistry'],
+    getStateValue: (key, reduxState) => {
+      switch(key){
+        case 'selectedMinistry':
+          return reduxState.allMinistryData?.selectedMinistry;
+      }
+    },
+    applyStateUpdate: (urlState, dispatch) => {
+      if(urlState.selectedMinistry){
+        dispatch({
+          type: 'allMinistryData/setSelectedMinistry',
+          payload: urlState.selectedMinistry
+        })
+      }
+    }
+  },
+
   PresidencyTimeline: {
     id: 'PresidencyTimeline',
     shareableKeys: ['selectedPresident','selectedDate'],

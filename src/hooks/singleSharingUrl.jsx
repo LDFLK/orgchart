@@ -16,5 +16,15 @@ export default function urlParamState(key, defaultValue = '') {
     window.history.replaceState({}, '', url.toString());
   }, [key, value]);
 
+  // Sync state when user navigates with back/forward
+  useEffect(() => {
+    const handler = () => {
+      const param = new URLSearchParams(window.location.search).get(key);
+      setValue(param || defaultValue);
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, [key, defaultValue]);
+
   return [value, setValue];
 }

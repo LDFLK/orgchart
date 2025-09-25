@@ -91,6 +91,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
     ) || [];
+ 
   return (
     <Box sx={{ p: 2, backgroundColor: colors.backgroundPrimary, mt: -2 }}>
       {loading ? (

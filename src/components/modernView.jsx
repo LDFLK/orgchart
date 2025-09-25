@@ -30,9 +30,9 @@ const ModernView = () => {
   );
   const { colors } = useThemeContext();
 
-  const [drawerOpen, setDrawerOpen] = urlParamState("drawer",false);
-  const [selectedCard, setSelectedCard] = urlParamState("ministry",null);
-  const [drawerMode, setDrawerMode] = urlParamState("drawer_mode","ministry");
+  const [drawerOpen, setDrawerOpen] = urlParamState("ministry_details",false);
+  const [selectedCard, setSelectedCard] = urlParamState("selectedMinistry",null);
+  const [drawerMode, setDrawerMode] = urlParamState("ministry");
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const location = useLocation();

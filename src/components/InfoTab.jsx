@@ -1,26 +1,83 @@
-import { Box, Dialog, DialogContent, IconButton, Typography, Button } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogContent,
+  IconButton,
+  Typography,
+  Button,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import MinistryDrawerContent from "./MinistryDrawerContent";
-import { useState } from "react";
 import { useThemeContext } from "../themeContext";
 import PersonsTab from "./PersonsTab";
 import urlParamState from "../hooks/singleSharingUrl";
+import { useEffect, useRef, useState } from "react";
+import { useUniversalSharing } from "../hooks/useUniversalSharing";
+import { componentConfigs } from "../config/componentConfigs";
+import { useSelector } from "react-redux";
 
-const InfoTab = ({ drawerOpen, selectedCardId, selectedDate, onClose, selectedPresident }) => {
+const InfoTab = ({
+  drawerOpen,
+  selectedCard,
+  selectedDate,
+  onClose,
+  selectedPresident,
+}) => {
   const { colors } = useThemeContext();
-  const [activeTab, setActiveTab] = urlParamState("tab","departments");
+  const [activeTab, setActiveTab] = useState("departments");
 
-  const presidentColor = selectedPresident?.themeColorLight || colors.textPrimary;
+  const {selectedMinistry} = useSelector((state) => state.allMinistryData.selectedMinistry)
+
+  const presidentColor =
+    selectedPresident?.themeColorLight || colors.textPrimary;
+
+  const isUpdatingFromUrl = useRef(false);
+
+  //sharing
+  const sharing = useUniversalSharing(componentConfigs.MinistryDrawer);
+
+  useEffect(()=>{
+  console.log('loading from url', selectedMinistry)
+
+  },[selectedMinistry])
+
+  //load state from url
+  useEffect(() => {
+    if (sharing?.loadFromUrl) {
+      const urlState = sharing.loadFromUrl();
+      console.log(Object.keys(urlState).length)
+      if (Object.keys(urlState).length > 0) {
+        isUpdatingFromUrl.current = true;
+        sharing.applyUrlState(urlState);
+        setTimeout(() => {
+          isUpdatingFromUrl.current = false;
+        }, 100);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isUpdatingFromUrl.current && sharing?.updateUrl) {
+      const params = {
+        selectedMinistry: selectedCard,
+      };
+
+      sharing.updateUrl(params);
+    }
+  }, [selectedCard]);
 
   return (
     <Dialog
       open={drawerOpen}
-      onClose={onClose}
       fullWidth
       maxWidth="xl"
       PaperProps={{
-        sx: { height: "100vh", borderRadius: 2, backgroundColor: colors.backgroundPrimary },
+        sx: {
+          height: "100vh",
+          borderRadius: 2,
+          backgroundColor: colors.backgroundPrimary,
+        },
       }}
     >
       <DialogContent
@@ -34,8 +91,14 @@ const InfoTab = ({ drawerOpen, selectedCardId, selectedDate, onClose, selectedPr
           "&::-webkit-scrollbar": { display: "none" },
         }}
       >
-
-        <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            mb: 1,
+          }}
+        >
           <IconButton onClick={onClose}>
             <CloseIcon sx={{ color: colors.textPrimary }} />
           </IconButton>
@@ -43,7 +106,10 @@ const InfoTab = ({ drawerOpen, selectedCardId, selectedDate, onClose, selectedPr
 
         <Box sx={{ p: 2, backgroundColor: colors.backgroundPrimary, mt: -3 }}>
           {/* Date */}
-          <Typography variant="h6" sx={{ color: `${presidentColor}90`, fontFamily: "poppins" }}>
+          <Typography
+            variant="h6"
+            sx={{ color: `${presidentColor}90`, fontFamily: "poppins" }}
+          >
             Gazette Date
           </Typography>
           <Typography
@@ -54,7 +120,7 @@ const InfoTab = ({ drawerOpen, selectedCardId, selectedDate, onClose, selectedPr
               fontWeight: "bold",
             }}
           >
-            {selectedDate ? (selectedDate.date || selectedDate) : "Unknown"}
+            {selectedDate ? selectedDate.date || selectedDate : "Unknown"}
           </Typography>
 
           {/* Ministry Name */}
@@ -78,12 +144,12 @@ const InfoTab = ({ drawerOpen, selectedCardId, selectedDate, onClose, selectedPr
               {/* {selectedCard?.name?.split(":")[0] || "No Ministry Selected"} */}
             </Typography>
           </Box>
-          
+
           {/* Tabs */}
           <Box
             sx={{
               display: "flex",
-              flexWrap: "wrap",     
+              flexWrap: "wrap",
               gap: 2,
               mt: 2,
               justifyContent: { xs: "center", sm: "flex-start" }, // center on very small screens
@@ -101,15 +167,17 @@ const InfoTab = ({ drawerOpen, selectedCardId, selectedDate, onClose, selectedPr
                   sx={{
                     textTransform: "none",
                     borderRadius: "50px",
-                    px: { xs: 2, sm: 3 }, 
+                    px: { xs: 2, sm: 3 },
                     py: 0.8,
                     fontFamily: "poppins",
-                    fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" }, 
+                    fontSize: { xs: "0.8rem", sm: "0.9rem", md: "1rem" },
                     color: isActive ? colors.white : presidentColor,
                     backgroundColor: isActive ? presidentColor : "transparent",
                     borderColor: presidentColor,
                     "&:hover": {
-                      backgroundColor: isActive ? presidentColor : `${presidentColor}10`,
+                      backgroundColor: isActive
+                        ? presidentColor
+                        : `${presidentColor}10`,
                     },
                   }}
                 >
@@ -118,21 +186,21 @@ const InfoTab = ({ drawerOpen, selectedCardId, selectedDate, onClose, selectedPr
               );
             })}
           </Box>
-
         </Box>
 
         {/* Content */}
         <Box sx={{ flexGrow: 1, mt: 2 }}>
-          {selectedCardId && activeTab === "departments" && (
-            <MinistryDrawerContent selectedDate={selectedDate?.date || selectedDate} />
+          {selectedCard && activeTab === "departments" && (
+            <MinistryDrawerContent
+              selectedDate={selectedDate?.date || selectedDate}
+            />
           )}
-          {selectedCardId && activeTab === "persons" && (
+          {selectedCard && activeTab === "persons" && (
             <PersonsTab selectedDate={selectedDate?.date || selectedDate} />
           )}
         </Box>
       </DialogContent>
     </Dialog>
-
   );
 };
 
