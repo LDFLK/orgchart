@@ -17,10 +17,23 @@ body {
 }
 
 .scroll-wrapper {
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: transparent transparent; /* hide thumb by default */
+  scrollbar-width: thin; 
+  scrollbar-color: transparent transparent;
   transition: scrollbar-color 0.3s;
 }
+.react-datepicker__month-container {
+  width: 100% !important;
+}
 
+.react-datepicker__month-container {
+  width: 100% !important;
+  
+}
+.react-datepicker__day-names {
+  width: 100% !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 
