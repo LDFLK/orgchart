@@ -1,4 +1,11 @@
-import { Box, Card, Typography, Avatar, Dialog, IconButton } from "@mui/material";
+import {
+  Box,
+  Card,
+  Typography,
+  Avatar,
+  Dialog,
+  IconButton,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PresidencyTimeline from "./PresidencyTimeline";
 import MinistryCardGrid from "./MinistryCardGrid";
@@ -9,28 +16,35 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useThemeContext } from "../themeContext";
 import PersonProfile from "./PersonProfile";
+import { withSharing } from "../hooks/withSharing";
+import { componentConfigs } from "../config/componentConfigs";
+import urlParamState from "../hooks/singleSharingUrl";
 
 const ModernView = () => {
-  const { selectedDate, selectedPresident } = useSelector((state) => state.presidency);
+  const { selectedDate, selectedPresident } = useSelector(
+    (state) => state.presidency
+  );
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
-  const presidentRelationDict = useSelector((state) => state.presidency.presidentRelationDict);
+  const presidentRelationDict = useSelector(
+    (state) => state.presidency.presidentRelationDict
+  );
   const { colors } = useThemeContext();
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [drawerMode, setDrawerMode] = useState("ministry");
+  const [drawerOpen, setDrawerOpen] = urlParamState("drawer",false);
+  const [selectedCard, setSelectedCard] = urlParamState("ministry",null);
+  const [drawerMode, setDrawerMode] = urlParamState("drawer_mode","ministry");
   const [selectedDepartment, setSelectedDepartment] = useState(null);
-  const [profileOpen, setProfileOpen] = useState(false); // <-- Dialog open state
+  const [profileOpen, setProfileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { president, openProfile } = location.state || {};
 
-useEffect(() => {
-  if (openProfile && president) {
-    setProfileOpen(true);
-    navigate(location.pathname, { replace: true });
-  }
-}, [openProfile, president, navigate, location.pathname]);
+  useEffect(() => {
+    if (openProfile && president) {
+      setProfileOpen(true);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [openProfile, president, navigate, location.pathname]);
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -50,7 +64,6 @@ useEffect(() => {
     setSelectedDepartment(dep);
     setDrawerMode("department");
   };
-
 
   return (
     <Box
@@ -136,7 +149,13 @@ useEffect(() => {
                       margin: "auto",
                     }}
                   />
-                  <Box sx={{ display: "block", justifyContent: "left", ml: "15px" }}>
+                  <Box
+                    sx={{
+                      display: "block",
+                      justifyContent: "left",
+                      ml: "15px",
+                    }}
+                  >
                     <Typography
                       sx={{
                         fontWeight: 600,
@@ -152,7 +171,8 @@ useEffect(() => {
                     <Typography sx={{ fontSize: 18, color: colors.textMuted }}>
                       {selectedPresident.created.split("-")[0]} -{" "}
                       {(() => {
-                        const relation = presidentRelationDict[selectedPresident.id];
+                        const relation =
+                          presidentRelationDict[selectedPresident.id];
                         if (!relation) return "Unknown";
                         return relation.endTime
                           ? new Date(relation.endTime).getFullYear()
@@ -177,13 +197,21 @@ useEffect(() => {
               maxHeight: 600,
               overflowY: "auto",
               scrollbarWidth: "none", // Firefox
-              "&::-webkit-scrollbar": { display: "none" }, // Chrome, Safari 
+              "&::-webkit-scrollbar": { display: "none" }, // Chrome, Safari
               backgroundColor: colors.backgroundPrimary,
               borderRadius: 3,
             },
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", px: 2, pt: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              px: 2,
+              pt: 2,
+            }}
+          >
             <IconButton onClick={() => setProfileOpen(false)}>
               <CloseIcon sx={{ color: colors.textPrimary }} />
             </IconButton>
@@ -194,9 +222,10 @@ useEffect(() => {
           </Box>
         </Dialog>
 
-
         {/* Card Grid for Modern View */}
-        {selectedDate != null && <MinistryCardGrid onCardClick={handleCardClick} />}
+        {selectedDate != null && (
+          <MinistryCardGrid onCardClick={handleCardClick} />
+        )}
       </Box>
 
       {/* Right Drawer */}
@@ -216,4 +245,4 @@ useEffect(() => {
   );
 };
 
-export default ModernView;
+export default withSharing(ModernView, componentConfigs.ModernView);

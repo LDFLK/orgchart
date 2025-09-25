@@ -41,8 +41,19 @@ const presidencySlice = createSlice({
         state.initialized = true;
       }
     },
+    
+    setSelectedPresidentById: (state, action) => {
+      const presidentId = action.payload;
+      const president = state.presidentDict.find(p => p.id === presidentId);
+      
+      if (president) {
+        state.selectedPresident = president;
+        const index = state.presidentDict.findIndex(p => p.id === presidentId);
+        state.selectedIndex = index;
+      }
+    },
   },
 });
 
-export const { setPresidentDict, setPresidentRelationDict, setSelectedPresident, setSelectedIndex, setSelectedDate, initializeSelection } = presidencySlice.actions;
+export const { setPresidentDict, setPresidentRelationDict, setSelectedPresident, setSelectedIndex, setSelectedDate, initializeSelection, setSelectedPresidentById } = presidencySlice.actions;
 export default presidencySlice.reducer;

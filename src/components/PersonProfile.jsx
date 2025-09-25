@@ -18,7 +18,6 @@ import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import PersonIcon from "@mui/icons-material/Person"
 import personDetails from "./../assets/personImages.json";
 
-/* ------------------- Timeline Component ------------------- */
 const PersonHistoryTimeline = ({ selectedPerson, onTimelineUpdate, presidentRelationDict }) => {
     const [timelineData, setTimelineData] = useState([]);
     const [loading, setLoading] = useState(false);

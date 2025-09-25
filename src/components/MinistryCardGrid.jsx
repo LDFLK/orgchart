@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import MinistryCard from "./MinistryCard";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from "./../services/services";
 import { ClipLoader } from "react-spinners";
 import { setSelectedMinistry } from "../store/allMinistryData";
@@ -31,6 +31,7 @@ import utils from "./../utils/utils";
 import MinistryViewModeToggleButton from "./ministryViewModeToggleButton";
 import GraphComponent from "./graphComponent";
 import { clearTimeout } from "highcharts";
+import urlParamState from "../hooks/singleSharingUrl";
 
 const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
@@ -42,9 +43,9 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [viewMode, setViewMode] = useState("Grid");
+  const [searchText, setSearchText] = urlParamState("SearchBy","");
+  const [filterType, setFilterType] = urlParamState("FilterBy","all");
+  const [viewMode, setViewMode] = urlParamState("viewMode","Grid");
   const { colors } = useThemeContext();
 
   useEffect(() => {
@@ -85,12 +86,10 @@ const MinistryCardGrid = ({ onCardClick }) => {
     }
 
     const delayDebounceFunction = setTimeout(() => {
-
       setFilteredMinistryList(result);
-    }, 2500)
+    }, 2500);
 
-    return () => clearTimeout(delayDebounceFunction)
-
+    return () => clearTimeout(delayDebounceFunction);
   }, [searchText, filterType, activeMinistryList, selectedPresident]);
 
   const searchByText = (searchText, list = activeMinistryList) => {
@@ -570,7 +569,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
         ) : (
           <Box sx={{ width: "100%" }}>
             <Grid
-            position={"relative"}
+              position={"relative"}
               container
               justifyContent="center"
               gap={1}
@@ -601,13 +600,13 @@ const MinistryCardGrid = ({ onCardClick }) => {
                         card={card}
                         onClick={() => {
                           dispatch(setSelectedMinistry(card.id));
-                          onCardClick(card);
+                          onCardClick(card.id);
                         }}
                       />
                     </Grid>
                   ))
                 ) : (
-                  <GraphComponent  activeMinistries={filteredMinistryList} />
+                  <GraphComponent activeMinistries={filteredMinistryList} />
                 )
               ) : activeMinistryList && activeMinistryList.length === 0 ? (
                 <Box

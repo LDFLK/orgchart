@@ -14,6 +14,8 @@ import utils from "../utils/utils";
 import StyledBadge from "../utils/materialCustomAvatar";
 import { useThemeContext } from "../themeContext";
 import modeEnum from "../../src/enums/mode";
+import { useUniversalSharing } from "../hooks/useUniversalSharing";
+import { componentConfigs } from "../config/componentConfigs";
 
 export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   const dispatch = useDispatch();
@@ -37,7 +39,24 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   const scrollRef = useRef(null);
   const avatarRef = useRef(null);
   const dotRef = useRef(null);
-  const initialSelectionDone = useRef(false);
+  const isUpdatingFromUrl = useRef(false);
+
+  //sharing
+  const sharing = useUniversalSharing(componentConfigs.PresidencyTimeline);
+
+  //load state from url
+  useEffect(()=>{
+    if(sharing?.loadFromUrl){
+      const urlState = sharing.loadFromUrl();
+      if(Object.keys(urlState).length > 0){
+        isUpdatingFromUrl.current = true;
+        sharing.applyUrlState(urlState);
+        setTimeout(()=>{
+          isUpdatingFromUrl.current = false;
+        }, 100)
+      }
+    }
+  },[]);
 
   //states
   const [lineStyle, setLineStyle] = useState(null);
@@ -56,26 +75,21 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
     );
   };
 
-  // useEffect(() => {
-  //   if (presidents.length > 0 && !selectedPresident) {
-  //     const lastIndex = presidents.length - 1;
-  //     dispatch(setSelectedIndex(lastIndex));
-  //     dispatch(setSelectedPresident(presidents[lastIndex]));
-  //   }
-  // }, [presidents]);
-
   useEffect(() => {
-    console.log('initialization on loading : ', initialSelectionDone.current)
-  }, [presidents]);
+    if (!isUpdatingFromUrl.current && sharing?.updateUrl && selectedPresident?.id) {
+      const params = {
+        selectedPresident: selectedPresident.id,
+      };
+      
+      if (selectedDate?.date) {
+        params.selectedDate = selectedDate.date;
+      }
+      
+      sharing.updateUrl(params);
+    }
+  }, [selectedPresident?.id, selectedDate?.date, mode]); // Only depend on the actual values
 
-  useEffect(() => {
-    // if (!initialSelectionDone.current && presidents.length > 0) {
-    //   initialSelectionDone.current = true;
-    //   const lastIndex = presidents.length - 1;
-    //   dispatch(setSelectedIndex(lastIndex));
-    //   dispatch(setSelectedPresident(presidents[lastIndex]));
-    // }
-    
+  useEffect(() => {   
     updateScrollButtons();
   }, [selectedPresident]);
 
@@ -187,9 +201,11 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
 
       dispatch(setGazetteData(transformed));
 
-      if (transformed.length > 0) {
-        console.log('this is the selected date : ', transformed[transformed.length - 1])
+      if (!isUpdatingFromUrl.current && !selectedDate && transformed.length > 0) {
+        console.log('Setting default date (last):', transformed[transformed.length - 1]);
         dispatch(setSelectedDate(transformed[transformed.length - 1]));
+      } else if (selectedDate) {
+        console.log('Keeping existing selected date:', selectedDate.date);
       }
     } catch (e) {
       console.log(`Error fetching gazette data : ${e.message}`);

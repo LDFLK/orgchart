@@ -5,10 +5,11 @@ import MinistryDrawerContent from "./MinistryDrawerContent";
 import { useState } from "react";
 import { useThemeContext } from "../themeContext";
 import PersonsTab from "./PersonsTab";
+import urlParamState from "../hooks/singleSharingUrl";
 
-const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPresident }) => {
+const InfoTab = ({ drawerOpen, selectedCardId, selectedDate, onClose, selectedPresident }) => {
   const { colors } = useThemeContext();
-  const [activeTab, setActiveTab] = useState("departments");
+  const [activeTab, setActiveTab] = urlParamState("tab","departments");
 
   const presidentColor = selectedPresident?.themeColorLight || colors.textPrimary;
 
@@ -74,7 +75,7 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
                 },
               }}
             >
-              {selectedCard?.name?.split(":")[0] || "No Ministry Selected"}
+              {/* {selectedCard?.name?.split(":")[0] || "No Ministry Selected"} */}
             </Typography>
           </Box>
           
@@ -122,10 +123,10 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
 
         {/* Content */}
         <Box sx={{ flexGrow: 1, mt: 2 }}>
-          {selectedCard && activeTab === "departments" && (
+          {selectedCardId && activeTab === "departments" && (
             <MinistryDrawerContent selectedDate={selectedDate?.date || selectedDate} />
           )}
-          {selectedCard && activeTab === "persons" && (
+          {selectedCardId && activeTab === "persons" && (
             <PersonsTab selectedDate={selectedDate?.date || selectedDate} />
           )}
         </Box>

@@ -38,7 +38,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
   );
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState(null); // local state for timeline
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
 
   const navigate = useNavigate();
 
