@@ -35,7 +35,7 @@ export default function MinistryViewModeToggleButton({
         onClick={() => setViewMode("Graph")}
       >
         <PiGraph className="mr-2 text-xl" />
-        Connections
+        Graph
       </button>
     </div>
   );

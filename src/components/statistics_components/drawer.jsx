@@ -42,8 +42,8 @@ export default function Drawer({
 
   return (
     <div
-      className={`absolute right-0 z-[100] p-4 transition-all duration-300  ease-in-out ${
-        expandDrawer ? `w-1/2 h-screen shadow-xl` : "w-0"
+      className={`absolute right-0 z-[100] transition-all duration-300  ease-in-out ${
+        expandDrawer ? `w-1/2 h-screen shadow-xl p-4` : "w-0"
       }`}
       style={{
         backgroundColor: colors.backgroundPrimary,
