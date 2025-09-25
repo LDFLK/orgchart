@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function YearRangeSelector({
-    startYear = 2010,
+    startYear = 2019,
     dates = ["2010-09-23T00:00:00Z",
         "2024-09-23T00:00:00Z", "2024-09-25T00:00:00Z", "2024-09-25T00:00:00Z",
         "2024-11-18T00:00:00Z", "2024-11-18T00:00:00Z", "2024-09-27T00:00:00Z",
@@ -18,14 +18,18 @@ export default function YearRangeSelector({
         "2023-12-22T00:00:00Z", "2024-02-27T00:00:00Z", "2024-08-23T00:00:00Z",
         "2024-08-23T00:00:00Z", "2025-08-23T00:00:00Z"
     ],
-    latestPresStartDate = new Date(Date.UTC(2022, 4, 24)),
+    latestPresStartDate = new Date(Date.UTC(2024, 8, 23)),
     onDateChange,
 }) {
 
     const endYear = new Date().getFullYear();
     const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
 
-    const [selectedRange, setSelectedRange] = useState([2022, endYear]);
+    // Ensure selectedRange is within valid bounds
+    const initialStartYear = Math.max(startYear, latestPresStartDate.getFullYear());
+    const initialEndYear = Math.min(endYear, new Date().getFullYear());
+
+    const [selectedRange, setSelectedRange] = useState([initialStartYear, initialEndYear]);
     const [startDate, setStartDate] = useState(latestPresStartDate);
     const [endDate, setEndDate] = useState(new Date());
     const [calendarOpen, setCalendarOpen] = useState(false);
@@ -38,6 +42,16 @@ export default function YearRangeSelector({
     const containerRef = useRef(null);
     const dragStartRef = useRef(null);
     const scrollWrapperRef = useRef(null);
+
+    useEffect(() => {
+        const latestYear = latestPresStartDate.getFullYear();
+        const validStartYear = Math.max(startYear, latestYear);
+        const validEndYear = Math.min(endYear, new Date().getFullYear());
+
+        setStartDate(latestPresStartDate);
+        setSelectedRange([validStartYear, validEndYear]);
+        setTempStartDate(latestPresStartDate);
+    }, [latestPresStartDate, endYear, startYear]);
 
     // Preprocess dates into a lookup: year -> month -> count
     const dateCounts = dates.reduce((acc, d) => {
@@ -62,6 +76,23 @@ export default function YearRangeSelector({
         }, {})
     ).current;
 
+    // Update yearData when years array changes
+    React.useEffect(() => {
+        const newYearData = years.reduce((acc, year) => {
+            if (dateCounts[year]) {
+                acc[year] = dateCounts[year];
+            } else {
+                acc[year] = Array.from({ length: 12 }, () => 0);
+            }
+            return acc;
+        }, {});
+
+        // Update the ref
+        Object.keys(newYearData).forEach(year => {
+            yearData[year] = newYearData[year];
+        });
+    }, [startYear, endYear, years]);
+
     // Utility: check if endDate is today
     function isEndDateToday() {
         const today = new Date();
@@ -77,9 +108,12 @@ export default function YearRangeSelector({
     // Get overlay metrics (left, width) for selected range
     function getPreciseOverlayMetrics() {
         if (!preciseMode) {
+            const startPos = getYearPosition(selectedRange[0]);
+            const endPos = getYearPosition(selectedRange[1]);
+            const yearWidth = 100 / years.length;
             return {
-                left: `${getYearPosition(selectedRange[0])}%`,
-                width: `${getYearPosition(selectedRange[1]) - getYearPosition(selectedRange[0]) + 100 / years.length}%`,
+                left: `${startPos}%`,
+                width: `${endPos - startPos + yearWidth}%`,
             };
         }
 
@@ -118,9 +152,12 @@ export default function YearRangeSelector({
     // Get drag handle positions
     function getHandlePositions() {
         if (!preciseMode) {
+            const startPos = getYearPosition(selectedRange[0]);
+            const endPos = getYearPosition(selectedRange[1]);
+            const yearWidth = 100 / years.length;
             return {
-                startLeft: `${getYearPosition(selectedRange[0])}%`,
-                endLeft: `${getYearPosition(selectedRange[1]) + 100 / years.length}%`,
+                startLeft: `${startPos}%`,
+                endLeft: `${endPos + yearWidth}%`,
             };
         }
 
@@ -159,6 +196,12 @@ export default function YearRangeSelector({
     // Helper: get position % for a year
     const getYearPosition = (year) => {
         const index = years.indexOf(year);
+        if (index === -1) {
+            // If year is not in range, clamp it to the nearest valid year
+            if (year < startYear) return 0;
+            if (year > endYear) return 100;
+            return 0;
+        }
         return (index / years.length) * 100;
     };
 
@@ -216,6 +259,9 @@ export default function YearRangeSelector({
         setPreciseMode(false);
     };
 
+    // const yearWidth = React.useMemo(() => {
+    //     return Math.max(80, Math.min(150, 800 / years.length)); // Min 80px, max 150px, or proportional
+    // }, [years.length]);
     const handleMouseMove = (e) => {
         if (!isDragging || !containerRef.current) return;
 
@@ -227,14 +273,20 @@ export default function YearRangeSelector({
 
         if (isDragging === "start") {
             const newRange = [Math.min(year, selectedRange[1]), selectedRange[1]];
-            setSelectedRange(newRange);
-            updateDatesFromRange(newRange);
+            // Ensure the range is within valid bounds
+            if (newRange[0] >= startYear && newRange[0] <= endYear) {
+                setSelectedRange(newRange);
+                updateDatesFromRange(newRange);
+            }
         }
 
         if (isDragging === "end") {
             const newRange = [selectedRange[0], Math.max(year, selectedRange[0])];
-            setSelectedRange(newRange);
-            updateDatesFromRange(newRange);
+            // Ensure the range is within valid bounds
+            if (newRange[1] >= startYear && newRange[1] <= endYear) {
+                setSelectedRange(newRange);
+                updateDatesFromRange(newRange);
+            }
         }
     };
 
@@ -251,17 +303,22 @@ export default function YearRangeSelector({
 
         // Clamp to available years
         if (newStart < startYear) {
-            newEnd += startYear - newStart;
+            const diff = startYear - newStart;
+            newEnd = Math.min(endYear, selectedRange[1] + diff);
             newStart = startYear;
         }
         if (newEnd > endYear) {
-            newStart -= newEnd - endYear;
+            const diff = newEnd - endYear;
+            newStart = Math.max(startYear, selectedRange[0] - diff);
             newEnd = endYear;
         }
 
-        const newRange = [newStart, newEnd];
-        setSelectedRange(newRange);
-        updateDatesFromRange(newRange);
+        // Ensure we don't have an invalid range
+        if (newStart <= newEnd && newStart >= startYear && newEnd <= endYear) {
+            const newRange = [newStart, newEnd];
+            setSelectedRange(newRange);
+            updateDatesFromRange(newRange);
+        }
 
         dragStartRef.current = e.clientX;
     };
@@ -285,10 +342,12 @@ export default function YearRangeSelector({
 
     // MiniChart component
     const MiniChart = ({ data, year, isInRange }) => {
-        const maxValue = Math.max(...data);
-        const points = data
+        // Ensure data is valid and has values
+        const validData = Array.isArray(data) && data.length > 0 ? data : Array(12).fill(0);
+        const maxValue = Math.max(...validData, 1); // Ensure maxValue is at least 1 to avoid division by zero
+        const points = validData
             .map((value, index) => {
-                const x = (index / (data.length - 1)) * 100;
+                const x = (index / (validData.length - 1)) * 100;
                 const y = 20 + (100 - (value / maxValue) * 80);
                 return `${x},${y}`;
             })
@@ -443,7 +502,7 @@ export default function YearRangeSelector({
                                 <div
                                     key={year}
                                     className={`relative transition-all duration-200 ${isInRange ? "opacity-100" : "opacity-40"} border-l-1 border-r-1 border-gray-500`}
-                                    style={{ height: "80px", width: "120px" }}
+                                    style={{ height: "80px", flex: "1 0 0" }}
                                     onClick={() => {
                                         setSelectedRange([year, year]);
                                         const newStartDate = new Date(Date.UTC(year, 0, 1));
@@ -460,7 +519,7 @@ export default function YearRangeSelector({
                                         setEndDate(newEndDate);
                                     }}
                                 >
-                                    <MiniChart data={yearData[year]} year={year} isInRange={isInRange} />
+                                    <MiniChart data={yearData[year] || Array(12).fill(0)} year={year} isInRange={isInRange} />
                                     <div className={`absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${isInRange ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}>{year}</div>
                                 </div>
                             )
