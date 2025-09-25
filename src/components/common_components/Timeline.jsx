@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { set } from "date-fns";
 
 export default function YearRangeSelector({
     startYear,
@@ -24,6 +25,9 @@ export default function YearRangeSelector({
     const [tempStartDate, setTempStartDate] = useState(startDate);
     const [tempEndDate, setTempEndDate] = useState(endDate);
     const [preciseMode, setPreciseMode] = useState(true);
+    const [activePreset, setActivePreset] = useState(null);
+    const [activePresident, setActivePresident] = useState("");
+    //const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: '' });
 
     const containerRef = useRef(null);
     const dragStartRef = useRef(null);
@@ -216,32 +220,14 @@ export default function YearRangeSelector({
         });
     }, [overlayMetrics, selectedRange]);
 
-    const updateDatesFromRange = (range) => {
-        const [startYearVal, endYearVal] = range;
-
-        // Start date is always Jan 1 of start year
-        const newStartDate = new Date(Date.UTC(startYearVal, 0, 1));
-
-        // End date: if current year, use today; otherwise, use Dec 31
-        const today = new Date();
-        const currentYear = today.getUTCFullYear();
-        let newEndDate;
-        if (endYearVal === currentYear) {
-            newEndDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-        } else {
-            newEndDate = new Date(Date.UTC(endYearVal, 11, 31));
-        }
-
-        setStartDate(newStartDate);
-        setEndDate(newEndDate);
-    };
-
     // Dragging logic
     const handleMouseDown = (e, handle) => {
         e.stopPropagation();
         e.preventDefault();
         setIsDragging(handle);
         setPreciseMode(true); // Enable precise mode when dragging
+        setActivePreset(null);
+        setActivePresident("");
     };
 
     const handleMouseMove = (e) => {
@@ -406,8 +392,40 @@ export default function YearRangeSelector({
 
         const selectedWidth = endPercent - startPercent;
 
+        // const handleMouseMove = (e) => {
+        //     const rect = e.currentTarget.getBoundingClientRect();
+        //     const x = e.clientX - rect.left;
+        //     const percentage = x / rect.width;
+        //     const monthIndex = Math.floor(percentage * 12);
+        //     const clampedMonth = Math.max(0, Math.min(11, monthIndex));
+
+        //     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        //         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        //     const monthName = monthNames[clampedMonth];
+        //     const count = validData[clampedMonth];
+
+        //     setTooltip({
+        //         show: true,
+        //         x: e.clientX,
+        //         y: e.clientY - 10,
+        //         content: `${monthName} ${year}: ${count} gazettes`
+        //     });
+        // };
+
+        // const handleMouseLeave = () => {
+        //     setTooltip({ show: false, x: 0, y: 0, content: '' });
+        // };
+
         return (
-            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <svg
+                width="100%"
+                height="100%"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+            // onMouseMove={handleMouseMove}
+            //onMouseLeave={handleMouseLeave}
+            //style={{ cursor: 'crosshair' }}
+            >
                 <defs>
                     <linearGradient id={`gradient-unselected-${year}`} x1="0%" y1="0%" x2="0%" y2="100%">
                         <stop offset="0%" stopColor="#93c5fd" stopOpacity="0.8" />
@@ -466,33 +484,96 @@ export default function YearRangeSelector({
     // UI rendering
     return (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-6xl mx-auto">
+
             {/* Presets and calendar */}
-            <div className="flex gap-2 mb-6 flex-wrap">
-                {[{ label: "1Y", years: 1 }, { label: "2Y", years: 2 }, { label: "3Y", years: 3 }, { label: "5Y", years: 5 }, { label: "All", years: endYear - startYear + 1 }].map((preset) => (
+            <div className="flex gap-2 mb-6 flex-wrap sm:justify-start justify-center">
+                {/* Year presets */}
+                {[
+                    { label: "1Y", years: 1 },
+                    { label: "2Y", years: 2 },
+                    { label: "3Y", years: 3 },
+                    { label: "5Y", years: 5 },
+                    { label: "All", years: endYear - startYear + 1 },
+                ].map((preset) => (
                     <button
                         key={preset.label}
-                        onClick={preset.label === "All" ? () => { setStartDate(new Date(Date.UTC(startYear, 0, 1))); setEndDate(new Date()); setSelectedRange([startYear, endYear]); setPreciseMode(true) } : () => {
-                            const today = new Date();
-                            const start = new Date(Date.UTC(today.getUTCFullYear() - preset.years, today.getUTCMonth(), today.getUTCDate()));
-                            setStartDate(start); setEndDate(today); setSelectedRange([start.getUTCFullYear(), today.getUTCFullYear()]); setPreciseMode(true)
+                        onClick={() => {
+                            if (preset.label === "All") {
+                                setStartDate(new Date(Date.UTC(startYear, 0, 1)));
+                                setEndDate(new Date());
+                                setSelectedRange([startYear, endYear]);
+                            } else {
+                                const today = new Date();
+                                const start = new Date(
+                                    Date.UTC(
+                                        today.getUTCFullYear() - preset.years,
+                                        today.getUTCMonth(),
+                                        today.getUTCDate()
+                                    )
+                                );
+                                setStartDate(start);
+                                setEndDate(today);
+                                setSelectedRange([start.getUTCFullYear(), today.getUTCFullYear()]);
+                            }
+                            setPreciseMode(true);
+                            setActivePreset(preset.label);
+                            setActivePresident("");
                         }}
-                        className="px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activePreset === preset.label
+                            ? "bg-blue-600 text-white dark:bg-blue-600"
+                            : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
+                            }`}
                     >
                         {preset.label}
                     </button>
                 ))}
+                {/* Presidents dropdown */}
+                <select
+                    value={activePresident}
+                    onChange={(e) => {
+                        const selected = e.target.value;
+                        const presidents = {
+                            Gota: { start: "2019-11-18", end: "2022-07-14" },
+                            Ranil: { start: "2022-07-21", end: "2024-09-23" },
+                            Anura: { start: "2024-09-23", end: new Date().toISOString().slice(0, 10) },
+                        };
+
+                        if (selected && presidents[selected]) {
+                            const { start, end } = presidents[selected];
+                            const startDateObj = new Date(start);
+                            const endDateObj = new Date(end);
+                            setStartDate(startDateObj);
+                            setEndDate(endDateObj);
+                            setSelectedRange([startDateObj.getUTCFullYear(), endDateObj.getUTCFullYear()]);
+                            setPreciseMode(true);
+                            setActivePreset(null);
+                            setActivePresident(selected);
+                        }
+                    }}
+                    className="px-4 py-2 text-sm font-medium rounded-lg transition-colors
+               bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600
+               text-gray-700 dark:text-gray-300"
+                >
+                    <option value="" disabled>
+                        President
+                    </option>
+                    <option value="Gota">Gotabaya</option>
+                    <option value="Ranil">Ranil</option>
+                    <option value="Anura">Anura</option>
+                </select>
+
 
                 {/* Calendar button */}
-                <div className="ml-auto relative">
+                <div className="ml-auto relative w-full sm:w-auto">
                     <button
                         onClick={() => { setTempStartDate(startDate); setTempEndDate(endDate); setCalendarOpen(o => !o) }}
-                        className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                        className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors"
                     >
-                        📅 Date Range
+                        📅 Select Range
                     </button>
                     {calendarOpen && (
-                        <div className="absolute right-0 mt-2 z-50 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
-                            <div className="flex gap-4">
+                        <div className="absolute right-0 mt-2 z-50 w-full sm:w-auto bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
+                            <div className="flex flex-col sm:flex-row gap-4">
                                 <div className="flex-1 flex flex-col">
                                     <p className="text-xs text-gray-500 mb-2">From</p>
                                     <DatePicker selected={tempStartDate} onChange={setTempStartDate} inline monthsShown={1} minDate={new Date(startYear, 0, 1)} maxDate={new Date()} />
@@ -502,9 +583,9 @@ export default function YearRangeSelector({
                                     <DatePicker selected={tempEndDate} onChange={setTempEndDate} inline monthsShown={1} minDate={tempStartDate} maxDate={new Date()} />
                                 </div>
                             </div>
-                            <div className="flex justify-end gap-2 mt-4">
+                            <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
                                 <button onClick={() => setCalendarOpen(false)} className="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded-lg">Cancel</button>
-                                <button onClick={() => { if (tempStartDate && tempEndDate && tempStartDate <= tempEndDate) { setStartDate(tempStartDate); setEndDate(tempEndDate); setSelectedRange([tempStartDate.getUTCFullYear(), tempEndDate.getUTCFullYear()]); setPreciseMode(true); setCalendarOpen(false) } }} className="px-4 py-2 bg-blue-600 text-white rounded-lg">Apply</button>
+                                <button onClick={() => { if (tempStartDate && tempEndDate && tempStartDate <= tempEndDate) { setStartDate(tempStartDate); setEndDate(tempEndDate); setSelectedRange([tempStartDate.getUTCFullYear(), tempEndDate.getUTCFullYear()]); setPreciseMode(true); setCalendarOpen(false); setActivePreset(null); setActivePresident(""); } }} className="px-4 py-2 bg-blue-600 text-white rounded-lg">Apply</button>
                             </div>
                         </div>
                     )}
@@ -515,8 +596,9 @@ export default function YearRangeSelector({
             <div
                 ref={scrollWrapperRef}
                 className="overflow-x-auto overflow-y-hidden scroll-wrapper"
-                style={{ paddingLeft: "8px"}}
+                style={{ paddingLeft: "8px" }}
             >
+
                 <div ref={containerRef} className="relative bg-gray-50 dark:bg-gray-700 mb-6" style={{ height: "70px", minWidth: `${years.length * 80}px` }}>
                     <div className="flex h-full items-end">
                         {years.map(year => {
@@ -540,6 +622,8 @@ export default function YearRangeSelector({
 
                                         setStartDate(newStartDate);
                                         setEndDate(newEndDate);
+                                        setActivePreset(null);
+                                        setActivePresident("");
                                     }}
                                 >
                                     <MiniChart data={yearData[year] || Array(12).fill(0)} year={year} isInRange={isInRange} />
@@ -558,7 +642,19 @@ export default function YearRangeSelector({
                     {/* Drag handles */}
                     <div className="absolute top-9 transform -translate-y-1/2 -translate-x-1/2 w-4 h-6 bg-blue-600 rounded cursor-ew-resize flex items-center justify-center shadow hover:bg-blue-700 z-20" style={{ left: handlePositions.startLeft }} onMouseDown={e => handleMouseDown(e, "start")}><DragIndicatorIcon className="w-4 h-6 text-white" /></div>
                     <div className="absolute top-9 transform -translate-y-1/2 -translate-x-1/2 w-4 h-6 bg-blue-600 rounded cursor-ew-resize flex items-center justify-center shadow hover:bg-blue-700 z-20" style={{ left: handlePositions.endLeft }} onMouseDown={e => handleMouseDown(e, "end")}><DragIndicatorIcon className="w-4 h-6 text-white" /></div>
-
+                    {/* Tooltip */}
+                    {/* {tooltip.show && (
+                        <div
+                            className="fixed bg-gray-900 text-white px-2 py-1 rounded text-xs pointer-events-none z-50"
+                            style={{
+                                left: tooltip.x + 10,
+                                top: tooltip.y - 30,
+                                transform: 'translateX(-50%)'
+                            }}
+                        >
+                            {tooltip.content}
+                        </div>
+                    )} */}
                 </div>
             </div>
 

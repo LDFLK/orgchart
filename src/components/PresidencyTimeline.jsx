@@ -181,7 +181,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
     }
   }, [selectedPresident, userSelectedDateRange]);
 
-    const filterPresidentsByDateRange = (startDate, endDate) => {
+  const filterPresidentsByDateRange = (startDate, endDate) => {
     if (!startDate || !endDate) {
       setFilteredPresidents(presidents);
 
@@ -204,7 +204,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
         ? new Date(relation.endTime.split("T")[0])
         : new Date();
 
-      return presStart <= rangeEnd && presEnd >= rangeStart;
+      return presStart < rangeEnd && presEnd > rangeStart;
     });
 
     setFilteredPresidents(filtered);
@@ -241,10 +241,9 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
 
       let filteredDates = [];
       if (finalStart <= finalEnd) {
-        console.log('CLASSIC DATES', gazetteDateClassic);
         filteredDates = gazetteDateClassic.filter(dateStr => {
           const d = new Date(dateStr);
-          return d >= finalStart && d <= finalEnd;
+          return d >= finalStart && d < finalEnd;
         });
       }
 
@@ -285,7 +284,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
             alignItems: "center",
             gap: 2,
             px: { xs: 1, sm: 2 },
-            width: "100%", 
+            width: "100%",
           }}
         >
           <YearRangeSelector
@@ -301,7 +300,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                 display: "flex",
                 alignItems: "center",
                 width: "100%",
-                maxWidth: { xs: "100vw", sm: "90vw", md: "80vw", lg: "1200px" }, 
+                maxWidth: { xs: "100vw", sm: "90vw", md: "80vw", lg: "1200px" },
                 overflow: "hidden",
                 minWidth: 0,
               }}
@@ -357,8 +356,8 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                 sx={{
                   display: "flex",
                   overflowX: "auto",
-                  gap: { xs: 8, sm: 14 }, 
-                  padding: { xs: 2, sm: 4 }, 
+                  gap: { xs: 8, sm: 14 },
+                  padding: { xs: 2, sm: 4 },
                   paddingLeft: { xs: 3, sm: 6 },
                   paddingRight: { xs: 8, sm: 14 },
                   flexWrap: "nowrap",
@@ -397,7 +396,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                             textAlign: "center",
                             transform: isSelected ? "scale(1.3)" : "scale(1)",
                             transition: "all 0.3s ease",
-                            minWidth: { xs: 60, sm: 80 }, 
+                            minWidth: { xs: 60, sm: 80 },
                           }}
                         >
                           {index === filteredPresidents.length - 1 ? ( //Change here the active stylized button
