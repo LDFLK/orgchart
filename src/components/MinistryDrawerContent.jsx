@@ -163,13 +163,12 @@ const MinistryDrawerContent = ({ selectedDate }) => {
                   fontFamily: "poppins",
                 }}
               >
-                Department History Timeline
-                {" "}
-                                <InfoTooltip
-                                  message="Ministers the department was under throughout the history"
-                                  iconColor={colors.textPrimary}
-                                  iconSize={14}
-                                />
+                Department History Timeline{" "}
+                <InfoTooltip
+                  message="Ministers the department was under throughout the history"
+                  iconColor={colors.textPrimary}
+                  iconSize={14}
+                />
               </Typography>
 
               <Button
@@ -246,8 +245,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
                       color: colors.textMuted,
                     }}
                   >
-                    Total Departments
-                    {" "}
+                    Total Departments{" "}
                     <InfoTooltip
                       message="Total of departments under the minister on this date"
                       iconColor={colors.textPrimary}
@@ -275,8 +273,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
                       color: colors.textMuted,
                     }}
                   >
-                    New Departments
-                    {" "}
+                    New Departments{" "}
                     <InfoTooltip
                       message="Total of newly added departments to this minister on this date"
                       iconColor={colors.textPrimary}

@@ -6,8 +6,8 @@ import React, {
   useMemo,
 } from "react";
 import ForceGraph3D from "react-force-graph-3d";
-import api from "./../services/services";
-import modeEnum from "../../src/enums/mode";
+import api from "../services/services";
+import modeEnum from "../enums/mode";
 import utils from "../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -16,26 +16,24 @@ import {
   setSelectedDate,
 } from "../store/presidencySlice";
 
-import Drawer from "../components/statistics_components/drawer";
-import PresidencyTimeline from "../components/PresidencyTimeline";
+import Drawer from "./statistics_components/drawer";
 import SpriteText from "three-spritetext";
-import AlertToOrgchart from "../components/statistics_components/alertToOrgchart";
 import WebGLChecker, {
   isWebGLAvailable,
-} from "../components/common_components/webgl_checker";
-import LoadingComponent from "../components/common_components/loading_component";
+} from "./common_components/webgl_checker";
+import LoadingComponent from "./common_components/loading_component";
 import { useThemeContext } from "../themeContext";
 import { useNavigate } from "react-router-dom";
-import { jaJP } from "@mui/x-date-pickers/locales";
 
-export default function StatisticMainPage() {
+export default function GraphComponent({ activeMinistries }) {
   const [loading, setLoading] = useState(true);
   const [webgl, setWebgl] = useState(true);
   const [expandDrawer, setExpandDrawer] = useState(true);
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState(null);
-  
+  const [filterGraphBy, setFilterGraphBy] = useState(null);
+
   const [mode, setMode] = useState("Structure");
 
   const [allNodes, setAllNodes] = useState([]);
@@ -44,6 +42,10 @@ export default function StatisticMainPage() {
   const [departmentDictionary, setDepartmentDictionary] = useState({});
   const [personDictionary, setPersonDictionary] = useState({});
   const [ministerToDepartments, setMinisterToDepartment] = useState({});
+  const [filteredGraphData, setFilteredGraphData] = useState({
+    nodes: [],
+    links: [],
+  });
 
   const [isDateTaken, setIsDateTake] = useState(false);
 
@@ -59,18 +61,14 @@ export default function StatisticMainPage() {
   const selectedPresident = useSelector(
     (state) => state.presidency.selectedPresident
   );
-  const gazetteDataClassic = useSelector(
-    (state) => state.gazettes.gazetteData
-  );
+  const gazetteDataClassic = useSelector((state) => state.gazettes.gazetteData);
   const allMinistryData = useSelector(
     (state) => state.allMinistryData.allMinistryData
   );
   const allDepartmentData = useSelector(
     (state) => state.allDepartmentData.allDepartmentData
   );
-  const allPersonData = useSelector(
-    (state) => state.allPerson.allPerson
-  );
+  const allPersonData = useSelector((state) => state.allPerson.allPerson);
 
   useEffect(() => {
     const checkWebGL = () => {
@@ -117,21 +115,8 @@ export default function StatisticMainPage() {
 
   // Initial selection of president & date
   useEffect(() => {
-    if (!selectedPresident && presidents.length > 0) {
-      const lastIndex = presidents.length - 1;
-      dispatch(setSelectedIndex(lastIndex));
-      dispatch(setSelectedPresident(presidents[lastIndex]));
-    }
-
     if (gazetteDataClassic?.length > 0) {
-      console.log('gazette data fix')
-      console.log(gazetteDataClassic)
-      dispatch(
-        setSelectedDate(
-          gazetteDataClassic[gazetteDataClassic.length - 1],
-        )
-      );
-      setIsDateTake(true)
+      setIsDateTake(true);
     }
   }, [presidents, gazetteDataClassic]);
 
@@ -141,21 +126,14 @@ export default function StatisticMainPage() {
       setLoading(true);
 
       try {
-        // Fetch active ministries
-        const activeMinistry = await api.fetchActiveMinistries(
-          selectedDate,
-          allMinistryData,
-          selectedPresident
-        );
-
         //create a dictionary
-        const ministryDic = activeMinistry.children.reduce((acc, ministry) => {
+        const ministryDic = activeMinistries.reduce((acc, ministry) => {
           acc[ministry.id] = {
             id: ministry.id,
             name: ministry.name,
             group: 2,
             color: "#D3AF37",
-            type: "minister"
+            type: "minister",
           };
           return acc;
         }, {});
@@ -193,7 +171,7 @@ export default function StatisticMainPage() {
               terminated: department.terminated,
               group: 3,
               // color: "#D3AF37",
-              type: "department"
+              type: "department",
             };
             return acc;
           }, {});
@@ -225,7 +203,9 @@ export default function StatisticMainPage() {
           }
         );
 
-        const allRelationsPerson = (await Promise.all(relationPromisesPerson)).flat();
+        const allRelationsPerson = (
+          await Promise.all(relationPromisesPerson)
+        ).flat();
 
         // Build person dictionary
         const personDic = allRelationsPerson
@@ -238,6 +218,7 @@ export default function StatisticMainPage() {
               created: person.created,
               kind: person.kind,
               terminated: person.terminated,
+              type: "person",
             };
             return acc;
           }, {});
@@ -316,10 +297,14 @@ export default function StatisticMainPage() {
           govNode,
           ...Object.values(ministryDic),
           ...Object.values(departmentDic),
-          ...Object.values(personDic)
+          ...Object.values(personDic),
         ];
 
-        const allGraphLinks = [...ministryToGovLinks, ...allRelations, ...allRelationsPerson,];
+        const allGraphLinks = [
+          ...ministryToGovLinks,
+          ...allRelations,
+          ...allRelationsPerson,
+        ];
 
         if (focusRef.current) {
           focusRef.current.stopAnimation?.(); // important: prevent ticking
@@ -342,7 +327,7 @@ export default function StatisticMainPage() {
     if (isDateTaken && selectedDate && selectedPresident) {
       buildGraph();
     }
-  }, [selectedDate, selectedPresident, isDateTaken]);
+  }, [selectedDate, selectedPresident, isDateTaken, activeMinistries]);
 
   // Handle WebGL context loss and restoration
   useEffect(() => {
@@ -388,13 +373,56 @@ export default function StatisticMainPage() {
     }
   }, [focusRef.current]);
 
+  useEffect(() => {
+    try {
+      setLoading(true);
+      setTimeout(() => {
+        var newGraph = { nodes: [], links: [] };
+
+        const nodes = graphData.nodes.filter((node) => {
+          return node.type === filterGraphBy;
+        });
+
+        const relatedLinks = graphData.links.filter((link) => {
+          return nodes.some((node) => node.id === link.target.id);
+        });
+
+        relatedLinks.forEach((link) => {
+          if (!newGraph.nodes.some((node) => node.id === link.source.id)) {
+            const sourceNode = graphData.nodes.find(
+              (node) => node.id === link.source.id
+            );
+            if (sourceNode) {
+              newGraph.nodes.push(sourceNode);
+            }
+          }
+
+          if (!newGraph.nodes.some((node) => node.id === link.target.id)) {
+            const targetNode = graphData.nodes.find(
+              (node) => node.id === link.target.id
+            );
+            if (targetNode) {
+              newGraph.nodes.push(targetNode);
+            }
+          }
+
+          newGraph.links.push(link);
+        });
+
+        setFilteredGraphData(newGraph);
+        setLoading(false);
+      }, 5000);
+    } catch (e) {
+      console.log("filtering graph failed : ", e);
+    }
+  }, [filterGraphBy]);
+
   // Memoized graph data
   const graphData = useMemo(() => {
     if (loading || allNodes.length === 0 || relations.length === 0) {
       return { nodes: [], links: [] };
     }
 
-    // Validate that all nodes have required properties
     const validNodes = allNodes.filter(
       (node) =>
         node &&
@@ -402,7 +430,6 @@ export default function StatisticMainPage() {
         typeof node.name !== "undefined"
     );
 
-    // Validate that all links have required properties
     const validLinks = relations.filter(
       (link) =>
         link &&
@@ -414,9 +441,8 @@ export default function StatisticMainPage() {
       nodes: validNodes,
       links: validLinks,
     };
-  }, [allNodes, relations, loading]);
+  }, [allNodes, relations, loading, filteredGraphData]);
 
-  // Memoized node rendering function
   const getNodeObject = useCallback(
     (node) => {
       const sprite = new SpriteText(utils.makeMultilineText(node.name));
@@ -425,7 +451,7 @@ export default function StatisticMainPage() {
       sprite.fontFace = "poppins";
       sprite.center.y = -0.5;
       sprite.color = colors.textPrimary;
-      // sprite.padding = 4;
+      sprite.padding = 4;
       sprite.borderRadius = 3;
       return sprite;
     },
@@ -558,7 +584,7 @@ export default function StatisticMainPage() {
         color: selectedNode.color,
       };
 
-      setMode("Statistics")
+      setMode("Statistics");
       handleClosePopup();
     }
   }, [selectedNode, navigate, handleClosePopup]);
@@ -579,13 +605,32 @@ export default function StatisticMainPage() {
       >
         <div className="text-lg font-semibold mb-2">{selectedNode.name}</div>
         <div className="flex gap-2">
-          {selectedNode.type == "department" && (<button
-            onClick={handleNavigateToPage}
-            className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
-            style={{ backgroundColor: colors.primary || "#1976d2" }}
-          >
-            View Details
-          </button>)}
+          {selectedNode.type == "department" ? (
+            <>
+              <button
+                onClick={handleNavigateToPage}
+                className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
+                style={{ backgroundColor: colors.primary || "#1976d2" }}
+              >
+                View Details
+              </button>
+              <button
+                onClick={handleNavigateToPage}
+                className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
+                style={{ backgroundColor: colors.primary || "#1976d2" }}
+              >
+                Xplore Statistics
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={handleNavigateToPage}
+              className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
+              style={{ backgroundColor: colors.primary || "#1976d2" }}
+            >
+              View Details
+            </button>
+          )}
           <button
             onClick={handleClosePopup}
             className="text-sm px-3 py-1 rounded border cursor-pointer"
@@ -601,164 +646,226 @@ export default function StatisticMainPage() {
     );
   };
 
+  const typeMap = {
+    Ministers: "minister",
+    Departments: "department",
+    Persons: "person",
+  };
+  const ColorMap = {
+    Ministers: "blue",
+    Departments: "green",
+    Persons: "red",
+  };
+
   return (
     <>
-      <Drawer
-        expandDrawer={expandDrawer}
-        setExpandDrawer={setExpandDrawer}
-        ministerDictionary={ministryDictionary}
-        departmentDictionary={departmentDictionary}
-        ministerToDepartments={ministerToDepartments}
-        onMinistryClick={handleNodeClick}
-        mode={mode}
-        setMode={setMode}
-        selectedNode={selectedNode}
-      />
-      <div
-        className="relative"
-        style={{
-          marginRight: expandDrawer ? window.innerWidth / 2 : 0,
-          transition: "margin-right 0.3s ease",
-          height: "100vh",
-          overflow: "hidden",
-        }}
-      >
-        <div className="flex justify-start items-start h-full">
-          <PresidencyTimeline mode={modeEnum.STATISTICS} />
-          {!loading ? (
-            <div
-              className="w-full"
-              style={{ backgroundColor: colors.backgroundPrimary }}
-            >
-              <AlertToOrgchart selectedPresident={selectedPresident} />
-              {webgl ? (
-                graphData.nodes.length > 0 && graphData.links.length > 0 ? (
-                  <ForceGraph3D
-                    height={window.innerHeight}
-                    width={
-                      expandDrawer ? window.innerWidth / 2 : window.innerWidth
-                    }
-                    graphData={graphData}
-                    backgroundColor={ isDark ? "#222" : "#fff"}
-                    // backgroundColor={colors.backgroundPrimary}
-                    linkWidth={3}
-                    // linkColor={() => "rgba(0,0,0,1.0)"}
-                    linkColor={colors.timelineLineActive}
-                    nodeRelSize={15}
-                    nodeResolution={8}
-                    ref={focusRef}
-                    rendererConfig={{
-                      alpha: true,
-                      antialias: false,
-                      powerPreference: "low-power",
-                      precision: "lowp",
-                      failIfMajorPerformanceCaveat: false,
-                      preserveDrawingBuffer: false,
-                      stencil: false,
-                      depth: true,
-                      logarithmicDepthBuffer: false,
-                    }}
-                    nodeAutoColorBy="group"
-                    nodeThreeObjectExtend={true}
-                    nodeThreeObject={getNodeObject}
-                    onNodeClick={handleNodeClick}
-                    cooldownTicks={100}
-                    onNodeDragEnd={(node) => {
-                      node.fx = node.x;
-                      node.fy = node.y;
-                      node.fz = node.z;
-                    }}
-                  />
-                ) : (
-                  <div className="flex justify-center items-center w-full h-full">
-                    <LoadingComponent message="Preparing Graph Data" />
-                  </div>
-                )
-              ) : (
-                <div className="flex flex-col justify-center items-center w-full h-full p-8">
-                  <div className="text-center max-w-2xl">
-                    <h2 className="text-2xl font-bold mb-4 text-red-600">
-                      WebGL Not Available
-                    </h2>
-                    <p className="text-lg mb-6 text-gray-700">
-                      Your browser doesn't support WebGL or it's currently
-                      disabled. The 3D visualization requires WebGL to function
-                      properly.
-                    </p>
-
-                    <div className="bg-blue-50 p-4 rounded-lg mb-6 text-left">
-                      <h3 className="font-semibold mb-2">To enable WebGL:</h3>
-                      <ul className="list-disc list-inside space-y-1 text-sm">
-                        <li>
-                          <strong>Chrome:</strong> Settings → Advanced → System
-                          → Enable "Use hardware acceleration"
-                        </li>
-                        <li>
-                          <strong>Firefox:</strong> about:config →
-                          webgl.force-enabled → true
-                        </li>
-                        <li>
-                          <strong>Edge:</strong> Settings → System → Enable "Use
-                          hardware acceleration"
-                        </li>
-                        <li>Update your graphics drivers</li>
-                        <li>
-                          Disable browser extensions that might block WebGL
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="flex gap-4 justify-center">
-                      <button
-                        onClick={() => window.location.reload()}
-                        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+      <div>
+        <Drawer
+          expandDrawer={expandDrawer}
+          setExpandDrawer={setExpandDrawer}
+          ministerDictionary={ministryDictionary}
+          departmentDictionary={departmentDictionary}
+          ministerToDepartments={ministerToDepartments}
+          onMinistryClick={handleNodeClick}
+          mode={mode}
+          setMode={setMode}
+          selectedNode={selectedNode}
+        />
+        <div
+          className="relative"
+          style={{
+            marginRight: expandDrawer ? window.innerWidth / 2 : 0,
+            transition: "margin-right 0.3s ease",
+            height: "100vh",
+            overflow: "hidden",
+            left: 0,
+          }}
+        >
+          <div className="flex justify-start items-start h-full">
+            {!loading ? (
+              <div
+                className="w-full"
+                style={{
+                  backgroundColor: colors.backgroundPrimary,
+                  overflow: "hidden",
+                }}
+              >
+                {webgl ? (
+                  graphData.nodes.length > 0 && graphData.links.length > 0 ? (
+                    <div className="relative">
+                      <div
+                        className={`w-full flex justify-start items-center gap-2 absolute top-5 ${
+                          expandDrawer ? "left-25" : "left-5"
+                        } transition-all duration-300 ease-in-out z-100 shadow-2xl`}
                       >
-                        Reload Page
-                      </button>
-                      <button
-                        onClick={() => {
-                          const webglAvailable = isWebGLAvailable();
-                          console.log("Manual WebGL check:", webglAvailable);
-                          setWebgl(webglAvailable);
-                        }}
-                        className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
-                      >
-                        Retry WebGL
-                      </button>
-                      <button
-                        onClick={() => {
-                          // Force retry with multiple attempts
-                          let attempts = 0;
-                          const retryInterval = setInterval(() => {
-                            attempts++;
-                            const webglAvailable = isWebGLAvailable();
-                            console.log(
-                              `WebGL retry attempt ${attempts}:`,
-                              webglAvailable
+                        <p className="text-white mr-2">Filter by :</p>
+                        {["Ministers", "Departments", "Persons"].map(
+                          (item, index) => {
+                            return (
+                              <button
+                                key={index}
+                                className="rounded-full text-black px-3 py-2 flex items-center space-x-3  hover:cursor-pointer"
+                                onClick={() => setFilterGraphBy(typeMap[item])}
+                                style={{ backgroundColor: colors.textMuted }}
+                              >
+                                <div
+                                  className={`w-2 h-2 rounded-full animate-pulse`}
+                                  style={{ backgroundColor: ColorMap[item] }}
+                                ></div>
+                                <p>{item}</p>
+                              </button>
                             );
-                            setWebgl(webglAvailable);
-
-                            if (webglAvailable || attempts >= 3) {
-                              clearInterval(retryInterval);
-                            }
-                          }, 500);
-                        }}
-                        className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                          }
+                        )}
+                      </div>
+                      {/* <div
+                        className={`w-full flex justify-end items-center gap-2 absolute top-5 ${
+                          expandDrawer ? "right-25" : "right-5"
+                        } transition-all duration-300 ease-in-out z-100 shadow-2xl`}
                       >
-                        Force Retry
-                      </button>
+                        <button
+                          className="rounded-full text-black px-3 py-2 flex items-center space-x-3  hover:cursor-pointer"
+                          onClick={() => setFilterGraphBy(null)}
+                          style={{ backgroundColor: colors.textMuted }}
+                        >
+                          <p>Clear</p>
+                        </button>
+                      </div> */}
+                      <ForceGraph3D
+                        height={window.innerHeight}
+                        width={
+                          expandDrawer
+                            ? window.innerWidth / 2
+                            : window.innerWidth - 205
+                        }
+                        graphData={
+                          filteredGraphData.nodes.length > 0 ||
+                          filteredGraphData.links.length > 0
+                            ? filteredGraphData
+                            : graphData
+                        }
+                        backgroundColor={isDark ? "#222" : "#fff"}
+                        // backgroundColor={colors.backgroundPrimary}
+                        linkWidth={3}
+                        // linkColor={() => "rgba(0,0,0,1.0)"}
+                        linkColor={colors.timelineLineActive}
+                        nodeRelSize={15}
+                        nodeResolution={8}
+                        ref={focusRef}
+                        rendererConfig={{
+                          alpha: true,
+                          antialias: false,
+                          powerPreference: "low-power",
+                          precision: "lowp",
+                          failIfMajorPerformanceCaveat: false,
+                          preserveDrawingBuffer: false,
+                          stencil: false,
+                          depth: true,
+                          logarithmicDepthBuffer: false,
+                        }}
+                        nodeAutoColorBy="group"
+                        nodeThreeObjectExtend={true}
+                        nodeThreeObject={getNodeObject}
+                        onNodeClick={handleNodeClick}
+                        cooldownTicks={100}
+                        onNodeDragEnd={(node) => {
+                          node.fx = node.x;
+                          node.fy = node.y;
+                          node.fz = node.z;
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex justify-center items-center w-full h-full">
+                      <LoadingComponent message="Preparing Graph Data" />
+                    </div>
+                  )
+                ) : (
+                  <div className="flex flex-col justify-center items-center w-full h-full p-8">
+                    <div className="text-center max-w-2xl">
+                      <h2 className="text-2xl font-bold mb-4 text-red-600">
+                        WebGL Not Available
+                      </h2>
+                      <p className="text-lg mb-6 text-gray-700">
+                        Your browser doesn't support WebGL or it's currently
+                        disabled. The 3D visualization requires WebGL to
+                        function properly.
+                      </p>
+
+                      <div className="bg-blue-50 p-4 rounded-lg mb-6 text-left">
+                        <h3 className="font-semibold mb-2">To enable WebGL:</h3>
+                        <ul className="list-disc list-inside space-y-1 text-sm">
+                          <li>
+                            <strong>Chrome:</strong> Settings → Advanced →
+                            System → Enable "Use hardware acceleration"
+                          </li>
+                          <li>
+                            <strong>Firefox:</strong> about:config →
+                            webgl.force-enabled → true
+                          </li>
+                          <li>
+                            <strong>Edge:</strong> Settings → System → Enable
+                            "Use hardware acceleration"
+                          </li>
+                          <li>Update your graphics drivers</li>
+                          <li>
+                            Disable browser extensions that might block WebGL
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="flex gap-4 justify-center">
+                        <button
+                          onClick={() => window.location.reload()}
+                          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
+                        >
+                          Reload Page
+                        </button>
+                        <button
+                          onClick={() => {
+                            const webglAvailable = isWebGLAvailable();
+                            console.log("Manual WebGL check:", webglAvailable);
+                            setWebgl(webglAvailable);
+                          }}
+                          className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
+                        >
+                          Retry WebGL
+                        </button>
+                        <button
+                          onClick={() => {
+                            // Force retry with multiple attempts
+                            let attempts = 0;
+                            const retryInterval = setInterval(() => {
+                              attempts++;
+                              const webglAvailable = isWebGLAvailable();
+                              console.log(
+                                `WebGL retry attempt ${attempts}:`,
+                                webglAvailable
+                              );
+                              setWebgl(webglAvailable);
+
+                              if (webglAvailable || attempts >= 3) {
+                                clearInterval(retryInterval);
+                              }
+                            }, 500);
+                          }}
+                          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                        >
+                          Force Retry
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <LoadingComponent message="Graph Loading" OsColorMode={false} />
-          )}
+                )}
+              </div>
+            ) : (
+              <LoadingComponent message="Graph Loading" OsColorMode={false} />
+            )}
+          </div>
         </div>
+        <NodePopup />
+        <WebGLChecker />
       </div>
-      <NodePopup />
-      <WebGLChecker />
     </>
   );
 }
