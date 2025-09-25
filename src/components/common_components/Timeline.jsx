@@ -4,28 +4,14 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function YearRangeSelector({
-    startYear = 2019,
-    dates = ["2010-09-23T00:00:00Z",
-        "2024-09-23T00:00:00Z", "2024-09-25T00:00:00Z", "2024-09-25T00:00:00Z",
-        "2024-11-18T00:00:00Z", "2024-11-18T00:00:00Z", "2024-09-27T00:00:00Z",
-        "2024-11-25T00:00:00Z", "2024-09-23T00:00:00Z", "2022-07-20T00:00:00Z",
-        "2022-07-26T00:00:00Z", "2022-08-04T00:00:00Z", "2022-11-04T00:00:00Z",
-        "2023-01-19T00:00:00Z", "2023-10-12T00:00:00Z", "2023-10-23T00:00:00Z",
-        "2023-12-01T00:00:00Z", "2022-07-22T00:00:00Z", "2022-09-16T00:00:00Z",
-        "2022-10-05T00:00:00Z", "2022-10-26T00:00:00Z", "2022-12-22T00:00:00Z",
-        "2023-01-19T00:00:00Z", "2023-04-27T00:00:00Z", "2023-05-30T00:00:00Z",
-        "2023-07-31T00:00:00Z", "2023-10-23T00:00:00Z", "2023-10-23T00:00:00Z",
-        "2023-12-22T00:00:00Z", "2024-02-27T00:00:00Z", "2024-08-23T00:00:00Z",
-        "2024-08-23T00:00:00Z", "2025-08-23T00:00:00Z"
-    ],
-    latestPresStartDate = new Date(Date.UTC(2024, 8, 23)),
+    startYear,
+    dates,
+    latestPresStartDate,
     onDateChange,
 }) {
 
     const endYear = new Date().getFullYear();
     const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
-
-    // Ensure selectedRange is within valid bounds
     const initialStartYear = Math.max(startYear, latestPresStartDate.getFullYear());
     const initialEndYear = Math.min(endYear, new Date().getFullYear());
 
@@ -250,42 +236,48 @@ export default function YearRangeSelector({
         setEndDate(newEndDate);
     };
 
-
     // Dragging logic
     const handleMouseDown = (e, handle) => {
         e.stopPropagation();
         e.preventDefault();
         setIsDragging(handle);
-        setPreciseMode(false);
+        setPreciseMode(true); // Enable precise mode when dragging
     };
 
-    // const yearWidth = React.useMemo(() => {
-    //     return Math.max(80, Math.min(150, 800 / years.length)); // Min 80px, max 150px, or proportional
-    // }, [years.length]);
     const handleMouseMove = (e) => {
         if (!isDragging || !containerRef.current) return;
 
         const rect = containerRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const yearWidth = rect.width / years.length;
-        const yearIndex = Math.round(x / yearWidth);
-        const year = years[Math.max(0, Math.min(yearIndex, years.length - 1))];
+        const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+        const percentage = x / rect.width;
+        const totalYears = years.length;
+        const exactYearPosition = percentage * totalYears;
+
+        // Calculate the exact date based on position
+        const yearIndex = Math.floor(exactYearPosition);
+        const yearProgress = exactYearPosition - yearIndex;
+        const targetYear = years[Math.max(0, Math.min(yearIndex, years.length - 1))];
+
+        // Convert year progress to month and day
+        const monthProgress = yearProgress * 12;
+        const month = Math.floor(monthProgress);
+        const dayProgress = monthProgress - month;
+        const daysInMonth = new Date(Date.UTC(targetYear, month + 1, 0)).getUTCDate();
+        const day = Math.max(1, Math.floor(dayProgress * daysInMonth) + 1);
+
+        const newDate = new Date(Date.UTC(targetYear, month, day));
 
         if (isDragging === "start") {
-            const newRange = [Math.min(year, selectedRange[1]), selectedRange[1]];
-            // Ensure the range is within valid bounds
-            if (newRange[0] >= startYear && newRange[0] <= endYear) {
-                setSelectedRange(newRange);
-                updateDatesFromRange(newRange);
+            if (newDate <= endDate) {
+                setStartDate(newDate);
+                setSelectedRange([newDate.getUTCFullYear(), endDate.getUTCFullYear()]);
             }
         }
 
         if (isDragging === "end") {
-            const newRange = [selectedRange[0], Math.max(year, selectedRange[0])];
-            // Ensure the range is within valid bounds
-            if (newRange[1] >= startYear && newRange[1] <= endYear) {
-                setSelectedRange(newRange);
-                updateDatesFromRange(newRange);
+            if (newDate >= startDate) {
+                setEndDate(newDate);
+                setSelectedRange([startDate.getUTCFullYear(), newDate.getUTCFullYear()]);
             }
         }
     };
@@ -295,29 +287,61 @@ export default function YearRangeSelector({
 
         const rect = containerRef.current.getBoundingClientRect();
         const deltaX = e.clientX - dragStartRef.current;
-        const yearWidth = rect.width / years.length;
-        const deltaYears = Math.round(deltaX / yearWidth);
+        const percentageDelta = deltaX / rect.width;
+        const totalYears = years.length;
+        const yearDelta = percentageDelta * totalYears;
 
-        let newStart = selectedRange[0] + deltaYears;
-        let newEnd = selectedRange[1] + deltaYears;
+        // Calculate new start position
+        const currentStartYearPos = years.indexOf(startDate.getUTCFullYear()) +
+            (startDate.getUTCMonth() + (startDate.getUTCDate() - 1) / new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth() + 1, 0)).getUTCDate()) / 12;
 
-        // Clamp to available years
-        if (newStart < startYear) {
-            const diff = startYear - newStart;
-            newEnd = Math.min(endYear, selectedRange[1] + diff);
-            newStart = startYear;
+        // Calculate new end position
+        const currentEndYearPos = years.indexOf(endDate.getUTCFullYear()) +
+            (endDate.getUTCMonth() + endDate.getUTCDate() / new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth() + 1, 0)).getUTCDate()) / 12;
+
+        const newStartYearPos = currentStartYearPos + yearDelta;
+        const newEndYearPos = currentEndYearPos + yearDelta;
+
+        // Clamp to bounds and convert back to dates
+        const clampedStartPos = Math.max(0, Math.min(newStartYearPos, totalYears - 1));
+        const clampedEndPos = Math.max(0, Math.min(newEndYearPos, totalYears - 1));
+
+        // If clamped, adjust both positions to maintain window size
+        let finalStartPos = clampedStartPos;
+        let finalEndPos = clampedEndPos;
+
+        if (newStartYearPos < 0) {
+            const diff = -newStartYearPos;
+            finalStartPos = 0;
+            finalEndPos = Math.min(totalYears - 1, currentEndYearPos - currentStartYearPos);
+        } else if (newEndYearPos > totalYears - 1) {
+            const diff = newEndYearPos - (totalYears - 1);
+            finalEndPos = totalYears - 1;
+            finalStartPos = Math.max(0, totalYears - 1 - (currentEndYearPos - currentStartYearPos));
         }
-        if (newEnd > endYear) {
-            const diff = newEnd - endYear;
-            newStart = Math.max(startYear, selectedRange[0] - diff);
-            newEnd = endYear;
+
+        // Convert positions back to dates
+        function positionToDate(pos) {
+            const yearIndex = Math.floor(pos);
+            const yearProgress = pos - yearIndex;
+            const targetYear = years[Math.max(0, Math.min(yearIndex, years.length - 1))];
+
+            const monthProgress = yearProgress * 12;
+            const month = Math.floor(monthProgress);
+            const dayProgress = monthProgress - month;
+            const daysInMonth = new Date(Date.UTC(targetYear, month + 1, 0)).getUTCDate();
+            const day = Math.max(1, Math.floor(dayProgress * daysInMonth) + 1);
+
+            return new Date(Date.UTC(targetYear, month, day));
         }
 
-        // Ensure we don't have an invalid range
-        if (newStart <= newEnd && newStart >= startYear && newEnd <= endYear) {
-            const newRange = [newStart, newEnd];
-            setSelectedRange(newRange);
-            updateDatesFromRange(newRange);
+        const newStartDate = positionToDate(finalStartPos);
+        const newEndDate = positionToDate(finalEndPos);
+
+        if (newStartDate <= newEndDate) {
+            setStartDate(newStartDate);
+            setEndDate(newEndDate);
+            setSelectedRange([newStartDate.getUTCFullYear(), newEndDate.getUTCFullYear()]);
         }
 
         dragStartRef.current = e.clientX;
@@ -491,9 +515,8 @@ export default function YearRangeSelector({
             <div
                 ref={scrollWrapperRef}
                 className="overflow-x-auto overflow-y-hidden scroll-wrapper"
-                style={{ paddingLeft: "24px", paddingRight: "24px" }}
+                style={{ paddingLeft: "8px"}}
             >
-
                 <div ref={containerRef} className="relative bg-gray-50 dark:bg-gray-700 mb-6" style={{ height: "70px", minWidth: `${years.length * 80}px` }}>
                     <div className="flex h-full items-end">
                         {years.map(year => {
@@ -530,7 +553,7 @@ export default function YearRangeSelector({
                     <div className="absolute top-0 bg-blue-500/40 border-t-2 border-blue-500 transition-all duration-200" style={{ left: overlayMetrics.left, width: overlayMetrics.width, height: "100%", pointerEvents: "none" }} />
 
                     {/* Drag window */}
-                    <div className="absolute top-0 h-full cursor-move" style={{ left: overlayMetrics.left, width: overlayMetrics.width }} onMouseDown={e => { e.preventDefault(); setIsMovingWindow(true); setPreciseMode(false); dragStartRef.current = e.clientX }} />
+                    <div className="absolute top-0 h-full cursor-move" style={{ left: overlayMetrics.left, width: overlayMetrics.width }} onMouseDown={e => { e.preventDefault(); setIsMovingWindow(true); setPreciseMode(true); dragStartRef.current = e.clientX }} />
 
                     {/* Drag handles */}
                     <div className="absolute top-9 transform -translate-y-1/2 -translate-x-1/2 w-4 h-6 bg-blue-600 rounded cursor-ew-resize flex items-center justify-center shadow hover:bg-blue-700 z-20" style={{ left: handlePositions.startLeft }} onMouseDown={e => handleMouseDown(e, "start")}><DragIndicatorIcon className="w-4 h-6 text-white" /></div>

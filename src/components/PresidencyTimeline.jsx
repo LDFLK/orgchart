@@ -181,55 +181,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
     }
   }, [selectedPresident, userSelectedDateRange]);
 
-
-  const fetchGazetteData = async (selectedPresidentRelation) => {
-    try {
-      const presStart = new Date(selectedPresidentRelation.startTime.split("T")[0]);
-      const presEnd = selectedPresidentRelation.endTime
-        ? new Date(selectedPresidentRelation.endTime.split("T")[0])
-        : new Date(); // open-ended presidency means "up to today"
-
-      // Use user-selected range if available, otherwise fall back to presidency period
-      const [userStart, userEnd] = userSelectedDateRange;
-
-      // Take max of start dates (intersection start)
-      const finalStart = userStart ? new Date(Math.max(presStart, userStart)) : presStart;
-      // Take min of end dates (intersection end)
-      const finalEnd = userEnd ? new Date(Math.min(presEnd, userEnd)) : presEnd;
-
-      let filteredDates = [];
-      if (finalStart <= finalEnd) {
-        filteredDates = gazetteDateClassic.filter(dateStr => {
-          const d = new Date(dateStr);
-          return d >= finalStart && d <= finalEnd;
-        });
-      }
-
-      const transformed = filteredDates.map(date => ({ date }));
-
-      dispatch(setGazetteData(transformed));
-
-      if (transformed.length > 0) {
-        console.log("Setting selected date:", transformed[transformed.length - 1]);
-        dispatch(setSelectedDate(transformed[transformed.length - 1]));
-      } else {
-        console.log("No gazettes found in intersection of presidency and user range");
-      }
-    } catch (e) {
-      console.log(`Error fetching gazette data: ${e.message}`);
-    }
-  };
-
-
-  const handleDateRangeChange = useCallback((dateRange) => {
-    const [startDate, endDate] = dateRange;
-    setUserSelectedDateRange([startDate, endDate]);
-
-    const filtered = filterPresidentsByDateRange(startDate, endDate);
-    console.log('Filtered presidents for selected range:', filtered);
-  }, []);
-
-  const filterPresidentsByDateRange = (startDate, endDate) => {
+    const filterPresidentsByDateRange = (startDate, endDate) => {
     if (!startDate || !endDate) {
       setFilteredPresidents(presidents);
 
@@ -272,6 +224,56 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
     return filtered;
   };
 
+  const fetchGazetteData = async (selectedPresidentRelation) => {
+    try {
+      const presStart = new Date(selectedPresidentRelation.startTime.split("T")[0]);
+      const presEnd = selectedPresidentRelation.endTime
+        ? new Date(selectedPresidentRelation.endTime.split("T")[0])
+        : new Date(); // open-ended presidency means "up to today"
+
+      // Use user-selected range if available, otherwise fall back to presidency period
+      const [userStart, userEnd] = userSelectedDateRange;
+
+      // Take max of start dates (intersection start)
+      const finalStart = userStart ? new Date(Math.max(presStart, userStart)) : presStart;
+      // Take min of end dates (intersection end)
+      const finalEnd = userEnd ? new Date(Math.min(presEnd, userEnd)) : presEnd;
+
+      let filteredDates = [];
+      if (finalStart <= finalEnd) {
+        console.log('CLASSIC DATES', gazetteDateClassic);
+        filteredDates = gazetteDateClassic.filter(dateStr => {
+          const d = new Date(dateStr);
+          return d >= finalStart && d <= finalEnd;
+        });
+      }
+
+      const transformed = filteredDates.map(date => ({ date }));
+
+      dispatch(setGazetteData(transformed));
+
+      if (transformed.length > 0) {
+        console.log("Setting selected date:", transformed[transformed.length - 1]);
+        dispatch(setSelectedDate(transformed[transformed.length - 1]));
+      } else {
+        console.log("No gazettes found in intersection of presidency and user range");
+      }
+    } catch (e) {
+      console.log(`Error fetching gazette data: ${e.message}`);
+    }
+  };
+
+  const handleDateRangeChange = useCallback((dateRange) => {
+    const [startDate, endDate] = dateRange;
+    setUserSelectedDateRange([startDate, endDate]);
+
+    const filtered = filterPresidentsByDateRange(startDate, endDate);
+    console.log('Filtered presidents for selected range:', filtered);
+  }, []);
+
+  const dates = gazetteDateClassic.map(d => `${d}T00:00:00Z`);
+
+
   return (
     <>
 
@@ -287,6 +289,8 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
           }}
         >
           <YearRangeSelector
+            startYear={2019}
+            dates={dates}
             latestPresStartDate={latestPresStartDate}
             onDateChange={handleDateRangeChange}
           />
