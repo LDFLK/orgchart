@@ -4,7 +4,6 @@ import gazetteDataReducer from './gazetteDate';
 import allPersonReducer from './allPersonData';
 import allMinistryDataReducer from './allMinistryData';
 import allDepartmentDataReducer from './allDepartmentData';
-// import urlState from './urlStateSlice';
 
 const store = configureStore({
   reducer: {
@@ -13,7 +12,6 @@ const store = configureStore({
     allPerson: allPersonReducer,
     allMinistryData: allMinistryDataReducer,
     allDepartmentData: allDepartmentDataReducer,
-    // urlState: urlState
   },
 });
 

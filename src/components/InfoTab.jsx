@@ -25,9 +25,7 @@ const InfoTab = ({
   selectedPresident,
 }) => {
   const { colors } = useThemeContext();
-  const [activeTab, setActiveTab] = useState("departments");
-
-  const {selectedMinistry} = useSelector((state) => state.allMinistryData.selectedMinistry)
+  const [activeTab, setActiveTab] = urlParamState("ministryTab","departments");
 
   const presidentColor =
     selectedPresident?.themeColorLight || colors.textPrimary;
@@ -36,11 +34,6 @@ const InfoTab = ({
 
   //sharing
   const sharing = useUniversalSharing(componentConfigs.MinistryDrawer);
-
-  useEffect(()=>{
-  console.log('loading from url', selectedMinistry)
-
-  },[selectedMinistry])
 
   //load state from url
   useEffect(() => {

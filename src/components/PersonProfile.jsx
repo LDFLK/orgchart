@@ -17,6 +17,7 @@ import api from '../services/services';
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import PersonIcon from "@mui/icons-material/Person"
 import personDetails from "./../assets/personImages.json";
+import urlParamState from '../hooks/singleSharingUrl';
 
 const PersonHistoryTimeline = ({ selectedPerson, onTimelineUpdate, presidentRelationDict }) => {
     const [timelineData, setTimelineData] = useState([]);
@@ -212,7 +213,7 @@ const PersonHistoryTimeline = ({ selectedPerson, onTimelineUpdate, presidentRela
 /* ------------------- Profile Component ------------------- */
 const PersonProfile = ({ selectedPerson }) => {
     const { colors } = useThemeContext();
-    const [activeTab, setActiveTab] = useState("history");
+    const [activeTab, setActiveTab] = urlParamState("history");
     const [timelineData, setTimelineData] = useState([]);
     const presidentRelationDict = useSelector(
         (state) => state.presidency.presidentRelationDict

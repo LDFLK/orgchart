@@ -24,6 +24,7 @@ import { useThemeContext } from "../themeContext";
 import enumMode from "../enums/mode";
 import { useNavigate } from "react-router-dom";
 import InfoTooltip from "./common_components/InfoToolTip";
+import urlParamState from "../hooks/singleSharingUrl";
 
 const MinistryDrawerContent = ({ selectedDate }) => {
   const { colors } = useThemeContext();
@@ -38,13 +39,22 @@ const MinistryDrawerContent = ({ selectedDate }) => {
   );
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [selectedDepartment, setSelectedDepartment] = urlParamState("selectedDepartment",null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchDepartmentList(selectedMinistry);
   }, [selectedMinistry, selectedDate]);
+  
+  // Clean up selectedDepartment when component unmounts or ministry changes
+  useEffect(() => {
+    return () => {
+      // Clean up on unmount
+      setSelectedDepartment(null);
+    };
+  }, []);
+
 
   const fetchDepartmentList = async (ministryId) => {
     if (!ministryId) return;
@@ -174,7 +184,6 @@ const MinistryDrawerContent = ({ selectedDate }) => {
 
               <Button
                 onClick={() => {
-                  setSelectedDepartment(selectedDepartment);
                   setTimeout(() => navigate("/statistics"), 300); // 👈 navigate after 300ms
                 }}
                 sx={{
@@ -190,7 +199,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
           </Box>
 
           {/* Timeline */}
-          <DepartmentHistoryTimeline selectedDepartment={selectedDepartment} />
+          <DepartmentHistoryTimeline selectedDepartmentId={selectedDepartment} />
         </Box>
       ) : (
         <>
@@ -386,7 +395,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
                         },
                       }}
                       fullWidth
-                      onClick={() => setSelectedDepartment(dep)}
+                      onClick={() => setSelectedDepartment(dep.id)}
                     >
                       <AccountBalanceIcon
                         fontSize="small"

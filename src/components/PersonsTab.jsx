@@ -9,14 +9,16 @@ import { useThemeContext } from "../themeContext";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonProfile from "./PersonProfile";
 import InfoTooltip from "./common_components/InfoToolTip";
+import urlParamState from "../hooks/singleSharingUrl";
 
 const PersonsTab = ({ selectedDate }) => {
   const { colors } = useThemeContext();
   const allPersonDict = useSelector((state) => state.allPerson.allPerson);
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
   const { selectedPresident } = useSelector((state) => state.presidency);
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = urlParamState("profileOpen",false);
   const [selectedPerson, setSelectedPerson] = useState(null);
+  const [selectedPersonId, setSelectedPersonId] = urlParamState("selectedPerson",null)
   const [ministerListForMinistry, setministerListForMinistry] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -89,6 +91,7 @@ const PersonsTab = ({ selectedDate }) => {
 
   const handleOpenProfile = (person) => {
     setSelectedPerson(person);
+    setSelectedPersonId(person.id);
     setProfileOpen(true);
   };
   return (
@@ -264,7 +267,7 @@ const PersonsTab = ({ selectedDate }) => {
         </Box>
 
         <Box sx={{ px: 3, pb: 3 }}>
-          <PersonProfile selectedPerson={selectedPerson} />
+          <PersonProfile selectedPerson={selectedPerson} selectedPersonId={selectedPersonId} />
         </Box>
       </Dialog>
     </>

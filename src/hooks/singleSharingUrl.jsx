@@ -8,7 +8,7 @@ export default function urlParamState(key, defaultValue = '') {
 
   useEffect(() => {
     const url = new URL(window.location.href);
-    if (value) {
+    if (value != null || value) {
       url.searchParams.set(key, value);
     } else {
       url.searchParams.delete(key);

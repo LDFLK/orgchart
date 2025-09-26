@@ -24,7 +24,6 @@ const ModernView = () => {
   const { selectedDate, selectedPresident } = useSelector(
     (state) => state.presidency
   );
-  const { selectedMinistry } = useSelector((state) => state.allMinistryData);
   const presidentRelationDict = useSelector(
     (state) => state.presidency.presidentRelationDict
   );
@@ -32,9 +31,7 @@ const ModernView = () => {
 
   const [drawerOpen, setDrawerOpen] = urlParamState("ministry_details",false);
   const [selectedCard, setSelectedCard] = urlParamState("selectedMinistry",null);
-  const [drawerMode, setDrawerMode] = urlParamState("ministry");
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = urlParamState("profileOpen",false);
   const location = useLocation();
   const navigate = useNavigate();
   const { president, openProfile } = location.state || {};
@@ -48,22 +45,14 @@ const ModernView = () => {
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
-    setDrawerMode("ministry");
-    setSelectedDepartment(null);
     setDrawerOpen(true);
   };
 
   const handleDrawerClose = () => {
     setDrawerOpen(false);
     setSelectedCard(null);
-    setDrawerMode("ministry");
-    setSelectedDepartment(null);
   };
 
-  const handleDepartmentClick = (dep) => {
-    setSelectedDepartment(dep);
-    setDrawerMode("department");
-  };
 
   return (
     <Box
@@ -105,7 +94,10 @@ const ModernView = () => {
               boxShadow: "none",
               cursor: "pointer", // make card clickable
             }}
-            onClick={() => setProfileOpen(true)} // <-- open popup
+            onClick={() => {
+              // setProfileOpen(true)
+              navigate('public-profile')
+            }} // <-- open popup
           >
             <Box
               sx={{
@@ -231,18 +223,13 @@ const ModernView = () => {
       {/* Right Drawer */}
       <InfoTab
         drawerOpen={drawerOpen}
-        drawerMode={drawerMode}
-        selectedCard={selectedCard}
-        selectedDepartment={selectedDepartment}
-        selectedDate={selectedDate}
         onClose={handleDrawerClose}
-        onBack={() => setDrawerMode("ministry")}
-        onDepartmentClick={handleDepartmentClick}
-        ministryId={selectedMinistry}
+        selectedCard={selectedCard}
+        selectedDate={selectedDate}
         selectedPresident={selectedPresident}
       />
     </Box>
   );
 };
 
-export default withSharing(ModernView, componentConfigs.ModernView);
+export default ModernView;

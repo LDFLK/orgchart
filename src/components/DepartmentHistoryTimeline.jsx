@@ -17,7 +17,7 @@ import { useThemeContext } from '../themeContext';
 import { ClipLoader } from "react-spinners";
 import CloseIcon from "@mui/icons-material/Close";
 
-const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
+const DepartmentHistoryTimeline = ({ selectedDepartmentId }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
     const { selectedPresident } = useSelector((state) => state.presidency);
     const allMinistryData = useSelector((state) => state.allMinistryData.allMinistryData);
@@ -37,8 +37,8 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
             const startTime = new Date().getTime()
             setLoading(true);
             try {
-                const departmentIds = new Set([selectedDepartment.id]);
-                const queue = [selectedDepartment.id];
+                const departmentIds = new Set([selectedDepartmentId]);
+                const queue = [selectedDepartmentId];
 
                 while (queue.length > 0) {
                     const currentId = queue.shift();
@@ -244,10 +244,10 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
             }
         };
 
-        if (selectedDepartment?.id) {
+        if (selectedDepartmentId) {
             enrichWithMinisters();
         }
-    }, [selectedDepartment]);
+    }, [selectedDepartmentId]);
 
 
     const handleOpenProfile = (minister) => {
