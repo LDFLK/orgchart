@@ -18,15 +18,15 @@ const App = () => {
     <div className={isDark ? "dark-mode" : ""}>
       {/* <WebGLChecker/> */}
     <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/orgchart" element={<DataLoadingAnimatedComponent mode="orgchart"/>} />
-        <Route path="/statistics" element={<DataLoadingAnimatedComponent mode="statistics"/>}/>
-        <Route path="*" element={<Error404 />} />
-        <Route path="/globe" element={<TouristGlobe/>}/>
-        <Route path="/map" element={<DistrictMap/>}/>
-        <Route path="/timeline" element={<YearRangeSelector/>}/>
-      </Routes>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/orgchart" element={<DataLoadingAnimatedComponent mode="orgchart"/>} />
+          <Route path="/person-profile/:personId" element={<DataLoadingAnimatedComponent mode="person-profile"/>}/>
+          <Route path="*" element={<Error404 />} />
+          <Route path="/globe" element={<TouristGlobe/>}/>
+          <Route path="/map" element={<DistrictMap/>}/>
+          <Route path="/timeline" element={<YearRangeSelector/>}/>
+        </Routes>
     </Router>
     </div>
   );

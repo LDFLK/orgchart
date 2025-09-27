@@ -19,6 +19,9 @@ import YearRangeSelector from "./common_components/Timeline";
 export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   const dispatch = useDispatch();
 
+
+
+
   //redux state
   const presidents = useSelector((state) => state.presidency.presidentDict);
   const selectedPresident = useSelector(
@@ -38,7 +41,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   const scrollRef = useRef(null);
   const avatarRef = useRef(null);
   const dotRef = useRef(null);
-  const initialSelectionDone = useRef(false);
 
   //states
   const [lineStyle, setLineStyle] = useState(null);
@@ -67,10 +69,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   //     dispatch(setSelectedPresident(presidents[lastIndex]));
   //   }
   // }, [presidents]);
-
-  useEffect(() => {
-    console.log('initialization on loading : ', initialSelectionDone.current)
-  }, [presidents]);
 
   useEffect(() => {
     // if (!initialSelectionDone.current && presidents.length > 0) {

@@ -31,6 +31,7 @@ import utils from "./../utils/utils";
 import MinistryViewModeToggleButton from "./ministryViewModeToggleButton";
 import GraphComponent from "./graphComponent";
 import { clearTimeout } from "highcharts";
+import UrlParamState from "../hooks/singleSharingURL";
 
 const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
@@ -42,9 +43,9 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [viewMode, setViewMode] = useState("Grid");
+  const [searchText, setSearchText] = UrlParamState("filterByName","");
+  const [filterType, setFilterType] = UrlParamState("filterByType","all");
+  const [viewMode, setViewMode] = UrlParamState("viewMode","Grid");
   const { colors } = useThemeContext();
 
   useEffect(() => {

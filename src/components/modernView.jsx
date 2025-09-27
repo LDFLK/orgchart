@@ -92,7 +92,10 @@ useEffect(() => {
               boxShadow: "none",
               cursor: "pointer", // make card clickable
             }}
-            onClick={() => setProfileOpen(true)} // <-- open popup
+            onClick={() => {
+              // setProfileOpen(true)
+              navigate(`/person-profile/${selectedPresident?.id}`)
+            }} // <-- open popup
           >
             <Box
               sx={{

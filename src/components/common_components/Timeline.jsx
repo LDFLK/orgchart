@@ -33,40 +33,40 @@ export default function YearRangeSelector({
   };
 
   // Helper: safely format Date → YYYY-MM-DD
-    const formatDate = (date, fallback = "") => {
+  const formatDate = (date, fallback = "") => {
     if (!(date instanceof Date) || isNaN(date.getTime())) return fallback;
-    return date.toISOString().split("T")[0]; // e.g. 2025-09-27
+    return date.toISOString().split("T")[0];
   };
-  
 
   const [selectedRange, setSelectedRange] = useState([
     initialStartYear,
     initialEndYear,
   ]);
   const [startDate, setStartDate] = useState(latestPresStartDate);
-const [endDate, setEndDate] = useState( new Date());
+  const [endDate, setEndDate] = useState(new Date());
 
-useEffect(() => {
-    let urlStart = parseDate(searchParams.get("startDate"), latestPresStartDate);
+  useEffect(() => {
+    let urlStart = parseDate(
+      searchParams.get("startDate"),
+      latestPresStartDate
+    );
     let urlEnd = parseDate(searchParams.get("endDate"), new Date());
-  
+
     if (urlEnd < urlStart) {
       urlEnd = new Date(urlStart); // clamp endDate to startDate
     }
-  
+
     setStartDate(urlStart);
     setEndDate(urlEnd);
     setTempStartDate(urlStart);
     setTempEndDate(urlEnd);
     setSelectedRange([urlStart.getUTCFullYear(), urlEnd.getUTCFullYear()]);
   }, [searchParams, latestPresStartDate]);
-  
 
-
-  useEffect(()=>{
-    console.log('start date : ', startDate)
-    console.log('end date : ', endDate)
-  },[startDate, endDate])
+  useEffect(() => {
+    console.log("start date : ", startDate);
+    console.log("end date : ", endDate);
+  }, [startDate, endDate]);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(null);
@@ -106,17 +106,17 @@ useEffect(() => {
     return obj;
   }, [presidentsArray, presidentRelationDict]);
 
-//   useEffect(() => {
-//     const latestYear = latestPresStartDate.getFullYear();
-//     const validStartYear = Math.max(startYear, latestYear);
-//     const validEndYear = Math.min(endYear, new Date().getFullYear());
-//     console.log("President array", presidentsArray);
-//     console.log("President relation dict", presidentRelationDict);
+  //   useEffect(() => {
+  //     const latestYear = latestPresStartDate.getFullYear();
+  //     const validStartYear = Math.max(startYear, latestYear);
+  //     const validEndYear = Math.min(endYear, new Date().getFullYear());
+  //     console.log("President array", presidentsArray);
+  //     console.log("President relation dict", presidentRelationDict);
 
-//     setStartDate(latestPresStartDate);
-//     setSelectedRange([validStartYear, validEndYear]);
-//     setTempStartDate(latestPresStartDate);
-//   }, [latestPresStartDate, endYear, startYear]);
+  //     setStartDate(latestPresStartDate);
+  //     setSelectedRange([validStartYear, validEndYear]);
+  //     setTempStartDate(latestPresStartDate);
+  //   }, [latestPresStartDate, endYear, startYear]);
 
   // Preprocess dates into a lookup: year -> month -> count
   const dateCounts = dates.reduce((acc, d) => {
@@ -171,12 +171,11 @@ useEffect(() => {
   }
 
   useEffect(() => {
-
     onDateChange?.([startDate, endDate]);
-    setSearchParams({
-        startDate: formatDate(startDate),
-        endDate: formatDate(endDate),
-      });
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set("startDate", formatDate(startDate));
+    newParams.set("endDate", formatDate(endDate));
+    setSearchParams(newParams);
   }, [startDate, endDate, onDateChange]);
 
   // Get overlay metrics (left, width) for selected range

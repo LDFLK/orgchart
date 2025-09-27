@@ -17,6 +17,7 @@ import api from '../services/services';
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import PersonIcon from "@mui/icons-material/Person"
 import personDetails from "./../assets/personImages.json";
+import { useParams } from 'react-router-dom';
 
 /* ------------------- Timeline Component ------------------- */
 const PersonHistoryTimeline = ({ selectedPerson, onTimelineUpdate, presidentRelationDict }) => {
@@ -212,13 +213,19 @@ const PersonHistoryTimeline = ({ selectedPerson, onTimelineUpdate, presidentRela
 };
 
 /* ------------------- Profile Component ------------------- */
-const PersonProfile = ({ selectedPerson }) => {
-    const { colors } = useThemeContext();
+const PersonProfile = () => {
+    const {colors} = useThemeContext();
+    const {personId}= useParams();
+
+
     const [activeTab, setActiveTab] = useState("history");
     const [timelineData, setTimelineData] = useState([]);
     const presidentRelationDict = useSelector(
         (state) => state.presidency.presidentRelationDict
     );
+    const {allPerson} = useSelector((state)=> state.allPerson);
+
+    const selectedPerson = allPerson[personId];
 
     const workedMinistries = timelineData.length || 0;
     const workedAsPresident = Object.values(presidentRelationDict).filter(
@@ -233,6 +240,7 @@ const PersonProfile = ({ selectedPerson }) => {
     const imageUrl = matchingPresident ? matchingPresident.imageUrl : null;
 
     const tabOptions = ["history"];
+
 
     return (
         <Box

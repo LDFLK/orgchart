@@ -6,12 +6,10 @@ import {
   Building2,
   User,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import "./../index.css";
 import Version from "./version";
 import "../assets/chatbotCSS.css";
 import ForceGraph3D from "react-force-graph-3d";
-import { colors } from "@mui/material";
 
 export function genRandomTree(N = 200, reverse = false) {
   return {
@@ -27,7 +25,6 @@ export function genRandomTree(N = 200, reverse = false) {
 
 const Home = () => {
   const svgRef = useRef();
-  const navigate = useNavigate();
 
   const graphData = genRandomTree();
 
@@ -46,16 +43,7 @@ const Home = () => {
     }, 10);
   }, []);
 
-  const handleExplore = ({ mode = "orgchart" }) => {
-    if (mode == "orgchart") {
-      navigate("/orgchart");
-    } else if (mode == "statistics") {
-      navigate("/statistics");
-    }
-  };
-
   return (
-
     <div className="relative min-h-screen">
       {/* Background ForceGraph3D */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
