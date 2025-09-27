@@ -9,6 +9,7 @@ import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
 import TouristGlobe from "./components/statistics_components/TouristGlobe";
 import DistrictMap from "./components/statistics_components/DistrictMap";
 import YearRangeSelector from "./components/common_components/Timeline";
+import Dashboard from "./pages/StatComparison";
 
 const App = () => {
 
@@ -21,7 +22,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/orgchart" element={<DataLoadingAnimatedComponent mode="orgchart"/>} />
-        <Route path="/statistics" element={<DataLoadingAnimatedComponent mode="statistics"/>}/>
+        {/* <Route path="/statistics" element={<DataLoadingAnimatedComponent mode="statistics"/>}/> */}
+        <Route path="/statistics" element={<Dashboard/>}/>
         <Route path="*" element={<Error404 />} />
         <Route path="/globe" element={<TouristGlobe/>}/>
         <Route path="/map" element={<DistrictMap/>}/>
