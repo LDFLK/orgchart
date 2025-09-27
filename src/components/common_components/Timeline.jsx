@@ -510,7 +510,7 @@ export default function YearRangeSelector({
 
     // UI rendering
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-6xl mx-auto mt-6">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full mt-6">
 
             {/* Presets and calendar */}
             <div className="flex gap-2 mb-6 flex-wrap sm:justify-start justify-center">
@@ -592,7 +592,7 @@ export default function YearRangeSelector({
                         📅 Select Range
                     </button>
                     {calendarOpen && (
-                        <div className="absolute right-0 mt-2 z-50 w-full sm:w-auto bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
+                        <div className="absolute left-0 mt-2 z-50 w-full sm:w-auto bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <div className="flex-1 flex flex-col">
                                     <p className="text-xs text-gray-300 mb-2">From</p>
