@@ -9,6 +9,7 @@ import { useThemeContext } from "../themeContext";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonProfile from "./PersonProfile";
 import InfoTooltip from "./common_components/InfoToolTip";
+import { useNavigate } from "react-router-dom";
 
 const PersonsTab = ({ selectedDate }) => {
   const { colors } = useThemeContext();
@@ -19,6 +20,8 @@ const PersonsTab = ({ selectedDate }) => {
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [ministerListForMinistry, setministerListForMinistry] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!selectedMinistry) return;
@@ -87,10 +90,6 @@ const PersonsTab = ({ selectedDate }) => {
     );
   }
 
-  const handleOpenProfile = (person) => {
-    setSelectedPerson(person);
-    setProfileOpen(true);
-  };
   return (
     <>
       <Box sx={{ p: 2 }}>
@@ -146,7 +145,7 @@ const PersonsTab = ({ selectedDate }) => {
             <Button
               key={idx}
               variant="contained"
-              onClick={() => handleOpenProfile(person)}
+              onClick={() => navigate(`/person-profile/${person.id}`, {state: {mode: 'back'} })}
               size="medium"
               sx={{
                 justifyContent: "flex-start",

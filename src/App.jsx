@@ -16,7 +16,6 @@ const App = () => {
   
   return(
     <div className={isDark ? "dark-mode" : ""}>
-      {/* <WebGLChecker/> */}
     <Router>
         <Routes>
           <Route path="/" element={<Home />} />

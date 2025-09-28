@@ -583,8 +583,10 @@ export default function GraphComponent({ activeMinistries }) {
         group: selectedNode.group,
         color: selectedNode.color,
       };
-
-      setMode("Statistics");
+      if(selectedNode.type === "person"){
+        navigate(`/person-profile/${selectedNode.id}`, {state: {mode: 'back'} });
+      }
+      
       handleClosePopup();
     }
   }, [selectedNode, navigate, handleClosePopup]);
@@ -622,7 +624,15 @@ export default function GraphComponent({ activeMinistries }) {
                 Xplore Statistics
               </button>
             </>
-          ) : (
+          ) : selectedNode.type == "person" ? ((
+            <button
+              onClick={handleNavigateToPage}
+              className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
+              style={{ backgroundColor: colors.primary || "#1976d2" }}
+            >
+              Go to Profile
+            </button>
+          )) : selectedNode.type == "minister" && (
             <button
               onClick={handleNavigateToPage}
               className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
