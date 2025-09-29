@@ -16,6 +16,8 @@ export default function Drawer({
   selectedNode,
   ministerToDepartments,
   onMinistryClick,
+  filterGraphBy,
+  filteredGraphData,
 }) {
   const { colors, isDark } = useThemeContext();
   const [drawerMinisterDictionary, setDrawerMinisterDictionary] = useState({});
@@ -76,7 +78,7 @@ export default function Drawer({
 
       {expandDrawer && (
         <div className="flex flex-col h-[97%] p-2">
-          {!showDepartment ? (
+          {!showDepartment && filterGraphBy == null ? (
             <>
               {/* Header (stays visible) */}
               <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
@@ -116,7 +118,8 @@ export default function Drawer({
                   )}
               </div>
             </>
-          ) : departmentListtoShow &&
+          ) : filterGraphBy == null &&
+            departmentListtoShow &&
             departmentListtoShow.length > 0 &&
             showDepartment ? (
             <>
@@ -158,6 +161,129 @@ export default function Drawer({
                     {department.target.name}
                   </div>
                 ))}
+              </div>
+            </>
+          ) : filterGraphBy == "minister" &&
+            filteredGraphData.nodes.length > 0 ? (
+            <>
+              {/* Header (stays visible) */}
+              <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
+                {filteredGraphData.nodes.length} Active Ministries
+              </h2>
+
+              {/* Scrollable content */}
+              <div className="flex-1 overflow-y-auto pr-2">
+                {filteredGraphData.nodes &&
+                  filteredGraphData.nodes.map(
+                    (minister, index) => (
+                      <div
+                        key={index}
+                        className={`my-2 p-2 rounded-md cursor-pointer ${
+                          isDark
+                            ? colors.backgroundWhite
+                            : "bg-gray-200 hover:bg-gray-300"
+                        }`}
+                        style={{
+                          backgroundColor: isDark
+                            ? colors.backgroundWhite
+                            : "bg-gray-200",
+                        }}
+                        onClick={() => {
+                          onMinistryClick(minister);
+                          setSelectedMinistry(minister);
+                          setShowDepartment(true);
+                          setDepartmentListtoShow(
+                            ministerToDepartments[minister.id]
+                          );
+                        }}
+                      >
+                        <span className="font-semibold mr-2">{index + 1}.</span>
+                        {minister.name}
+                      </div>
+                    )
+                  )}
+              </div>
+            </>
+          ) : filterGraphBy == "department" &&
+            filteredGraphData.nodes.length > 0 ? (
+            <>
+              {/* Header (stays visible) */}
+              <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
+                {filteredGraphData.nodes.length} Active Departments
+              </h2>
+
+              {/* Scrollable content */}
+              <div className="flex-1 overflow-y-auto pr-2">
+                {filteredGraphData.nodes &&
+                  filteredGraphData.nodes.map(
+                    (minister, index) => (
+                      <div
+                        key={index}
+                        className={`my-2 p-2 rounded-md cursor-pointer ${
+                          isDark
+                            ? colors.backgroundWhite
+                            : "bg-gray-200 hover:bg-gray-300"
+                        }`}
+                        style={{
+                          backgroundColor: isDark
+                            ? colors.backgroundWhite
+                            : "bg-gray-200",
+                        }}
+                        onClick={() => {
+                          onMinistryClick(minister);
+                          setSelectedMinistry(minister);
+                          setShowDepartment(true);
+                          setDepartmentListtoShow(
+                            ministerToDepartments[minister.id]
+                          );
+                        }}
+                      >
+                        <span className="font-semibold mr-2">{index + 1}.</span>
+                        {minister.name}
+                      </div>
+                    )
+                  )}
+              </div>
+            </>
+          ) : filterGraphBy == "person" &&
+            filteredGraphData.nodes.length > 0 ? (
+            <>
+              {/* Header (stays visible) */}
+              <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
+                {filteredGraphData.nodes.length} Persons
+              </h2>
+
+              {/* Scrollable content */}
+              <div className="flex-1 overflow-y-auto pr-2">
+                {filteredGraphData.nodes &&
+                  filteredGraphData.nodes.map(
+                    (minister, index) => (
+                      <div
+                        key={index}
+                        className={`my-2 p-2 rounded-md cursor-pointer ${
+                          isDark
+                            ? colors.backgroundWhite
+                            : "bg-gray-200 hover:bg-gray-300"
+                        }`}
+                        style={{
+                          backgroundColor: isDark
+                            ? colors.backgroundWhite
+                            : "bg-gray-200",
+                        }}
+                        onClick={() => {
+                          onMinistryClick(minister);
+                          setSelectedMinistry(minister);
+                          setShowDepartment(true);
+                          setDepartmentListtoShow(
+                            ministerToDepartments[minister.id]
+                          );
+                        }}
+                      >
+                        <span className="font-semibold mr-2">{index + 1}.</span>
+                        {minister.name}
+                      </div>
+                    )
+                  )}
               </div>
             </>
           ) : (
