@@ -24,6 +24,7 @@ import WebGLChecker, {
 import LoadingComponent from "./common_components/loading_component";
 import { useThemeContext } from "../themeContext";
 import { useNavigate } from "react-router-dom";
+import UrlParamState from "../hooks/singleSharingURL";
 
 export default function GraphComponent({ activeMinistries }) {
   const [loading, setLoading] = useState(true);
@@ -32,7 +33,7 @@ export default function GraphComponent({ activeMinistries }) {
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState(null);
-  const [filterGraphBy, setFilterGraphBy] = useState(null);
+  const [filterGraphBy, setFilterGraphBy] = UrlParamState("filterGraphBy",null);
 
   const [mode, setMode] = useState("Structure");
 
@@ -409,6 +410,7 @@ export default function GraphComponent({ activeMinistries }) {
           newGraph.links.push(link);
         });
 
+        console.log("these are the nodes to pass ", nodes);
         setFilteredGraphData(newGraph);
         setLoading(false);
       }, 5000);
@@ -583,10 +585,12 @@ export default function GraphComponent({ activeMinistries }) {
         group: selectedNode.group,
         color: selectedNode.color,
       };
-      if(selectedNode.type === "person"){
-        navigate(`/person-profile/${selectedNode.id}`, {state: {mode: 'back'} });
+      if (selectedNode.type === "person") {
+        navigate(`/person-profile/${selectedNode.id}`, {
+          state: { mode: "back" },
+        });
       }
-      
+
       handleClosePopup();
     }
   }, [selectedNode, navigate, handleClosePopup]);
@@ -624,7 +628,7 @@ export default function GraphComponent({ activeMinistries }) {
                 Xplore Statistics
               </button>
             </>
-          ) : selectedNode.type == "person" ? ((
+          ) : selectedNode.type == "person" ? (
             <button
               onClick={handleNavigateToPage}
               className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
@@ -632,14 +636,16 @@ export default function GraphComponent({ activeMinistries }) {
             >
               Go to Profile
             </button>
-          )) : selectedNode.type == "minister" && (
-            <button
-              onClick={handleNavigateToPage}
-              className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
-              style={{ backgroundColor: colors.primary || "#1976d2" }}
-            >
-              View Details
-            </button>
+          ) : (
+            selectedNode.type == "minister" && (
+              <button
+                onClick={handleNavigateToPage}
+                className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
+                style={{ backgroundColor: colors.primary || "#1976d2" }}
+              >
+                View Details
+              </button>
+            )
           )}
           <button
             onClick={handleClosePopup}
@@ -657,14 +663,17 @@ export default function GraphComponent({ activeMinistries }) {
   };
 
   const typeMap = {
+    All: null,
     Ministers: "minister",
     Departments: "department",
     Persons: "person",
   };
+
   const ColorMap = {
-    Ministers: "blue",
-    Departments: "green",
-    Persons: "red",
+    All: "#fff",
+    Ministers: "#ffee8c",
+    Departments: "#3e8ede",
+    Persons: "#004f98",
   };
 
   return (
@@ -680,6 +689,8 @@ export default function GraphComponent({ activeMinistries }) {
           mode={mode}
           setMode={setMode}
           selectedNode={selectedNode}
+          filteredGraphData={filteredGraphData}
+          filterGraphBy={filterGraphBy}
         />
         <div
           className="relative"
@@ -700,7 +711,7 @@ export default function GraphComponent({ activeMinistries }) {
                   overflow: "hidden",
                 }}
               >
-                {webgl ? (
+                {webgl && (
                   graphData.nodes.length > 0 && graphData.links.length > 0 ? (
                     <div className="relative">
                       <div
@@ -709,17 +720,20 @@ export default function GraphComponent({ activeMinistries }) {
                         } transition-all duration-300 ease-in-out z-100 shadow-2xl`}
                       >
                         <p className="text-white mr-2">Filter by :</p>
-                        {["Ministers", "Departments", "Persons"].map(
+                        {["All", "Ministers", "Departments", "Persons"].map(
                           (item, index) => {
                             return (
                               <button
                                 key={index}
-                                className="rounded-full text-black px-3 py-2 flex items-center space-x-3  hover:cursor-pointer"
+                                className="rounded-full px-3 py-2 flex items-center space-x-3  hover:cursor-pointer"
                                 onClick={() => setFilterGraphBy(typeMap[item])}
-                                style={{ backgroundColor: colors.textMuted }}
+                                style={{ backgroundColor: filterGraphBy === typeMap[item] ? colors.backgroundPrimary : colors.textMuted, color: filterGraphBy === typeMap[item] ? colors.textMuted : colors.backgroundPrimary }}
+                                disabled={
+                                  filterGraphBy === typeMap[item]
+                                }
                               >
                                 <div
-                                  className={`w-2 h-2 rounded-full animate-pulse`}
+                                  className={`w-2 h-2 rounded-full`}
                                   style={{ backgroundColor: ColorMap[item] }}
                                 ></div>
                                 <p>{item}</p>
@@ -790,82 +804,6 @@ export default function GraphComponent({ activeMinistries }) {
                       <LoadingComponent message="Preparing Graph Data" />
                     </div>
                   )
-                ) : (
-                  <div className="flex flex-col justify-center items-center w-full h-full p-8">
-                    <div className="text-center max-w-2xl">
-                      <h2 className="text-2xl font-bold mb-4 text-red-600">
-                        WebGL Not Available
-                      </h2>
-                      <p className="text-lg mb-6 text-gray-700">
-                        Your browser doesn't support WebGL or it's currently
-                        disabled. The 3D visualization requires WebGL to
-                        function properly.
-                      </p>
-
-                      <div className="bg-blue-50 p-4 rounded-lg mb-6 text-left">
-                        <h3 className="font-semibold mb-2">To enable WebGL:</h3>
-                        <ul className="list-disc list-inside space-y-1 text-sm">
-                          <li>
-                            <strong>Chrome:</strong> Settings → Advanced →
-                            System → Enable "Use hardware acceleration"
-                          </li>
-                          <li>
-                            <strong>Firefox:</strong> about:config →
-                            webgl.force-enabled → true
-                          </li>
-                          <li>
-                            <strong>Edge:</strong> Settings → System → Enable
-                            "Use hardware acceleration"
-                          </li>
-                          <li>Update your graphics drivers</li>
-                          <li>
-                            Disable browser extensions that might block WebGL
-                          </li>
-                        </ul>
-                      </div>
-
-                      <div className="flex gap-4 justify-center">
-                        <button
-                          onClick={() => window.location.reload()}
-                          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-                        >
-                          Reload Page
-                        </button>
-                        <button
-                          onClick={() => {
-                            const webglAvailable = isWebGLAvailable();
-                            console.log("Manual WebGL check:", webglAvailable);
-                            setWebgl(webglAvailable);
-                          }}
-                          className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
-                        >
-                          Retry WebGL
-                        </button>
-                        <button
-                          onClick={() => {
-                            // Force retry with multiple attempts
-                            let attempts = 0;
-                            const retryInterval = setInterval(() => {
-                              attempts++;
-                              const webglAvailable = isWebGLAvailable();
-                              console.log(
-                                `WebGL retry attempt ${attempts}:`,
-                                webglAvailable
-                              );
-                              setWebgl(webglAvailable);
-
-                              if (webglAvailable || attempts >= 3) {
-                                clearInterval(retryInterval);
-                              }
-                            }, 500);
-                          }}
-                          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                        >
-                          Force Retry
-                        </button>
-                      </div>
-                    </div>
-                  </div>
                 )}
               </div>
             ) : (
