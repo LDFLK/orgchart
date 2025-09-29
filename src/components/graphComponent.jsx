@@ -671,7 +671,6 @@ export default function GraphComponent({ activeMinistries }) {
 
   // Popup component
   const NodePopup = () => {
-    console.log('infor tab is opened')
     // Don't show popup if InfoTabDialog is open
     if (infoTabOpen) return null;
     if (!selectedNode || !popupVisible) return null;

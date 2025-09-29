@@ -5,6 +5,7 @@ import {
   Avatar,
   Dialog,
   IconButton,
+  Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PresidencyTimeline from "./PresidencyTimeline";
@@ -54,19 +55,19 @@ const ModernView = () => {
   }, [openProfile, president, navigate, location.pathname]);
 
   useEffect(() => {
-		if (!selectedDate) {
-			console.warn("Selected date is null, cannot fetch prime minister data.");
-			return;
-		}
-		setPrimeMinister({ relation: null, person: null });
-		const timeoutId = setTimeout(() => {
+    if (!selectedDate) {
+      console.warn("Selected date is null, cannot fetch prime minister data.");
+      return;
+    }
+    setPrimeMinister({ relation: null, person: null });
+    const timeoutId = setTimeout(() => {
       console.log("fetching prime minister data");
-			fetchPrimeMinister();
-		}, 1000);
-		return () => {
-			clearTimeout(timeoutId);
-		};
-	}, [selectedDate]);
+      fetchPrimeMinister();
+    }, 1000);
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [selectedDate]);
 
   const fetchPrimeMinister = async () => {
     try {
@@ -78,10 +79,10 @@ const ModernView = () => {
       );
 
       response = await response.json();
-      if(response.length === 0) {
+      if (response.length === 0) {
         setLoading(false);
         return;
-      } 
+      }
       let pmPerson = allPersonData[response[0].relatedEntityId];
       // Try to find a matching image from personImages
       if (pmPerson && pmPerson.name) {
@@ -242,9 +243,23 @@ const ModernView = () => {
                           : `${relation.startTime.split("-")[0]} - Present`;
                       })()}
                     </Typography>
-                    <Link
-                      to={{pathname: `/person-profile/${selectedPresident?.id}`, state: { mode: "back" }}}
-                      style={{ textDecoration: "none" }}
+
+                    <Button
+                      component={Link}
+                      to={`/person-profile/${selectedPresident?.id}`}
+                      state={{ mode: "back" }}
+                      disableRipple
+                      disableElevation
+                      sx={{
+                        p: 0,
+                        minWidth: "auto",
+                        backgroundColor: "transparent",
+                        textTransform: "none",
+                        textAlign: "left",
+                        "&:hover": {
+                          backgroundColor: "transparent",
+                        },
+                      }}
                     >
                       <Typography
                         sx={{
@@ -261,7 +276,7 @@ const ModernView = () => {
                       >
                         View Profile
                       </Typography>
-                    </Link>
+                    </Button>
                   </Box>
                 </Box>
               )}
@@ -360,9 +375,22 @@ const ModernView = () => {
                             } - Present`;
                       })()}
                     </Typography>
-                    <Link
-                      to={{ pathname: `/person-profile/${primeMinister.person?.id}`,state: { mode: "back" }}}
-                      style={{ textDecoration: "none" }}
+                    <Button
+                      component={Link}
+                      to={`/person-profile/${primeMinister.person?.id}`}
+                      state={{ mode: "back" }}
+                      disableRipple
+                      disableElevation
+                      sx={{
+                        p: 0,
+                        minWidth: "auto",
+                        backgroundColor: "transparent",
+                        textTransform: "none",
+                        textAlign: "left",
+                        "&:hover": {
+                          backgroundColor: "transparent",
+                        },
+                      }}
                     >
                       <Typography
                         sx={{
@@ -379,10 +407,12 @@ const ModernView = () => {
                       >
                         View Profile
                       </Typography>
-                    </Link>
+                    </Button>
                   </Box>
                 </Box>
-              ) : (primeMinister.person == null && primeMinister.relation == null && !loading) ? (
+              ) : primeMinister.person == null &&
+                primeMinister.relation == null &&
+                !loading ? (
                 <Typography
                   sx={{
                     fontStyle: "italic",
@@ -392,15 +422,18 @@ const ModernView = () => {
                 >
                   No Prime Minister appointed on this date.
                 </Typography>
-              ) : loading && (<Typography
-                  sx={{
-                    fontStyle: "italic",
-                    color: colors.textMuted,
-                    textAlign: "left",
-                  }}
-                >
-                  Loading Prime Minister data...
-                </Typography>
+              ) : (
+                loading && (
+                  <Typography
+                    sx={{
+                      fontStyle: "italic",
+                      color: colors.textMuted,
+                      textAlign: "left",
+                    }}
+                  >
+                    Loading Prime Minister data...
+                  </Typography>
+                )
               )}
             </Box>
           </Card>
