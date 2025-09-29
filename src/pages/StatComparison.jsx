@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import {
     Container, Grid, Paper, Typography, FormControl, InputLabel, Select, MenuItem, Card, CardContent, Checkbox, ListItemText, Box,
     colors,
@@ -6,59 +6,40 @@ import {
 import {
     SimpleBarChart, SimpleLineChart, SimplePieChart, MultiBarChart, MultiHorizontalBarChart, BubbleChart, CirclePackingChart,
 } from "./../components/statistics_components/Charts";
-import { years, departments, statTypes, mockData, yearlyMockData } from "../assets/statMockData";
+import { departments, statTypes, mockData, yearlyMockData } from "../assets/statMockData";
 import StatisticsFilters from "./../components/statistics_components/StatisticFilter";
 import PresidentCard from "./../components/statistics_components/president_card"
+import StatisticTimeline from "../components/statistics_components/StatisticTimeline";
 
 
-export default function Dashboard({selectedNode}) {
+export default function Dashboard({ selectedNode }) {
     const [selection, setSelection] = useState({
         Department: { year: "", dept: "", stat: "" },
-        Yearly: { year: "", stat: "" },
-        Presidents: { presidents: [] },
-        Ministries: { ministries: [] }
+        // Yearly: { year: "", stat: "" },
+        // Presidents: { presidents: [] },
+        // Ministries: { ministries: [] }
     });
 
-    const [selectedCategory, setSelectedCategory] = useState("Yearly"); // default
+    const [selectedCategory, setSelectedCategory] = useState("Department");
     const [cards, setCards] = useState([]);
-    const [displayDept, setDisplayDept] = useState("");
-    const [displayStat, setDisplayStat] = useState("");
-    const [displayYearlyStat, setDisplayYearlyStat] = useState("")
+    // const [displayDept, setDisplayDept] = useState("");
+    // const [displayStat, setDisplayStat] = useState("");
+    // const [displayYearlyStat, setDisplayYearlyStat] = useState("")
     const bubbleRef = useRef(null);
     const [bubbleWidth, setBubbleWidth] = useState(0);
     const { year, dept, stat } = selection[selectedCategory] || {};
+    const [userSelectedDateRange, setUserSelectedDateRange] = useState([null, null]);
+    const [rangeYears, setRangeYears] = useState([]);
 
-
+   
     useEffect(() => {
         setCards([]);
-        setDisplayDept("");
-        setDisplayStat("");
-        setDisplayYearlyStat("");
+        // setDisplayDept("");
+        // setDisplayStat("");
+        // setDisplayYearlyStat("");
     }, [selectedCategory]);
 
-    useEffect(()=>{console.log('selectedNode from comparison : ', selectedNode)},[selectedNode])
-
-
-    // if(selectedNode.type == "department"){
-    //     setSelectedCategory("Department");
-    // }
-
-
-    // Filter dropdowns
-    const availableYears = years.filter((y) => {
-        if (selectedCategory === "Department") {
-            if (!dept && !stat) return mockData[y] !== undefined;
-            if (dept && !stat) return mockData[y]?.[dept] !== undefined;
-            if (dept && stat) return mockData[y]?.[dept]?.[stat] !== undefined;
-            return false;
-        }
-
-        if (selectedCategory === "Yearly") {
-            return yearlyMockData[y] !== undefined;
-        }
-
-        return false;
-    });
+    useEffect(() => { console.log('selectedNode from comparison : ', selectedNode) }, [selectedNode])
 
     const availableDepartments = departments.filter((d) => {
         if (selectedCategory === "Department") {
@@ -67,9 +48,9 @@ export default function Dashboard({selectedNode}) {
             return mockData[year]?.[d]?.[stat] !== undefined;
         }
 
-        if (selectedCategory === "Yearly") {
-            return false;
-        }
+        // if (selectedCategory === "Yearly") {
+        //     return false;
+        // }
 
         return false;
     });
@@ -77,66 +58,23 @@ export default function Dashboard({selectedNode}) {
     const availableStats =
         selectedCategory === "Department"
             ? statTypes.filter((s) => {
-                if (!year || !dept) return true;
-                return mockData[year]?.[dept]?.[s] !== undefined;
+                if (!dept || rangeYears.length === 0) return false;
+
+                // Check if this stat exists in ANY year of the selected range
+                return rangeYears.some((y) => mockData[y]?.[dept]?.[s] !== undefined);
             })
-            : Object.keys(yearlyMockData[selection.Yearly.year || Object.keys(yearlyMockData)[0]] || {});
+            : (() => {
+                if (rangeYears.length === 0) return [];
 
-    const handleShowData = () => {
-        if (selectedCategory === "Department") {
-            if (year && dept && stat) {
-                const value = mockData[year]?.[dept]?.[stat];
-                if (value) {
-                    setCards([{ year, dept, stat, value }]);
-                    setDisplayDept(selection.Department.dept);
-                    setDisplayStat(selection.Department.stat);
-                }
-            }
-        }
+                // Collect all stats across the range
+                const statsSet = new Set();
+                rangeYears.forEach((y) => {
+                    const statsForYear = yearlyMockData[y] || {};
+                    Object.keys(statsForYear).forEach((s) => statsSet.add(s));
+                });
 
-        if (selectedCategory === "Yearly") {
-            if (year && stat) {
-                const value = yearlyMockData[year]?.[stat];
-                if (value !== undefined) {
-                    setCards([{ year, stat, value }]);
-                    setDisplayYearlyStat(selection.Yearly.stat);
-                }
-            }
-        }
-    };
-    const compareYears = selectedCategory === "Department"
-        ? years.filter((y) => mockData[y]?.[displayDept]?.[displayStat])
-        : years.filter((y) => yearlyMockData[y]?.[displayYearlyStat]);
-
-    const handleYearChange = (event) => {
-        const selected = event.target.value;
-
-        if (selectedCategory === "Department") {
-            selected.forEach((y) => {
-                if (!cards.some((c) => c.year === y)) {
-                    const value = mockData[y]?.[dept]?.[stat];
-                    if (value) {
-                        setCards((prev) => [...prev, { year: y, dept, stat, value }]);
-                    }
-                }
-            });
-        }
-
-        if (selectedCategory === "Yearly") {
-            selected.forEach((y) => {
-                if (!cards.some((c) => c.year === y)) {
-                    const value = yearlyMockData[y]?.[stat];
-                    if (value !== undefined) {
-                        setCards((prev) => [...prev, { year: y, stat, value }]);
-                    }
-                }
-            });
-        }
-
-        // Remove deselections
-        setCards((prev) => prev.filter((c) => selected.includes(c.year)));
-    };
-
+                return Array.from(statsSet);
+            })();
 
     useEffect(() => {
         const handleResize = () => {
@@ -166,7 +104,7 @@ export default function Dashboard({selectedNode}) {
 
         if (type === "single") {
             return (
-                <Box sx={{ height: 300, mt: 2 }}>
+                <Box sx={{ height: 250, mt: 6 }}>
                     <SimpleBarChart
                         data={cards.map((c) => ({ year: c.year, value: c.value.data[0].value }))}
                         xDataKey="year"
@@ -185,7 +123,7 @@ export default function Dashboard({selectedNode}) {
                 return row;
             });
             return (
-                <Box sx={{ height: 300, mt: 2 ,width: 'full'}}>
+                <Box sx={{ height: 250, mt: 2, width: 'full' }}>
                     <MultiBarChart data={combined} xDataKey="label" barKeys={cards.map((c) => c.year.toString())} />
                 </Box>
             );
@@ -200,7 +138,7 @@ export default function Dashboard({selectedNode}) {
                 return row;
             });
             return (
-                <Box sx={{ height: 300, mt: 2 }}>
+                <Box sx={{ height: 250, mt: 2 }}>
                     <SimpleLineChart data={combined} xDataKey="label" lineKeys={cards.map((c) => c.year.toString())} />
                 </Box>
             );
@@ -215,7 +153,7 @@ export default function Dashboard({selectedNode}) {
                 return row;
             });
             return (
-                <Box sx={{ height: 300, mt: 2 }}>
+                <Box sx={{ height: 250, mt: 2 }}>
                     <MultiHorizontalBarChart data={combined} yDataKey="category" barKeys={cards.map((c) => c.year.toString())} />
                 </Box>
             );
@@ -301,33 +239,115 @@ export default function Dashboard({selectedNode}) {
         );
     };
 
+       const handleYearChange = (event) => {
+        const selected = event.target.value;
+        if (selected.length === 0) return;
+
+        if (selectedCategory === "Department") {
+            selected.forEach((y) => {
+                if (!cards.some((c) => c.year === y)) {
+                    const value = mockData[y]?.[dept]?.[stat];
+                    if (value) {
+                        setCards((prev) => [...prev, { year: y, dept, stat, value }]);
+                    }
+                }
+            });
+        }
+
+        // if (selectedCategory === "Yearly") {
+        //     selected.forEach((y) => {
+        //         if (!cards.some((c) => c.year === y)) {
+        //             const value = yearlyMockData[y]?.[stat];
+        //             if (value !== undefined) {
+        //                 setCards((prev) => [...prev, { year: y, stat, value }]);
+        //             }
+        //         }
+        //     });
+        // }
+
+        // Remove deselections but ensure at least one remains
+        if (selected.length >= 1) {
+            setCards((prev) => prev.filter((c) => selected.includes(c.year)));
+        }
+    };
+
+     useEffect(() => {
+        if (rangeYears.length === 0) return;
+
+        if (selectedCategory === "Department" && dept && stat) {
+            const newCards = rangeYears
+                .map((y) => {
+                    const value = mockData[y]?.[dept]?.[stat];
+                    return value ? { year: y, dept, stat, value } : null;
+                })
+                .filter(Boolean);
+            setCards(newCards);
+        }
+
+        // if (selectedCategory === "Yearly" && stat) {
+        //     const newCards = rangeYears
+        //         .map((y) => {
+        //             const value = yearlyMockData[y]?.[stat];
+        //             return value !== undefined ? { year: y, stat, value } : null;
+        //         })
+        //         .filter(Boolean);
+        //     setCards(newCards);
+        // }
+    }, [rangeYears, dept, stat, selectedCategory]);
+
+    const handleDateRangeChange = useCallback((dateRange) => {
+        const [startDate, endDate] = dateRange;
+        setUserSelectedDateRange([startDate, endDate]);
+        console.log("Selected date range in Dashboard:", startDate, endDate);
+
+        if (startDate && endDate) {
+            const startYear = startDate.getUTCFullYear();
+            const endYear = endDate.getUTCFullYear();
+
+            // Generate list of years between startYear and endYear
+            const yearsInRange = Array.from(
+                { length: endYear - startYear + 1 },
+                (_, i) => startYear + i
+            );
+
+            setRangeYears(yearsInRange);
+        }
+    }, []);
 
     return (
         <Box sx={{
-            overflow: "auto"
+            gap: 2,
+            px: { xs: 1, sm: 2 },
+            width: "100%",
         }}>
+
+            <StatisticTimeline
+                startYear={2019}
+                onDateChange={handleDateRangeChange}
+            ></StatisticTimeline>
+
+
             <StatisticsFilters
                 selection={selection}
                 setSelection={setSelection}
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
-                availableYears={availableYears}
                 availableDepartments={availableDepartments}
                 availableStats={availableStats}
-                handleShowData={handleShowData}
+  
             />
 
             {cards.length > 0 && selectedCategory === "Department" && (
-                <Typography sx={{margin: "0 auto", mt: 3, fontWeight: "bold" }} variant="subtitle1" color={colors.textMuted}>
-                    {displayDept} - {displayStat}
+                <Typography sx={{ margin: "0 auto", mt: 3, fontWeight: "bold", mb: 1 }} variant="subtitle1" color={colors.textMuted}>
+                    {dept} - {stat}
                 </Typography>
             )}
 
-            {cards.length > 0 && selectedCategory === "Yearly" && (
-                <Typography sx={{margin: "0 auto", mt: 3, fontWeight: "bold" }} variant="subtitle1" color={colors.textMuted}>
+            {/* {cards.length > 0 && selectedCategory === "Yearly" && (
+                <Typography sx={{ margin: "0 auto", mt: 3, fontWeight: "bold" }} variant="subtitle1" color={colors.textMuted}>
                     {displayYearlyStat}
                 </Typography>
-            )}
+            )} */}
 
 
             {selectedCategory === "Presidents" && selection.Presidents.presidents.length > 0 && (
@@ -360,19 +380,19 @@ export default function Dashboard({selectedNode}) {
 
             {cards.length > 0 && (
                 <Paper
-                
+
                     elevation={1}
                     sx={{
                         p: { xs: 3, md: 4 },
                         mb: 4,
                         borderRadius: 4,
                         margin: "0 auto",
-                        mt: 3,
+                        mt: -1,
                         backgroundColor: "#fafafa",
                         width: '100%'
                     }}
                 >
-                    <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3, mt: -2 }}>
                         <FormControl
                             sx={{
                                 width: { xs: "100%", sm: 250 },
@@ -399,25 +419,35 @@ export default function Dashboard({selectedNode}) {
                                 displayEmpty
                                 label="compare with"
                             >
-                                {compareYears.map((y) => (
-                                    <MenuItem key={y} value={y}>
-                                        <Checkbox
-                                            checked={cards.some((c) => c.year === y)}
-                                            sx={{ color: "#000", "&.Mui-checked": { color: "#000" } }}
-                                        />
-                                        <ListItemText primary={y} />
-                                    </MenuItem>
-                                ))}
+                                {rangeYears
+                                    .filter((y) =>
+                                        selectedCategory === "Department"
+                                            ? mockData[y]?.[selection.Department.dept]?.[selection.Department.stat]
+                                            : yearlyMockData[y]?.[selection.Yearly.stat]
+                                    )
+                                    .map((y) => (
+                                        <MenuItem key={y} value={y}>
+                                            <Checkbox
+                                                checked={cards.some((c) => c.year === y)}
+                                                sx={{ color: "#000", "&.Mui-checked": { color: "#000" } }}
+                                            />
+                                            <ListItemText primary={y} />
+                                        </MenuItem>
+                                    ))}
                             </Select>
+
+
                         </FormControl>
                     </Box>
 
                     {/* Chart Card */}
                     <Card
                         sx={{
+                        
                             borderRadius: 4,
                             boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                             width: "100%"
+
                         }}
                     >
                         <CardContent >{combinedChart()}</CardContent>

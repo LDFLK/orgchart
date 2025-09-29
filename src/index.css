@@ -6,3 +6,34 @@ body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
 }
+
+.react-datepicker {
+  display: flex !important;
+  gap: 1rem; 
+}
+
+.react-datepicker__month-container {
+  float: none !important;
+}
+
+.scroll-wrapper {
+  scrollbar-width: thin; 
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s;
+}
+.react-datepicker__month-container {
+  width: 100% !important;
+}
+
+.react-datepicker__month-container {
+  width: 100% !important;
+  
+}
+.react-datepicker__day-names {
+  width: 100% !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+

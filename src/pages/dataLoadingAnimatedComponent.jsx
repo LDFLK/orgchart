@@ -15,7 +15,6 @@ import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/NavBar";
 import { Box, Typography } from "@mui/material";
 import { setGazetteDataClassic } from "../store/gazetteDate";
-import StatisticMainPage from "./statistics_main_page";
 import LoadingComponent from "../components/common_components/loading_component";
 import { useThemeContext } from "../themeContext";
 import Dashboard from "./StatComparison";
@@ -210,10 +209,6 @@ export default function DataLoadingAnimatedComponent({ mode }) {
           {Object.keys(presidentDict).length > 0 &&
             mode === "orgchart" &&
             selectedPresident && <Navbar />}
-
-          {Object.keys(presidentDict).length > 0 &&
-            mode === "statistics" &&
-            selectedPresident && <StatisticMainPage />}
         </>
       )}
     </>
