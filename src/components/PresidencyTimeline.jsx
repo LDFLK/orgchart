@@ -19,9 +19,6 @@ import YearRangeSelector from "./common_components/Timeline";
 export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   const dispatch = useDispatch();
 
-
-
-
   //redux state
   const presidents = useSelector((state) => state.presidency.presidentDict);
   const selectedPresident = useSelector(

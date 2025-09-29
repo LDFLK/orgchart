@@ -78,7 +78,11 @@ const PersonHistoryTimeline = ({
           height: "20vh",
         }}
       >
-        <ClipLoader color={colors.textMuted2} loading={loading} size={25} />
+        <ClipLoader
+          color={colors.primary}
+          loading={loading}
+          size={25}
+        />
       </Box>
     );
   }
@@ -280,6 +284,7 @@ const PersonProfile = () => {
   const matchingPresident = personDetails.find(
     (p) => p.presidentName === personName
   );
+
   const imageUrl = matchingPresident ? matchingPresident.imageUrl : null;
 
   const tabOptions = ["history"];
@@ -297,8 +302,14 @@ const PersonProfile = () => {
     >
       {state.mode === "back" ? (
         <Button
-          onClick={() =>  navigate(-1)}
-          sx={{ mb: 2, display: "flex", width: 200, alignItems: "center", gap: 1 }}
+          onClick={() => navigate(-1)}
+          sx={{
+            mb: 2,
+            display: "flex",
+            width: 200,
+            alignItems: "center",
+            gap: 1,
+          }}
         >
           <FaAngleLeft />
           <Typography
@@ -312,8 +323,16 @@ const PersonProfile = () => {
           </Typography>
         </Button>
       ) : (
-        <Button onClick={() => navigate('/orgchart')}
-          sx={{ mb: 2, display: "flex", width: 200, alignItems: "center", gap: 1 }}>
+        <Button
+          onClick={() => navigate("/orgchart")}
+          sx={{
+            mb: 2,
+            display: "flex",
+            width: 200,
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
           <FaAngleLeft />
           <Typography
             variant="h8"

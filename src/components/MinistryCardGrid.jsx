@@ -43,9 +43,9 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = UrlParamState("filterByName","");
-  const [filterType, setFilterType] = UrlParamState("filterByType","all");
-  const [viewMode, setViewMode] = UrlParamState("viewMode","Grid");
+  const [searchText, setSearchText] = UrlParamState("filterByName", "");
+  const [filterType, setFilterType] = UrlParamState("filterByType", "all");
+  const [viewMode, setViewMode] = UrlParamState("viewMode", "Grid");
   const { colors } = useThemeContext();
 
   useEffect(() => {
@@ -53,45 +53,54 @@ const MinistryCardGrid = ({ onCardClick }) => {
   }, [selectedDate, allMinistryData, selectedPresident]);
 
   useEffect(() => {
-    let result = activeMinistryList;
-
-    // Apply dropdown filter
-    if (filterType === "newPerson") {
-      result = result.filter((m) => m.newPerson);
-    } else if (filterType === "newMinistry") {
-      result = result.filter((m) => m.newMin);
-    } else if (filterType === "presidentAsMinister") {
-      result = result.filter((m) => {
-        const headName = m.headMinisterName
-          ? utils.extractNameFromProtobuf(m.headMinisterName)
-          : selectedPresident?.name
-          ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
-          : null;
-
-        const presidentName = selectedPresident?.name
-          ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
-          : null;
-
-        return (
-          headName &&
-          presidentName &&
-          headName.toLowerCase().trim() === presidentName.toLowerCase().trim()
-        );
-      });
-    }
-
-    // Apply search text filter using your existing function
+    let delayDebounceFunction;
     if (searchText !== "") {
-      result = searchByText(searchText, result);
+      setLoading(true);
+      delayDebounceFunction = setTimeout(() => {
+        let result = activeMinistryList;
+
+        // Apply dropdown filter
+        if (filterType === "newPerson") {
+          result = result.filter((m) => m.newPerson);
+        } else if (filterType === "newMinistry") {
+          result = result.filter((m) => m.newMin);
+        } else if (filterType === "presidentAsMinister") {
+          result = result.filter((m) => {
+            const headName = m.headMinisterName
+              ? utils.extractNameFromProtobuf(m.headMinisterName)
+              : selectedPresident?.name
+              ? utils
+                  .extractNameFromProtobuf(selectedPresident.name)
+                  .split(":")[0]
+              : null;
+
+            const presidentName = selectedPresident?.name
+              ? utils
+                  .extractNameFromProtobuf(selectedPresident.name)
+                  .split(":")[0]
+              : null;
+
+            return (
+              headName &&
+              presidentName &&
+              headName.toLowerCase().trim() ===
+                presidentName.toLowerCase().trim()
+            );
+          });
+        }
+
+        if (searchText !== "") {
+          result = searchByText(searchText, result);
+        }
+        setFilteredMinistryList(result);
+        setLoading(false);
+      }, 1000);
+    } else {
+      setFilteredMinistryList(activeMinistryList);
+      setLoading(false);
     }
 
-    const delayDebounceFunction = setTimeout(() => {
-
-      setFilteredMinistryList(result);
-    }, 2500)
-
-    return () => clearTimeout(delayDebounceFunction)
-
+    return () => clearTimeout(delayDebounceFunction);
   }, [searchText, filterType, activeMinistryList, selectedPresident]);
 
   const searchByText = (searchText, list = activeMinistryList) => {
@@ -571,7 +580,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
         ) : (
           <Box sx={{ width: "100%" }}>
             <Grid
-            position={"relative"}
+              position={"relative"}
               container
               justifyContent="center"
               gap={1}
@@ -608,7 +617,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
                     </Grid>
                   ))
                 ) : (
-                  <GraphComponent  activeMinistries={filteredMinistryList} />
+                  <GraphComponent activeMinistries={filteredMinistryList} />
                 )
               ) : activeMinistryList && activeMinistryList.length === 0 ? (
                 <Box

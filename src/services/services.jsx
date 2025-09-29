@@ -169,7 +169,6 @@ const fetchActiveMinistries = async (
   }
 };
 
-
 const fetchAllPersons = async () => {
   try {
     const response = await fetch(`${apiUrl}/v1/entities/search`, {
@@ -432,9 +431,6 @@ const getMinistriesByPerson = async (personId) => {
     console.error("Error fetching renamed department info:", error);
   }
 };
-
-
-
 
 export default {
   fetchInitialGazetteData,

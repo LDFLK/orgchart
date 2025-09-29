@@ -1,4 +1,11 @@
-import { Box, Card, Typography, Avatar, Dialog, IconButton } from "@mui/material";
+import {
+  Box,
+  Card,
+  Typography,
+  Avatar,
+  Dialog,
+  IconButton,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import PresidencyTimeline from "./PresidencyTimeline";
 import MinistryCardGrid from "./MinistryCardGrid";
@@ -6,31 +13,83 @@ import InfoTab from "./InfoTab";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useThemeContext } from "../themeContext";
 import PersonProfile from "./PersonProfile";
+import api from "../services/services";
+import personImages from "../assets/personImages.json";
+import { FaRegEye } from "react-icons/fa";
 
 const ModernView = () => {
-  const { selectedDate, selectedPresident } = useSelector((state) => state.presidency);
+  const { selectedDate, selectedPresident } = useSelector(
+    (state) => state.presidency
+  );
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
-  const presidentRelationDict = useSelector((state) => state.presidency.presidentRelationDict);
+  const presidentRelationDict = useSelector(
+    (state) => state.presidency.presidentRelationDict
+  );
+  const allPersonData = useSelector((state) => state.allPerson.allPerson);
+
   const { colors } = useThemeContext();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [drawerMode, setDrawerMode] = useState("ministry");
   const [selectedDepartment, setSelectedDepartment] = useState(null);
-  const [profileOpen, setProfileOpen] = useState(false); // <-- Dialog open state
+  const [primeMinister, setPrimeMinister] = useState({
+    relation: null,
+    person: null,
+  });
+  const [profileOpen, setProfileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { president, openProfile } = location.state || {};
 
-useEffect(() => {
-  if (openProfile && president) {
-    setProfileOpen(true);
-    navigate(location.pathname, { replace: true });
-  }
-}, [openProfile, president, navigate, location.pathname]);
+  useEffect(() => {
+    if (openProfile && president) {
+      setProfileOpen(true);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [openProfile, president, navigate, location.pathname]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetchPrimeMinister();
+    } else {
+      console.warn("Selected date is null, cannot fetch prime minister data.");
+    }
+  }, [selectedDate]);
+
+  const fetchPrimeMinister = async () => {
+    try {
+      var response = await api.fetchActiveRelationsForMinistry(
+        selectedDate.date,
+        "gov_01",
+        "AS_PRIME_MINISTER"
+      );
+
+      response = await response.json();
+      let pmPerson = allPersonData[response[0].relatedEntityId];
+      // Try to find a matching image from personImages
+      if (pmPerson && pmPerson.name) {
+        const pmName = utils.extractNameFromProtobuf(pmPerson.name).trim();
+        const found = personImages.find(
+          (img) =>
+            img.type === "prime-minister" && img.presidentName.trim() === pmName
+        );
+        if (found && found.imageUrl) {
+          pmPerson = { ...pmPerson, imageUrl: found.imageUrl };
+        }
+      }
+      console.log("Prime Minister Person Data:", pmPerson);
+      setPrimeMinister({
+        relation: response[0],
+        person: pmPerson,
+      });
+    } catch (e) {
+      console.error("Failed to fetch prime minister data:", e);
+    }
+  };
 
   const handleCardClick = (card) => {
     setSelectedCard(card);
@@ -50,7 +109,6 @@ useEffect(() => {
     setSelectedDepartment(dep);
     setDrawerMode("department");
   };
-
 
   return (
     <Box
@@ -79,23 +137,24 @@ useEffect(() => {
             textAlign: "left",
             width: "100%",
             display: { xs: "block", md: "flex" },
-            justifyContent: "Center",
+            justifyContent: "center",
           }}
         >
+          {/* President Card */}
           <Card
             sx={{
-              width: { sm: "45%", lg: "25%" },
+              width: { xs: "100%", sm: "45%", lg: "25%" },
               marginRight: 1,
               border: `2px solid ${selectedPresident.themeColorLight}`,
               borderRadius: "15px",
               backgroundColor: colors.backgroundPrimary,
               boxShadow: "none",
-              cursor: "pointer", // make card clickable
+              cursor: "pointer",
+              mr: 1,
             }}
-            onClick={() => {
-              // setProfileOpen(true)
-              navigate(`/person-profile/${selectedPresident?.id}`)
-            }} // <-- open popup
+            // onClick={() => {
+            //   navigate(`/person-profile/${selectedPresident?.id}`);
+            // }}
           >
             <Box
               sx={{
@@ -103,29 +162,32 @@ useEffect(() => {
                 height: "35px",
                 backgroundColor: `${selectedPresident.themeColorLight}`,
                 borderBottomRightRadius: "15px",
+                textAlign: "left", // Align the header text left
               }}
             >
               <Typography
                 sx={{
-                  fontWeight: 600,
+                  fontWeight: 300,
                   color: colors.white,
                   fontSize: 18,
-                  textAlign: "center",
+                  textAlign: "center", // Keep this centered
                   pt: "5px",
                 }}
               >
                 President
               </Typography>
             </Box>
-            <Box sx={{ padding: 1 }}>
+
+            <Box sx={{ padding: 2 }}>
               {selectedPresident && (
                 <Box
                   direction="row"
                   sx={{
                     display: "flex",
-                    justifyContent: "left",
-                    ml: "20px",
-                    my: "10px",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    ml: 0,
+                    my: 0,
                   }}
                 >
                   <Avatar
@@ -134,37 +196,191 @@ useEffect(() => {
                     sx={{
                       width: 75,
                       height: 75,
-                      border: `3px solid ${selectedPresident.themeColorLight}`,
+                      // border: `3px solid ${selectedPresident.themeColorLight}`,
                       backgroundColor: colors.backgroundPrimary,
-                      margin: "auto",
                     }}
                   />
-                  <Box sx={{ display: "block", justifyContent: "left", ml: "15px" }}>
+                  <Box
+                    sx={{
+                      display: "block",
+                      ml: "15px",
+                    }}
+                  >
                     <Typography
                       sx={{
-                        fontWeight: 600,
-                        fontSize: 20,
+                        fontWeight: 400,
+                        fontSize: 18,
                         whiteSpace: "normal",
                         wordBreak: "break-word",
                         fontFamily: "poppins",
                         color: colors.textPrimary,
+                        textAlign: "left",
+                        margin: 0,
                       }}
                     >
                       {utils.extractNameFromProtobuf(selectedPresident.name)}
                     </Typography>
                     <Typography sx={{ fontSize: 18, color: colors.textMuted }}>
-                      {selectedPresident.created.split("-")[0]} -{" "}
                       {(() => {
-                        const relation = presidentRelationDict[selectedPresident.id];
+                        const relation =
+                          presidentRelationDict[selectedPresident.id];
                         if (!relation) return "Unknown";
                         return relation.endTime
-                          ? new Date(relation.endTime).getFullYear()
-                          : "Present";
+                          ? `${relation.startTime.split("-")[0]} - ${new Date(
+                              relation.endTime
+                            ).getFullYear()}`
+                          : `${relation.startTime.split("-")[0]} - Present`;
                       })()}
                     </Typography>
+                    <Link
+                      to={`/person-profile/${selectedPresident?.id}`}
+                      style={{ textDecoration: "none" }}
+                    >
+                      <Typography
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          fontSize: 14,
+                          color: "#6491DA",
+                          transition: "color 0.3s, text-decoration 0.3s",
+                          ":hover": {
+                            textDecoration: "underline",
+                            color: selectedPresident.themeColorLight,
+                          },
+                        }}
+                      >
+                        View Profile
+                      </Typography>
+                    </Link>
                   </Box>
                 </Box>
               )}
+            </Box>
+          </Card>
+
+          {/* Prime Minister Card */}
+          <Card
+            sx={{
+              width: { xs: "100%", sm: "45%", lg: "25%" },
+              marginRight: 1,
+              border: `2px solid ${selectedPresident.themeColorLight}`,
+              borderRadius: "15px",
+              backgroundColor: colors.backgroundPrimary,
+              boxShadow: "none",
+              cursor: "pointer",
+              ml: 1,
+            }}
+            onClick={() => {
+              navigate(`/person-profile/${primeMinister.person?.id}`);
+            }}
+          >
+            <Box
+              sx={{
+                width: "175px",
+                height: "35px",
+                backgroundColor: `${selectedPresident.themeColorLight}`,
+                borderBottomRightRadius: "15px",
+                textAlign: "left",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontWeight: 300,
+                  color: colors.white,
+                  fontSize: 18,
+                  textAlign: "center",
+                  pt: "5px",
+                }}
+              >
+                Prime Minister
+              </Typography>
+            </Box>
+
+            <Box sx={{ padding: 2 }}>
+              {primeMinister.person &&
+                primeMinister.relation &&
+                selectedPresident && (
+                  <Box
+                    direction="row"
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                      ml: 0,
+                      my: 0,
+                    }}
+                  >
+                    <Avatar
+                      src={primeMinister.person.imageUrl}
+                      alt={primeMinister.person.name}
+                      sx={{
+                        width: 75,
+                        height: 75,
+                        // border: `3px solid ${selectedPresident.themeColorLight}`,
+                        backgroundColor: colors.backgroundPrimary,
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        display: "block",
+                        ml: "15px",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: 18,
+                          whiteSpace: "normal",
+                          wordBreak: "break-word",
+                          fontFamily: "poppins",
+                          color: colors.textPrimary,
+                          textAlign: "left",
+                          margin: 0,
+                        }}
+                      >
+                        {utils.extractNameFromProtobuf(
+                          primeMinister.person.name
+                        )}
+                      </Typography>
+                      <Typography
+                        sx={{ fontSize: 18, color: colors.textMuted }}
+                      >
+                        {(() => {
+                          if (!primeMinister.relation) return "Unknown";
+                          return primeMinister.relation.endTime
+                            ? `${
+                                primeMinister.relation.startTime.split("-")[0]
+                              } - ${new Date(
+                                primeMinister.relation.endTime
+                              ).getFullYear()}`
+                            : `${
+                                primeMinister.relation.startTime.split("-")[0]
+                              } - Present`;
+                        })()}
+                      </Typography>
+                      <Link
+                        to={`/person-profile/${selectedPresident?.id}`}
+                        style={{ textDecoration: "none" }}
+                      >
+                        <Typography
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            fontSize: 14,
+                            color: "#6491DA",
+                            transition: "color 0.3s, text-decoration 0.3s",
+                            ":hover": {
+                              textDecoration: "underline",
+                              color: selectedPresident.themeColorLight,
+                            },
+                          }}
+                        >
+                          View Profile
+                        </Typography>
+                      </Link>
+                    </Box>
+                  </Box>
+                )}
             </Box>
           </Card>
         </Box>
@@ -180,13 +396,21 @@ useEffect(() => {
               maxHeight: 600,
               overflowY: "auto",
               scrollbarWidth: "none", // Firefox
-              "&::-webkit-scrollbar": { display: "none" }, // Chrome, Safari 
+              "&::-webkit-scrollbar": { display: "none" }, // Chrome, Safari
               backgroundColor: colors.backgroundPrimary,
               borderRadius: 3,
             },
           }}
         >
-          <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", px: 2, pt: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              px: 2,
+              pt: 2,
+            }}
+          >
             <IconButton onClick={() => setProfileOpen(false)}>
               <CloseIcon sx={{ color: colors.textPrimary }} />
             </IconButton>
@@ -197,9 +421,10 @@ useEffect(() => {
           </Box>
         </Dialog>
 
-
         {/* Card Grid for Modern View */}
-        {selectedDate != null && <MinistryCardGrid onCardClick={handleCardClick} />}
+        {selectedDate != null && (
+          <MinistryCardGrid onCardClick={handleCardClick} />
+        )}
       </Box>
 
       {/* Right Drawer */}
