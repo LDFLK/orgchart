@@ -63,11 +63,6 @@ export default function YearRangeSelector({
     setSelectedRange([urlStart.getUTCFullYear(), urlEnd.getUTCFullYear()]);
   }, [searchParams, latestPresStartDate]);
 
-  useEffect(() => {
-    console.log("start date : ", startDate);
-    console.log("end date : ", endDate);
-  }, [startDate, endDate]);
-
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(null);
   const [isMovingWindow, setIsMovingWindow] = useState(false);
@@ -86,6 +81,7 @@ export default function YearRangeSelector({
   const containerRef = useRef(null);
   const dragStartRef = useRef(null);
   const scrollWrapperRef = useRef(null);
+  const debounceRef = useRef(null);
 
   const presidents = React.useMemo(() => {
     if (!presidentsArray || !presidentRelationDict) return {};
@@ -171,12 +167,33 @@ export default function YearRangeSelector({
   }
 
   useEffect(() => {
-    onDateChange?.([startDate, endDate]);
-    const newParams = new URLSearchParams(searchParams.toString());
-    newParams.set("startDate", formatDate(startDate));
-    newParams.set("endDate", formatDate(endDate));
-    setSearchParams(newParams);
-  }, [startDate, endDate, onDateChange]);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    const trigger = () => {
+      onDateChange?.([startDate, endDate]);
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.set("startDate", formatDate(startDate));
+      newParams.set("endDate", formatDate(endDate));
+      setSearchParams(newParams);
+    };
+
+    // While dragging/moving, debounce; otherwise fire immediately
+    if (isDragging || isMovingWindow) {
+      console.log("debouncing date change");
+      debounceRef.current = setTimeout(trigger, 1000);
+    } else {
+      console.log("triggering date change");
+      trigger();
+    }
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [startDate, endDate, onDateChange, isDragging, isMovingWindow]);
 
   // Get overlay metrics (left, width) for selected range
   function getPreciseOverlayMetrics() {
@@ -417,14 +434,12 @@ export default function YearRangeSelector({
     let finalEndPos = clampedEndPos;
 
     if (newStartYearPos < 0) {
-      const diff = -newStartYearPos;
       finalStartPos = 0;
       finalEndPos = Math.min(
         totalYears - 1,
         currentEndYearPos - currentStartYearPos
       );
     } else if (newEndYearPos > totalYears - 1) {
-      const diff = newEndYearPos - (totalYears - 1);
       finalEndPos = totalYears - 1;
       finalStartPos = Math.max(
         0,

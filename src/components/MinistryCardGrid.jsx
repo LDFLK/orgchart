@@ -463,11 +463,11 @@ const MinistryCardGrid = ({ onCardClick }) => {
           >
             {/* Search Bar */}
             <Box
-              sx={{ flex: 1, minWidth: { xs: "100%", sm: 200 }, maxWidth: 600 }}
+              sx={{ flex: 1, minWidth: { xs: "100%", sm: "30%" }, maxWidth: 600 }}
             >
               <TextField
                 fullWidth
-                label="Search By Ministry Name"
+                label="Search"
                 id="ministry-search"
                 onChange={handleChange}
                 value={searchText}

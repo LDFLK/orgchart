@@ -318,9 +318,10 @@ const PersonProfile = () => {
             sx={{
               fontFamily: "Poppins",
               color: colors.textPrimary,
+              textTransform: "none",
             }}
           >
-            Back to previous
+            Back
           </Typography>
         </Button>
       ) : (
@@ -340,9 +341,10 @@ const PersonProfile = () => {
             sx={{
               fontFamily: "Poppins",
               color: colors.textPrimary,
+              textTransform: "none",
             }}
           >
-            Go to home page
+            Go to XploreGov
           </Typography>
         </Button>
       )}

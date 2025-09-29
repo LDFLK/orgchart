@@ -54,13 +54,19 @@ const ModernView = () => {
   }, [openProfile, president, navigate, location.pathname]);
 
   useEffect(() => {
-    if (selectedDate) {
-      setPrimeMinister({ relation: null, person: null });
-      fetchPrimeMinister();
-    } else {
-      console.warn("Selected date is null, cannot fetch prime minister data.");
-    }
-  }, [selectedDate]);
+		if (!selectedDate) {
+			console.warn("Selected date is null, cannot fetch prime minister data.");
+			return;
+		}
+		setPrimeMinister({ relation: null, person: null });
+		const timeoutId = setTimeout(() => {
+      console.log("fetching prime minister data");
+			fetchPrimeMinister();
+		}, 1000);
+		return () => {
+			clearTimeout(timeoutId);
+		};
+	}, [selectedDate]);
 
   const fetchPrimeMinister = async () => {
     try {
