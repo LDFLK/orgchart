@@ -25,7 +25,8 @@ import enumMode from "../enums/mode";
 import { useNavigate } from "react-router-dom";
 import InfoTooltip from "./common_components/InfoToolTip";
 
-const MinistryDrawerContent = ({ selectedDate }) => {
+
+const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedDepartment, ministryId }) => {
   const { colors } = useThemeContext();
   const { selectedPresident } = useSelector((state) => state.presidency);
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
@@ -33,18 +34,29 @@ const MinistryDrawerContent = ({ selectedDate }) => {
     (state) => state.allDepartmentData.allDepartmentData
   );
 
-  const [departmentListForMinistry, setDepartmentListForMinistry] = useState(
-    []
-  );
+  const [departmentListForMinistry, setDepartmentListForMinistry] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState(null); // local state for timeline
+  const [selectedDepartment, setSelectedDepartment] = useState(propSelectedDepartment || null); // local state for timeline
 
   const navigate = useNavigate();
 
+
+  // Always select the department from prop when InfoTab opens
+  React.useEffect(() => {
+    if (propSelectedDepartment && (!selectedDepartment || selectedDepartment.id !== propSelectedDepartment.id)) {
+      setSelectedDepartment(propSelectedDepartment);
+    }
+    // If propSelectedDepartment is null, allow user to clear selection
+    if (!propSelectedDepartment && selectedDepartment) {
+      setSelectedDepartment(null);
+    }
+  }, [propSelectedDepartment]);
+
+
   useEffect(() => {
-    fetchDepartmentList(selectedMinistry);
-  }, [selectedMinistry, selectedDate]);
+    fetchDepartmentList(ministryId || selectedMinistry);
+  }, [ministryId, selectedMinistry, selectedDate]);
 
   const fetchDepartmentList = async (ministryId) => {
     if (!ministryId) return;
@@ -92,7 +104,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
         .includes(searchQuery.toLowerCase())
     ) || [];
   return (
-    <Box sx={{ p: 2, backgroundColor: colors.backgroundPrimary, mt: -2 }}>
+    <Box sx={{ px: 2, backgroundColor: colors.backgroundPrimary, mt: -2 }}>
       {loading ? (
         <Box
           sx={{
@@ -131,10 +143,10 @@ const MinistryDrawerContent = ({ selectedDate }) => {
                 },
               }}
             >
-              <Typography sx={{ color: colors.textMuted }}>← Back</Typography>
+              {ministryId != null && (<Typography sx={{ color: colors.textMuted }}>← Back</Typography>)}
             </Button>
 
-            <Typography
+            {ministryId != null && (<Typography
               variant="h6"
               gutterBottom
               sx={{
@@ -145,7 +157,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
               }}
             >
               {utils.extractNameFromProtobuf(selectedDepartment.name)}
-            </Typography>
+            </Typography>)}
 
             <Box
               sx={{

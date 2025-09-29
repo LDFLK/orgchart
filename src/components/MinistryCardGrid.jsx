@@ -467,7 +467,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
             >
               <TextField
                 fullWidth
-                label="Search"
+                label="Search by ministry name"
                 id="ministry-search"
                 onChange={handleChange}
                 value={searchText}

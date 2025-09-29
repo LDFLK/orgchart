@@ -11,6 +11,7 @@ import utils from "../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 
 import Drawer from "./statistics_components/drawer";
+import InfoTabDialog from "./InfoTabDialog";
 import SpriteText from "three-spritetext";
 import WebGLChecker, {
   isWebGLAvailable,
@@ -18,7 +19,7 @@ import WebGLChecker, {
 import LoadingComponent from "./common_components/loading_component";
 import { useThemeContext } from "../themeContext";
 import { useNavigate } from "react-router-dom";
-import UrlParamState from "../hooks/singleSharingURL";
+
 
 export default function GraphComponent({ activeMinistries }) {
   const [loading, setLoading] = useState(true);
@@ -27,6 +28,9 @@ export default function GraphComponent({ activeMinistries }) {
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState(null);
+  const [infoTabOpen, setInfoTabOpen] = useState(false);
+  const [infoTabNode, setInfoTabNode] = useState(null);
+  const [infoTabDepartment, setInfoTabDepartment] = useState(null);
   const [filterGraphBy, setFilterGraphBy] = useState(null);
   const [graphWidth, setGraphWidth] = useState(window.innerWidth);
   const [graphHeight, setGraphHeight] = useState(window.innerHeight);
@@ -87,9 +91,7 @@ export default function GraphComponent({ activeMinistries }) {
 
   const presidents = useSelector((state) => state.presidency.presidentList);
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
-  const selectedPresident = useSelector(
-    (state) => state.presidency.selectedPresident
-  );
+  const selectedPresident = useSelector((state) => state.presidency.selectedPresident);
   const gazetteDataClassic = useSelector((state) => state.gazettes.gazetteData);
   const allMinistryData = useSelector(
     (state) => state.allMinistryData.allMinistryData
@@ -151,7 +153,7 @@ export default function GraphComponent({ activeMinistries }) {
 
   useEffect(() => {
     const buildGraph = async () => {
-      handleClosePopup();
+      // Do not close popup here; let user interaction control it
       setLoading(true);
 
       try {
@@ -489,9 +491,8 @@ export default function GraphComponent({ activeMinistries }) {
   );
 
   const handleNodeClick = useCallback((node) => {
-    console.log("Node clicked:", node); // Debug log
-
-    // Set popup data first
+    // Always open the popup for any node
+    setInfoTabOpen(false); // Ensure InfoTabDialog is closed so NodePopup can show
     setSelectedNode(node);
     setPopupVisible(true);
 
@@ -502,7 +503,6 @@ export default function GraphComponent({ activeMinistries }) {
       // Use center of canvas as fallback position
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-
       setPopupPosition({ x: centerX, y: centerY });
     }
 
@@ -520,9 +520,7 @@ export default function GraphComponent({ activeMinistries }) {
     if (cameraAnimTimeoutRef.current) {
       clearTimeout(cameraAnimTimeoutRef.current);
     }
-    cameraAnimTimeoutRef.current = setTimeout(() => {
-      // setSelectedNodeId(node.id);
-    }, transitionMs + 2);
+    cameraAnimTimeoutRef.current = setTimeout(() => {}, transitionMs + 2);
   }, []);
 
   // Configure forces
@@ -597,28 +595,85 @@ export default function GraphComponent({ activeMinistries }) {
     };
   }, []);
 
+
   // Handle popup close
   const handleClosePopup = useCallback(() => {
     setPopupVisible(false);
     setSelectedNode(null);
   }, []);
 
-  // Handle navigation to another page
+
+  // Handle InfoTabDialog close
+  const handleCloseInfoTab = useCallback(() => {
+    setInfoTabOpen(false);
+    setInfoTabNode(null);
+    setInfoTabDepartment(null);
+  }, []);
+
+
+  // Handle navigation to another page or open InfoTabDialog
   const handleNavigateToPage = useCallback(() => {
-    if (selectedNode) {
+    if (!selectedNode) return;
 
-      if (selectedNode.type === "person") {
-        navigate(`/person-profile/${selectedNode.id}`, {
-          state: { mode: "back" },
-        });
-      }
-
+    if (selectedNode.type === "person") {
+      navigate(`/person-profile/${selectedNode.id}`, {
+        state: { mode: "back" },
+      });
       handleClosePopup();
+      return;
     }
-  }, [selectedNode, navigate, handleClosePopup]);
+
+    if (selectedNode.type === "minister") {
+      setInfoTabNode(selectedNode);
+      setInfoTabDepartment(null);
+      setInfoTabOpen(true);
+      // Only close popup after InfoTabDialog is open
+      setTimeout(() => handleClosePopup(), 0);
+      return;
+    }
+
+    if (selectedNode.type === "department") {
+      // Find the source ministry for this department
+      let ministryId = null;
+      for (const [minId, rels] of Object.entries(ministerToDepartments)) {
+        if (rels && rels.some((rel) => rel.target === selectedNode.id)) {
+          ministryId = minId;
+          break;
+        }
+      }
+      let ministry = null;
+      if (ministryId) {
+        ministry = ministryDictionary[ministryId];
+        if (!ministry) {
+          // Try to find the ministry node from allNodes (if available)
+          const ministryFromNodes = allNodes?.find(
+            (n) => n.id === ministryId && n.type === "minister"
+          );
+          if (ministryFromNodes) {
+            ministry = ministryFromNodes;
+          } else {
+            // fallback: minimal object with id only
+            ministry = { id: ministryId, name: ministryId };
+          }
+        }
+      }
+      if (!ministry) {
+        // fallback: show something instead of blocking InfoTab
+        ministry = { id: "unknown", name: "No Ministry Found" };
+      }
+      setInfoTabNode(ministry);
+      setInfoTabDepartment(selectedNode);
+      setInfoTabOpen(true);
+      setTimeout(() => handleClosePopup(), 0);
+      return;
+    }
+  }, [selectedNode, navigate, handleClosePopup, ministryDictionary, ministerToDepartments]);
 
   // Popup component
   const NodePopup = () => {
+    console.log('infor tab is opened')
+    // Don't show popup if InfoTabDialog is open
+    if (infoTabOpen) return null;
     if (!selectedNode || !popupVisible) return null;
 
     return (
@@ -633,24 +688,7 @@ export default function GraphComponent({ activeMinistries }) {
       >
         <div className="text-lg font-semibold mb-2">{selectedNode.name}</div>
         <div className="flex gap-2">
-          {selectedNode.type == "department" ? (
-            <>
-              <button
-                onClick={handleNavigateToPage}
-                className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
-                style={{ backgroundColor: colors.primary || "#1976d2" }}
-              >
-                View Details
-              </button>
-              <button
-                onClick={handleNavigateToPage}
-                className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
-                style={{ backgroundColor: colors.primary || "#1976d2" }}
-              >
-                Xplore Statistics
-              </button>
-            </>
-          ) : selectedNode.type == "person" ? (
+          {selectedNode.type === "person" && (
             <button
               onClick={handleNavigateToPage}
               className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
@@ -658,16 +696,15 @@ export default function GraphComponent({ activeMinistries }) {
             >
               Go to Profile
             </button>
-          ) : (
-            selectedNode.type == "minister" && (
-              <button
-                onClick={handleNavigateToPage}
-                className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
-                style={{ backgroundColor: colors.primary || "#1976d2" }}
-              >
-                View Details
-              </button>
-            )
+          )}
+          {(selectedNode.type === "minister" || selectedNode.type === "department") && (
+            <button
+              onClick={handleNavigateToPage}
+              className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
+              style={{ backgroundColor: colors.primary || "#1976d2" }}
+            >
+              View Details
+            </button>
           )}
           <button
             onClick={handleClosePopup}
@@ -824,6 +861,14 @@ export default function GraphComponent({ activeMinistries }) {
           filterGraphBy={filterGraphBy}
         />
       </div>
+      <InfoTabDialog
+        open={infoTabOpen}
+        onClose={handleCloseInfoTab}
+        node={infoTabNode}
+        selectedDate={selectedDate}
+        selectedPresident={selectedPresident}
+        selectedDepartment={infoTabDepartment}
+      />
       <NodePopup />
       <WebGLChecker />
     </>

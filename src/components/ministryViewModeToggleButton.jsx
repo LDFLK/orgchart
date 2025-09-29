@@ -10,9 +10,6 @@ export default function MinistryViewModeToggleButton({
 }) {
   const { colors } = useThemeContext();
 
-  useEffect(() => {
-    console.log("clicked mode : ", viewMode);
-  }, [viewMode]);
   return (
     <div className="flex justify-end mx-10">
       <button
