@@ -26,11 +26,9 @@ export default function StatisticsFilters({
   selection,
   setSelection,
   selectedCategory,
-  setSelectedCategory,
   availableYears,
   availableDepartments,
   availableStats,
-  handleShowData,
 }) {
   const current = selection[selectedCategory];
 
@@ -38,54 +36,68 @@ export default function StatisticsFilters({
 
   return (
     <Box p="4px">
-      <Typography variant="h5" align="left" sx={{ fontWeight: "bold", my: 1 }}>
+      <Typography variant="h5" align="left" sx={{ fontWeight: "bold", my: 1, }}>
         Xplore
       </Typography>
       <Paper
         sx={{
           borderRadius: 4,
-          maxWidth: "full",
+          maxWidth: {
+            xs: "100%", 
+            sm: "90%",   
+            md: "80%",    
+            lg: "70%",   
+            xl: "100%", 
+          },
           margin: "0 auto",
           backgroundColor: colors.backgroundWhite,
           boxShadow: "none",
-          padding: 2,
+          padding: {
+            xs: 3, 
+            sm: 3,
+            md: 3,
+            lg: 2,
+            xl: 2, 
+          },
         }}
+
       >
         {/* Tabs */}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 4 }}>
-          {["Yearly", "Department", "Presidents"].map((category) => (
-            <Button
-              key={category}
-              variant={selectedCategory === category ? "contained" : "outlined"}
-              sx={{
-                px: 2,
-                py: 1,
-                borderRadius: 2,
-                fontWeight: 400,
-                textTransform: "none",
-                bgcolor:
-                  selectedCategory === category
-                    ? isDark
-                      ? "#fff"
-                      : "#000"
-                    : "",
-                color:
-                  selectedCategory === category
-                    ? isDark
-                      ? "#000"
-                      : "#fff"
-                    : isDark
-                    ? "#fff"
-                    : "#000",
-                border:
-                  selectedCategory === category ? "none" : "1px solid #f0f0f0"
-              }}
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category}
-            </Button>
+        {/* <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mb: 4 }}>
+          {["Department"].map((category) => (
+            <></>
+            // <Button
+            //   key={category}
+            //   variant={selectedCategory === category ? "contained" : "outlined"}
+            //   sx={{
+            //     px: 2,
+            //     py: 1,
+            //     borderRadius: 2,
+            //     fontWeight: 400,
+            //     textTransform: "none",
+            //     bgcolor:
+            //       selectedCategory === category
+            //         ? isDark
+            //           ? "#fff"
+            //           : "#000"
+            //         : "",
+            //     color:
+            //       selectedCategory === category
+            //         ? isDark
+            //           ? "#000"
+            //           : "#fff"
+            //         : isDark
+            //         ? "#fff"
+            //         : "#000",
+            //     border:
+            //       selectedCategory === category ? "none" : "1px solid #f0f0f0"
+            //   }}
+            //   onClick={() => setSelectedCategory(category)}
+            // >
+            //   {category}
+            // </Button>
           ))}
-        </Box>
+        </Box> */}
 
         {/* Dropdowns */}
         <Box
@@ -93,11 +105,12 @@ export default function StatisticsFilters({
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
             gap: 2,
+             alignItems: "stretch",
           }}
         >
           {selectedCategory === "Yearly" && (
             <>
-              <FormControl fullWidth>
+              <FormControl fullWidth >
                 <InputLabel
                   sx={{
                     color: colors.textMuted,
@@ -189,7 +202,7 @@ export default function StatisticsFilters({
 
           {selectedCategory === "Department" && (
             <>
-              <FormControl fullWidth>
+              <FormControl fullWidth size="small">
                 <InputLabel
                   sx={{
                     color: colors.textMuted,
@@ -233,7 +246,7 @@ export default function StatisticsFilters({
                 </Select>
               </FormControl>
 
-              <FormControl fullWidth>
+              {/* <FormControl fullWidth>
                 <InputLabel
                   sx={{
                     color: colors.textMuted,
@@ -275,9 +288,9 @@ export default function StatisticsFilters({
                     </MenuItem>
                   ))}
                 </Select>
-              </FormControl>
+              </FormControl> */}
 
-              <FormControl fullWidth>
+              <FormControl fullWidth size="small">
                 <InputLabel
                   sx={{
                     color: colors.textMuted,
@@ -387,26 +400,6 @@ export default function StatisticsFilters({
           )}
         </Box>
 
-        {/* Show Data Button */}
-        {selectedCategory != "Presidents" && (
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-            <Button
-              variant="contained"
-              sx={{
-                px: 2,
-                py: 1,
-                borderRadius: 2,
-                fontWeight: 400,
-                textTransform: "none",
-                backgroundColor: "#000",
-                "&:hover": { backgroundColor: "#222" },
-              }}
-              onClick={handleShowData}
-            >
-              Show Data
-            </Button>
-          </Box>
-        )}
       </Paper>
     </Box>
   );

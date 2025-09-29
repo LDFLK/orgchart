@@ -16,13 +16,17 @@ export const SimpleBarChart = ({
   showGrid = true,
   showLegend = false,
 }) => {
-  // Responsive tick function
+  // Ensure data is sorted by xDataKey
+  const sortedData = [...data].sort((a, b) => {
+    const aVal = a[xDataKey];
+    const bVal = b[xDataKey];
+    if (!isNaN(aVal) && !isNaN(bVal)) return aVal - bVal;
+    return aVal.toString().localeCompare(bVal.toString());
+  });
+
   const renderXAxisTick = (props) => {
     const { x, y, payload } = props;
-
-    // You can adjust font size based on window width
     const fontSize = window.innerWidth < 768 ? 10 : 14;
-
     return (
       <text
         x={x}
@@ -38,11 +42,11 @@ export const SimpleBarChart = ({
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 20, right: 20, bottom: 40 }}>
+      <BarChart data={sortedData} margin={{ top: 20, right: 20, bottom: 40 }}>
         {showGrid && <CartesianGrid strokeDasharray="3 3" />}
         <XAxis
           dataKey={xDataKey}
-          tick={renderXAxisTick} // use custom tick
+          tick={renderXAxisTick}
           label={{ value: xLabel, position: "insideBottom", offset: -5 }}
         />
         <YAxis label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
@@ -53,6 +57,7 @@ export const SimpleBarChart = ({
     </ResponsiveContainer>
   );
 };
+
 
 export const SimplePieChart = ({ data, dataKey, nameKey, colors = COLORS }) => (
     <ResponsiveContainer width="100%" height="100%">
@@ -85,46 +90,61 @@ export const SimpleLineChart = ({ data, xDataKey, lineKeys = [], colors = COLORS
     </ResponsiveContainer>
 );
 
-export const MultiBarChart = ({ data, xDataKey, barKeys = [], colors = COLORS, xLabel = "", yLabel = "", showGrid = true, showLegend = true,
-}) => (
-    <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-            data={data}
-            margin={{ top: 20, right: 20, left: 20, bottom: 25 }}
-        >
-            {showGrid && <CartesianGrid strokeDasharray="3 3" />}
-            <XAxis dataKey={xDataKey} label={{ value: xLabel, position: "insideBottom", offset: -15 }} />
-            <YAxis label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
-            <Tooltip />
-            {showLegend && (
-                <Legend layout="horizontal" align="center" verticalAlign="bottom" wrapperStyle={{ paddingTop: 20 }} />
-            )}
-            {barKeys.map((key, i) => (
-                <Bar key={key} dataKey={key} fill={colors[i % colors.length]} />
-            ))}
-        </BarChart>
-    </ResponsiveContainer>
-);
+export const MultiBarChart = ({ data, xDataKey, barKeys = [], colors = COLORS, xLabel = "", yLabel = "", showGrid = true, showLegend = true }) => {
+  // Sort data ascending by xDataKey
+  const sortedData = [...data].sort((a, b) => {
+    const aVal = a[xDataKey];
+    const bVal = b[xDataKey];
+    if (!isNaN(aVal) && !isNaN(bVal)) return aVal - bVal;
+    return aVal.toString().localeCompare(bVal.toString());
+  });
 
-export const MultiHorizontalBarChart = ({ data, yDataKey, barKeys = [], colors = COLORS, xLabel = "", yLabel = "", showGrid = true, showLegend = true,
-}) => (
+  return (
     <ResponsiveContainer width="100%" height="100%">
-        <BarChart layout="vertical" data={data} margin={{ top: 20, right: 20, left: 55, bottom: 25 }} >
-            {showGrid &&
-                <CartesianGrid strokeDasharray="3 3" />
-            }
-            <XAxis type="number" label={{ value: xLabel, position: "insideBottom", offset: -15 }} />
-            <YAxis type="category" dataKey={yDataKey} label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
-            <Tooltip />
-            {showLegend && (
-                <Legend layout="horizontal" align="center" verticalAlign="bottom" wrapperStyle={{ paddingTop: 20 }} />
-            )}
-            {barKeys.map((key, i) => (
-                <Bar key={key} dataKey={key} fill={colors[i % colors.length]} />
-            ))}
-        </BarChart>
+      <BarChart data={sortedData} margin={{ top: 20, right: 20, left: 20, bottom: 25 }}>
+        {showGrid && <CartesianGrid strokeDasharray="3 3" />}
+        <XAxis dataKey={xDataKey} label={{ value: xLabel, position: "insideBottom", offset: -15 }} />
+        <YAxis label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
+        <Tooltip />
+        {showLegend && (
+          <Legend layout="horizontal" align="center" verticalAlign="bottom" wrapperStyle={{ paddingTop: 20 }} />
+        )}
+        {barKeys.map((key, i) => (
+          <Bar key={key} dataKey={key} fill={colors[i % colors.length]} />
+        ))}
+      </BarChart>
     </ResponsiveContainer>
-);
+  );
+};
+
+
+export const MultiHorizontalBarChart = ({ data, yDataKey, barKeys = [], colors = COLORS, xLabel = "", yLabel = "", showGrid = true, showLegend = true }) => {
+  // Sort data ascending by yDataKey
+  const sortedData = [...data].sort((a, b) => {
+    const aVal = a[yDataKey];
+    const bVal = b[yDataKey];
+    if (!isNaN(aVal) && !isNaN(bVal)) return aVal - bVal;
+    return aVal.toString().localeCompare(bVal.toString());
+  });
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart layout="vertical" data={sortedData} margin={{ top: 20, right: 20, left: 55, bottom: 25 }}>
+        {showGrid && <CartesianGrid strokeDasharray="3 3" />}
+        <XAxis type="number" label={{ value: xLabel, position: "insideBottom", offset: -15 }} />
+        <YAxis type="category" dataKey={yDataKey} label={{ value: yLabel, angle: -90, position: "insideLeft" }} />
+        <Tooltip />
+        {showLegend && (
+          <Legend layout="horizontal" align="center" verticalAlign="bottom" wrapperStyle={{ paddingTop: 20 }} />
+        )}
+        {barKeys.map((key, i) => (
+          <Bar key={key} dataKey={key} fill={colors[i % colors.length]} />
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  );
+};
+
 
 export const BubbleChart = ({ data, nameKey = "name", valueKey = "value", width = 300, height = 300 }) => {
     const ref = useRef(null);
