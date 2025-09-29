@@ -403,7 +403,6 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                           sx={{
                             width: "100%",
                             textAlign: "left",
-                            p: 1,
                             display: "flex",
                             cursor: "pointer",
                             borderRadius: 2,
@@ -424,7 +423,6 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                 width: 30,
                                 height: 30,
                                 fontSize: 14,
-                                mr: 1,
                                 flexShrink: 0,
                               }}
                             >
@@ -462,13 +460,18 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                     .split(":")[0]
                                 }
                               </Typography>
+
                               <Typography
                                 variant="caption"
                                 color={colors.textPrimary}
                                 sx={{
                                   fontSize: 14,
                                   fontFamily: "poppins",
-                                  ":hover": { textDecoration: "underline" },
+                                  cursor: "pointer",
+                                  textDecoration: "none",
+                                  "&:hover": {
+                                    textDecoration: "underline",
+                                  },
                                 }}
                               >
                                 {entry.minister
