@@ -24,10 +24,51 @@ export default function StatisticTimeline({ startYear, onDateChange }) {
     const containerRef = useRef(null);
     const scrollWrapperRef = useRef(null);
     const dragStartRef = useRef(null);
+	const calendarButtonRef = useRef(null);
+	const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
+    const popoverRef = useRef(null);
 
     useEffect(() => {
         onDateChange?.([startDate, endDate]);
     }, [startDate, endDate, onDateChange]);
+
+    // Close on outside click and handle keyboard navigation
+    useEffect(() => {
+        if (!calendarOpen) return;
+        const handleClick = (e) => {
+            if (!popoverRef.current) return;
+            if (popoverRef.current.contains(e.target)) return;
+            if (calendarButtonRef.current && calendarButtonRef.current.contains(e.target)) return;
+            setCalendarOpen(false);
+        };
+        const handleKey = (e) => {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+                setCalendarOpen(false);
+            } else if (e.key === 'Tab') {
+                // Focus trap inside popover
+                const focusable = popoverRef.current.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (focusable.length === 0) return;
+                const first = focusable[0];
+                const last = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        };
+        document.addEventListener('mousedown', handleClick);
+        document.addEventListener('keydown', handleKey);
+        // Focus the popover for screen readers and tab flow
+        setTimeout(() => { try { popoverRef.current?.focus(); } catch(_){} }, 0);
+        return () => {
+            document.removeEventListener('mousedown', handleClick);
+            document.removeEventListener('keydown', handleKey);
+        };
+    }, [calendarOpen]);
 
     // Utility: check if endDate is today
     function isEndDateToday() {
@@ -233,9 +274,9 @@ export default function StatisticTimeline({ startYear, onDateChange }) {
     }, [isDragging, isMovingWindow, startDate, endDate]);
 
     return (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full mt-6">
+		<div className="bg-gray-900/60 p-6 rounded-2xl w-full mt-6 border border-gray-800/60 text-gray-200">
             {/* Presets and controls */}
-            <div className="flex gap-2 mb-6 flex-wrap sm:justify-start justify-center">
+			<div className="flex gap-3 mb-6 flex-wrap sm:justify-start justify-center">
                 {[
                     { label: "1Y", years: 1 },
                     { label: "2Y", years: 2 },
@@ -266,59 +307,89 @@ export default function StatisticTimeline({ startYear, onDateChange }) {
                             setPreciseMode(true);
                             setActivePreset(preset.label);
                         }}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${activePreset === preset.label
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
-                            }`}
+						className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-colors border ${activePreset === preset.label
+							? "bg-blue-600 text-white border-blue-500 hover:cursor-pointer"
+							: "bg-gray-800/60 border-gray-700 text-gray-200 hover:bg-gray-800 hover:cursor-pointer"}
+						`}
                     >
                         {preset.label}
                     </button>
                 ))}
 
                 {/* Calendar Button */}
-                <div className="relative">
+				<div className="relative">
                     <button
+						ref={calendarButtonRef}
                         onClick={() => {
                             setTempStartDate(startDate);
                             setTempEndDate(endDate);
-                            setCalendarOpen(!calendarOpen);
+						const rect = calendarButtonRef.current?.getBoundingClientRect();
+							if (rect) {
+								const desiredWidth = 640; // target width for two calendars
+								let left = rect.left + window.scrollX;
+								const top = rect.bottom + window.scrollY + 8;
+								if (left + desiredWidth > window.innerWidth) {
+									left = Math.max(16, window.innerWidth - desiredWidth - 16) + window.scrollX;
+								}
+								setPopoverPosition({ top, left });
+							}
+							setCalendarOpen(!calendarOpen);
                         }}
-                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${calendarOpen
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
-                            }`}
+						className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-colors border ${calendarOpen
+							? "bg-blue-600 text-white border-blue-500 hover:cursor-pointer"
+							: "bg-gray-800/60 border-gray-700 text-gray-200 hover:bg-gray-800 hover:cursor-pointer"}
+						`}
                     >
-                        📅 Select Range
+                        Select Range
                     </button>
 
-                    {calendarOpen && (
-                                            <div className="absolute left-0 mt-2 z-50 w-full sm:w-auto bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
-                                                <div className="flex flex-col sm:flex-row sm:w-1/2 gap-4">
-                                                    <div className="flex-1 flex flex-col">
-                                                        <p className="text-xs text-gray-300 mb-2">From</p>
-                                                        <DatePicker selected={tempStartDate} onChange={setTempStartDate} inline monthsShown={1} minDate={new Date(startYear, 0, 1)} maxDate={new Date()} />
-                                                    </div>
-                                                    <div className="flex-1 flex flex-col">
-                                                        <p className="text-xs text-gray-300 mb-2">To</p>
-                                                        <DatePicker selected={tempEndDate} onChange={setTempEndDate} inline monthsShown={1} minDate={tempStartDate} maxDate={new Date()} />
-                                                    </div>
-                                                </div>
-                                                <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
-                                                    <button onClick={() => setCalendarOpen(false)} className="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded-lg">Cancel</button>
-                                                    <button onClick={() => { if (tempStartDate && tempEndDate && tempStartDate <= tempEndDate) { setStartDate(tempStartDate); setEndDate(tempEndDate); setSelectedRange([tempStartDate.getUTCFullYear(), tempEndDate.getUTCFullYear()]); setPreciseMode(true); setCalendarOpen(false); setActivePreset(null); setActivePresident(""); } }} className="px-4 py-2 bg-blue-600 text-white rounded-lg">Apply</button>
-                                                </div>
-                                            </div>
-                                        )}
+					{calendarOpen && (
+							<div className="fixed z-[9999]" style={{ top: popoverPosition.top, left: popoverPosition.left }}>
+							<div ref={popoverRef} tabIndex={-1} role="dialog" aria-label="Select date range" className="bg-gray-900 text-gray-100 p-4 rounded-2xl shadow-2xl border border-gray-800/60 flex flex-col">
+									<style>{`
+									  .react-datepicker { background-color: #0b1220; border: 1px solid rgba(148,163,184,0.25); color: #e5e7eb; border-radius: 14px; overflow: hidden; font-family: ui-sans-serif, system-ui, -apple-system; }
+									  .react-datepicker__header { background-color: rgba(17,24,39,0.85); border-bottom: 1px solid rgba(148,163,184,0.25); }
+									  .react-datepicker__current-month, .react-datepicker-time__header, .react-datepicker-year-header { color: #d1d5db; font-weight: 600; }
+									  .react-datepicker__day-name { color: #9ca3af; font-weight: 500; }
+									  .react-datepicker__day { color: #e5e7eb; }
+									  .react-datepicker__day:hover { background-color: rgba(59,130,246,0.2); }
+									  .react-datepicker__day--selected, .react-datepicker__day--keyboard-selected { background-color: rgba(59,130,246,0.45); color: #fff; }
+									  .react-datepicker__day--in-range, .react-datepicker__day--in-selecting-range { background-color: rgba(59,130,246,0.3); color: #fff; }
+									  .react-datepicker__day--today { outline: 1px solid rgba(59,130,246,0.6); }
+									  .react-datepicker__navigation-icon::before { border-color: #93c5fd; }
+									`}</style>
+									<div className="flex flex-col sm:flex-row gap-6" style={{ minWidth: 640 }}>
+										<div className="flex-1 flex flex-col">
+											<p className="text-xs text-gray-400 mb-2 font-medium tracking-wide">From</p>
+											<div className="rounded-xl overflow-hidden border border-gray-800/60 w-[300px]">
+												<DatePicker selected={tempStartDate} onChange={setTempStartDate} inline monthsShown={1} minDate={new Date(startYear, 0, 1)} maxDate={new Date()} calendarStartDay={1} />
+											</div>
+										</div>
+										<div className="flex-1 flex flex-col">
+											<p className="text-xs text-gray-400 mb-2 font-medium tracking-wide">To</p>
+											<div className="rounded-xl overflow-hidden border border-gray-800/60 w-[300px]">
+												<DatePicker selected={tempEndDate} onChange={setTempEndDate} inline monthsShown={1} minDate={tempStartDate} maxDate={new Date()} calendarStartDay={1} />
+											</div>
+										</div>
+									</div>
+									<div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+										<button onClick={() => setCalendarOpen(false)} className="px-4 py-2 bg-gray-800 text-gray-200 rounded-lg border border-gray-700">Cancel</button>
+										<button onClick={() => { if (tempStartDate && tempEndDate && tempStartDate <= tempEndDate) { setStartDate(tempStartDate); setEndDate(tempEndDate); setSelectedRange([tempStartDate.getUTCFullYear(), tempEndDate.getUTCFullYear()]); setPreciseMode(true); setCalendarOpen(false); setActivePreset(null); } }} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg">Apply</button>
+									</div>
+								</div>
+							</div>
+						)}
                 </div>
 
                 {/* Selected range display */}
-                <div className="flex items-center gap-2 w-full sm:w-auto ml-auto">
-                    <div className="px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300">
-                        <span className="font-medium">From:</span> {startDate.toISOString().split("T")[0]}
-                    </div>
-                    <div className="px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300">
-                        <span className="font-medium">To:</span> {endDate.toISOString().split("T")[0]}
-                    </div>
+				<div className="flex items-center gap-2 w-full sm:w-auto ml-auto">
+					<div className="px-3 py-1.5 rounded-full text-xs bg-blue-500/10 border border-blue-500/30 text-blue-300 font-medium">
+						 {startDate.toISOString().split("T")[0]}
+					</div>
+					<span className="text-blue-300 font-medium">→</span>
+					<div className="px-3 py-1.5 rounded-full text-xs bg-blue-500/10 border border-blue-500/30 text-blue-300 font-medium">
+						{endDate.toISOString().split("T")[0]}
+					</div>
                 </div>
             </div>
 
@@ -356,14 +427,14 @@ export default function StatisticTimeline({ startYear, onDateChange }) {
                                     }}
                                 >
 
-                                    <div className={`absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${isInRange ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}>{year}</div>
+                                    <div className={`absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-medium ${isInRange ? "text-blue-500 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"}`}>{year}</div>
                                 </div>
                             )
                         })}
                     </div>
 
                     {/* Overlay */}
-                    <div className="absolute top-0 bg-blue-500/40 border-t-2 border-blue-500 transition-all duration-200" style={{ left: overlayMetrics.left, width: overlayMetrics.width, height: "100%", pointerEvents: "none" }} />
+                    <div className="absolute top-0 bg-blue-300/40 border-t-2 border-blue-500 transition-all duration-200" style={{ left: overlayMetrics.left, width: overlayMetrics.width, height: "100%", pointerEvents: "none" }} />
 
                     {/* Drag window - Fixed mouse down handler */}
                     <div
@@ -382,14 +453,14 @@ export default function StatisticTimeline({ startYear, onDateChange }) {
 
                     {/* Drag handles */}
                     <div
-                        className="absolute top-4 transform -translate-y-1/2 -translate-x-1/2 w-4 h-6 bg-blue-600 rounded cursor-ew-resize flex items-center justify-center shadow hover:bg-blue-700 z-30"
+                        className="absolute top-4 transform -translate-y-1/2 -translate-x-1/2 w-4 h-6 bg-blue-500 rounded cursor-ew-resize flex items-center justify-center shadow hover:bg-blue-500 z-30"
                         style={{ left: handlePositions.startLeft }}
                         onMouseDown={e => handleMouseDown(e, "start")}
                     >
                         <DragIndicatorIcon className="w-4 h-4 text-white" />
                     </div>
                     <div
-                        className="absolute top-4 transform -translate-y-1/2 -translate-x-1/2 w-4 h-6 bg-blue-600 rounded cursor-ew-resize flex items-center justify-center shadow hover:bg-blue-700 z-30"
+                        className="absolute top-4 transform -translate-y-1/2 -translate-x-1/2 w-4 h-6 bg-blue-500 rounded cursor-ew-resize flex items-center justify-center shadow hover:bg-blue-500 z-30"
                         style={{ left: handlePositions.endLeft }}
                         onMouseDown={e => handleMouseDown(e, "end")}
                     >
