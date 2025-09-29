@@ -8,6 +8,7 @@ import { useThemeContext } from "./themeContext";
 import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
 import TouristGlobe from "./components/statistics_components/TouristGlobe";
 import DistrictMap from "./components/statistics_components/DistrictMap";
+import XploreGovHomepage from "./pages/XploreGovHome";
 
 const App = () => {
 
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
         <Route path="/globe" element={<TouristGlobe/>}/>
         <Route path="/map" element={<DistrictMap/>}/>
+        <Route path="/xploregov" element={<XploreGovHomepage/>}/>
       </Routes>
     </Router>
     </div>
