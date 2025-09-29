@@ -350,7 +350,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
               >
                 Ministries assigned to president{" "}
                 <InfoTooltip
-                  message="Ministry portfolios under the president on selected gazette date"
+                  message="Ministry portfolios under the president on selected date"
                   iconColor={colors.textPrimary}
                   iconSize={14}
                 />
