@@ -388,23 +388,18 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                               ? `0 0 10px ${selectedPresident.themeColorLight}`
                               : "0 1px 5px rgba(0,0,0,0.1)",
                           transform:
-                            selectedIndex === idx ? "scale(1.02)" : "scale(1)",
+                            selectedIndex === idx ? "scale(1.01)" : "scale(1)",
                           transition: "all 0.2s ease-in-out",
                         }}
                         onClick={() =>
                           setSelectedIndex(selectedIndex === idx ? null : idx)
                         }
                       >
-                        <ButtonBase
-                          onClick={() =>
-                            entry.minister && handleOpenProfile(entry.minister)
-                          }
-                          disabled={!entry.minister}
+                        <Box
                           sx={{
                             width: "100%",
                             textAlign: "left",
                             display: "flex",
-                            cursor: "pointer",
                             borderRadius: 2,
                           }}
                         >
@@ -467,12 +462,20 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                                 sx={{
                                   fontSize: 14,
                                   fontFamily: "poppins",
-                                  cursor: "pointer",
+                                  cursor: entry.minister
+                                    ? "pointer"
+                                    : "default",
                                   textDecoration: "none",
                                   "&:hover": {
-                                    textDecoration: "underline",
+                                    textDecoration: entry.minister
+                                      ? "underline"
+                                      : "none",
                                   },
                                 }}
+                                onClick={() =>
+                                  entry.minister &&
+                                  handleOpenProfile(entry.minister)
+                                }
                               >
                                 {entry.minister
                                   ? utils.extractNameFromProtobuf(
@@ -482,7 +485,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                               </Typography>
                             </Box>
                           </Box>
-                        </ButtonBase>
+                        </Box>
                       </Paper>
                     </TimelineContent>
                   </TimelineItem>
