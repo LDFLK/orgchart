@@ -670,6 +670,7 @@ export default function GraphComponent({ activeMinistries }) {
   };
 
   const ColorMap = {
+    All: "#fff",
     Ministers: "#ffee8c",
     Departments: "#3e8ede",
     Persons: "#004f98",
