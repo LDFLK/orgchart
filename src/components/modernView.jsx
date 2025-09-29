@@ -40,6 +40,7 @@ const ModernView = () => {
     relation: null,
     person: null,
   });
+  const [loading, setLoading] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ const ModernView = () => {
 
   useEffect(() => {
     if (selectedDate) {
+      setPrimeMinister({ relation: null, person: null });
       fetchPrimeMinister();
     } else {
       console.warn("Selected date is null, cannot fetch prime minister data.");
@@ -62,6 +64,7 @@ const ModernView = () => {
 
   const fetchPrimeMinister = async () => {
     try {
+      setLoading(true);
       var response = await api.fetchActiveRelationsForMinistry(
         selectedDate.date,
         "gov_01",
@@ -69,23 +72,28 @@ const ModernView = () => {
       );
 
       response = await response.json();
+      if(response.length === 0) {
+        setLoading(false);
+        return;
+      } 
       let pmPerson = allPersonData[response[0].relatedEntityId];
       // Try to find a matching image from personImages
       if (pmPerson && pmPerson.name) {
         const pmName = utils.extractNameFromProtobuf(pmPerson.name).trim();
         const found = personImages.find(
-          (img) =>
-            img.type === "prime-minister" && img.presidentName.trim() === pmName
+          (img) => img.presidentName.trim() === pmName
         );
         if (found && found.imageUrl) {
           pmPerson = { ...pmPerson, imageUrl: found.imageUrl };
         }
       }
-      console.log("Prime Minister Person Data:", pmPerson);
-      setPrimeMinister({
-        relation: response[0],
-        person: pmPerson,
-      });
+      if (response.length > 0 && pmPerson) {
+        setPrimeMinister({
+          relation: response[0],
+          person: pmPerson,
+        });
+      }
+      setLoading(false);
     } catch (e) {
       console.error("Failed to fetch prime minister data:", e);
     }
@@ -149,12 +157,8 @@ const ModernView = () => {
               borderRadius: "15px",
               backgroundColor: colors.backgroundPrimary,
               boxShadow: "none",
-              cursor: "pointer",
               mr: 1,
             }}
-            // onClick={() => {
-            //   navigate(`/person-profile/${selectedPresident?.id}`);
-            // }}
           >
             <Box
               sx={{
@@ -170,7 +174,7 @@ const ModernView = () => {
                   fontWeight: 300,
                   color: colors.white,
                   fontSize: 18,
-                  textAlign: "center", // Keep this centered
+                  textAlign: "center",
                   pt: "5px",
                 }}
               >
@@ -267,11 +271,7 @@ const ModernView = () => {
               borderRadius: "15px",
               backgroundColor: colors.backgroundPrimary,
               boxShadow: "none",
-              cursor: "pointer",
               ml: 1,
-            }}
-            onClick={() => {
-              navigate(`/person-profile/${primeMinister.person?.id}`);
             }}
           >
             <Box
@@ -298,89 +298,104 @@ const ModernView = () => {
 
             <Box sx={{ padding: 2 }}>
               {primeMinister.person &&
-                primeMinister.relation &&
-                selectedPresident && (
-                  <Box
-                    direction="row"
+              primeMinister.relation &&
+              selectedPresident ? (
+                <Box
+                  direction="row"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    ml: 0,
+                    my: 0,
+                  }}
+                >
+                  <Avatar
+                    src={primeMinister.person.imageUrl}
+                    alt={primeMinister.person.name}
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "flex-start",
-                      ml: 0,
-                      my: 0,
+                      width: 75,
+                      height: 75,
+                      // border: `3px solid ${selectedPresident.themeColorLight}`,
+                      backgroundColor: colors.backgroundPrimary,
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      display: "block",
+                      ml: "15px",
                     }}
                   >
-                    <Avatar
-                      src={primeMinister.person.imageUrl}
-                      alt={primeMinister.person.name}
+                    <Typography
                       sx={{
-                        width: 75,
-                        height: 75,
-                        // border: `3px solid ${selectedPresident.themeColorLight}`,
-                        backgroundColor: colors.backgroundPrimary,
+                        fontWeight: 400,
+                        fontSize: 18,
+                        whiteSpace: "normal",
+                        wordBreak: "break-word",
+                        fontFamily: "poppins",
+                        color: colors.textPrimary,
+                        textAlign: "left",
+                        margin: 0,
                       }}
-                    />
-                    <Box
-                      sx={{
-                        display: "block",
-                        ml: "15px",
-                      }}
+                    >
+                      {utils.extractNameFromProtobuf(primeMinister.person.name)}
+                    </Typography>
+                    <Typography sx={{ fontSize: 18, color: colors.textMuted }}>
+                      {(() => {
+                        if (!primeMinister.relation) return "Unknown";
+                        return primeMinister.relation.endTime
+                          ? `${
+                              primeMinister.relation.startTime.split("-")[0]
+                            } - ${new Date(
+                              primeMinister.relation.endTime
+                            ).getFullYear()}`
+                          : `${
+                              primeMinister.relation.startTime.split("-")[0]
+                            } - Present`;
+                      })()}
+                    </Typography>
+                    <Link
+                      to={`/person-profile/${primeMinister.person?.id}`}
+                      style={{ textDecoration: "none" }}
                     >
                       <Typography
                         sx={{
-                          fontWeight: 400,
-                          fontSize: 18,
-                          whiteSpace: "normal",
-                          wordBreak: "break-word",
-                          fontFamily: "poppins",
-                          color: colors.textPrimary,
-                          textAlign: "left",
-                          margin: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          fontSize: 14,
+                          color: "#6491DA",
+                          transition: "color 0.3s, text-decoration 0.3s",
+                          ":hover": {
+                            textDecoration: "underline",
+                            color: selectedPresident.themeColorLight,
+                          },
                         }}
                       >
-                        {utils.extractNameFromProtobuf(
-                          primeMinister.person.name
-                        )}
+                        View Profile
                       </Typography>
-                      <Typography
-                        sx={{ fontSize: 18, color: colors.textMuted }}
-                      >
-                        {(() => {
-                          if (!primeMinister.relation) return "Unknown";
-                          return primeMinister.relation.endTime
-                            ? `${
-                                primeMinister.relation.startTime.split("-")[0]
-                              } - ${new Date(
-                                primeMinister.relation.endTime
-                              ).getFullYear()}`
-                            : `${
-                                primeMinister.relation.startTime.split("-")[0]
-                              } - Present`;
-                        })()}
-                      </Typography>
-                      <Link
-                        to={`/person-profile/${selectedPresident?.id}`}
-                        style={{ textDecoration: "none" }}
-                      >
-                        <Typography
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            fontSize: 14,
-                            color: "#6491DA",
-                            transition: "color 0.3s, text-decoration 0.3s",
-                            ":hover": {
-                              textDecoration: "underline",
-                              color: selectedPresident.themeColorLight,
-                            },
-                          }}
-                        >
-                          View Profile
-                        </Typography>
-                      </Link>
-                    </Box>
+                    </Link>
                   </Box>
-                )}
+                </Box>
+              ) : (primeMinister.person == null && primeMinister.relation == null && !loading) ? (
+                <Typography
+                  sx={{
+                    fontStyle: "italic",
+                    color: colors.textMuted,
+                    textAlign: "left",
+                  }}
+                >
+                  No Prime Minister appointed on this date.
+                </Typography>
+              ) : loading && (<Typography
+                  sx={{
+                    fontStyle: "italic",
+                    color: colors.textMuted,
+                    textAlign: "left",
+                  }}
+                >
+                  Loading Prime Minister data...
+                </Typography>
+              )}
             </Box>
           </Card>
         </Box>
