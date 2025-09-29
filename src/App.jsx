@@ -11,6 +11,7 @@ import DistrictMap from "./components/statistics_components/DistrictMap";
 import XploreGovHomepage from "./pages/XploreGovHome";
 import YearRangeSelector from "./components/common_components/Timeline";
 import Dashboard from "./pages/StatComparison";
+import XploreDataHomepage from "./pages/XploreGovData";
 
 const App = () => {
 
@@ -30,6 +31,8 @@ const App = () => {
         <Route path="/map" element={<DistrictMap/>}/>
         <Route path="/xploregov" element={<XploreGovHomepage/>}/>
         <Route path="/timeline" element={<YearRangeSelector/>}/>
+        <Route path="/xploredata" element={<XploreDataHomepage/>}/>
+
       </Routes>
     </Router>
     </div>
