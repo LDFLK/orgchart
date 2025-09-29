@@ -174,7 +174,7 @@ const MinistryDrawerContent = ({ selectedDate }) => {
               <Button
                 onClick={() => {
                   setSelectedDepartment(selectedDepartment);
-                  setTimeout(() => navigate("/statistics"), 300); // 👈 navigate after 300ms
+                  setTimeout(() => navigate("/statistics"), 300);
                 }}
                 sx={{
                   textTransform: "none",

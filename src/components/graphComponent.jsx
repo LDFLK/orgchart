@@ -662,9 +662,9 @@ export default function GraphComponent({ activeMinistries }) {
     Persons: "person",
   };
   const ColorMap = {
-    Ministers: "blue",
-    Departments: "green",
-    Persons: "red",
+    Ministers: "#ffee8c",
+    Departments: "#3e8ede",
+    Persons: "#004f98",
   };
 
   return (
@@ -700,7 +700,7 @@ export default function GraphComponent({ activeMinistries }) {
                   overflow: "hidden",
                 }}
               >
-                {webgl ? (
+                {webgl && (
                   graphData.nodes.length > 0 && graphData.links.length > 0 ? (
                     <div className="relative">
                       <div
@@ -719,7 +719,7 @@ export default function GraphComponent({ activeMinistries }) {
                                 style={{ backgroundColor: colors.textMuted }}
                               >
                                 <div
-                                  className={`w-2 h-2 rounded-full animate-pulse`}
+                                  className={`w-2 h-2 rounded-full`}
                                   style={{ backgroundColor: ColorMap[item] }}
                                 ></div>
                                 <p>{item}</p>
@@ -790,82 +790,6 @@ export default function GraphComponent({ activeMinistries }) {
                       <LoadingComponent message="Preparing Graph Data" />
                     </div>
                   )
-                ) : (
-                  <div className="flex flex-col justify-center items-center w-full h-full p-8">
-                    <div className="text-center max-w-2xl">
-                      <h2 className="text-2xl font-bold mb-4 text-red-600">
-                        WebGL Not Available
-                      </h2>
-                      <p className="text-lg mb-6 text-gray-700">
-                        Your browser doesn't support WebGL or it's currently
-                        disabled. The 3D visualization requires WebGL to
-                        function properly.
-                      </p>
-
-                      <div className="bg-blue-50 p-4 rounded-lg mb-6 text-left">
-                        <h3 className="font-semibold mb-2">To enable WebGL:</h3>
-                        <ul className="list-disc list-inside space-y-1 text-sm">
-                          <li>
-                            <strong>Chrome:</strong> Settings → Advanced →
-                            System → Enable "Use hardware acceleration"
-                          </li>
-                          <li>
-                            <strong>Firefox:</strong> about:config →
-                            webgl.force-enabled → true
-                          </li>
-                          <li>
-                            <strong>Edge:</strong> Settings → System → Enable
-                            "Use hardware acceleration"
-                          </li>
-                          <li>Update your graphics drivers</li>
-                          <li>
-                            Disable browser extensions that might block WebGL
-                          </li>
-                        </ul>
-                      </div>
-
-                      <div className="flex gap-4 justify-center">
-                        <button
-                          onClick={() => window.location.reload()}
-                          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-                        >
-                          Reload Page
-                        </button>
-                        <button
-                          onClick={() => {
-                            const webglAvailable = isWebGLAvailable();
-                            console.log("Manual WebGL check:", webglAvailable);
-                            setWebgl(webglAvailable);
-                          }}
-                          className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
-                        >
-                          Retry WebGL
-                        </button>
-                        <button
-                          onClick={() => {
-                            // Force retry with multiple attempts
-                            let attempts = 0;
-                            const retryInterval = setInterval(() => {
-                              attempts++;
-                              const webglAvailable = isWebGLAvailable();
-                              console.log(
-                                `WebGL retry attempt ${attempts}:`,
-                                webglAvailable
-                              );
-                              setWebgl(webglAvailable);
-
-                              if (webglAvailable || attempts >= 3) {
-                                clearInterval(retryInterval);
-                              }
-                            }, 500);
-                          }}
-                          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                        >
-                          Force Retry
-                        </button>
-                      </div>
-                    </div>
-                  </div>
                 )}
               </div>
             ) : (

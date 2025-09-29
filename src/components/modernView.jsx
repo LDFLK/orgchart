@@ -237,7 +237,7 @@ const ModernView = () => {
                       })()}
                     </Typography>
                     <Link
-                      to={`/person-profile/${selectedPresident?.id}`}
+                      to={{pathname: `/person-profile/${selectedPresident?.id}`, state: { mode: "back" }}}
                       style={{ textDecoration: "none" }}
                     >
                       <Typography
@@ -355,7 +355,7 @@ const ModernView = () => {
                       })()}
                     </Typography>
                     <Link
-                      to={`/person-profile/${primeMinister.person?.id}`}
+                      to={{ pathname: `/person-profile/${primeMinister.person?.id}`,state: { mode: "back" }}}
                       style={{ textDecoration: "none" }}
                     >
                       <Typography

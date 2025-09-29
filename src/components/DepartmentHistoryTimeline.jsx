@@ -16,6 +16,7 @@ import {
 import { useThemeContext } from '../themeContext';
 import { ClipLoader } from "react-spinners";
 import CloseIcon from "@mui/icons-material/Close";
+import { useNavigate } from 'react-router-dom';
 
 const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     const [selectedIndex, setSelectedIndex] = useState(null);
@@ -31,6 +32,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
     const [selectedMinister, setSelectedMinister] = useState(null);
     const [loading, setLoading] = useState(false);
     const { colors } = useThemeContext();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const enrichWithMinisters = async () => {
@@ -206,7 +208,6 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                     }
                 }
 
-
                 const collapsed = [];
                 for (const entry of enriched.sort((a, b) => new Date(a.startTime) - new Date(b.startTime))) {
                     const last = collapsed[collapsed.length - 1];
@@ -251,8 +252,11 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
 
 
     const handleOpenProfile = (minister) => {
-        setSelectedMinister(minister);
-        setProfileOpen(true);
+        navigate(`/person-profile/${minister.id}`, {
+                  state: { mode: "back" },
+                })
+        // setSelectedMinister(minister);
+        // setProfileOpen(true);
     };
 
     return (

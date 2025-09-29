@@ -294,10 +294,11 @@ const PersonProfile = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        p: { xs: 0, sm: 6 },
         backgroundColor: colors.backgroundPrimary,
         width: "100%",
         minHeight: { xs: "auto", sm: "100vh" },
+        px: { xs: 6, sm: 14, md: 36 },
+        py: { xs: 4, sm: 6 },
       }}
     >
       {state.mode === "back" ? (
@@ -409,8 +410,8 @@ const PersonProfile = () => {
           </Typography>
 
           {/* Fields always stacked */}
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", width: "350px" }}>
               <Typography
                 sx={{
                   display: "flex",
@@ -437,7 +438,7 @@ const PersonProfile = () => {
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", width: "350px" }}>
               <Typography
                 sx={{
                   display: "flex",

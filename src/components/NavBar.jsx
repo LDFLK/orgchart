@@ -36,9 +36,9 @@ function Navbar() {
 
   const navigate = useNavigate();
 
-  const handleNavigateToStatistics = () => {
-    navigate("/statistics");
-  };
+  // const handleNavigateToStatistics = () => {
+  //   navigate("/statistics");
+  // };
 
   return (
     <Box
@@ -75,7 +75,7 @@ function Navbar() {
           {/* open settings drawer */}
           <Box sx={{ textAlign: "right", color: colors.textPrimary, flex: 1 }}>
             
-            <Button
+            {/* <Button
               onClick={handleNavigateToStatistics}
               startIcon={<BiStats/>}
               sx={{
@@ -95,7 +95,7 @@ function Navbar() {
               }}
             >
               Statistics
-            </Button>
+            </Button> */}
             <Button
               onClick={() => setDrawerOpen(true)}
               startIcon={<SettingsIcon />}
@@ -148,7 +148,7 @@ function Navbar() {
             </IconButton>
           </Box>
 
-          <FormControlLabel
+          {/* <FormControlLabel
             control={
               <Switch
                 checked={isDark}
@@ -200,7 +200,7 @@ function Navbar() {
                 fontFamily: "poppins",
               },
             }}
-          />
+          /> */}
           <Accordion
             disableGutters
             sx={{
