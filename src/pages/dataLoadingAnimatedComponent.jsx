@@ -9,7 +9,7 @@ import {
   setPresidentRelationDict,
   setPresidentDict,
   setSelectedPresident,
-  setSelectedIndex
+  setSelectedIndex,
 } from "../store/presidencySlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/NavBar";
@@ -18,6 +18,7 @@ import { setGazetteDataClassic } from "../store/gazetteDate";
 import LoadingComponent from "../components/common_components/loading_component";
 import { useThemeContext } from "../themeContext";
 import Dashboard from "./StatComparison";
+import PersonProfile from "../components/PersonProfile";
 
 export default function DataLoadingAnimatedComponent({ mode }) {
   const [loading, setLoading] = useState(false);
@@ -27,15 +28,10 @@ export default function DataLoadingAnimatedComponent({ mode }) {
   );
   const dispatch = useDispatch();
 
-  const { colors, isDark } = useThemeContext();
-
-  useEffect(() => {
-    console.log('is this dark : ', isDark)
-  }, [])
+  const { colors } = useThemeContext();
 
   useEffect(() => {
     const initialFetchData = async () => {
-      // Only fetch data if presidentDict is empty (first time loading)
       if (Object.keys(presidentDict).length === 0) {
         setLoading(true);
         try {
@@ -46,7 +42,8 @@ export default function DataLoadingAnimatedComponent({ mode }) {
           await fetchAllGazetteDate();
           const afterTime = new Date().getTime();
           console.log(
-            `execusion time for initial fetching of all:  ${afterTime - beforeTime
+            `execusion time for initial fetching of all:  ${
+              afterTime - beforeTime
             } msec`
           );
           setLoading(false);
@@ -205,13 +202,16 @@ export default function DataLoadingAnimatedComponent({ mode }) {
         </Box>
       ) : (
         <>
-
           {Object.keys(presidentDict).length > 0 &&
-            mode === "orgchart" &&
-            selectedPresident && <Navbar />}
+          mode === "orgchart" &&
+          selectedPresident ? (
+            <Navbar />
+          ) : (
+            Object.keys(presidentDict).length > 0 &&
+            mode === "person-profile" && (<PersonProfile/>)
+          )}
         </>
       )}
     </>
   );
-
 }

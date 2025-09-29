@@ -19,7 +19,6 @@ const App = () => {
   
   return(
     <div className={isDark ? "dark-mode" : ""}>
-      {/* <WebGLChecker/> */}
     <Router>
       <Routes>
         <Route path="/" element={<XploreGovHomepage />} />
@@ -31,8 +30,8 @@ const App = () => {
         <Route path="/map" element={<DistrictMap/>}/>
         <Route path="/timeline" element={<YearRangeSelector/>}/>
         <Route path="/xploredata" element={<XploreDataHomepage/>}/>
-
-      </Routes>
+        <Route path="/person-profile/:personId" element={<DataLoadingAnimatedComponent mode="person-profile"/>}/>
+      </Routes>          
     </Router>
     </div>
   );
