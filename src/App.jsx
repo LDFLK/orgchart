@@ -11,6 +11,7 @@ import DistrictMap from "./components/statistics_components/DistrictMap";
 import XploreGovHomepage from "./pages/XploreGovHome";
 import YearRangeSelector from "./components/common_components/Timeline";
 import Dashboard from "./pages/StatComparison";
+import XploreDataHomepage from "./pages/XploreGovData";
 
 const App = () => {
 
@@ -19,16 +20,18 @@ const App = () => {
   return(
     <div className={isDark ? "dark-mode" : ""}>
     <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/orgchart" element={<DataLoadingAnimatedComponent mode="orgchart"/>} />
-          <Route path="/person-profile/:personId" element={<DataLoadingAnimatedComponent mode="person-profile"/>}/>
-          <Route path="/statistics" element={<Dashboard/>}/>
-          <Route path="*" element={<Error404 />} />
-          <Route path="/globe" element={<TouristGlobe/>}/>
-          <Route path="/map" element={<DistrictMap/>}/>
-          <Route path="/timeline" element={<YearRangeSelector/>}/>
-        </Routes>
+      <Routes>
+        <Route path="/" element={<XploreGovHomepage />} />
+        <Route path="/orgchart" element={<DataLoadingAnimatedComponent mode="orgchart"/>} />
+        {/* <Route path="/statistics" element={<DataLoadingAnimatedComponent mode="statistics"/>}/> */}
+        <Route path="/statistics" element={<Dashboard/>}/>
+        <Route path="*" element={<Error404 />} />
+        <Route path="/globe" element={<TouristGlobe/>}/>
+        <Route path="/map" element={<DistrictMap/>}/>
+        <Route path="/timeline" element={<YearRangeSelector/>}/>
+        <Route path="/xploredata" element={<XploreDataHomepage/>}/>
+        <Route path="/person-profile/:personId" element={<DataLoadingAnimatedComponent mode="person-profile"/>}/>
+      </Routes>          
     </Router>
     </div>
   );
