@@ -39,17 +39,22 @@ const XploreGovHomepage = () => {
 
   const distance = 1400;
   useEffect(() => {
+    if (!svgRef.current) return;
+
     svgRef.current.cameraPosition({ z: distance });
 
-    // camera orbit
     let angle = 0;
-    setInterval(() => {
+    const intervalId = setInterval(() => {
+      if (!svgRef.current) return;
+
       svgRef.current.cameraPosition({
         x: distance * Math.sin(angle),
         z: distance * Math.cos(angle),
       });
       angle += Math.PI / 300;
     }, 10);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   // Simulate network visualization
