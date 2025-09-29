@@ -8,6 +8,7 @@ import { useThemeContext } from "./themeContext";
 import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
 import TouristGlobe from "./components/statistics_components/TouristGlobe";
 import DistrictMap from "./components/statistics_components/DistrictMap";
+import XploreGovHomepage from "./pages/XploreGovHome";
 import YearRangeSelector from "./components/common_components/Timeline";
 import Dashboard from "./pages/StatComparison";
 
@@ -27,6 +28,7 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
         <Route path="/globe" element={<TouristGlobe/>}/>
         <Route path="/map" element={<DistrictMap/>}/>
+        <Route path="/xploregov" element={<XploreGovHomepage/>}/>
         <Route path="/timeline" element={<YearRangeSelector/>}/>
       </Routes>
     </Router>
