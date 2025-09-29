@@ -758,6 +758,19 @@ export default function YearRangeSelector({
                     monthsShown={1}
                     minDate={new Date(startYear, 0, 1)}
                     maxDate={new Date()}
+                    dayClassName={(date) => {
+                      if (!tempStartDate) return "";
+                      const start = tempStartDate;
+                      const endOfMonth = new Date(
+                        start.getFullYear(),
+                        start.getMonth() + 1,
+                        0
+                      );
+                      if (date >= start && date <= endOfMonth) {
+                        return "bg-blue-500/20 rounded-none";
+                      }
+                      return "";
+                    }}
                   />
                 </div>
                 <div className="flex-1 flex flex-col">
@@ -769,6 +782,19 @@ export default function YearRangeSelector({
                     monthsShown={1}
                     minDate={tempStartDate}
                     maxDate={new Date()}
+                    dayClassName={(date) => {
+                      if (!tempEndDate) return "";
+                      const end = tempEndDate;
+                      const startOfMonth = new Date(
+                        end.getFullYear(),
+                        end.getMonth(),
+                        1
+                      );
+                      if (date >= startOfMonth && date <= end) {
+                        return "bg-blue-500/20 rounded-none";
+                      }
+                      return "";
+                    }}
                   />
                 </div>
               </div>
