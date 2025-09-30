@@ -427,7 +427,7 @@ const PersonProfile = () => {
                 <AccountBalanceIcon
                   sx={{ fontSize: 18, color: colors.textMuted }}
                 />
-                Worked Ministries
+                Ministries Worked At
               </Typography>
               <Typography
                 sx={{

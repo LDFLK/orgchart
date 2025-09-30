@@ -28,6 +28,7 @@ import {
 } from "recharts";
 
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import { useNavigate } from "react-router-dom";
 
 const timeSeriesData = [
   { year: "2019", budgetAllocation: 300, revenue: 450, growthRate: 2.1 },
@@ -411,6 +412,8 @@ const InteractiveChart = ({ activeYear }) => {
 
 export default function XploreDataHomepage() {
   const [activeYear, setActiveYear] = useState(2023);
+    const navigate = useNavigate();
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-x-hidden relative">
@@ -492,7 +495,7 @@ export default function XploreDataHomepage() {
               Visualize Data Through Time — explore trends, compare sectors, and
               dive deep into the numbers.
             </p>
-
+{/* 
             <div className="grid md:grid-cols-3 gap-6 mb-16">
               <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/30 text-center">
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 flex items-center justify-center">
@@ -524,7 +527,7 @@ export default function XploreDataHomepage() {
                   and timeline control.
                 </p>
               </div>
-            </div>
+            </div> */}
           </section>
 
           {/* main two-column area */}
@@ -628,9 +631,9 @@ export default function XploreDataHomepage() {
               Dive deep into Sri Lanka's data landscape and discover insights
               that matter.
             </p>
-            <button className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:scale-105 transition transform inline-flex items-center space-x-3">
+            <button onClick={() => navigate("/statistics")} className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:scale-105 transition transform inline-flex items-center space-x-3">
               <Zap className="w-6 h-6" />
-              <span>Launch XploreGov</span>
+              <span>XploreData</span>
               <ChevronRight className="w-6 h-6" />
             </button>
           </div>

@@ -36,4 +36,8 @@ body {
   align-items: center;
 }
 
+.react-datepicker__month .react-datepicker__week:nth-child(6) {
+  display: none;
+}
+
 

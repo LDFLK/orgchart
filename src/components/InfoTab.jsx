@@ -44,9 +44,9 @@ const InfoTab = ({ drawerOpen, selectedCard, selectedDate, onClose, selectedPres
         </Box>
         <Box sx={{ p: 2, backgroundColor: colors.backgroundPrimary, mt: -3 }}>
                   {/* Date */}
-                  <Typography variant="h6" sx={{ color: `${presidentColor}90`, fontFamily: "poppins" }}>
+                  {/* <Typography variant="h6" sx={{ color: `${presidentColor}90`, fontFamily: "poppins" }}>
                     Gazette Date
-                  </Typography>
+                  </Typography> */}
                   <Typography
                     variant="h5"
                     sx={{

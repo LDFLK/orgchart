@@ -39,17 +39,22 @@ const XploreGovHomepage = () => {
 
   const distance = 1400;
   useEffect(() => {
+    if (!svgRef.current) return;
+
     svgRef.current.cameraPosition({ z: distance });
 
-    // camera orbit
     let angle = 0;
-    setInterval(() => {
+    const intervalId = setInterval(() => {
+      if (!svgRef.current) return;
+
       svgRef.current.cameraPosition({
         x: distance * Math.sin(angle),
         z: distance * Math.cos(angle),
       });
       angle += Math.PI / 300;
     }, 10);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   // Simulate network visualization
@@ -474,7 +479,7 @@ const XploreGovHomepage = () => {
             </h2>
 
             <p className="text-2xl text-gray-300 mb-4 font-light">
-              A Deep Dive into the Governance in Sri Lanka as a Timeseries
+              A Deep Dive into the Government in Sri Lanka as a Timeseries
             </p>
 
             <p className="text-lg text-cyan-400 mb-8 font-semibold">
@@ -487,7 +492,7 @@ const XploreGovHomepage = () => {
               evolution, and explore the connections that shape governance.
             </p>
 
-            {/* Feature Highlights */}
+            {/* Feature Highlights
             <div className="grid md:grid-cols-3 gap-6 mb-16">
               <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/30 text-center">
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 flex items-center justify-center">
@@ -521,7 +526,7 @@ const XploreGovHomepage = () => {
                   points across time
                 </p>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Main Feature Cards */}
@@ -534,7 +539,7 @@ const XploreGovHomepage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white">
-                    Governance Structure Analysis
+                    Government Structure Visualization
                   </h3>
                   <p className="text-sm text-gray-400">
                     Track changes across presidencies and time
@@ -610,7 +615,7 @@ const XploreGovHomepage = () => {
           {/* CTA Section */}
           <div className="text-center py-16">
             <h3 className="text-3xl font-bold text-white mb-4">
-              Ready to Explore Sri Lanka's Governance?
+              Ready to Explore Sri Lanka's Government?
             </h3>
             <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
               Dive deep into the data that shapes the nation. Track changes,
@@ -619,7 +624,7 @@ const XploreGovHomepage = () => {
             <button className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:scale-105 transition transform inline-flex items-center space-x-3 hover:cursor-pointer"
             onClick={()=>navigate('/orgchart')}>
               <Zap className="w-6 h-6" />
-              <span>Launch XploreGov</span>
+              <span>XploreGov</span>
               <ChevronRight className="w-6 h-6" />
             </button>
           </div>
