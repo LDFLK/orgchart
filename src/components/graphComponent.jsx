@@ -7,16 +7,11 @@ import React, {
 } from "react";
 import ForceGraph3D from "react-force-graph-3d";
 import api from "../services/services";
-import modeEnum from "../enums/mode";
 import utils from "../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setSelectedIndex,
-  setSelectedPresident,
-  setSelectedDate,
-} from "../store/presidencySlice";
 
 import Drawer from "./statistics_components/drawer";
+import InfoTabDialog from "./InfoTabDialog";
 import SpriteText from "three-spritetext";
 import WebGLChecker, {
   isWebGLAvailable,
@@ -25,6 +20,7 @@ import LoadingComponent from "./common_components/loading_component";
 import { useThemeContext } from "../themeContext";
 import { useNavigate } from "react-router-dom";
 
+
 export default function GraphComponent({ activeMinistries }) {
   const [loading, setLoading] = useState(true);
   const [webgl, setWebgl] = useState(true);
@@ -32,7 +28,12 @@ export default function GraphComponent({ activeMinistries }) {
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState(null);
+  const [infoTabOpen, setInfoTabOpen] = useState(false);
+  const [infoTabNode, setInfoTabNode] = useState(null);
+  const [infoTabDepartment, setInfoTabDepartment] = useState(null);
   const [filterGraphBy, setFilterGraphBy] = useState(null);
+  const [graphWidth, setGraphWidth] = useState(window.innerWidth);
+  const [graphHeight, setGraphHeight] = useState(window.innerHeight);
 
   const [mode, setMode] = useState("Structure");
 
@@ -51,16 +52,46 @@ export default function GraphComponent({ activeMinistries }) {
 
   const { colors, isDark } = useThemeContext();
 
+  // Calculate graph width based on drawer state
+  useEffect(() => {
+    const calculateGraphWidth = () => {
+      if (expandDrawer) {
+        setGraphWidth(Math.floor(window.innerWidth * 2 / 3));
+      } else {
+        setGraphWidth(window.innerWidth);
+      }
+    };
+
+    calculateGraphWidth();
+
+    const handleResize = () => {
+      calculateGraphWidth();
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [expandDrawer]);
+
+  // Track graph height responsively (numeric, avoids remount/reset)
+  useEffect(() => {
+    const calculateGraphHeight = () => {
+      setGraphHeight(window.innerHeight);
+    };
+
+    calculateGraphHeight();
+    window.addEventListener('resize', calculateGraphHeight);
+    return () => window.removeEventListener('resize', calculateGraphHeight);
+  }, []);
+
   const focusRef = useRef();
   const cameraAnimTimeoutRef = useRef();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const presidents = useSelector((state) => state.presidency.presidentList);
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
-  const selectedPresident = useSelector(
-    (state) => state.presidency.selectedPresident
-  );
+  const selectedPresident = useSelector((state) => state.presidency.selectedPresident);
   const gazetteDataClassic = useSelector((state) => state.gazettes.gazetteData);
   const allMinistryData = useSelector(
     (state) => state.allMinistryData.allMinistryData
@@ -122,7 +153,7 @@ export default function GraphComponent({ activeMinistries }) {
 
   useEffect(() => {
     const buildGraph = async () => {
-      handleClosePopup();
+      // Do not close popup here; let user interaction control it
       setLoading(true);
 
       try {
@@ -409,6 +440,7 @@ export default function GraphComponent({ activeMinistries }) {
           newGraph.links.push(link);
         });
 
+        console.log("these are the nodes to pass ", nodes);
         setFilteredGraphData(newGraph);
         setLoading(false);
       }, 5000);
@@ -459,9 +491,8 @@ export default function GraphComponent({ activeMinistries }) {
   );
 
   const handleNodeClick = useCallback((node) => {
-    console.log("Node clicked:", node); // Debug log
-
-    // Set popup data first
+    // Always open the popup for any node
+    setInfoTabOpen(false); // Ensure InfoTabDialog is closed so NodePopup can show
     setSelectedNode(node);
     setPopupVisible(true);
 
@@ -472,7 +503,6 @@ export default function GraphComponent({ activeMinistries }) {
       // Use center of canvas as fallback position
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-
       setPopupPosition({ x: centerX, y: centerY });
     }
 
@@ -490,9 +520,7 @@ export default function GraphComponent({ activeMinistries }) {
     if (cameraAnimTimeoutRef.current) {
       clearTimeout(cameraAnimTimeoutRef.current);
     }
-    cameraAnimTimeoutRef.current = setTimeout(() => {
-      // setSelectedNodeId(node.id);
-    }, transitionMs + 2);
+    cameraAnimTimeoutRef.current = setTimeout(() => {}, transitionMs + 2);
   }, []);
 
   // Configure forces
@@ -567,30 +595,84 @@ export default function GraphComponent({ activeMinistries }) {
     };
   }, []);
 
+
   // Handle popup close
   const handleClosePopup = useCallback(() => {
     setPopupVisible(false);
     setSelectedNode(null);
   }, []);
 
-  // Handle navigation to another page
-  const handleNavigateToPage = useCallback(() => {
-    if (selectedNode) {
-      // Navigate with only serializable data
-      const serializableNode = {
-        id: selectedNode.id,
-        name: selectedNode.name,
-        group: selectedNode.group,
-        color: selectedNode.color,
-      };
 
-      setMode("Statistics");
+  // Handle InfoTabDialog close
+  const handleCloseInfoTab = useCallback(() => {
+    setInfoTabOpen(false);
+    setInfoTabNode(null);
+    setInfoTabDepartment(null);
+  }, []);
+
+
+  // Handle navigation to another page or open InfoTabDialog
+  const handleNavigateToPage = useCallback(() => {
+    if (!selectedNode) return;
+
+    if (selectedNode.type === "person") {
+      navigate(`/person-profile/${selectedNode.id}`, {
+        state: { mode: "back" },
+      });
       handleClosePopup();
+      return;
     }
-  }, [selectedNode, navigate, handleClosePopup]);
+
+    if (selectedNode.type === "minister") {
+      setInfoTabNode(selectedNode);
+      setInfoTabDepartment(null);
+      setInfoTabOpen(true);
+      // Only close popup after InfoTabDialog is open
+      setTimeout(() => handleClosePopup(), 0);
+      return;
+    }
+
+    if (selectedNode.type === "department") {
+      // Find the source ministry for this department
+      let ministryId = null;
+      for (const [minId, rels] of Object.entries(ministerToDepartments)) {
+        if (rels && rels.some((rel) => rel.target === selectedNode.id)) {
+          ministryId = minId;
+          break;
+        }
+      }
+      let ministry = null;
+      if (ministryId) {
+        ministry = ministryDictionary[ministryId];
+        if (!ministry) {
+          // Try to find the ministry node from allNodes (if available)
+          const ministryFromNodes = allNodes?.find(
+            (n) => n.id === ministryId && n.type === "minister"
+          );
+          if (ministryFromNodes) {
+            ministry = ministryFromNodes;
+          } else {
+            // fallback: minimal object with id only
+            ministry = { id: ministryId, name: ministryId };
+          }
+        }
+      }
+      if (!ministry) {
+        // fallback: show something instead of blocking InfoTab
+        ministry = { id: "unknown", name: "No Ministry Found" };
+      }
+      setInfoTabNode(ministry);
+      setInfoTabDepartment(selectedNode);
+      setInfoTabOpen(true);
+      setTimeout(() => handleClosePopup(), 0);
+      return;
+    }
+  }, [selectedNode, navigate, handleClosePopup, ministryDictionary, ministerToDepartments]);
 
   // Popup component
   const NodePopup = () => {
+    // Don't show popup if InfoTabDialog is open
+    if (infoTabOpen) return null;
     if (!selectedNode || !popupVisible) return null;
 
     return (
@@ -605,24 +687,16 @@ export default function GraphComponent({ activeMinistries }) {
       >
         <div className="text-lg font-semibold mb-2">{selectedNode.name}</div>
         <div className="flex gap-2">
-          {selectedNode.type == "department" ? (
-            <>
-              <button
-                onClick={handleNavigateToPage}
-                className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
-                style={{ backgroundColor: colors.primary || "#1976d2" }}
-              >
-                View Details
-              </button>
-              <button
-                onClick={handleNavigateToPage}
-                className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
-                style={{ backgroundColor: colors.primary || "#1976d2" }}
-              >
-                Xplore Statistics
-              </button>
-            </>
-          ) : (
+          {selectedNode.type === "person" && (
+            <button
+              onClick={handleNavigateToPage}
+              className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
+              style={{ backgroundColor: colors.primary || "#1976d2" }}
+            >
+              Go to Profile
+            </button>
+          )}
+          {(selectedNode.type === "minister" || selectedNode.type === "department") && (
             <button
               onClick={handleNavigateToPage}
               className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
@@ -647,69 +721,57 @@ export default function GraphComponent({ activeMinistries }) {
   };
 
   const typeMap = {
+    All: null,
     Ministers: "minister",
     Departments: "department",
     Persons: "person",
   };
+
   const ColorMap = {
-    Ministers: "blue",
-    Departments: "green",
-    Persons: "red",
+    All: "#fff",
+    Ministers: "#ffee8c",
+    Departments: "#3e8ede",
+    Persons: "#004f98",
   };
 
   return (
     <>
-      <div>
-        <Drawer
-          expandDrawer={expandDrawer}
-          setExpandDrawer={setExpandDrawer}
-          ministerDictionary={ministryDictionary}
-          departmentDictionary={departmentDictionary}
-          ministerToDepartments={ministerToDepartments}
-          onMinistryClick={handleNodeClick}
-          mode={mode}
-          setMode={setMode}
-          selectedNode={selectedNode}
-        />
-        <div
-          className="relative"
+      <div className="flex h-screen w-full">
+        {/* Graph container - takes 2/3 width when drawer is open, full width when closed */}
+        <div 
+          className={`${expandDrawer ? "w-2/3" : "w-full"} transition-all duration-300 ease-in-out`}
           style={{
-            marginRight: expandDrawer ? window.innerWidth / 2 : 0,
-            transition: "margin-right 0.3s ease",
-            height: "100vh",
-            overflow: "hidden",
-            left: 0,
+            backgroundColor: colors.backgroundPrimary,
           }}
         >
-          <div className="flex justify-start items-start h-full">
             {!loading ? (
               <div
-                className="w-full"
+                className="w-full h-full"
                 style={{
                   backgroundColor: colors.backgroundPrimary,
-                  overflow: "hidden",
                 }}
               >
-                {webgl ? (
+                {webgl && (
                   graphData.nodes.length > 0 && graphData.links.length > 0 ? (
                     <div className="relative">
                       <div
-                        className={`w-full flex justify-start items-center gap-2 absolute top-5 ${
-                          expandDrawer ? "left-25" : "left-5"
-                        } transition-all duration-300 ease-in-out z-100 shadow-2xl`}
+                        className="w-full flex justify-start items-center gap-2 absolute top-5 left-5 transition-all duration-300 ease-in-out z-100 shadow-2xl"
                       >
                         <p className="text-white mr-2">Filter by :</p>
-                        {["Ministers", "Departments", "Persons"].map(
+                        {["All", "Ministers", "Departments", "Persons"].map(
                           (item, index) => {
                             return (
                               <button
                                 key={index}
-                                className="rounded-full text-black px-3 py-2 flex items-center space-x-3  hover:cursor-pointer"
+                                className="rounded-full px-3 py-2 flex items-center space-x-3  hover:cursor-pointer"
                                 onClick={() => setFilterGraphBy(typeMap[item])}
-                                style={{ backgroundColor: colors.textMuted }}
+                                style={{ backgroundColor: filterGraphBy === typeMap[item] ? colors.backgroundPrimary : colors.textMuted, color: filterGraphBy === typeMap[item] ? colors.textMuted : colors.backgroundPrimary }}
+                                disabled={
+                                  filterGraphBy === typeMap[item]
+                                }
                               >
                                 <div
-                                  className={`w-2 h-2 rounded-full animate-pulse`}
+                                  className={`w-2 h-2 rounded-full`}
                                   style={{ backgroundColor: ColorMap[item] }}
                                 ></div>
                                 <p>{item}</p>
@@ -732,12 +794,8 @@ export default function GraphComponent({ activeMinistries }) {
                         </button>
                       </div> */}
                       <ForceGraph3D
-                        height={window.innerHeight}
-                        width={
-                          expandDrawer
-                            ? window.innerWidth / 2
-                            : window.innerWidth - 205
-                        }
+                        height={graphHeight}
+                        width={graphWidth}
                         graphData={
                           filteredGraphData.nodes.length > 0 ||
                           filteredGraphData.links.length > 0
@@ -780,92 +838,38 @@ export default function GraphComponent({ activeMinistries }) {
                       <LoadingComponent message="Preparing Graph Data" />
                     </div>
                   )
-                ) : (
-                  <div className="flex flex-col justify-center items-center w-full h-full p-8">
-                    <div className="text-center max-w-2xl">
-                      <h2 className="text-2xl font-bold mb-4 text-red-600">
-                        WebGL Not Available
-                      </h2>
-                      <p className="text-lg mb-6 text-gray-700">
-                        Your browser doesn't support WebGL or it's currently
-                        disabled. The 3D visualization requires WebGL to
-                        function properly.
-                      </p>
-
-                      <div className="bg-blue-50 p-4 rounded-lg mb-6 text-left">
-                        <h3 className="font-semibold mb-2">To enable WebGL:</h3>
-                        <ul className="list-disc list-inside space-y-1 text-sm">
-                          <li>
-                            <strong>Chrome:</strong> Settings → Advanced →
-                            System → Enable "Use hardware acceleration"
-                          </li>
-                          <li>
-                            <strong>Firefox:</strong> about:config →
-                            webgl.force-enabled → true
-                          </li>
-                          <li>
-                            <strong>Edge:</strong> Settings → System → Enable
-                            "Use hardware acceleration"
-                          </li>
-                          <li>Update your graphics drivers</li>
-                          <li>
-                            Disable browser extensions that might block WebGL
-                          </li>
-                        </ul>
-                      </div>
-
-                      <div className="flex gap-4 justify-center">
-                        <button
-                          onClick={() => window.location.reload()}
-                          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-                        >
-                          Reload Page
-                        </button>
-                        <button
-                          onClick={() => {
-                            const webglAvailable = isWebGLAvailable();
-                            console.log("Manual WebGL check:", webglAvailable);
-                            setWebgl(webglAvailable);
-                          }}
-                          className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
-                        >
-                          Retry WebGL
-                        </button>
-                        <button
-                          onClick={() => {
-                            // Force retry with multiple attempts
-                            let attempts = 0;
-                            const retryInterval = setInterval(() => {
-                              attempts++;
-                              const webglAvailable = isWebGLAvailable();
-                              console.log(
-                                `WebGL retry attempt ${attempts}:`,
-                                webglAvailable
-                              );
-                              setWebgl(webglAvailable);
-
-                              if (webglAvailable || attempts >= 3) {
-                                clearInterval(retryInterval);
-                              }
-                            }, 500);
-                          }}
-                          className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                        >
-                          Force Retry
-                        </button>
-                      </div>
-                    </div>
-                  </div>
                 )}
               </div>
             ) : (
               <LoadingComponent message="Graph Loading" OsColorMode={false} />
             )}
-          </div>
         </div>
-        <NodePopup />
-        <WebGLChecker />
+        
+        {/* Drawer component - takes 1/3 width when open, 0 width when closed */}
+        <Drawer
+          expandDrawer={expandDrawer}
+          setExpandDrawer={setExpandDrawer}
+          ministerDictionary={ministryDictionary}
+          departmentDictionary={departmentDictionary}
+          ministerToDepartments={ministerToDepartments}
+          onMinistryClick={handleNodeClick}
+          mode={mode}
+          setMode={setMode}
+          selectedNode={selectedNode}
+          filteredGraphData={filteredGraphData}
+          filterGraphBy={filterGraphBy}
+        />
       </div>
+      <InfoTabDialog
+        open={infoTabOpen}
+        onClose={handleCloseInfoTab}
+        node={infoTabNode}
+        selectedDate={selectedDate}
+        selectedPresident={selectedPresident}
+        selectedDepartment={infoTabDepartment}
+      />
+      <NodePopup />
+      <WebGLChecker />
     </>
   );
 }

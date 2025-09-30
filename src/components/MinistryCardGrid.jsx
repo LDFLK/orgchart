@@ -31,6 +31,7 @@ import utils from "./../utils/utils";
 import MinistryViewModeToggleButton from "./ministryViewModeToggleButton";
 import GraphComponent from "./graphComponent";
 import { clearTimeout } from "highcharts";
+import UrlParamState from "../hooks/singleSharingURL";
 
 const MinistryCardGrid = ({ onCardClick }) => {
   const dispatch = useDispatch();
@@ -42,9 +43,9 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [viewMode, setViewMode] = useState("Grid");
+  const [searchText, setSearchText] = UrlParamState("filterByName", "");
+  const [filterType, setFilterType] = UrlParamState("filterByType", "all");
+  const [viewMode, setViewMode] = UrlParamState("viewMode", "Grid");
   const { colors } = useThemeContext();
 
   useEffect(() => {
@@ -52,45 +53,50 @@ const MinistryCardGrid = ({ onCardClick }) => {
   }, [selectedDate, allMinistryData, selectedPresident]);
 
   useEffect(() => {
-    let result = activeMinistryList;
+    let delayDebounceFunction;
+    setLoading(true);
+    delayDebounceFunction = setTimeout(() => {
+      let result = activeMinistryList;
 
-    // Apply dropdown filter
-    if (filterType === "newPerson") {
-      result = result.filter((m) => m.newPerson);
-    } else if (filterType === "newMinistry") {
-      result = result.filter((m) => m.newMin);
-    } else if (filterType === "presidentAsMinister") {
-      result = result.filter((m) => {
-        const headName = m.headMinisterName
-          ? utils.extractNameFromProtobuf(m.headMinisterName)
-          : selectedPresident?.name
-          ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
-          : null;
+      // Always apply dropdown filter
+      if (filterType === "newPerson") {
+        result = result.filter((m) => m.newPerson);
+      } else if (filterType === "newMinistry") {
+        result = result.filter((m) => m.newMin);
+      } else if (filterType === "presidentAsMinister") {
+        result = result.filter((m) => {
+          const headName = m.headMinisterName
+            ? utils.extractNameFromProtobuf(m.headMinisterName)
+            : selectedPresident?.name
+            ? utils
+                .extractNameFromProtobuf(selectedPresident.name)
+                .split(":")[0]
+            : null;
 
-        const presidentName = selectedPresident?.name
-          ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
-          : null;
+          const presidentName = selectedPresident?.name
+            ? utils
+                .extractNameFromProtobuf(selectedPresident.name)
+                .split(":")[0]
+            : null;
 
-        return (
-          headName &&
-          presidentName &&
-          headName.toLowerCase().trim() === presidentName.toLowerCase().trim()
-        );
-      });
-    }
+          return (
+            headName &&
+            presidentName &&
+            headName.toLowerCase().trim() ===
+              presidentName.toLowerCase().trim()
+          );
+        });
+      }
 
-    // Apply search text filter using your existing function
-    if (searchText !== "") {
-      result = searchByText(searchText, result);
-    }
-
-    const delayDebounceFunction = setTimeout(() => {
-
+      // Then apply search filter if searchText is not empty
+      if (searchText !== "") {
+        result = searchByText(searchText, result);
+      }
       setFilteredMinistryList(result);
-    }, 2500)
+      setLoading(false);
+    }, 1000);
 
-    return () => clearTimeout(delayDebounceFunction)
-
+    return () => clearTimeout(delayDebounceFunction);
   }, [searchText, filterType, activeMinistryList, selectedPresident]);
 
   const searchByText = (searchText, list = activeMinistryList) => {
@@ -344,7 +350,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
               >
                 Ministries assigned to president{" "}
                 <InfoTooltip
-                  message="Ministry portfolios under the president on selected gazette date"
+                  message="Ministry portfolios under the president on selected date"
                   iconColor={colors.textPrimary}
                   iconSize={14}
                 />
@@ -453,11 +459,11 @@ const MinistryCardGrid = ({ onCardClick }) => {
           >
             {/* Search Bar */}
             <Box
-              sx={{ flex: 1, minWidth: { xs: "100%", sm: 200 }, maxWidth: 600 }}
+              sx={{ flex: 1, minWidth: { xs: "100%", sm: "30%" }, maxWidth: 600 }}
             >
               <TextField
                 fullWidth
-                label="Search By Ministry Name"
+                label="Search by ministry name"
                 id="ministry-search"
                 onChange={handleChange}
                 value={searchText}
@@ -570,7 +576,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
         ) : (
           <Box sx={{ width: "100%" }}>
             <Grid
-            position={"relative"}
+              position={"relative"}
               container
               justifyContent="center"
               gap={1}
@@ -607,7 +613,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
                     </Grid>
                   ))
                 ) : (
-                  <GraphComponent  activeMinistries={filteredMinistryList} />
+                  <GraphComponent activeMinistries={filteredMinistryList} />
                 )
               ) : activeMinistryList && activeMinistryList.length === 0 ? (
                 <Box
