@@ -653,7 +653,7 @@ export default function YearRangeSelector({
 
   // UI rendering
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-6xl mx-auto mt-6">
+    <div className="bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-6xl mx-auto mt-6">
       {/* Presets and calendar */}
       <div className="flex gap-2 mb-6 flex-wrap sm:justify-start justify-center">
         {/* Year presets */}
@@ -691,10 +691,10 @@ export default function YearRangeSelector({
               setActivePreset(preset.label);
               setActivePresident("");
             }}
-            className={`px-2 text-sm font-medium rounded-lg transition-colors ${
+            className={`px-2 text-sm font-medium rounded-lg transition-colors hover:cursor-pointer ${
               activePreset === preset.label
-                ? "bg-blue-600 text-white dark:bg-blue-600"
-                : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
+                ? "bg-blue-600 text-white"
+                : "hover:bg-gray-800 bg-gray-700 text-gray-300 hover:cursor-pointer"
             }`}
           >
             {preset.label}
@@ -719,8 +719,8 @@ export default function YearRangeSelector({
             }
           }}
           className="px-4 py-2 text-sm font-medium rounded-lg
-     bg-gray-100 dark:bg-gray-700
-     text-gray-700 dark:text-gray-300
+     bg-gray-700
+     text-gray-300
      focus:outline-none"
         >
           {!activePresident && (
@@ -742,12 +742,12 @@ export default function YearRangeSelector({
               setTempEndDate(endDate);
               setCalendarOpen((o) => !o);
             }}
-            className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-2 text-sm bg-gray-100 text-gray-300 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors"
+            className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-2 text-sm text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors hover:cursor-pointer"
           >
-            📅 Select Range
+            Select Range
           </button>
           {calendarOpen && (
-            <div className="absolute right-0 mt-2 z-50 w-full sm:w-auto bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
+            <div className="absolute right-0 mt-2 z-50 w-full sm:w-auto bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 flex flex-col">
                   <p className="text-xs text-gray-300 mb-2">From</p>
@@ -801,7 +801,7 @@ export default function YearRangeSelector({
               <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
                 <button
                   onClick={() => setCalendarOpen(false)}
-                  className="px-4 py-2 bg-gray-300 dark:bg-gray-600 rounded-lg"
+                  className="px-4 py-2 bg-gray-600 text-gray-300 rounded-lg hover:cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -835,14 +835,11 @@ export default function YearRangeSelector({
 
         {/* Selected range display */}
         <div className="flex items-center gap-2 w-full sm:w-auto ml-auto">
-          <div className="px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-md text-gray-700 dark:text-gray-300">
-            <span className="font-medium">From :</span>
-            {"  "}
+          <div className="px-3 py-1.5 rounded-full text-xs bg-blue-500/10 border border-blue-500/30 text-blue-300 font-medium">
             {startDate.toISOString().split("T")[0]}
           </div>
-          <div className="px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-md text-gray-700 dark:text-gray-300">
-            <span className="font-medium">To :</span>
-            {"  "}
+          <span className="text-blue-300 font-medium">→</span>
+          <div className="px-3 py-1.5 rounded-full text-xs bg-blue-500/10 border border-blue-500/30 text-blue-300 font-medium">
             {endDate.toISOString().split("T")[0]}
           </div>
         </div>
@@ -856,7 +853,7 @@ export default function YearRangeSelector({
       >
         <div
           ref={containerRef}
-          className="relative bg-gray-50 dark:bg-gray-700 mb-6"
+          className="relative bg-gray-700 mb-6"
           style={{ height: "55px", minWidth: `${years.length * 80}px` }}
         >
           <div className="flex h-full items-end">
@@ -901,9 +898,7 @@ export default function YearRangeSelector({
                   />
                   <div
                     className={`absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${
-                      isInRange
-                        ? "text-blue-600 dark:text-blue-400"
-                        : "text-gray-500 dark:text-gray-400"
+                      isInRange ? "text-blue-400" : "text-gray-400"
                     }`}
                   >
                     {year}
