@@ -470,7 +470,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
               sx={{
                 flex: 1,
                 minWidth: { xs: "100%", sm: "30%" },
-                maxWidth: 600,
+                maxWidth: { sm: "68%"},
               }}
             >
               <TextField

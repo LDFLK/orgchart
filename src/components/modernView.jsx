@@ -48,7 +48,7 @@ const ModernView = () => {
 
   useEffect(() => {
     if (president) {
-      navigate(location.pathname, { replace: true });
+      navigate(location.pathname, { replace: true,  state: {} });
     }
   }, [president, navigate, location.pathname]);
 

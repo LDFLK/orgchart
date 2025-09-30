@@ -183,7 +183,7 @@ const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedD
                 />
               </Typography>
 
-              <Button
+              {/* <Button
                 onClick={() => {
                   setSelectedDepartment(selectedDepartment);
                   setTimeout(() => navigate("/statistics"), 300);
@@ -196,7 +196,7 @@ const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedD
                 <Typography sx={{ color: colors.textMuted }}>
                   Explore statistics
                 </Typography>
-              </Button>
+              </Button> */}
             </Box>
           </Box>
 
