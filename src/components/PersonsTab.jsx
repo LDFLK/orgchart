@@ -343,9 +343,21 @@ const PersonsTab = ({ selectedDate }) => {
         >
           Directors
         </Typography>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            mt: 0.25,
+            fontSize: "1.0rem",
+            color: colors.textPrimary,
+            fontWeight: 200,
+            fontFamily: "poppins",
+          }}
+        >
+          No data available yet.
+        </Typography>
         <Divider sx={{ py: 1 }} />
       </Box>
-      <Dialog
+      {/* <Dialog
         open={profileOpen}
         onClose={() => setProfileOpen(false)}
         maxWidth="xl"
@@ -378,7 +390,7 @@ const PersonsTab = ({ selectedDate }) => {
         <Box sx={{ px: 3, pb: 3 }}>
           <PersonProfile selectedPerson={selectedPerson} />
         </Box>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 };

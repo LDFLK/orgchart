@@ -21,7 +21,7 @@ export default function LoadingComponent({ size = 40, OsColorMode = true }) {
       setTimeout(() => {
         setIndex((prev) => (prev + 1) % sentences.length);
         setFlip(false);
-      }, 600); 
+      }, 600);
     }, 2500);
     return () => clearInterval(interval);
   }, []);
@@ -34,30 +34,19 @@ export default function LoadingComponent({ size = 40, OsColorMode = true }) {
       }`}
       style={{ color: OsColorMode ? "" : colors.textPrimary }}
     >
-      <ClipLoader size={size} color={colors.textPrimary} />
+      {/* Loading Spinner */}
+      <div className="flex justify-center mt-8">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 rounded-full border-4 border-gray-700"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-cyan-500 border-r-purple-500 animate-spin"></div>
+        </div>
+      </div>
 
-      {/* Flipping sentence */}
-      <div
-        style={{
-          perspective: "1000px",
-          height: "40px",
-          marginTop: "16px",
-          overflow: "hidden",
-        }}
-      >
-        <span
-          className={`block text-lg font-medium ${
-            OsColorMode && "text-[#181818] dark:text-[#EBF2F5]"
-          }`}
-          style={{
-            color: OsColorMode ? "" : colors.textPrimary,
-            transform: flip ? "rotateX(90deg)" : "rotateX(0deg)",
-            transformOrigin: "bottom",
-            transition: "transform 0.6s ease",
-          }}
-        >
-          {sentences[index]}
-        </span>
+      {/* Please Wait Message */}
+      <div className="text-center mt-8">
+        <p className="text-gray-500 text-sm animate-pulse">
+          Please wait while we prepare everything for you...
+        </p>
       </div>
     </div>
   );

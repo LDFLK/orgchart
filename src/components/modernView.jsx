@@ -41,18 +41,16 @@ const ModernView = () => {
     relation: null,
     person: null,
   });
-  const [loading, setLoading] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [loading, setLoading] = useState(false);  
   const location = useLocation();
   const navigate = useNavigate();
-  const { president, openProfile } = location.state || {};
+  const { president } = location.state || {};
 
   useEffect(() => {
-    if (openProfile && president) {
-      setProfileOpen(true);
+    if (president) {
       navigate(location.pathname, { replace: true });
     }
-  }, [openProfile, president, navigate, location.pathname]);
+  }, [president, navigate, location.pathname]);
 
   useEffect(() => {
     if (!selectedDate) {
@@ -439,45 +437,9 @@ const ModernView = () => {
           </Card>
         </Box>
 
-        <Dialog
-          open={profileOpen}
-          onClose={() => setProfileOpen(false)}
-          maxWidth="xl"
-          fullWidth
-          PaperProps={{
-            sx: {
-              height: 600,
-              maxHeight: 600,
-              overflowY: "auto",
-              scrollbarWidth: "none", // Firefox
-              "&::-webkit-scrollbar": { display: "none" }, // Chrome, Safari
-              backgroundColor: colors.backgroundPrimary,
-              borderRadius: 3,
-            },
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
-              px: 2,
-              pt: 2,
-            }}
-          >
-            <IconButton onClick={() => setProfileOpen(false)}>
-              <CloseIcon sx={{ color: colors.textPrimary }} />
-            </IconButton>
-          </Box>
-
-          <Box sx={{ px: 3, pb: 3 }}>
-            <PersonProfile selectedPerson={selectedPresident} />
-          </Box>
-        </Dialog>
-
         {/* Card Grid for Modern View */}
         {selectedDate != null && (
-          <MinistryCardGrid onCardClick={handleCardClick} />
+          <MinistryCardGrid onCardClick={handleCardClick}/>
         )}
       </Box>
 

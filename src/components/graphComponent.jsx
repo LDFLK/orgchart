@@ -407,6 +407,7 @@ export default function GraphComponent({ activeMinistries }) {
   useEffect(() => {
     try {
       setLoading(true);
+      setExpandDrawer(false);
       setTimeout(() => {
         var newGraph = { nodes: [], links: [] };
 
@@ -443,6 +444,7 @@ export default function GraphComponent({ activeMinistries }) {
         console.log("these are the nodes to pass ", nodes);
         setFilteredGraphData(newGraph);
         setLoading(false);
+        setExpandDrawer(true);
       }, 5000);
     } catch (e) {
       console.log("filtering graph failed : ", e);

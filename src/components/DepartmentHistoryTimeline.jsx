@@ -4,7 +4,6 @@ import {
   Paper,
   Avatar,
   Box,
-  ButtonBase,
   Dialog,
   IconButton,
 } from "@mui/material";

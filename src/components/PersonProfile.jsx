@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { Typography, Paper, Avatar, Box, Button } from "@mui/material";
+import {
+  Typography,
+  Paper,
+  Avatar,
+  Box,
+  Button,
+  ButtonBase,
+} from "@mui/material";
 import { useSelector } from "react-redux";
 import {
   Timeline,
@@ -78,11 +85,7 @@ const PersonHistoryTimeline = ({
           height: "20vh",
         }}
       >
-        <ClipLoader
-          color={colors.primary}
-          loading={loading}
-          size={25}
-        />
+        <ClipLoader color={colors.primary} loading={loading} size={25} />
       </Box>
     );
   }
@@ -302,14 +305,15 @@ const PersonProfile = () => {
       }}
     >
       {state.mode === "back" ? (
-        <Button
+        <ButtonBase
           onClick={() => navigate(-1)}
           sx={{
-            mb: 2,
             display: "flex",
-            width: 200,
+            justifyContent: "flex-start",
             alignItems: "center",
-            gap: 1,
+            mb: 2,
+            width: 100,
+            color: colors.textPrimary,
           }}
         >
           <FaAngleLeft />
@@ -319,20 +323,22 @@ const PersonProfile = () => {
               fontFamily: "Poppins",
               color: colors.textPrimary,
               textTransform: "none",
+              ml: 1,
             }}
           >
             Back
           </Typography>
-        </Button>
+        </ButtonBase>
       ) : (
-        <Button
-          onClick={() => navigate("/orgchart")}
+        <ButtonBase
+          onClick={() => navigate('/')}
           sx={{
-            mb: 2,
             display: "flex",
-            width: 200,
+            justifyContent: "flex-start",
             alignItems: "center",
-            gap: 1,
+            mb: 2,
+            width: 200,
+            color: colors.textPrimary,
           }}
         >
           <FaAngleLeft />
@@ -346,7 +352,7 @@ const PersonProfile = () => {
           >
             Go to XploreGov
           </Typography>
-        </Button>
+        </ButtonBase>
       )}
       <Typography
         variant="h6"
@@ -412,8 +418,14 @@ const PersonProfile = () => {
           </Typography>
 
           {/* Fields always stacked */}
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", width: "350px" }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "350px",
+              }}
+            >
               <Typography
                 sx={{
                   display: "flex",
@@ -440,7 +452,13 @@ const PersonProfile = () => {
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "space-between", width: "350px" }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "350px",
+              }}
+            >
               <Typography
                 sx={{
                   display: "flex",
