@@ -41,6 +41,8 @@ export default function StatComparison() {
   const [bubbleR, setBubbleR] = useState("");
   const [chartError, setChartError] = useState("");
 
+  const apiUrlService = window?.configs?.apiUrlService ? window.configs.apiUrlService : "/"
+
   const handleDateRangeChange = useCallback((dateRange) => {
     const [startDate, endDate] = dateRange;
     setUserSelectedDateRange([startDate, endDate]);
@@ -113,7 +115,7 @@ export default function StatComparison() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("http://127.0.0.1:8000/allAttributes", {
+      const response = await fetch(`${apiUrlService}/allAttributes`, {
         method: "GET",
         headers: {
           accept: "application/json",
@@ -155,7 +157,7 @@ export default function StatComparison() {
       );
 
       const response = await fetch(
-        `http://127.0.0.1:8000/data/attribute/${selectedStat.parent_entity_id}`,
+        `${apiUrlService}/data/attribute/${selectedStat.parent_entity_id}`,
         {
           method: "POST",
           headers: {
