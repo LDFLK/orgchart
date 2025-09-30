@@ -262,7 +262,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
     setUserSelectedDateRange([startDate, endDate]);
 
     const filtered = filterPresidentsByDateRange(startDate, endDate);
-    console.log('Filtered presidents for selected range:', filtered);
   }, []);
 
   const dates = gazetteDateClassic.map(d => `${d}T00:00:00Z`);

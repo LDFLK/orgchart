@@ -54,51 +54,47 @@ const MinistryCardGrid = ({ onCardClick }) => {
 
   useEffect(() => {
     let delayDebounceFunction;
-    if (searchText !== "") {
-      setLoading(true);
-      delayDebounceFunction = setTimeout(() => {
-        let result = activeMinistryList;
+    setLoading(true);
+    delayDebounceFunction = setTimeout(() => {
+      let result = activeMinistryList;
 
-        // Apply dropdown filter
-        if (filterType === "newPerson") {
-          result = result.filter((m) => m.newPerson);
-        } else if (filterType === "newMinistry") {
-          result = result.filter((m) => m.newMin);
-        } else if (filterType === "presidentAsMinister") {
-          result = result.filter((m) => {
-            const headName = m.headMinisterName
-              ? utils.extractNameFromProtobuf(m.headMinisterName)
-              : selectedPresident?.name
-              ? utils
-                  .extractNameFromProtobuf(selectedPresident.name)
-                  .split(":")[0]
-              : null;
+      // Always apply dropdown filter
+      if (filterType === "newPerson") {
+        result = result.filter((m) => m.newPerson);
+      } else if (filterType === "newMinistry") {
+        result = result.filter((m) => m.newMin);
+      } else if (filterType === "presidentAsMinister") {
+        result = result.filter((m) => {
+          const headName = m.headMinisterName
+            ? utils.extractNameFromProtobuf(m.headMinisterName)
+            : selectedPresident?.name
+            ? utils
+                .extractNameFromProtobuf(selectedPresident.name)
+                .split(":")[0]
+            : null;
 
-            const presidentName = selectedPresident?.name
-              ? utils
-                  .extractNameFromProtobuf(selectedPresident.name)
-                  .split(":")[0]
-              : null;
+          const presidentName = selectedPresident?.name
+            ? utils
+                .extractNameFromProtobuf(selectedPresident.name)
+                .split(":")[0]
+            : null;
 
-            return (
-              headName &&
-              presidentName &&
-              headName.toLowerCase().trim() ===
-                presidentName.toLowerCase().trim()
-            );
-          });
-        }
+          return (
+            headName &&
+            presidentName &&
+            headName.toLowerCase().trim() ===
+              presidentName.toLowerCase().trim()
+          );
+        });
+      }
 
-        if (searchText !== "") {
-          result = searchByText(searchText, result);
-        }
-        setFilteredMinistryList(result);
-        setLoading(false);
-      }, 1000);
-    } else {
-      setFilteredMinistryList(activeMinistryList);
+      // Then apply search filter if searchText is not empty
+      if (searchText !== "") {
+        result = searchByText(searchText, result);
+      }
+      setFilteredMinistryList(result);
       setLoading(false);
-    }
+    }, 1000);
 
     return () => clearTimeout(delayDebounceFunction);
   }, [searchText, filterType, activeMinistryList, selectedPresident]);
@@ -463,11 +459,11 @@ const MinistryCardGrid = ({ onCardClick }) => {
           >
             {/* Search Bar */}
             <Box
-              sx={{ flex: 1, minWidth: { xs: "100%", sm: 200 }, maxWidth: 600 }}
+              sx={{ flex: 1, minWidth: { xs: "100%", sm: "30%" }, maxWidth: 600 }}
             >
               <TextField
                 fullWidth
-                label="Search By Ministry Name"
+                label="Search by ministry name"
                 id="ministry-search"
                 onChange={handleChange}
                 value={searchText}

@@ -13,6 +13,7 @@ import {
   GitBranch,
 } from "lucide-react";
 import ForceGraph3D from "react-force-graph-3d";
+import { useNavigate } from "react-router-dom";
 
 // Simulate the 3D network data structure
 const genRandomTree = (N = 100) => {
@@ -32,6 +33,7 @@ const genRandomTree = (N = 100) => {
 
 const XploreGovHomepage = () => {
   const svgRef = useRef();
+  const navigate = useNavigate();
 
   const graphData = genRandomTree();
 
@@ -614,7 +616,8 @@ const XploreGovHomepage = () => {
               Dive deep into the data that shapes the nation. Track changes,
               analyze trends, and discover insights that matter.
             </p>
-            <button className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:scale-105 transition transform inline-flex items-center space-x-3">
+            <button className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:scale-105 transition transform inline-flex items-center space-x-3 hover:cursor-pointer"
+            onClick={()=>navigate('/orgchart')}>
               <Zap className="w-6 h-6" />
               <span>Launch XploreGov</span>
               <ChevronRight className="w-6 h-6" />
