@@ -575,9 +575,9 @@ export default function YearRangeSelector({
         height="100%"
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{ cursor: 'crosshair' }}
+        // onMouseMove={handleMouseMove}
+        // onMouseLeave={handleMouseLeave}
+        // style={{ cursor: 'crosshair' }}
       >
         <defs>
           <linearGradient
@@ -948,7 +948,7 @@ export default function YearRangeSelector({
             <DragIndicatorIcon className="w-4 h-6 text-white" />
           </div>
           {/* Tooltip */}
-          {tooltip.show && (
+          {/* {tooltip.show && (
                         <div
                             className="fixed bg-gray-900 text-white px-2 py-1 rounded text-xs pointer-events-none z-50"
                             style={{
@@ -959,7 +959,7 @@ export default function YearRangeSelector({
                         >
                             {tooltip.content}
                         </div>
-                    )}
+                    )} */}
         </div>
       </div>
     </div>

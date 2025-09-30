@@ -467,11 +467,6 @@ const XploreGovHomepage = () => {
 
           {/* Hero Section */}
           <div className="pt-8 pb-6 text-center">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-800/50 border border-cyan-400/20 text-sm text-cyan-400 mb-6">
-              <Clock className="w-4 h-4 mr-2" />
-              Powered by OpenGIN: Open General Information Network
-            </div>
-
             <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6">
               <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                 XploreGov
@@ -479,7 +474,7 @@ const XploreGovHomepage = () => {
             </h2>
 
             <p className="text-2xl text-gray-300 mb-4 font-light">
-              A Deep Dive into the Government in Sri Lanka as a Timeseries
+              A Deep Dive into the Government in Sri Lanka
             </p>
 
             <p className="text-lg text-cyan-400 mb-8 font-semibold">
@@ -487,9 +482,8 @@ const XploreGovHomepage = () => {
             </p>
 
             <p className="text-xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-              Understanding the dynamics of Sri Lankan government with a
-              temporal perspective. Visualize structural changes, track
-              evolution, and explore the connections that shape governance.
+              Visualize structural changes, track evolution, and explore the
+              connections that shape governance.
             </p>
 
             <button
@@ -638,6 +632,13 @@ const XploreGovHomepage = () => {
                 <ChevronRight className="w-5 h-5 stroke-blue-500" />
               </span>
             </button>
+          </div>
+
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-800/50 border border-cyan-400/20 text-sm text-cyan-400 mb-6">
+              <Clock className="w-4 h-4 mr-2" />
+              Powered by OpenGIN: Open General Information Network
+            </div>
           </div>
         </div>
       </div>

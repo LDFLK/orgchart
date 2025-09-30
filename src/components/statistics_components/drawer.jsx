@@ -6,6 +6,11 @@ import Dashboard from "../../pages/StatComparison";
 import LoadingComponent from "../common_components/loading_component";
 import { useSelector } from "react-redux";
 import { IoChevronBack } from "react-icons/io5";
+import {
+  Box,
+  Alert,
+  AlertTitle,
+} from "@mui/material";
 
 export default function Drawer({
   expandDrawer,
@@ -31,10 +36,6 @@ export default function Drawer({
   useEffect(() => {
     setDrawerMinisterDictionary({});
   }, [selectedPresident]);
-
-  useEffect(() => {
-    console.log("this is from the selected name from drawer", selectedNode);
-  }, [selectedNode]);
 
   //set new data
   useEffect(() => {
@@ -71,7 +72,9 @@ export default function Drawer({
 
   return (
     <div
-      className={`${expandDrawer ? "w-1/3" : "w-0"} z-[1000] transition-all duration-300 ease-in-out h-full shadow-xl p-4 flex-shrink-0`}
+      className={`${
+        expandDrawer ? "w-1/3" : "w-0"
+      } z-[1000] transition-all duration-300 ease-in-out h-full shadow-xl p-4 flex-shrink-0`}
       style={{
         backgroundColor: colors.backgroundPrimary,
         color: colors.textPrimary,
@@ -189,8 +192,7 @@ export default function Drawer({
                 ))}
               </div>
             </>
-          ) : filterGraphBy == "minister" &&
-            targetOnlyNodes.length > 0 ? (
+          ) : filterGraphBy == "minister" && targetOnlyNodes.length > 0 ? (
             <>
               {/* Header (stays visible) */}
               <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
@@ -200,38 +202,35 @@ export default function Drawer({
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pr-2">
                 {targetOnlyNodes &&
-                  targetOnlyNodes.map(
-                    (minister, index) => (
-                      <div
-                        key={index}
-                        className={`my-2 p-2 rounded-md cursor-pointer ${
-                          isDark
-                            ? colors.backgroundWhite
-                            : "bg-gray-200 hover:bg-gray-300"
-                        }`}
-                        style={{
-                          backgroundColor: isDark
-                            ? colors.backgroundWhite
-                            : "bg-gray-200",
-                        }}
-                        onClick={() => {
-                          onMinistryClick(minister);
-                          setSelectedMinistry(minister);
-                          setShowDepartment(true);
-                          setDepartmentListtoShow(
-                            ministerToDepartments[minister.id]
-                          );
-                        }}
-                      >
-                        <span className="font-semibold mr-2">{index + 1}.</span>
-                        {minister.name}
-                      </div>
-                    )
-                  )}
+                  targetOnlyNodes.map((minister, index) => (
+                    <div
+                      key={index}
+                      className={`my-2 p-2 rounded-md cursor-pointer ${
+                        isDark
+                          ? colors.backgroundWhite
+                          : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                      style={{
+                        backgroundColor: isDark
+                          ? colors.backgroundWhite
+                          : "bg-gray-200",
+                      }}
+                      onClick={() => {
+                        onMinistryClick(minister);
+                        setSelectedMinistry(minister);
+                        setShowDepartment(true);
+                        setDepartmentListtoShow(
+                          ministerToDepartments[minister.id]
+                        );
+                      }}
+                    >
+                      <span className="font-semibold mr-2">{index + 1}.</span>
+                      {minister.name}
+                    </div>
+                  ))}
               </div>
             </>
-          ) : filterGraphBy == "department" &&
-            targetOnlyNodes.length > 0 ? (
+          ) : filterGraphBy == "department" && targetOnlyNodes.length > 0 ? (
             <>
               {/* Header (stays visible) */}
               <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
@@ -241,38 +240,35 @@ export default function Drawer({
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pr-2">
                 {targetOnlyNodes &&
-                  targetOnlyNodes.map(
-                    (minister, index) => (
-                      <div
-                        key={index}
-                        className={`my-2 p-2 rounded-md cursor-pointer ${
-                          isDark
-                            ? colors.backgroundWhite
-                            : "bg-gray-200 hover:bg-gray-300"
-                        }`}
-                        style={{
-                          backgroundColor: isDark
-                            ? colors.backgroundWhite
-                            : "bg-gray-200",
-                        }}
-                        onClick={() => {
-                          onMinistryClick(minister);
-                          setSelectedMinistry(minister);
-                          setShowDepartment(true);
-                          setDepartmentListtoShow(
-                            ministerToDepartments[minister.id]
-                          );
-                        }}
-                      >
-                        <span className="font-semibold mr-2">{index + 1}.</span>
-                        {minister.name}
-                      </div>
-                    )
-                  )}
+                  targetOnlyNodes.map((minister, index) => (
+                    <div
+                      key={index}
+                      className={`my-2 p-2 rounded-md cursor-pointer ${
+                        isDark
+                          ? colors.backgroundWhite
+                          : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                      style={{
+                        backgroundColor: isDark
+                          ? colors.backgroundWhite
+                          : "bg-gray-200",
+                      }}
+                      onClick={() => {
+                        onMinistryClick(minister);
+                        setSelectedMinistry(minister);
+                        setShowDepartment(true);
+                        setDepartmentListtoShow(
+                          ministerToDepartments[minister.id]
+                        );
+                      }}
+                    >
+                      <span className="font-semibold mr-2">{index + 1}.</span>
+                      {minister.name}
+                    </div>
+                  ))}
               </div>
             </>
-          ) : filterGraphBy == "person" &&
-            targetOnlyNodes.length > 0 ? (
+          ) : filterGraphBy == "person" && targetOnlyNodes.length > 0 ? (
             <>
               {/* Header (stays visible) */}
               <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
@@ -282,36 +278,54 @@ export default function Drawer({
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pr-2">
                 {targetOnlyNodes &&
-                  targetOnlyNodes.map(
-                    (minister, index) => (
-                      <div
-                        key={index}
-                        className={`my-2 p-2 rounded-md cursor-pointer ${
-                          isDark
-                            ? colors.backgroundWhite
-                            : "bg-gray-200 hover:bg-gray-300"
-                        }`}
-                        style={{
-                          backgroundColor: isDark
-                            ? colors.backgroundWhite
-                            : "bg-gray-200",
-                        }}
-                        onClick={() => {
-                          onMinistryClick(minister);
-                          setSelectedMinistry(minister);
-                          setShowDepartment(true);
-                          setDepartmentListtoShow(
-                            ministerToDepartments[minister.id]
-                          );
-                        }}
-                      >
-                        <span className="font-semibold mr-2">{index + 1}.</span>
-                        {minister.name}
-                      </div>
-                    )
-                  )}
+                  targetOnlyNodes.map((minister, index) => (
+                    <div
+                      key={index}
+                      className={`my-2 p-2 rounded-md cursor-pointer ${
+                        isDark
+                          ? colors.backgroundWhite
+                          : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                      style={{
+                        backgroundColor: isDark
+                          ? colors.backgroundWhite
+                          : "bg-gray-200",
+                      }}
+                      onClick={() => {
+                        onMinistryClick(minister);
+                        setSelectedMinistry(minister);
+                        setShowDepartment(true);
+                        setDepartmentListtoShow(
+                          ministerToDepartments[minister.id]
+                        );
+                      }}
+                    >
+                      <span className="font-semibold mr-2">{index + 1}.</span>
+                      {minister.name}
+                    </div>
+                  ))}
               </div>
             </>
+          ) : filterGraphBy != null && targetOnlyNodes.length === 0 ? (
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "15px",
+              }}
+            >
+              <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
+                <AlertTitle
+                  sx={{
+                    fontFamily: "poppins",
+                    color: colors.textPrimary,
+                  }}
+                >
+                  No Search Result
+                </AlertTitle>
+              </Alert>
+            </Box>
           ) : (
             <LoadingComponent message="Data Loading" OsColorMode={false} />
           )}

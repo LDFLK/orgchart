@@ -302,7 +302,7 @@ function ChartTypesCard() {
             <ScatterChart className="w-5 h-5 text-purple-400" />
           </div>
           <div>
-            <h3 className="text-lg font-bold">Multiple Data Visualization</h3>
+            <h3 className="text-lg font-bold">Multiple Data Visualizations</h3>
             <div className="text-sm text-slate-400">
               Visualize data in various formats
             </div>
@@ -479,11 +479,6 @@ export default function XploreDataHomepage() {
 
           {/* Hero */}
           <section className="text-center mb-12 mt-8">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-800/50 border border-cyan-400/20 text-sm text-cyan-400 mb-6">
-              <Clock className="w-4 h-4 mr-2" />
-              Powered by OpenGIN: Open General Information Network
-            </div>
-
             <h2 className="text-6xl font-bold mb-4">
               <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                 XploreData
@@ -647,6 +642,13 @@ export default function XploreDataHomepage() {
                 <ChevronRight className="w-5 h-5 stroke-blue-500" />
               </span>
             </button>
+          </div>
+
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-800/50 border border-cyan-400/20 text-sm text-cyan-400 mb-6">
+              <Clock className="w-4 h-4 mr-2" />
+              Powered by OpenGIN: Open General Information Network
+            </div>
           </div>
         </div>
       </div>
