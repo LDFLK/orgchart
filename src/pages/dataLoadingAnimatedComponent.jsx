@@ -20,6 +20,7 @@ import { useThemeContext } from "../themeContext";
 import Dashboard from "./StatComparison";
 import PersonProfile from "../components/PersonProfile";
 import SplashPage from "./splash_page";
+import Error500 from "../components/500Error";
 
 export default function DataLoadingAnimatedComponent({ mode }) {
   const [loading, setLoading] = useState(false);
@@ -27,21 +28,39 @@ export default function DataLoadingAnimatedComponent({ mode }) {
   const { presidentDict, selectedPresident } = useSelector(
     (state) => state.presidency
   );
+  const [progress, setProgress] = useState(0);
   const dispatch = useDispatch();
 
-  const { colors } = useThemeContext();
+  const updateProgress = (step, totalSteps) => {
+    setProgress(Math.round((step / totalSteps) * 100));
+  };
 
   useEffect(() => {
     const initialFetchData = async () => {
       if (Object.keys(presidentDict).length === 0) {
         setLoading(true);
         try {
+
+          const totalSteps = 4;
+          let completedSteps = 0;
+
           const beforeTime = new Date().getTime();
+
           await fetchPersonData();
+          completedSteps++;
+          updateProgress(completedSteps, totalSteps);
           await fetchAllMinistryData();
+          completedSteps++;
+          updateProgress(completedSteps, totalSteps);
           await fetchAllDepartmentData();
+          completedSteps++;
+          updateProgress(completedSteps, totalSteps);
           await fetchAllGazetteDate();
+          completedSteps++;
+          updateProgress(completedSteps, totalSteps);
+
           const afterTime = new Date().getTime();
+
           console.log(
             `execusion time for initial fetching of all:  ${
               afterTime - beforeTime
@@ -182,26 +201,9 @@ export default function DataLoadingAnimatedComponent({ mode }) {
   return (
     <>
       {loading ? (
-        // <LoadingComponent />
-        <SplashPage/>
+        <SplashPage progress={progress}/>
       ) : showServerError ? (
-        <Box
-          sx={{
-            backgroundColor: colors.backgroundPrimary,
-            width: "100%",
-            height: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Typography
-            color="black"
-            sx={{ fontFamily: "poppins", fontSize: 24 }}
-          >
-            Oops.. Something Went Wrong... Refresh Please
-          </Typography>
-        </Box>
+        <Error500/>
       ) : (
         <>
           {Object.keys(presidentDict).length > 0 &&

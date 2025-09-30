@@ -336,7 +336,7 @@ export default function StatisticTimeline({ startYear, onDateChange }) {
   }, [isDragging, isMovingWindow, startDate, endDate]);
 
   return (
-    <div className="bg-gray-800 p-6 rounded-2xl w-full mt-6 border border-gray-800/60 text-gray-200">
+    <div className="bg-gray-800 p-6 rounded-2xl w-full border border-gray-800/60 text-gray-200">
       {/* Presets and controls */}
       <div className="flex gap-2 mb-6 flex-wrap sm:justify-start justify-center">
         {[
@@ -407,7 +407,7 @@ export default function StatisticTimeline({ startYear, onDateChange }) {
             className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-colors border ${
               calendarOpen
                 ? "bg-blue-600 text-white border-blue-500 hover:cursor-pointer"
-                : "bg-gray-800/60 border-gray-700 text-gray-200 hover:bg-gray-800 hover:cursor-pointer"
+                : "bg-gray-700 border-gray-700 text-gray-200 hover:bg-gray-600 hover:cursor-pointer"
             }
 						`}
           >

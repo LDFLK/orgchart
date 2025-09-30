@@ -43,18 +43,27 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterLoading, setFilterLoading] = useState(false);
   const [searchText, setSearchText] = UrlParamState("filterByName", "");
   const [filterType, setFilterType] = UrlParamState("filterByType", "all");
   const [viewMode, setViewMode] = UrlParamState("viewMode", "Grid");
   const { colors } = useThemeContext();
 
   useEffect(() => {
+    if (
+      !selectedDate ||
+      !allMinistryData ||
+      Object.keys(allMinistryData).length === 0
+    ) {
+      return;
+    }
+
     fetchActiveMinistryList();
   }, [selectedDate, allMinistryData, selectedPresident]);
 
   useEffect(() => {
     let delayDebounceFunction;
-    setLoading(true);
+    setFilterLoading(true);
     delayDebounceFunction = setTimeout(() => {
       let result = activeMinistryList;
 
@@ -82,8 +91,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
           return (
             headName &&
             presidentName &&
-            headName.toLowerCase().trim() ===
-              presidentName.toLowerCase().trim()
+            headName.toLowerCase().trim() === presidentName.toLowerCase().trim()
           );
         });
       }
@@ -93,7 +101,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
         result = searchByText(searchText, result);
       }
       setFilteredMinistryList(result);
-      setLoading(false);
+      setFilterLoading(false);
     }, 1000);
 
     return () => clearTimeout(delayDebounceFunction);
@@ -459,7 +467,11 @@ const MinistryCardGrid = ({ onCardClick }) => {
           >
             {/* Search Bar */}
             <Box
-              sx={{ flex: 1, minWidth: { xs: "100%", sm: "30%" }, maxWidth: 600 }}
+              sx={{
+                flex: 1,
+                minWidth: { xs: "100%", sm: "30%" },
+                maxWidth: 600,
+              }}
             >
               <TextField
                 fullWidth
@@ -574,97 +586,111 @@ const MinistryCardGrid = ({ onCardClick }) => {
             />
           </Box>
         ) : (
-          <Box sx={{ width: "100%" }}>
-            <Grid
-              position={"relative"}
-              container
-              justifyContent="center"
-              gap={1}
-              sx={{ width: "100%" }}
-            >
-              {filteredMinistryList && filteredMinistryList.length > 0 ? (
-                viewMode == "Grid" ? (
-                  filteredMinistryList.map((card) => (
-                    <Grid
-                      key={card.id}
-                      sx={{
-                        display: "grid",
-                        flexBasis: {
-                          xs: "100%",
-                          sm: "48%",
-                          md: "31.5%",
-                          lg: "23.5%",
-                        },
-                        maxWidth: {
-                          xs: "100%",
-                          sm: "48%",
-                          md: "31.5%",
-                          lg: "23.5%",
-                        },
-                      }}
-                    >
-                      <MinistryCard
-                        card={card}
-                        onClick={() => {
-                          dispatch(setSelectedMinistry(card.id));
-                          onCardClick(card);
+          <>
+            <Box sx={{ width: "100%" }}>
+              <Grid
+                position={"relative"}
+                container
+                justifyContent="center"
+                gap={1}
+                sx={{ width: "100%" }}
+              >
+                {filteredMinistryList && filteredMinistryList.length > 0 ? (
+                  viewMode == "Grid" ? (
+                    filteredMinistryList.map((card) => (
+                      <Grid
+                        key={card.id}
+                        sx={{
+                          display: "grid",
+                          flexBasis: {
+                            xs: "100%",
+                            sm: "48%",
+                            md: "31.5%",
+                            lg: "23.5%",
+                          },
+                          maxWidth: {
+                            xs: "100%",
+                            sm: "48%",
+                            md: "31.5%",
+                            lg: "23.5%",
+                          },
                         }}
-                      />
-                    </Grid>
-                  ))
+                      >
+                        <MinistryCard
+                          card={card}
+                          onClick={() => {
+                            dispatch(setSelectedMinistry(card.id));
+                            onCardClick(card);
+                          }}
+                        />
+                      </Grid>
+                    ))
+                  ) : (
+                    <GraphComponent activeMinistries={filteredMinistryList} />
+                  )
+                ) : !loading &&
+                  activeMinistryList &&
+                  activeMinistryList.length === 0 ? (
+                  <Box
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: "15px",
+                    }}
+                  >
+                    <Alert
+                      severity="info"
+                      sx={{ backgroundColor: "transparent" }}
+                    >
+                      <AlertTitle
+                        sx={{
+                          fontFamily: "poppins",
+                          color: colors.textPrimary,
+                        }}
+                      >
+                        No ministries in the government. Sometimes this can be
+                        the president appointed date.
+                      </AlertTitle>
+                    </Alert>
+                  </Box>
                 ) : (
-                  <GraphComponent activeMinistries={filteredMinistryList} />
-                )
-              ) : activeMinistryList && activeMinistryList.length === 0 ? (
-                <Box
-                  sx={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "center",
-                    marginTop: "15px",
-                  }}
-                >
-                  <Alert
-                    severity="info"
-                    sx={{ backgroundColor: "transparent" }}
+                  <Box
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      marginTop: "15px",
+                    }}
                   >
-                    <AlertTitle
-                      sx={{
-                        fontFamily: "poppins",
-                        color: colors.textPrimary,
-                      }}
+                    <Alert
+                      severity="info"
+                      sx={{ backgroundColor: "transparent" }}
                     >
-                      No ministries in the government. Sometimes this can be the
-                      president appointed date.
-                    </AlertTitle>
-                  </Alert>
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    width: "100%",
-                    display: "flex",
-                    justifyContent: "center",
-                    marginTop: "15px",
-                  }}
-                >
-                  <Alert
-                    severity="info"
-                    sx={{ backgroundColor: "transparent" }}
-                  >
-                    <AlertTitle
-                      sx={{
-                        fontFamily: "poppins",
-                        color: colors.textPrimary,
-                      }}
-                    >
-                      No Search Result
-                    </AlertTitle>
-                  </Alert>
-                </Box>
-              )}
-            </Grid>
-          </Box>
+                      <AlertTitle
+                        sx={{
+                          fontFamily: "poppins",
+                          color: colors.textPrimary,
+                        }}
+                      >
+                        No Search Result
+                      </AlertTitle>
+                    </Alert>
+                  </Box>
+                )}
+              </Grid>
+            </Box>
+            {/* If filtering is happening, overlay a subtle loader */}
+            {filterLoading && (
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                <ClipLoader
+                  color={selectedPresident.themeColorLight}
+                  loading={filterLoading}
+                  size={18}
+                />
+              </Box>
+            )}
+          </>
         )}
       </Box>
     </Box>
