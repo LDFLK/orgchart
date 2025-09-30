@@ -404,10 +404,10 @@ export default function StatisticTimeline({ startYear, onDateChange }) {
               }
               setCalendarOpen(!calendarOpen);
             }}
-            className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-colors border ${
+            className={`px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
               calendarOpen
-                ? "bg-blue-600 text-white border-blue-500 hover:cursor-pointer"
-                : "bg-gray-700 border-gray-700 text-gray-200 hover:bg-gray-600 hover:cursor-pointer"
+                ? "bg-blue-600 text-white hover:cursor-pointer"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-800 hover:cursor-pointer"
             }
 						`}
           >
