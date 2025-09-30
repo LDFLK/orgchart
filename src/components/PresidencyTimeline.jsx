@@ -15,6 +15,7 @@ import StyledBadge from "../utils/materialCustomAvatar";
 import { useThemeContext } from "../themeContext";
 import modeEnum from "../../src/enums/mode";
 import YearRangeSelector from "./common_components/Timeline";
+import { Tooltip } from "@mui/material";
 
 export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   const dispatch = useDispatch();
@@ -520,6 +521,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                                     mt: "-32px",
                                   }}
                                 >
+                                  <Tooltip title={"Gazette published date"} placement="top" arrow>
                                   <Box
                                     ref={isDateSelected ? dotRef : null}
                                     sx={{
@@ -533,6 +535,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                                       border: `3px solid ${colors.backgroundPrimary}`,
                                     }}
                                   />
+                                  </Tooltip>
                                   <Typography
                                     variant="caption"
                                     sx={{

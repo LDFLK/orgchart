@@ -304,7 +304,7 @@ function ChartTypesCard() {
           <div>
             <h3 className="text-lg font-bold">Multiple Data Visualization</h3>
             <div className="text-sm text-slate-400">
-              Visualize data comprehensively
+              Visualize data in various formats
             </div>
           </div>
         </div>
@@ -412,8 +412,7 @@ const InteractiveChart = ({ activeYear }) => {
 
 export default function XploreDataHomepage() {
   const [activeYear, setActiveYear] = useState(2023);
-    const navigate = useNavigate();
-  
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-x-hidden relative">
@@ -495,7 +494,15 @@ export default function XploreDataHomepage() {
               Visualize Data Through Time — explore trends, compare sectors, and
               dive deep into the numbers.
             </p>
-{/* 
+            <button
+              className="mt-4 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white px-4 py-3 rounded-xl font-semibold text-lg hover:scale-105 transition transform inline-flex items-center space-x-3 hover:cursor-pointer"
+              onClick={() => navigate("/statistics")}
+            >
+              <Zap className="w-6 h-6" />
+              <span>XploreData</span>
+              <ChevronRight className="w-6 h-6" />
+            </button>
+            {/* 
             <div className="grid md:grid-cols-3 gap-6 mb-16">
               <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/30 text-center">
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 flex items-center justify-center">
@@ -631,10 +638,14 @@ export default function XploreDataHomepage() {
               Dive deep into Sri Lanka's data landscape and discover insights
               that matter.
             </p>
-            <button onClick={() => navigate("/statistics")} className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:scale-105 transition transform inline-flex items-center space-x-3">
-              <Zap className="w-6 h-6" />
-              <span>XploreData</span>
-              <ChevronRight className="w-6 h-6" />
+            <button
+              onClick={() => navigate("/statistics")}
+              className="bg-none border-2 border-blue-500 rounded-xl px-3 py-2 text-base cursor-pointer inline-flex items-center"
+            >
+              <span className="underline inline-flex items-center gap-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+                XploreData
+                <ChevronRight className="w-5 h-5 stroke-blue-500" />
+              </span>
             </button>
           </div>
         </div>
