@@ -19,6 +19,7 @@ import LoadingComponent from "../components/common_components/loading_component"
 import { useThemeContext } from "../themeContext";
 import Dashboard from "./StatComparison";
 import PersonProfile from "../components/PersonProfile";
+import SplashPage from "./splash_page";
 
 export default function DataLoadingAnimatedComponent({ mode }) {
   const [loading, setLoading] = useState(false);
@@ -181,7 +182,8 @@ export default function DataLoadingAnimatedComponent({ mode }) {
   return (
     <>
       {loading ? (
-        <LoadingComponent />
+        // <LoadingComponent />
+        <SplashPage/>
       ) : showServerError ? (
         <Box
           sx={{
