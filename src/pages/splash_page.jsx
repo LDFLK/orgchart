@@ -1,27 +1,29 @@
 import { useState, useEffect } from "react";
 
-const SplashPage = () => {
+const SplashPage = ({ progress }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [progress, setProgress] = useState(0);
 
   const slides = [
     {
-      image: "public/loading_images/loading_image_1.jpg",
+      image:
+        "https://res.cloudinary.com/dw2246wib/image/upload/v1759226480/ipwgewxehpjnik13wmrj.jpg",
       title: "Loading Government Data",
       message: "Gathering information from various ministries...",
-      gradient: "from-cyan-500/20 to-blue-500/20"
+      gradient: "from-cyan-500/20 to-blue-500/20",
     },
     {
-      image: "public/loading_images/loading_image_2.jpg",
+      image:
+        "https://res.cloudinary.com/dw2246wib/image/upload/v1759226480/ee4c0tyjmdcivv7azgqa.jpg",
       title: "Fetching Officials",
       message: "Retrieving profiles and career histories...",
-      gradient: "from-purple-500/20 to-pink-500/20"
+      gradient: "from-purple-500/20 to-pink-500/20",
     },
     {
-      image: "public/loading_images/loading_image_3.jpg",
+      image:
+        "https://res.cloudinary.com/dw2246wib/image/upload/v1759226480/poyld1fajmbxyrpd85zp.jpg",
       title: "Analyzing Statistics",
       message: "Processing organizational relationships...",
-      gradient: "from-blue-500/20 to-purple-500/20"
+      gradient: "from-blue-500/20 to-purple-500/20",
     },
     // {
     //   image: "public/loading_images/loading_image_1.jpg",
@@ -40,7 +42,7 @@ const SplashPage = () => {
   useEffect(() => {
     // Progress bar animation
     const progressInterval = setInterval(() => {
-      setProgress(prev => {
+      setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(progressInterval);
           return 100;
@@ -51,7 +53,7 @@ const SplashPage = () => {
 
     // Slide rotation
     const slideInterval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % slides.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 3000);
 
     return () => {
@@ -87,7 +89,7 @@ const SplashPage = () => {
       {/* Main content */}
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
         <div className="max-w-3xl w-full">
-              {/* Slide Container */}
+          {/* Slide Container */}
           <div className="relative h-96 mb-8">
             {slides.map((slide, index) => (
               <div
@@ -101,7 +103,9 @@ const SplashPage = () => {
                 <div className="bg-gray-900/70 backdrop-blur-xl rounded-2xl overflow-hidden border border-gray-700/50 shadow-2xl h-full flex flex-col">
                   {/* Image Section */}
                   <div className="relative flex-1 overflow-hidden">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${slide.gradient}`}></div>
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${slide.gradient}`}
+                    ></div>
                     <img
                       src={slide.image}
                       alt={slide.title}
@@ -115,9 +119,7 @@ const SplashPage = () => {
                     <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
                       {slide.title}
                     </h2>
-                    <p className="text-gray-400 text-base">
-                      {slide.message}
-                    </p>
+                    <p className="text-gray-400 text-base">{slide.message}</p>
                   </div>
                 </div>
               </div>
@@ -126,17 +128,19 @@ const SplashPage = () => {
 
           {/* Progress Bar */}
           <div className="space-y-4">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-400">Loading Progress</span>
-              <span className="text-cyan-400 font-semibold">{progress}%</span>
-            </div>
-            
-            <div className="relative h-3 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
-              <div
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 rounded-full transition-all duration-300 ease-out shadow-lg shadow-cyan-500/50"
-                style={{ width: `${progress}%` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-400">Loading Progress</span>
+                <span className="text-cyan-400 font-semibold">{progress}%</span>
+              </div>
+
+              <div className="relative h-3 bg-gray-800 rounded-full overflow-hidden border border-gray-700">
+                <div
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 rounded-full transition-all duration-500 ease-out shadow-lg shadow-cyan-500/50"
+                  style={{ width: `${progress}%` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+                </div>
               </div>
             </div>
 
@@ -159,19 +163,28 @@ const SplashPage = () => {
 
       <style jsx>{`
         @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
         }
-        
+
         @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
         }
-        
+
         .animate-bounce-slow {
           animation: bounce-slow 2s ease-in-out infinite;
         }
-        
+
         .animate-shimmer {
           animation: shimmer 2s infinite;
         }

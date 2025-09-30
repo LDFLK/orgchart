@@ -336,7 +336,7 @@ export default function StatisticTimeline({ startYear, onDateChange }) {
   }, [isDragging, isMovingWindow, startDate, endDate]);
 
   return (
-    <div className="bg-gray-800 p-6 rounded-2xl w-full mt-6 border border-gray-800/60 text-gray-200">
+    <div className="bg-gray-800 p-6 rounded-2xl w-full border border-gray-800/60 text-gray-200">
       {/* Presets and controls */}
       <div className="flex gap-2 mb-6 flex-wrap sm:justify-start justify-center">
         {[

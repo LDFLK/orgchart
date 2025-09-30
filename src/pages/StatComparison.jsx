@@ -527,19 +527,7 @@ export default function StatComparison() {
         {/* <Card className="relative overflow-hidden bg-gradient-to-br from-blue-600/10 via-sky-500/5 to-transparent border border-gray-800/60 backdrop-blur-xl shadow-[0_0_0_1px_rgba(59,130,246,0.15)]"> */}
         {/* <div className="pointer-events-none absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(600px_200px_at_80%_20%, rgba(59,130,246,0.15), transparent), radial-gradient(400px_120px_at_10%_90%, rgba(14,165,233,0.12), transparent)" }} /> */}
         {/* <CardContent className="p-8 relative"> */}
-        <div className="mb-8">
-          {/* <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/15 border border-blue-400/20 text-blue-300 text-sm font-semibold">⏱</span> */}
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-100">
-            <div className="p-6 z-20">
-              <h1 className="text-2xl font-bold text-white">
-                Xplore
-                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  Data
-                </span>
-              </h1>
-            </div>
-          </h2>
-
+        <div className="mb-3">
           <p className="text-gray-400 text-sm">
             Select the period for data exploration. The selections below adapt
             to your chosen range.

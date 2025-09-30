@@ -5,6 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useSelector } from "react-redux";
 import utils from "../../utils/utils";
 import { useSearchParams } from "react-router-dom";
+import Tooltip from "@mui/material/Tooltip";
 
 export default function YearRangeSelector({
   startYear,
@@ -71,7 +72,7 @@ export default function YearRangeSelector({
   const [preciseMode, setPreciseMode] = useState(true);
   const [activePreset, setActivePreset] = useState(null);
   const [activePresident, setActivePresident] = useState("");
-  //const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: '' });
+  const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: '' });
   const presidentsArray = useSelector(
     (state) => state.presidency.presidentDict
   );
@@ -544,29 +545,29 @@ export default function YearRangeSelector({
 
     const selectedWidth = endPercent - startPercent;
 
-    // const handleMouseMove = (e) => {
-    //     const rect = e.currentTarget.getBoundingClientRect();
-    //     const x = e.clientX - rect.left;
-    //     const percentage = x / rect.width;
-    //     const monthIndex = Math.floor(percentage * 12);
-    //     const clampedMonth = Math.max(0, Math.min(11, monthIndex));
+    const handleMouseMove = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percentage = x / rect.width;
+        const monthIndex = Math.floor(percentage * 12);
+        const clampedMonth = Math.max(0, Math.min(11, monthIndex));
 
-    //     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    //         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    //     const monthName = monthNames[clampedMonth];
-    //     const count = validData[clampedMonth];
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthName = monthNames[clampedMonth];
+        const count = validData[clampedMonth];
 
-    //     setTooltip({
-    //         show: true,
-    //         x: e.clientX,
-    //         y: e.clientY - 10,
-    //         content: `${monthName} ${year}: ${count} gazettes`
-    //     });
-    // };
+        setTooltip({
+            show: true,
+            x: e.clientX,
+            y: e.clientY - 10,
+            content: `${monthName} ${year}: ${count} gazettes`
+        });
+    };
 
-    // const handleMouseLeave = () => {
-    //     setTooltip({ show: false, x: 0, y: 0, content: '' });
-    // };
+    const handleMouseLeave = () => {
+        setTooltip({ show: false, x: 0, y: 0, content: '' });
+    };
 
     return (
       <svg
@@ -574,9 +575,9 @@ export default function YearRangeSelector({
         height="100%"
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        // onMouseMove={handleMouseMove}
-        //onMouseLeave={handleMouseLeave}
-        //style={{ cursor: 'crosshair' }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{ cursor: 'crosshair' }}
       >
         <defs>
           <linearGradient
@@ -947,7 +948,7 @@ export default function YearRangeSelector({
             <DragIndicatorIcon className="w-4 h-6 text-white" />
           </div>
           {/* Tooltip */}
-          {/* {tooltip.show && (
+          {tooltip.show && (
                         <div
                             className="fixed bg-gray-900 text-white px-2 py-1 rounded text-xs pointer-events-none z-50"
                             style={{
@@ -958,7 +959,7 @@ export default function YearRangeSelector({
                         >
                             {tooltip.content}
                         </div>
-                    )} */}
+                    )}
         </div>
       </div>
     </div>
