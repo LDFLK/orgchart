@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const SplashPage = ({ progress }) => {
+const SplashPage = ({ progress, setProgress }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
@@ -39,28 +39,28 @@ const SplashPage = ({ progress }) => {
     // }
   ];
 
-  // useEffect(() => {
-  //   // Progress bar animation
-  //   const progressInterval = setInterval(() => {
-  //     setProgress((prev) => {
-  //       if (prev >= 100) {
-  //         clearInterval(progressInterval);
-  //         return 100;
-  //       }
-  //       return prev + 1;
-  //     });
-  //   }, 50);
+  useEffect(() => {
+    // Progress bar animation
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        return prev + 1;
+      });
+    }, 50);
 
-  //   // Slide rotation
-  //   const slideInterval = setInterval(() => {
-  //     setCurrentSlide((prev) => (prev + 1) % slides.length);
-  //   }, 3000);
+    // Slide rotation
+    const slideInterval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 3000);
 
-  //   return () => {
-  //     clearInterval(progressInterval);
-  //     clearInterval(slideInterval);
-  //   };
-  // }, []);
+    return () => {
+      clearInterval(progressInterval);
+      clearInterval(slideInterval);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-950 relative overflow-hidden">
