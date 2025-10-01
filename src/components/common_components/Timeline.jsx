@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import utils from "../../utils/utils";
 import { useSearchParams } from "react-router-dom";
 import Tooltip from "@mui/material/Tooltip";
+import FilteredPresidentCards from "./FilteredPresidentCards";
 
 export default function YearRangeSelector({
   startYear,
@@ -405,20 +406,20 @@ export default function YearRangeSelector({
       years.indexOf(startDate.getUTCFullYear()) +
       (startDate.getUTCMonth() +
         (startDate.getUTCDate() - 1) /
-          new Date(
-            Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth() + 1, 0)
-          ).getUTCDate()) /
-        12;
+        new Date(
+          Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth() + 1, 0)
+        ).getUTCDate()) /
+      12;
 
     // Calculate new end position
     const currentEndYearPos =
       years.indexOf(endDate.getUTCFullYear()) +
       (endDate.getUTCMonth() +
         endDate.getUTCDate() /
-          new Date(
-            Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth() + 1, 0)
-          ).getUTCDate()) /
-        12;
+        new Date(
+          Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth() + 1, 0)
+        ).getUTCDate()) /
+      12;
 
     const newStartYearPos = currentStartYearPos + yearDelta;
     const newEndYearPos = currentEndYearPos + yearDelta;
@@ -546,27 +547,27 @@ export default function YearRangeSelector({
     const selectedWidth = endPercent - startPercent;
 
     const handleMouseMove = (e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const percentage = x / rect.width;
-        const monthIndex = Math.floor(percentage * 12);
-        const clampedMonth = Math.max(0, Math.min(11, monthIndex));
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percentage = x / rect.width;
+      const monthIndex = Math.floor(percentage * 12);
+      const clampedMonth = Math.max(0, Math.min(11, monthIndex));
 
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const monthName = monthNames[clampedMonth];
-        const count = validData[clampedMonth];
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthName = monthNames[clampedMonth];
+      const count = validData[clampedMonth];
 
-        setTooltip({
-            show: true,
-            x: e.clientX,
-            y: e.clientY - 10,
-            content: `${monthName} ${year}: ${count} gazettes`
-        });
+      setTooltip({
+        show: true,
+        x: e.clientX,
+        y: e.clientY - 10,
+        content: `${monthName} ${year}: ${count} gazettes`
+      });
     };
 
     const handleMouseLeave = () => {
-        setTooltip({ show: false, x: 0, y: 0, content: '' });
+      setTooltip({ show: false, x: 0, y: 0, content: '' });
     };
 
     return (
@@ -575,9 +576,9 @@ export default function YearRangeSelector({
         height="100%"
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        // onMouseMove={handleMouseMove}
-        // onMouseLeave={handleMouseLeave}
-        // style={{ cursor: 'crosshair' }}
+      // onMouseMove={handleMouseMove}
+      // onMouseLeave={handleMouseLeave}
+      // style={{ cursor: 'crosshair' }}
       >
         <defs>
           <linearGradient
@@ -692,11 +693,10 @@ export default function YearRangeSelector({
               setActivePreset(preset.label);
               setActivePresident("");
             }}
-            className={`px-2 text-sm font-medium rounded-lg transition-colors hover:cursor-pointer ${
-              activePreset === preset.label
+            className={`px-2 text-sm font-medium rounded-lg transition-colors hover:cursor-pointer ${activePreset === preset.label
                 ? "bg-blue-600 text-white"
                 : "hover:bg-gray-800 bg-gray-700 text-gray-300 hover:cursor-pointer"
-            }`}
+              }`}
           >
             {preset.label}
           </button>
@@ -864,9 +864,8 @@ export default function YearRangeSelector({
               return (
                 <div
                   key={year}
-                  className={`relative transition-all duration-200 ${
-                    isInRange ? "opacity-100" : "opacity-40"
-                  } border-l-1 border-r-1 border-gray-500`}
+                  className={`relative transition-all duration-200 ${isInRange ? "opacity-100" : "opacity-40"
+                    } border-l-1 border-r-1 border-gray-500`}
                   style={{ height: "80px", flex: "1 0 0" }}
                   onClick={() => {
                     setSelectedRange([year, year]);
@@ -898,9 +897,8 @@ export default function YearRangeSelector({
                     isInRange={isInRange}
                   />
                   <div
-                    className={`absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${
-                      isInRange ? "text-blue-400" : "text-gray-400"
-                    }`}
+                    className={`absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${isInRange ? "text-blue-400" : "text-gray-400"
+                      }`}
                   >
                     {year}
                   </div>
@@ -961,6 +959,13 @@ export default function YearRangeSelector({
                         </div>
                     )} */}
         </div>
+      </div>
+
+      {/* FilteredPresidentCards Component */}
+      <div className="mb-6">
+        <FilteredPresidentCards
+          dateRange={[startDate, endDate]}
+        />
       </div>
     </div>
   );
