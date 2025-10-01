@@ -474,7 +474,7 @@ const XploreGovHomepage = () => {
             </h2>
 
             <p className="text-2xl text-gray-300 mb-4 font-light">
-              A Deep Dive into the Government in Sri Lanka
+              A Deep Dive into the Government of Sri Lanka
             </p>
 
             <p className="text-lg text-cyan-400 mb-8 font-semibold">
