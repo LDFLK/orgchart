@@ -23,7 +23,6 @@ const App = () => {
       <Routes>
         <Route path="/" element={<XploreGovHomepage />} />
         <Route path="/orgchart" element={<DataLoadingAnimatedComponent mode="orgchart"/>} />
-        {/* <Route path="/statistics" element={<DataLoadingAnimatedComponent mode="statistics"/>}/> */}
         <Route path="/statistics" element={<Dashboard/>}/>
         <Route path="*" element={<Error404 />} />
         <Route path="/globe" element={<TouristGlobe/>}/>
