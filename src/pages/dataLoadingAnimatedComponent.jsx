@@ -13,11 +13,7 @@ import {
 } from "../store/presidencySlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../components/NavBar";
-import { Box, Typography } from "@mui/material";
 import { setGazetteDataClassic } from "../store/gazetteDate";
-import LoadingComponent from "../components/common_components/loading_component";
-import { useThemeContext } from "../themeContext";
-import Dashboard from "./StatComparison";
 import PersonProfile from "../components/PersonProfile";
 import SplashPage from "./splash_page";
 import Error500 from "../components/500Error";
@@ -44,8 +40,6 @@ export default function DataLoadingAnimatedComponent({ mode }) {
           const totalSteps = 4;
           let completedSteps = 0;
 
-          const beforeTime = new Date().getTime();
-
           await fetchPersonData();
           completedSteps++;
           updateProgress(completedSteps, totalSteps);
@@ -58,15 +52,8 @@ export default function DataLoadingAnimatedComponent({ mode }) {
           await fetchAllGazetteDate();
           completedSteps++;
           updateProgress(completedSteps, totalSteps);
-
-          const afterTime = new Date().getTime();
-
-          console.log(
-            `execusion time for initial fetching of all:  ${
-              afterTime - beforeTime
-            } msec`
-          );
           setLoading(false);
+          
         } catch (e) {
           console.error("Error loading initial data:", e.message);
         }
