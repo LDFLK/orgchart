@@ -82,49 +82,52 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
     }
   }, [dateRange, filteredPresidents]);
 
-  return (
-    <div className="rounded-lg w-full">
-      <input
-        type="text"
-        className="border p-2 mb-3 w-full rounded"
-        placeholder="Search presidents..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-        {filteredPresidents.map((president) => {
-          const isSelected = selectedPresident?.id === president.id;
-          const nameText = utils.extractNameFromProtobuf(president.name);
-          const rel = presidentRelationDict[president.id];
-          const startYear = president?.created ? president.created.split("-")[0] : "";
-          const endYear = rel?.endTime ? new Date(rel.endTime).getFullYear() : "Present";
-          const term = startYear ? `${startYear} - ${endYear}` : "";
+return (
+  <div className="rounded-lg w-full">
+    <input
+      type="text"
+      className="border border-gray-600 bg-gray-800 text-gray-200 p-2 mb-3 w-full rounded placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
+      placeholder="Search presidents..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+      {filteredPresidents.map((president) => {
+        const isSelected = selectedPresident?.id === president.id;
+        const nameText = utils.extractNameFromProtobuf(president.name);
+        const rel = presidentRelationDict[president.id];
+        const startYear = president?.created ? president.created.split("-")[0] : "";
+        const endYear = rel?.endTime ? new Date(rel.endTime).getFullYear() : "Present";
+        const term = startYear ? `${startYear} - ${endYear}` : "";
 
-          return (
-            <button
-              key={president.id}
-              onClick={() => selectPresidentAndDates(president)}
-              className={`flex items-center p-3 rounded-lg border transition-colors hover:cursor-pointer ${
-                isSelected
-                  ? "bg-blue-50 border-blue-300"
-                  : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+        return (
+          <button
+            key={president.id}
+            onClick={() => selectPresidentAndDates(president)}
+            className={`flex items-start p-2 rounded-lg border transition-all duration-200 hover:cursor-pointer
+              ${isSelected
+                ? "bg-blue-600/20 border-blue-400 shadow-md"
+                : "bg-gray-800 border-gray-700 hover:bg-gray-700"
               }`}
-            >
-              <img
-                src={president.imageUrl || president.image || ""}
-                alt={nameText}
-                className="w-10 h-10 rounded-full mr-3"
-              />
-              <div>
-                <p className={isSelected ? "text-blue-700 font-medium" : "text-gray-700 font-medium"}>
-                  {nameText}
-                </p>
-                <p className="text-xs text-gray-500">{term}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+          >
+            <img
+              src={president.imageUrl || president.image || ""}
+              alt={nameText}
+              className="w-10 h-10 rounded-full mr-3 border border-gray-600 flex-shrink-0"
+            />
+            <div className="flex flex-col text-left break-words">
+              <p className={isSelected ? "text-blue-400 font-medium text-sm" : "text-gray-200 font-medium text-sm"}>
+                {nameText}
+              </p>
+              <p className="text-xs text-gray-400">
+                {term}
+              </p>
+            </div>
+          </button>
+        );
+      })}
     </div>
-  );
+  </div>
+);
+
 }
