@@ -52,8 +52,10 @@ export default function DataLoadingAnimatedComponent({ mode }) {
           await fetchAllGazetteDate();
           completedSteps++;
           updateProgress(completedSteps, totalSteps);
-          setLoading(false);
-          
+          setTimeout(() => {  
+            setLoading(false);
+          }, 1000);
+
         } catch (e) {
           console.error("Error loading initial data:", e.message);
         }
