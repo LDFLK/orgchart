@@ -330,32 +330,6 @@ const PersonsTab = ({ selectedDate }) => {
             </Button>
           ))}
         </Stack>
-
-        <Box sx={{ p: 2 }}></Box>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            mt: -2,
-            fontSize: "1.25rem",
-            color: colors.textPrimary,
-            fontWeight: 600,
-            fontFamily: "poppins",
-          }}
-        >
-          Directors
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            mt: 0.25,
-            fontSize: "1.0rem",
-            color: colors.textPrimary,
-            fontWeight: 200,
-            fontFamily: "poppins",
-          }}
-        >
-          No data available yet.
-        </Typography>
         <Divider sx={{ py: 1 }} />
       </Box>
       {/* <Dialog
