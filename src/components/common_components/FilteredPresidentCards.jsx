@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useState, useMemo, useEffect, useRef } from "react";
 import utils from "../../utils/utils";
-import { setSelectedPresident } from "../../store/presidencySlice";
+import { setSelectedPresident , setSelectedDate} from "../../store/presidencySlice";
 import { setGazetteData } from "../../store/gazetteDate";
 
 export default function FilteredPresidentCards({ dateRange = [null, null] }) {
@@ -64,6 +64,7 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
       .map((date) => ({ date }));
 
     dispatch(setGazetteData(filteredDates));
+    dispatch(setSelectedDate(filteredDates.length > 0 ? filteredDates[filteredDates.length - 1] : null));
   };
 
   // Auto-select last president only when dateRange changes
@@ -73,6 +74,7 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
       if (filteredPresidents.length > 0) {
         const lastPresident = filteredPresidents[filteredPresidents.length - 1];
         selectPresidentAndDates(lastPresident);
+        
       } else {
         selectPresidentAndDates(null);
       }
@@ -89,7 +91,7 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         {filteredPresidents.map((president) => {
           const isSelected = selectedPresident?.id === president.id;
           const nameText = utils.extractNameFromProtobuf(president.name);

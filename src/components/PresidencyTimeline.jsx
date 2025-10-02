@@ -4,12 +4,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 // import colors from "../assets/colors";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  setSelectedIndex,
-  setSelectedDate,
-  setSelectedPresident,
-} from "../store/presidencySlice";
-import { setGazetteData } from "../store/gazetteDate";
+import {setSelectedDate} from "../store/presidencySlice";
 import utils from "../utils/utils";
 import StyledBadge from "../utils/materialCustomAvatar";
 import { useThemeContext } from "../themeContext";
@@ -46,7 +41,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [latestPresStartDate, setLatestPresStartDate] = useState(new Date());
   const [userSelectedDateRange, setUserSelectedDateRange] = useState([null, null]);
-  const [filteredPresidents, setFilteredPresidents] = useState(presidents);
+  const [latestPresidentId, setLatestPresidentId] = useState(null);
 
   const { colors } = useThemeContext();
 
@@ -60,21 +55,8 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
     );
   };
 
-  // useEffect(() => {
-  //   if (presidents.length > 0 && !selectedPresident) {
-  //     const lastIndex = presidents.length - 1;
-  //     dispatch(setSelectedIndex(lastIndex));
-  //     dispatch(setSelectedPresident(presidents[lastIndex]));
-  //   }
-  // }, [presidents]);
 
   useEffect(() => {
-    // if (!initialSelectionDone.current && presidents.length > 0) {
-    //   initialSelectionDone.current = true;
-    //   const lastIndex = presidents.length - 1;
-    //   dispatch(setSelectedIndex(lastIndex));
-    //   dispatch(setSelectedPresident(presidents[lastIndex]));
-    // }
     updateScrollButtons();
   }, [selectedPresident]);
 
@@ -159,110 +141,24 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   }, []);
 
   useEffect(() => {
-    if (presidents.length > 0) {
-      const lastPresident = presidents[presidents.length - 1];
-      const lastRelation = presidentRelationDict[lastPresident.id];
+    if (!presidents || presidents.length === 0 || !presidentRelationDict) return;
 
-      if (lastRelation?.startTime) {
-        setLatestPresStartDate(new Date(lastRelation.startTime.split("T")[0]));
-      }
+    const relationEntries = Object.entries(presidentRelationDict);
+    if (relationEntries.length === 0) return;
+
+    // Last relation 
+    const [lastPresId, lastRelation] = relationEntries[relationEntries.length - 1];
+
+    if (lastPresId && lastRelation?.startTime) {
+      setLatestPresidentId(lastPresId);
+      setLatestPresStartDate(new Date(lastRelation.startTime.split("T")[0]));
     }
-  }, []);
+  }, [presidents, presidentRelationDict]);
 
-
-  useEffect(() => {
-    if (selectedPresident?.created) {
-      const matchedPresidentRelation = presidentRelationDict[selectedPresident.id];
-      fetchGazetteData(matchedPresidentRelation);
-    }
-  }, [selectedPresident, userSelectedDateRange]);
-
-  const filterPresidentsByDateRange = (startDate, endDate) => {
-    if (!startDate || !endDate) {
-      setFilteredPresidents(presidents);
-
-      // Select the last president in the full list
-      const lastIndex = presidents.length - 1;
-      dispatch(setSelectedPresident(presidents[lastIndex]));
-      dispatch(setSelectedIndex(lastIndex));
-      return presidents;
-    }
-
-    const rangeStart = new Date(startDate);
-    const rangeEnd = new Date(endDate);
-
-    const filtered = presidents.filter(president => {
-      const relation = presidentRelationDict[president.id];
-      if (!relation) return false;
-
-      const presStart = new Date(relation.startTime.split("T")[0]);
-      const presEnd = relation.endTime
-        ? new Date(relation.endTime.split("T")[0])
-        : new Date();
-
-      return presStart < rangeEnd && presEnd > rangeStart;
-    });
-
-    setFilteredPresidents(filtered);
-
-
-    if (filtered.length > 0) {
-      const lastIndex = filtered.length - 1;
-      dispatch(setSelectedPresident(filtered[lastIndex]));
-      dispatch(setSelectedIndex(lastIndex));
-    }
-    else {
-      dispatch(setSelectedIndex(null));
-      dispatch(setSelectedPresident(null));
-      dispatch(setSelectedDate(null));
-      dispatch(setGazetteData([]));
-    }
-    return filtered;
-  };
-
-  const fetchGazetteData = async (selectedPresidentRelation) => {
-    try {
-      const presStart = new Date(selectedPresidentRelation.startTime.split("T")[0]);
-      const presEnd = selectedPresidentRelation.endTime
-        ? new Date(selectedPresidentRelation.endTime.split("T")[0])
-        : new Date(); // open-ended presidency means "up to today"
-
-      // Use user-selected range if available, otherwise fall back to presidency period
-      const [userStart, userEnd] = userSelectedDateRange;
-
-      // Take max of start dates (intersection start)
-      const finalStart = userStart ? new Date(Math.max(presStart, userStart)) : presStart;
-      // Take min of end dates (intersection end)
-      const finalEnd = userEnd ? new Date(Math.min(presEnd, userEnd)) : presEnd;
-
-      let filteredDates = [];
-      if (finalStart <= finalEnd) {
-        filteredDates = gazetteDateClassic.filter(dateStr => {
-          const d = new Date(dateStr);
-          return d >= finalStart && d < finalEnd;
-        });
-      }
-
-      const transformed = filteredDates.map(date => ({ date }));
-
-      dispatch(setGazetteData(transformed));
-
-      if (transformed.length > 0) {
-        console.log("Setting selected date:", transformed[transformed.length - 1]);
-        dispatch(setSelectedDate(transformed[transformed.length - 1]));
-      } else {
-        console.log("No gazettes found in intersection of presidency and user range");
-      }
-    } catch (e) {
-      console.log(`Error fetching gazette data: ${e.message}`);
-    }
-  };
 
   const handleDateRangeChange = useCallback((dateRange) => {
     const [startDate, endDate] = dateRange;
     setUserSelectedDateRange([startDate, endDate]);
-
-    const filtered = filterPresidentsByDateRange(startDate, endDate);
   }, []);
 
   const dates = gazetteDateClassic.map(d => `${d}T00:00:00Z`);
@@ -335,7 +231,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                   sx={{
                     position: "absolute",
                     height: "5px",
-                    // backgroundColor: colors.timelineLineActive,
                     backgroundColor: selectedPresident?.themeColorLight || colors.timelineColor,
                     top: `${lineStyle.top}px`,
                     left: `${lineStyle.left}px`,
@@ -365,200 +260,185 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                   msOverflowStyle: "none",
                 }}
               >
-                {filteredPresidents &&
-                  filteredPresidents.map((president, index) => {
-                    const isSelected = index === selectedIndex;
-                    return (
+                {selectedPresident && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      flexShrink: 0,
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {selectedPresident.id === latestPresidentId ? (
+                      // ✅ Latest president → with StyledBadge (green dot)
+                      <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 } }}>
+                        <StyledBadge
+                          ref={avatarRef}
+                          overlap="circular"
+                          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                          variant="dot"
+                          sx={{
+                            border: `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor
+                              }`,
+                            backgroundColor: colors.backgroundPrimary,
+                            margin: "auto",
+                            borderRadius: 50,
+                          }}
+                        >
+                          <Avatar
+                            alt={selectedPresident.name}
+                            src={selectedPresident.imageUrl}
+                            sx={{
+                              width: { xs: 40, sm: 50 },
+                              height: { xs: 40, sm: 50 },
+                              border: `3px solid ${colors.backgroundPrimary}`,
+                              backgroundColor: colors.backgroundPrimary,
+                              margin: "auto",
+                            }}
+                          />
+                        </StyledBadge>
+
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mt: 1,
+                            color: colors.textPrimary,
+                            fontFamily: "poppins",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {utils.extractNameFromProtobuf(selectedPresident.name)}
+                        </Typography>
+
+                        <Typography
+                          variant="caption"
+                          sx={{ color: colors.textMuted, fontFamily: "poppins" }}
+                        >
+                          {selectedPresident.created.split("-")[0]} -{" "}
+                          {selectedPresident.endTime
+                            ? new Date(selectedPresident.endTime).getFullYear()
+                            : "Present"}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      // ❌ Not latest president → same border, but NO StyledBadge
+                      <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 } }}>
+                        <Box
+                          sx={{
+                            border: `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor
+                              }`,
+                            backgroundColor: colors.backgroundPrimary,
+                            margin: "auto",
+                            borderRadius: "50%",
+                            display: "inline-flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Avatar
+                            ref={avatarRef}
+                            alt={selectedPresident.name}
+                            src={selectedPresident.imageUrl}
+                            sx={{
+                              width: { xs: 40, sm: 50 },
+                              height: { xs: 40, sm: 50 },
+                              border: `3px solid ${colors.backgroundPrimary}`,
+                              backgroundColor: colors.backgroundPrimary,
+                              margin: "auto",
+                            }}
+                          />
+                        </Box>
+
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mt: 1,
+                            color: colors.textPrimary,
+                            fontFamily: "poppins",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {utils.extractNameFromProtobuf(selectedPresident.name)}
+                        </Typography>
+
+                        <Typography
+                          variant="caption"
+                          sx={{ color: colors.textMuted, fontFamily: "poppins" }}
+                        >
+                          {selectedPresident.created.split("-")[0]} -{" "}
+                          {selectedPresident.endTime
+                            ? new Date(selectedPresident.endTime).getFullYear()
+                            : "Present"}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {gazetteData?.length > 0 && (
                       <Box
-                        key={index}
                         sx={{
                           display: "flex",
                           alignItems: "center",
                           gap: 2,
-                          flexShrink: 0,
+                          ml: 1,
+                          pr: 2,
                           transition: "all 0.3s ease",
                         }}
                       >
-                        <Box
-                          onClick={() => {
-                            if (!isSelected) {
-                              dispatch(setSelectedPresident(president));
-                              dispatch(setSelectedIndex(index));
-                            }
-                          }}
-                          sx={{
-                            cursor: "pointer",
-                            textAlign: "center",
-                            transform: isSelected ? "scale(1.3)" : "scale(1)",
-                            transition: "all 0.3s ease",
-                            minWidth: { xs: 60, sm: 80 },
-                          }}
-                        >
-                          { presidents[presidents.length - 1].id === president.id ? (
-                            <Box sx={{ display: "flex", justifyContent: "center" }}>
-                              <StyledBadge
-                                ref={isSelected ? avatarRef : null}
-                                overlap="circular"
-                                anchorOrigin={{
-                                  vertical: "bottom",
-                                  horizontal: "right",
-                                }}
-                                variant="dot"
-                                sx={{
-                                  border: isSelected
-                                    ? `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor}`
-                                    : // ? `4px solid ${colors.timelineLineActive}`
-                                    `2px solid ${colors.inactiveBorderColor}`,
-                                  backgroundColor: colors.backgroundPrimary,
-                                  margin: "auto",
-                                  borderRadius: 50,
-                                }}
-                              >
-                                <Avatar
-                                  alt={president.name}
-                                  src={president.imageUrl}
-                                  sx={{
-                                    width: { xs: 40, sm: 50 },
-                                    height: { xs: 40, sm: 50 },
-                                    border: `3px solid ${colors.backgroundPrimary}`,
-                                    backgroundColor: colors.backgroundPrimary,
-                                    margin: "auto",
-                                    filter: isSelected ? "none" : "grayscale(50%)",
-                                  }}
-                                />
-                              </StyledBadge>
-                            </Box>
-                          ) : (
-                            <Box sx={{ display: "flex", justifyContent: "center" }}>
-                              <Box
-                                sx={{
-                                  border: isSelected
-                                    ? `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor}`
-                                    : `2px solid ${colors.inactiveBorderColor}`,
-                                  borderRadius: "50%",
-                                }}
-                              >
-                                <Avatar
-                                  ref={isSelected ? avatarRef : null}
-                                  src={president.imageUrl}
-                                  alt={president.name}
-                                  sx={{
-                                    width: 50,
-                                    height: 50,
-                                    border: `3px solid ${colors.backgroundPrimary}`,
-                                    backgroundColor: colors.backgroundPrimary,
-                                    margin: "auto",
-                                    filter: isSelected ? "none" : "grayscale(50%)",
-                                  }}
-                                />
-                              </Box>
-                            </Box>
-                          )}
-
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              mt: 1,
-                              color: colors.textPrimary,
-                              fontFamily: "poppins",
-                              fontWeight: isSelected ? 600 : "",
-                            }}
-                          >
-                            {utils.extractNameFromProtobuf(president.name)}
-                          </Typography>
-
-                          <Typography
-                            variant="caption"
-                            sx={{ color: colors.textMuted, fontFamily: "poppins" }}
-                          >
-                            {selectedPresident && (
-                              <>
-                                {president.created.split("-")[0]} -{" "}
-                                {(() => {
-                                  const relation =
-                                    presidentRelationDict[president.id];
-                                  if (!relation) return "Unknown";
-
-                                  return relation.endTime
-                                    ? new Date(relation.endTime).getFullYear()
-                                    : "Present";
-                                })()}
-                              </>
-                            )}
-                          </Typography>
-                        </Box>
-
-                        {isSelected && gazetteData?.length > 0 && (
-                          <Box
-                            sx={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 2,
-                              transition: "all 0.3s ease",
-                              ml: 1,
-                              pr: 2,
-                            }}
-                          >
-                            {gazetteData.map((item) => {
-                              var isDateSelected = false;
-                              if (selectedDate) {
-                                isDateSelected = item.date === selectedDate.date;
-                              }
-
-                              return (
+                        {gazetteData.map((item) => {
+                          const isDateSelected = selectedDate?.date === item.date;
+                          return (
+                            <Box
+                              key={item.date}
+                              onClick={() => dispatch(setSelectedDate(item))}
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                cursor: "pointer",
+                                transform: isDateSelected ? "scale(1.1)" : "scale(1)",
+                                transition: "transform 0.2s ease",
+                                mt: "-32px",
+                              }}
+                            >
+                              <Tooltip title="Gazette published date" placement="top" arrow>
                                 <Box
-                                  key={item.date}
-                                  onClick={() => dispatch(setSelectedDate(item))}
+                                  ref={isDateSelected ? dotRef : null}
                                   sx={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    alignItems: "center",
-                                    cursor: "pointer",
-                                    transform: isDateSelected
-                                      ? "scale(1.1)"
-                                      : "scale(1)",
-                                    transition: "transform 0.2s ease",
-                                    mt: "-32px",
+                                    width: 15,
+                                    height: 15,
+                                    borderRadius: "50%",
+                                    backgroundColor: isDateSelected
+                                      ? selectedPresident?.themeColorLight ||
+                                      colors.timelineColor
+                                      : colors.dotColorInactive,
+                                    border: `3px solid ${colors.backgroundPrimary}`,
                                   }}
-                                >
-                                  <Tooltip title={"Gazette published date"} placement="top" arrow>
-                                  <Box
-                                    ref={isDateSelected ? dotRef : null}
-                                    sx={{
-                                      width: 15,
-                                      height: 15,
-                                      borderRadius: "50%",
-                                      backgroundColor: isDateSelected
-                                        ? (selectedPresident?.themeColorLight || colors.timelineColor)
-                                        : // ? colors.dotColorActive
-                                        colors.dotColorInactive,
-                                      border: `3px solid ${colors.backgroundPrimary}`,
-                                    }}
-                                  />
-                                  </Tooltip>
-                                  <Typography
-                                    variant="caption"
-                                    sx={{
-                                      mt: 0.5,
-                                      color: isDateSelected
-                                        ? (selectedPresident?.themeColorLight || colors.timelineColor)
-                                        : // ? colors.dotColorActive
-                                        colors.dotColorInactive,
-                                      fontSize: "0.75rem",
-                                      fontWeight: isDateSelected ? "bold" : "",
-                                      fontFamily: "poppins",
-                                    }}
-                                  >
-                                    {item.date}
-                                  </Typography>
-                                </Box>
-                              );
-                            })}
-                          </Box>
-                        )}
+                                />
+                              </Tooltip>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  mt: 0.5,
+                                  color: isDateSelected
+                                    ? selectedPresident?.themeColorLight ||
+                                    colors.timelineColor
+                                    : colors.dotColorInactive,
+                                  fontSize: "0.75rem",
+                                  fontWeight: isDateSelected ? "bold" : "",
+                                  fontFamily: "poppins",
+                                }}
+                              >
+                                {item.date}
+                              </Typography>
+                            </Box>
+                          );
+                        })}
                       </Box>
-                    );
-                  })}
+                    )}
+                  </Box>
+                )}
+
               </Box>
 
               <IconButton
@@ -586,64 +466,13 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
             backgroundColor: colors.backgroundPrimary,
             height: "100%",
             boxShadow: "0 100px 50px 0 rgba(0, 0, 0, 0.1)",
-            // position: "relative",
-            // display: "flex",
-            // alignItems: "center",
-            // maxWidth: "100%",
-            // overflow: "hidden",
-            // width: "80%",
           }}
         >
-          {/* <IconButton
-            onClick={() => scroll("left")}
-            sx={{
-              zIndex: 2,
-              backgroundColor: colors.backgroundPrimary,
-              // visibility: canScrollLeft ? "visible" : "hidden",
-              borderRadius: "50%",
-              "&:hover": {
-                backgroundColor: colors.backgroundPrimary,
-              },
-              color: colors.timelineColor,
-              rotate: "90deg",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <ArrowBackIosNewIcon />
-          </IconButton> */}
-
           <Box
             sx={{
-              // position: "absolute",
-              // top: "calc(50% - 28px)",
-              // width: "92%",
-              // left: 50,
-              // right: 50,
-              // height: "2px",
               backgroundColor: colors.timelineColor,
-              // zIndex: 0,
             }}
           />
-
-          {lineStyle && selectedIndex !== null && selectedDate && (
-            <Box
-              sx={
-                {
-                  // position: "absolute",
-                  // height: "5px",
-                  // // backgroundColor: colors.timelineLineActive,
-                  // backgroundColor: selectedPresident.themeColorLight,
-                  // top: `${lineStyle.top}px`,
-                  // left: `${lineStyle.left}px`,
-                  // width: `${lineStyle.width}px`,
-                  // zIndex: 1,
-                  // transition: "left 0.3s ease, width 0.3s ease",
-                }
-              }
-            />
-          )}
-
           <Box
             ref={scrollRef}
             sx={{
@@ -661,132 +490,59 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
               msOverflowStyle: "none",
             }}
           >
-            {presidents &&
-              filteredPresidents.map((president, index) => {
-                const isSelected = index === selectedIndex;
-                return (
-                  <Box
-                    key={index}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      flexShrink: 0,
-                      transition: "all 0.3s ease",
-                      marginBottom: 2,
-                    }}
-                  >
-                    <Box
-                      onClick={() => {
-                        if (!isSelected) {
-                          dispatch(setSelectedPresident(president));
-                          dispatch(setSelectedIndex(index));
-                        }
+            {selectedPresident && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  flexShrink: 0,
+                  transition: "all 0.3s ease",
+                  marginBottom: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    cursor: "pointer",
+                    textAlign: "center",
+                    transform: "scale(1.3)",
+                    transition: "all 0.3s ease",
+                    minWidth: 80,
+                  }}
+                >
+                  <Box sx={{ display: "flex", justifyContent: "center" }}>
+                    <StyledBadge
+                      ref={avatarRef}
+                      overlap="circular"
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "right",
                       }}
+                      variant="dot"
                       sx={{
-                        cursor: "pointer",
-                        textAlign: "center",
-                        transform: isSelected ? "scale(1.3)" : "scale(1)",
-                        transition: "all 0.3s ease",
-                        minWidth: 80,
+                        border: `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor}`,
+                        backgroundColor: colors.backgroundPrimary,
+                        margin: "auto",
+                        borderRadius: 50,
                       }}
                     >
-                      {index === filteredPresidents.length - 1 ? (
-                        <Box sx={{ display: "flex", justifyContent: "center" }}>
-                          <StyledBadge
-                            ref={isSelected ? avatarRef : null}
-                            overlap="circular"
-                            anchorOrigin={{
-                              vertical: "bottom",
-                              horizontal: "right",
-                            }}
-                            variant="dot"
-                            sx={{
-                              border: isSelected
-                                ? `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor}`
-                                : // ? `4px solid ${colors.timelineLineActive}`
-                                `2px solid ${colors.inactiveBorderColor}`,
-                              backgroundColor: colors.backgroundPrimary,
-                              margin: "auto",
-                              borderRadius: 50,
-                            }}
-                          >
-                            <Avatar
-                              alt={president.name}
-                              src={president.imageUrl}
-                              sx={{
-                                width: 50,
-                                height: 50,
-                                border: `3px solid ${colors.backgroundPrimary}`,
-                                backgroundColor: colors.backgroundPrimary,
-                                margin: "auto",
-                                filter: isSelected ? "none" : "grayscale(50%)",
-                              }}
-                            />
-                          </StyledBadge>
-                        </Box>
-                      ) : (
-                        <Box sx={{ display: "flex", justifyContent: "center" }}>
-                          <Box
-                            sx={{
-                              border: isSelected
-                                ? `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor}`
-                                : `2px solid ${colors.inactiveBorderColor}`,
-                              borderRadius: "50%",
-                            }}
-                          >
-                            <Avatar
-                              ref={isSelected ? avatarRef : null}
-                              src={president.imageUrl}
-                              alt={president.name}
-                              sx={{
-                                width: 50,
-                                height: 50,
-                                border: `3px solid ${colors.backgroundPrimary}`,
-                                backgroundColor: colors.backgroundPrimary,
-                                margin: "auto",
-                                filter: isSelected ? "none" : "grayscale(50%)",
-                              }}
-                            />
-                          </Box>
-                        </Box>
-                      )}
-
-                      {/* <Typography
-                        variant="body2"
+                      <Avatar
+                        alt={selectedPresident.name}
+                        src={selectedPresident.imageUrl}
                         sx={{
-                          mt: 1,
-                          color: colors.textPrimary,
-                          fontFamily: "poppins",
-                          fontWeight: isSelected ? 600 : "",
+                          width: 50,
+                          height: 50,
+                          border: `3px solid ${colors.backgroundPrimary}`,
+                          backgroundColor: colors.backgroundPrimary,
+                          margin: "auto",
+                          filter: "none",
                         }}
-                      >
-                        {utils.extractNameFromProtobuf(president.name)}
-                      </Typography>
-
-                      <Typography
-                        variant="caption"
-                        sx={{ color: colors.textMuted, fontFamily: "poppins" }}
-                      >
-                        {selectedPresident && (
-                          <>
-                            {president.created.split("-")[0]} -{" "}
-                            {(() => {
-                              const relation =
-                                presidentRelationDict[president.id];
-                              if (!relation) return "Unknown";
-
-                              return relation.endTime
-                                ? new Date(relation.endTime).getFullYear()
-                                : "Present";
-                            })()}
-                          </>
-                        )}
-                      </Typography> */}
-                    </Box>
+                      />
+                    </StyledBadge>
                   </Box>
-                );
-              })}
+                </Box>
+              </Box>
+            )}
           </Box>
         </Box>
       )}
