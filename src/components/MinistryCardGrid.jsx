@@ -67,7 +67,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
     delayDebounceFunction = setTimeout(() => {
       let result = activeMinistryList;
 
-      // Always apply dropdown filter
       if (filterType === "newPerson") {
         result = result.filter((m) => m.newPerson);
       } else if (filterType === "newMinistry") {
@@ -96,7 +95,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
         });
       }
 
-      // Then apply search filter if searchText is not empty
       if (searchText !== "") {
         result = searchByText(searchText, result);
       }
@@ -285,39 +283,10 @@ const MinistryCardGrid = ({ onCardClick }) => {
               gap: 1,
             }}
           >
-            {/* Active Ministries */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <AccountBalanceIcon sx={{ color: colors.textMuted }} />
-              <Typography
-                sx={{
-                  flex: 1,
-                  fontFamily: "Poppins",
-                  fontWeight: 500,
-                  color: colors.textMuted,
-                }}
-              >
-                Active Ministries{" "}
-                <InfoTooltip
-                  message="Ministry portfolios active on selected gazette date"
-                  iconColor={colors.textPrimary}
-                  iconSize={14}
-                />
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 20,
-                  fontWeight: 500,
-                  color: colors.textPrimary,
-                }}
-              >
-                {activeMinistryList.length}
-              </Typography>
-            </Box>
-
             {/* New Ministries */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
+              <AccountBalanceIcon sx={{ color: colors.textMuted }} />
+
               <Typography
                 sx={{
                   flex: 1,
@@ -328,7 +297,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
               >
                 New Ministries{" "}
                 <InfoTooltip
-                  message="New ministry portfolios created on selected gazette date"
+                  message="New ministry portfolios created on selected date"
                   iconColor={colors.textPrimary}
                   iconSize={14}
                 />
@@ -342,6 +311,36 @@ const MinistryCardGrid = ({ onCardClick }) => {
                 }}
               >
                 {activeMinistryList.filter((m) => m.newMin).length}
+              </Typography>
+            </Box>
+
+            {/* new persons */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
+              <Typography
+                sx={{
+                  flex: 1,
+                  fontFamily: "Poppins",
+                  fontWeight: 500,
+                  color: colors.textMuted,
+                }}
+              >
+                New Ministers{" "}
+                <InfoTooltip
+                  message="New ministers assigned to portfolios on selected date"
+                  iconColor={colors.textPrimary}
+                  iconSize={14}
+                />
+              </Typography>
+              <Typography
+                sx={{
+                  fontFamily: "Poppins",
+                  fontSize: 20,
+                  fontWeight: 500,
+                  color: colors.textPrimary,
+                }}
+              >
+                {activeMinistryList.filter((m) => m.newPerson).length}
               </Typography>
             </Box>
 
@@ -441,6 +440,9 @@ const MinistryCardGrid = ({ onCardClick }) => {
                 fontFamily: "Poppins",
               }}
             >
+              {activeMinistryList.length > 0
+                ? `${activeMinistryList.length} `
+                : ""}
               Active Ministries
             </Typography>
             <Typography
@@ -470,7 +472,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
               sx={{
                 flex: 1,
                 minWidth: { xs: "100%", sm: "30%" },
-                maxWidth: { sm: "68%"},
+                maxWidth: { sm: "68%" },
               }}
             >
               <TextField
