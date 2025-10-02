@@ -707,16 +707,6 @@ export default function GraphComponent({ activeMinistries }) {
               View Details
             </button>
           )}
-          <button
-            onClick={handleClosePopup}
-            className="text-sm px-3 py-1 rounded border cursor-pointer"
-            style={{
-              borderColor: isDark ? "#666" : "#ccc",
-              color: isDark ? "#fff" : "#000",
-            }}
-          >
-            Close
-          </button>
         </div>
       </div>
     );
