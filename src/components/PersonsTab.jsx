@@ -332,40 +332,6 @@ const PersonsTab = ({ selectedDate }) => {
         </Stack>
         <Divider sx={{ py: 1 }} />
       </Box>
-      {/* <Dialog
-        open={profileOpen}
-        onClose={() => setProfileOpen(false)}
-        maxWidth="xl"
-        fullWidth
-        PaperProps={{
-          sx: {
-            height: "100vh",
-            overflowY: "auto",
-            backgroundColor: colors.backgroundPrimary,
-            borderRadius: 3,
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { display: "none" },
-          },
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            px: 2,
-            pt: 2,
-          }}
-        >
-          <IconButton onClick={() => setProfileOpen(false)}>
-            <CloseIcon sx={{ color: colors.textPrimary }} />
-          </IconButton>
-        </Box>
-
-        <Box sx={{ px: 3, pb: 3 }}>
-          <PersonProfile selectedPerson={selectedPerson} />
-        </Box>
-      </Dialog> */}
     </>
   );
 };

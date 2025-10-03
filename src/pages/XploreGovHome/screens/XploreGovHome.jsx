@@ -444,16 +444,14 @@ const XploreGovHomepage = () => {
     setShowLearn(false);
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
-      params.delete('showLearn');
+      params.delete("showLearn");
       return params;
     });
   };
 
   return (
     <div className="min-h-screen bg-gray-950 relative overflow-x-hidden">
-      {showLearn && (
-        <InformationDrawer onClose={handleLearnClose} />
-      )}
+      {showLearn && <InformationDrawer onClose={handleLearnClose} />}
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.1)_0%,transparent_50%)]"></div>
@@ -479,13 +477,20 @@ const XploreGovHomepage = () => {
       <div className="relative z-10 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="p-6 z-20">
-            <h1 className="text-2xl font-bold text-white">
-              Xplore
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Gov
-              </span>
-            </h1>
+          <div className="flex mt-8">
+            <div className="z-20 flex">
+              <h1 className="text-2xl font-bold text-white">
+                Xplore
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Gov
+                </span>
+              </h1>
+            </div>
+            <img
+              src="https://imgs.search.brave.com/g1a5xxmzRkIhv3A2zqV-q55_m7bBju-lI6z2OF85BRQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA5LzMzLzk3LzU0/LzM2MF9GXzkzMzk3/NTQyOV9nbGc3NUpw/WFJBRzR4bHM1Vkxl/NmZEdkI0ZXNmWFE5/aC5qcGc"
+              alt="XploreGov Logo"
+              className="max-w-[35px] w-full object-contain h-auto ml-2"
+            />
           </div>
 
           {/* Hero Section */}

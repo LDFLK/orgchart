@@ -1,74 +1,44 @@
-import React, { useEffect, useState } from "react";
-import { IoClose } from "react-icons/io5";
+import { useEffect, useState } from "react";
 import { CiCircleChevLeft } from "react-icons/ci";
 import { useThemeContext } from "../../themeContext";
-import Dashboard from "../../pages/StatComparison";
 import LoadingComponent from "../common_components/loading_component";
 import { useSelector } from "react-redux";
-import { IoChevronBack } from "react-icons/io5";
-import {
-  Box,
-  Alert,
-  AlertTitle,
-} from "@mui/material";
+import { Building, History, UserRound } from "lucide-react";
 
 export default function Drawer({
   expandDrawer,
   setExpandDrawer,
-  ministerDictionary,
-  selectedNode,
-  ministerToDepartments,
+  contentDictionary,
   onMinistryClick,
-  filterGraphBy,
-  filteredGraphData,
+  selectedNode,
+  parentNode,
+  personDic
 }) {
   const { colors, isDark } = useThemeContext();
-  const [drawerMinisterDictionary, setDrawerMinisterDictionary] = useState({});
-  const [showDepartment, setShowDepartment] = useState(false);
-  const [selectedMinistry, setSelectedMinistry] = useState("");
-  const [departmentListtoShow, setDepartmentListtoShow] = useState([]);
-  const [targetOnlyNodes, setTargetOnlyNodes] = useState([]);
+  const [drawerContentList, setDrawerContentList] = useState({});
+  // Lazy loading state
+  const BATCH_SIZE = 20;
+  const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
+  const [selectedTab, setSelectedTab] = useState("departments");
 
   //redux access
   const { selectedPresident } = useSelector((state) => state.presidency);
 
   //clear data
   useEffect(() => {
-    setDrawerMinisterDictionary({});
+    setDrawerContentList({});
+    setVisibleCount(BATCH_SIZE);
   }, [selectedPresident]);
 
   //set new data
   useEffect(() => {
-    setDrawerMinisterDictionary(ministerDictionary);
-  }, [ministerDictionary]);
+    setDrawerContentList(contentDictionary);
+    setVisibleCount(BATCH_SIZE);
+  }, [contentDictionary]);
 
-  // derive target-only nodes for current filtered graph
   useEffect(() => {
-    try {
-      if (!filterGraphBy || !filteredGraphData || !filteredGraphData.links) {
-        setTargetOnlyNodes([]);
-        return;
-      }
-
-      const targetIdSet = new Set(
-        filteredGraphData.links
-          .map((link) => {
-            const t = link?.target;
-            return typeof t === "object" ? t?.id : t;
-          })
-          .filter((id) => id !== undefined && id !== null)
-      );
-
-      const nodes = (filteredGraphData.nodes || []).filter(
-        (node) => node?.type === filterGraphBy && targetIdSet.has(node?.id)
-      );
-
-      setTargetOnlyNodes(nodes);
-    } catch (e) {
-      console.log("failed deriving target-only nodes:", e);
-      setTargetOnlyNodes([]);
-    }
-  }, [filterGraphBy, filteredGraphData]);
+    console.log("Selected Node in Drawer:", selectedNode);
+  }, [selectedNode]);
 
   return (
     <div
@@ -85,7 +55,7 @@ export default function Drawer({
         <button
           className={`${
             !expandDrawer
-              ? "rounded-l-full bg-[#305cde] text-white text-5xl p-1 absolute right-0 top-12 cursor-pointer shadow-xl"
+              ? "rounded-l-full bg-[#305cde] text-gray-300 text-5xl p-1 absolute right-0 top-12 cursor-pointer shadow-xl"
               : ""
           }`}
           onClick={() => setExpandDrawer(true)}
@@ -101,231 +71,145 @@ export default function Drawer({
           >
             <CiCircleChevLeft />
           </button>
-          <p className="text-2xl">Explore more...</p>
+          <p className="text-xl">Xplore more...</p>
         </div>
       )}
 
       {expandDrawer && (
         <div className="flex flex-col h-[97%] p-2">
-          {!showDepartment && filterGraphBy == null ? (
+          {drawerContentList ? (
             <>
+              {selectedNode && (
+                <div className="w-full mb-2 p-4  bg-white border border-gray-200 rounded-sm shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                  <a href="#">
+                    <p className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-300">
+                      {selectedNode ? selectedNode.name : ""}
+                    </p>
+                  </a>
+                  <p className="mb-4 text-sm font-normal text-gray-700 dark:text-gray-400">
+                    {selectedNode && selectedNode.created
+                      ? `'Created Date : '${selectedNode.created.split("T")[0]}`
+                      : ""}
+                  </p>
+                  {selectedNode && selectedNode.type != "government" && (
+                    <a
+                      href="#"
+                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-gray-300 bg-blue-700 rounded-sm hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    >
+                      <History className="w-5 h-5 mr-2" />
+                      View History
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {parentNode && parentNode.type === "minister" && (
+                <div className="flex justify-center mt-4 border border-white/20 p-1 rounded-sm bg-[#0F172A]">
+                  <button
+                    className={`hover:cursor-pointer w-1/2 py-3 font-normal text-lg transition-colors duration-300 transform rounded-l-sm inline-flex items-center justify-center space-x-2
+      ${
+        selectedTab === "departments"
+          ? "text-cyan-300 bg-[#1E2A38]"
+          : "text-white bg-transparent hover:text-cyan-400"
+      }`}
+                    onClick={() => setSelectedTab("departments")}
+                  >
+                    <Building className="w-5 h-5" />
+                    <span className="text-sm">Departments</span>
+                  </button>
+
+                  <button
+                    className={`hover:cursor-pointer w-1/2 py-3 font-normal text-lg transition-colors duration-300 transform rounded-r-sm inline-flex items-center justify-center space-x-2 border-l border-white/20
+      ${
+        selectedTab === "persons"
+          ? "text-cyan-300 bg-[#1E2A38]"
+          : "text-white bg-transparent hover:text-cyan-400"
+      }`}
+                    onClick={() => setSelectedTab("persons")}
+                  >
+                    <UserRound className="w-5 h-5" />
+                    <span className="text-sm">Person</span>
+                  </button>
+                </div>
+              )}
+
               {/* Header (stays visible) */}
-              <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
-                {Object.keys(drawerMinisterDictionary).length} Active Ministries
+              <h2 className="text-md font-semibold mt-4 mb-2 shrink-0">
+                {Object.keys(drawerContentList).length} Active{" "}
+                {`${
+                  parentNode && parentNode.type === "minister"
+                    ? "Departments"
+                    : parentNode && parentNode.type === "department"
+                    ? "Persons"
+                    : "Ministries"
+                }`}
               </h2>
 
               {/* Scrollable content */}
-              <div className="flex-1 overflow-y-auto pr-2">
-                {drawerMinisterDictionary &&
-                  Object.entries(drawerMinisterDictionary).map(
-                    ([key, minister], index) => (
+              <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                {drawerContentList &&
+                  Object.entries(drawerContentList)
+                    .slice(0, visibleCount)
+                    .map(([key, item], index) => (
                       <div
                         key={key}
-                        className={`my-2 p-2 rounded-md cursor-pointer ${
+                        className={`my-2 p-2 rounded-sm cursor-pointer font-normal text-sm transition-colors duration-200 text-gray-300 ${
                           isDark
-                            ? colors.backgroundWhite
+                            ? "bg-[#1E2A38]/50 hover:bg-[#1E2A38]"
                             : "bg-gray-200 hover:bg-gray-300"
                         }`}
-                        style={{
-                          backgroundColor: isDark
-                            ? colors.backgroundWhite
-                            : "bg-gray-200",
-                        }}
                         onClick={() => {
-                          onMinistryClick(minister);
-                          setSelectedMinistry(minister);
-                          setShowDepartment(true);
-                          setDepartmentListtoShow(
-                            ministerToDepartments[minister.id]
-                          );
+                          onMinistryClick(item);
+                          setSelectedTab("departments");
                         }}
                       >
-                        <span className="font-semibold mr-2">{index + 1}.</span>
-                        {minister.name}
+                        <div className="flex">
+                          <span className="mr-2 text-gray-300">
+                            {index + 1}.
+                          </span>
+                          <p>{item.name}</p>
+                        </div>
                       </div>
-                    )
-                  )}
+                    ))}
+                {personDic && selectedTab == "persons" &&
+                  Object.entries(personDic)
+                    .slice(0, visibleCount)
+                    .map(([key, item], index) => (
+                      <div
+                        key={key}
+                        className={`my-2 p-2 rounded-sm cursor-pointer font-normal text-sm transition-colors duration-200 text-gray-300 ${
+                          isDark
+                            ? "bg-[#1E2A38]/50 hover:bg-[#1E2A38]"
+                            : "bg-gray-200 hover:bg-gray-300"
+                        }`}
+                        onClick={() => {
+                          onMinistryClick(item);
+                        }}
+                      >
+                        <div className="flex">
+                          <span className="mr-2 text-gray-300">
+                            {index + 1}.
+                          </span>
+                          <p>{item.name}</p>
+                        </div>
+                      </div>
+                    ))}
+                <div className="w-full flex flex-col items-center">
+                  {/* Lazy load button */}
+                  {drawerContentList &&
+                    Object.keys(drawerContentList).length > visibleCount && (
+                      <button
+                        className="mt-2 px-4 text-sm py-2 bg-blue-500 text-gray-300 rounded hover:bg-blue-600 hover:cursor-pointer"
+                        onClick={() =>
+                          setVisibleCount((prev) => prev + BATCH_SIZE)
+                        }
+                      >
+                        Load More
+                      </button>
+                    )}
+                </div>
               </div>
             </>
-          ) : filterGraphBy == null &&
-            departmentListtoShow &&
-            departmentListtoShow.length > 0 &&
-            showDepartment ? (
-            <>
-              {/* Header */}
-              <div className="shrink-0">
-                <button
-                  onClick={() => setShowDepartment(false)}
-                  className="mt-4 mb-2 cursor-pointer"
-                  style={{ color: colors.textMuted }}
-                >
-                  <div className="flex justify-center items-center">
-                    <IoChevronBack className="mr-1" /> <p>Back to previous</p>
-                  </div>
-                </button>
-                <p className="text-xl font-semibold">{selectedMinistry.name}</p>
-                <p style={{ color: colors.textPrimary }}>
-                  {departmentListtoShow.length} departments
-                </p>
-              </div>
-
-              {/* Scrollable department list */}
-              <div className="flex-1 overflow-y-auto mt-2">
-                {departmentListtoShow.map((department, index) => (
-                  <div
-                    key={index}
-                    className={`my-2 p-2 rounded-md cursor-pointer ${
-                      isDark
-                        ? colors.backgroundWhite
-                        : "bg-gray-200 hover:bg-gray-300"
-                    }`}
-                    style={{
-                      backgroundColor: isDark
-                        ? colors.backgroundWhite
-                        : "bg-gray-200 hover:bg-gray-300",
-                    }}
-                    onClick={() => onMinistryClick(department.target)}
-                  >
-                    <span className="font-semibold mr-2">{index + 1}.</span>
-                    {department.target.name}
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : filterGraphBy == "minister" && targetOnlyNodes.length > 0 ? (
-            <>
-              {/* Header (stays visible) */}
-              <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
-                {targetOnlyNodes.length} Active Ministries
-              </h2>
-
-              {/* Scrollable content */}
-              <div className="flex-1 overflow-y-auto pr-2">
-                {targetOnlyNodes &&
-                  targetOnlyNodes.map((minister, index) => (
-                    <div
-                      key={index}
-                      className={`my-2 p-2 rounded-md cursor-pointer ${
-                        isDark
-                          ? colors.backgroundWhite
-                          : "bg-gray-200 hover:bg-gray-300"
-                      }`}
-                      style={{
-                        backgroundColor: isDark
-                          ? colors.backgroundWhite
-                          : "bg-gray-200",
-                      }}
-                      onClick={() => {
-                        onMinistryClick(minister);
-                        setSelectedMinistry(minister);
-                        setShowDepartment(true);
-                        setDepartmentListtoShow(
-                          ministerToDepartments[minister.id]
-                        );
-                      }}
-                    >
-                      <span className="font-semibold mr-2">{index + 1}.</span>
-                      {minister.name}
-                    </div>
-                  ))}
-              </div>
-            </>
-          ) : filterGraphBy == "department" && targetOnlyNodes.length > 0 ? (
-            <>
-              {/* Header (stays visible) */}
-              <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
-                {targetOnlyNodes.length} Active Departments
-              </h2>
-
-              {/* Scrollable content */}
-              <div className="flex-1 overflow-y-auto pr-2">
-                {targetOnlyNodes &&
-                  targetOnlyNodes.map((minister, index) => (
-                    <div
-                      key={index}
-                      className={`my-2 p-2 rounded-md cursor-pointer ${
-                        isDark
-                          ? colors.backgroundWhite
-                          : "bg-gray-200 hover:bg-gray-300"
-                      }`}
-                      style={{
-                        backgroundColor: isDark
-                          ? colors.backgroundWhite
-                          : "bg-gray-200",
-                      }}
-                      onClick={() => {
-                        onMinistryClick(minister);
-                        setSelectedMinistry(minister);
-                        setShowDepartment(true);
-                        setDepartmentListtoShow(
-                          ministerToDepartments[minister.id]
-                        );
-                      }}
-                    >
-                      <span className="font-semibold mr-2">{index + 1}.</span>
-                      {minister.name}
-                    </div>
-                  ))}
-              </div>
-            </>
-          ) : filterGraphBy == "person" && targetOnlyNodes.length > 0 ? (
-            <>
-              {/* Header (stays visible) */}
-              <h2 className="text-xl font-semibold mb-2 mt-4 shrink-0">
-                {targetOnlyNodes.length} Persons
-              </h2>
-
-              {/* Scrollable content */}
-              <div className="flex-1 overflow-y-auto pr-2">
-                {targetOnlyNodes &&
-                  targetOnlyNodes.map((minister, index) => (
-                    <div
-                      key={index}
-                      className={`my-2 p-2 rounded-md cursor-pointer ${
-                        isDark
-                          ? colors.backgroundWhite
-                          : "bg-gray-200 hover:bg-gray-300"
-                      }`}
-                      style={{
-                        backgroundColor: isDark
-                          ? colors.backgroundWhite
-                          : "bg-gray-200",
-                      }}
-                      onClick={() => {
-                        onMinistryClick(minister);
-                        setSelectedMinistry(minister);
-                        setShowDepartment(true);
-                        setDepartmentListtoShow(
-                          ministerToDepartments[minister.id]
-                        );
-                      }}
-                    >
-                      <span className="font-semibold mr-2">{index + 1}.</span>
-                      {minister.name}
-                    </div>
-                  ))}
-              </div>
-            </>
-          ) : filterGraphBy != null && targetOnlyNodes.length === 0 ? (
-            <Box
-              sx={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "15px",
-              }}
-            >
-              <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
-                <AlertTitle
-                  sx={{
-                    fontFamily: "poppins",
-                    color: colors.textPrimary,
-                  }}
-                >
-                  No Search Result
-                </AlertTitle>
-              </Alert>
-            </Box>
           ) : (
             <LoadingComponent message="Data Loading" OsColorMode={false} />
           )}
