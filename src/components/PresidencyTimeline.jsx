@@ -63,12 +63,9 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
     if (selectedIndex !== null) {
       setTimeout(() => {
         const scrollContainer = scrollRef.current;
-        const lastItem = scrollContainer?.children[selectedIndex];
-        if (scrollContainer && lastItem) {
-          const scrollLeft =
-            lastItem.offsetLeft - scrollContainer.offsetLeft - 24;
+        if (scrollContainer) {
           scrollContainer.scrollTo({
-            left: scrollLeft,
+            left: 0,
             behavior: "smooth",
           });
           updateScrollButtons();
@@ -106,10 +103,10 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
 
     const avatarBox = avatarRef.current.getBoundingClientRect();
     const dotBox = dotRef.current.getBoundingClientRect();
-    const containerBox = scrollRef.current.getBoundingClientRect();
+    const containerBox = scrollRef.current.parentElement.getBoundingClientRect();
 
     const startX = avatarBox.left + avatarBox.width;
-    const endX = dotBox.left + dotBox.width / 2 + 34;
+    const endX = dotBox.left + dotBox.width / 2;
     const containerHeight = containerBox.height;
     const top = containerHeight / 2 - 30;
 
@@ -193,12 +190,13 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                 maxWidth: { xs: "100vw", sm: "90vw", md: "80vw", lg: "1200px" },
                 overflow: "hidden",
                 minWidth: 0,
+                height: "150px"
               }}
             >
               <IconButton
                 onClick={() => scroll("left")}
                 sx={{
-                  zIndex: 2,
+                  zIndex: 10,
                   mt: -6.8,
                   backgroundColor: colors.backgroundPrimary,
                   visibility: canScrollLeft ? "visible" : "hidden",
@@ -234,70 +232,59 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                     top: `${lineStyle.top}px`,
                     left: `${lineStyle.left}px`,
                     width: `${lineStyle.width}px`,
-                    zIndex: 1,
+                    zIndex: 5,
                     transition: "left 0.3s ease, width 0.3s ease",
+
                   }}
                 />
               )}
-              <Box
-                ref={scrollRef}
-                sx={{
-                  display: "flex",
-                  overflowX: "auto",
-                  gap: { xs: 8, sm: 14 },
-                  padding: { xs: 2, sm: 4 },
-                  paddingLeft: { xs: 3, sm: 6 },
-                  paddingRight: { xs: 8, sm: 14 },
-                  flexWrap: "nowrap",
-                  scrollBehavior: "smooth",
-                  flexGrow: 1,
-                  position: "relative",
-                  zIndex: 1,
-                  "&::-webkit-scrollbar": { display: "none" },
-                  scrollbarWidth: "none",
-                  msOverflowStyle: "none",
-                }}
-              >
-                {selectedPresident && (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      flexShrink: 0,
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    {selectedPresident.id === latestPresidentId ? (
-                      <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 } }}>
-                        <StyledBadge
-                          ref={avatarRef}
-                          overlap="circular"
-                          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                          variant="dot"
+
+              {selectedPresident && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    left: { xs: 3, sm: 6 },
+                    zIndex: 9,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    flexShrink: 0,
+                    transition: "all 0.3s ease",
+                    padding: { xs: 2, sm: 4 },
+
+                  }}
+                >
+                  {selectedPresident.id === latestPresidentId ? (
+                    <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 } }}>
+                      <StyledBadge
+                        ref={avatarRef}
+                        overlap="circular"
+                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                        variant="dot"
+                        sx={{
+                          border: `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor
+                            }`,
+                          backgroundColor: colors.backgroundPrimary,
+                          margin: "auto",
+                          borderRadius: 50,
+                        }}
+                      >
+                        <Avatar
+                          alt={selectedPresident.name}
+                          src={selectedPresident.imageUrl}
                           sx={{
-                            border: `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor
-                              }`,
+                            width: { xs: 40, sm: 50 },
+                            height: { xs: 40, sm: 50 },
+                            border: `3px solid ${colors.backgroundPrimary}`,
                             backgroundColor: colors.backgroundPrimary,
                             margin: "auto",
-                            borderRadius: 50,
                           }}
-                        >
-                          <Avatar
-                            alt={selectedPresident.name}
-                            src={selectedPresident.imageUrl}
-                            sx={{
-                              width: { xs: 40, sm: 50 },
-                              height: { xs: 40, sm: 50 },
-                              border: `3px solid ${colors.backgroundPrimary}`,
-                              backgroundColor: colors.backgroundPrimary,
-                              margin: "auto",
-                            }}
-                          />
-                        </StyledBadge>
-
+                        />
+                      </StyledBadge>
+                      <Box sx={{}}>
                         <Typography
                           variant="body2"
+
                           sx={{
                             mt: 1,
                             color: colors.textPrimary,
@@ -318,144 +305,156 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                             : "Present"}
                         </Typography>
                       </Box>
-                    ) : (
-                      <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 } }}>
-                        <Box
-                          sx={{
-                            border: `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor
-                              }`,
-                            backgroundColor: colors.backgroundPrimary,
-                            margin: "auto",
-                            borderRadius: "50%",
-                            display: "inline-flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Avatar
-                            ref={avatarRef}
-                            alt={selectedPresident.name}
-                            src={selectedPresident.imageUrl}
-                            sx={{
-                              width: { xs: 40, sm: 50 },
-                              height: { xs: 40, sm: 50 },
-                              border: `3px solid ${colors.backgroundPrimary}`,
-                              backgroundColor: colors.backgroundPrimary,
-                              margin: "auto",
-                            }}
-                          />
-                        </Box>
-
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            mt: 1,
-                            color: colors.textPrimary,
-                            fontFamily: "poppins",
-                            fontWeight: 600,
-                          }}
-                        >
-                          {utils.extractNameFromProtobuf(selectedPresident.name)}
-                        </Typography>
-
-                        <Typography
-                          variant="caption"
-                          sx={{ color: colors.textMuted, fontFamily: "poppins" }}
-                        >
-                          {(() => {
-                            const relation =
-                              presidentRelationDict[selectedPresident.id];
-                            if (!relation) return "Unknown";
-
-                            return relation.startTime
-                              ? new Date(relation.startTime).getFullYear()
-                              : "Unknown";
-                          })()} -{" "}
-
-                          {(() => {
-                            const relation =
-                              presidentRelationDict[selectedPresident.id];
-                            if (!relation) return "Unknown";
-
-                            return relation.endTime
-                              ? new Date(relation.endTime).getFullYear()
-                              : "Present";
-                          })()}
-                        </Typography>
-                      </Box>
-                    )}
-
-                    {gazetteData?.length > 0 && (
+                    </Box>
+                  ) : (
+                    <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 }, background: `linear-gradient(to right, ${colors.backgroundPrimary} 65%, rgba(0,0,0,0) 50%)`, }}>
                       <Box
                         sx={{
-                          display: "flex",
+                          border: `4px solid ${selectedPresident?.themeColorLight || colors.timelineColor
+                            }`,
+                          backgroundColor: colors.backgroundPrimary,
+                          margin: "auto",
+                          borderRadius: "50%",
+                          display: "inline-flex",
+                          justifyContent: "center",
                           alignItems: "center",
-                          gap: 2,
-                          ml: 1,
-                          pr: 2,
-                          transition: "all 0.3s ease",
                         }}
                       >
-                        {gazetteData.map((item) => {
-                          const isDateSelected = selectedDate?.date === item.date;
-                          return (
-                            <Box
-                              key={item.date}
-                              onClick={() => dispatch(setSelectedDate(item))}
-                              sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center",
-                                cursor: "pointer",
-                                transform: isDateSelected ? "scale(1.1)" : "scale(1)",
-                                transition: "transform 0.2s ease",
-                                mt: "-32px",
-                              }}
-                            >
-                              <Tooltip title="Gazette published date" placement="top" arrow>
-                                <Box
-                                  ref={isDateSelected ? dotRef : null}
-                                  sx={{
-                                    width: 15,
-                                    height: 15,
-                                    borderRadius: "50%",
-                                    backgroundColor: isDateSelected
-                                      ? selectedPresident?.themeColorLight ||
-                                      colors.timelineColor
-                                      : colors.dotColorInactive,
-                                    border: `3px solid ${colors.backgroundPrimary}`,
-                                  }}
-                                />
-                              </Tooltip>
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  mt: 0.5,
-                                  color: isDateSelected
-                                    ? selectedPresident?.themeColorLight ||
-                                    colors.timelineColor
-                                    : colors.dotColorInactive,
-                                  fontSize: "0.75rem",
-                                  fontWeight: isDateSelected ? "bold" : "",
-                                  fontFamily: "poppins",
-                                }}
-                              >
-                                {item.date}
-                              </Typography>
-                            </Box>
-                          );
-                        })}
+                        <Avatar
+                          ref={avatarRef}
+                          alt={selectedPresident.name}
+                          src={selectedPresident.imageUrl}
+                          sx={{
+                            width: { xs: 40, sm: 50 },
+                            height: { xs: 40, sm: 50 },
+                            border: `3px solid ${colors.backgroundPrimary}`,
+                            backgroundColor: colors.backgroundPrimary,
+                            margin: "auto",
+                          }}
+                        />
                       </Box>
-                    )}
-                  </Box>
-                )}
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          mt: 1,
+                          color: colors.textPrimary,
+                          fontFamily: "poppins",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {utils.extractNameFromProtobuf(selectedPresident.name)}
+                      </Typography>
 
+                      <Typography
+                        variant="caption"
+                        sx={{ color: colors.textMuted, fontFamily: "poppins" }}
+                      >
+                        {(() => {
+                          const relation =
+                            presidentRelationDict[selectedPresident.id];
+                          if (!relation) return "Unknown";
+
+                          return relation.startTime
+                            ? new Date(relation.startTime).getFullYear()
+                            : "Unknown";
+                        })()} -{" "}
+
+                        {(() => {
+                          const relation =
+                            presidentRelationDict[selectedPresident.id];
+                          if (!relation) return "Unknown";
+
+                          return relation.endTime
+                            ? new Date(relation.endTime).getFullYear()
+                            : "Present";
+                        })()}
+                      </Typography>
+
+                    </Box>
+                  )}
+                </Box>
+              )}
+
+              <Box
+                ref={scrollRef}
+                sx={{
+                  display: "flex",
+                  overflowX: "auto",
+                  gap: 2,
+                  padding: { xs: 2, sm: 4 },
+                  paddingLeft: { xs: 22, sm: 28 },
+                  paddingRight: { xs: 8, sm: 14 },
+                  paddingTop: { xs: 7, sm: 4 },
+                  flexWrap: "nowrap",
+                  scrollBehavior: "smooth",
+                  flexGrow: 1,
+                  position: "relative",
+                  zIndex: 5,
+                  "&::-webkit-scrollbar": { display: "none" },
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  alignItems: "center",
+
+                }}
+              >
+                {gazetteData?.length > 0 && gazetteData.map((item) => {
+                  const isDateSelected = selectedDate?.date === item.date;
+                  return (
+                    <Box
+                      key={item.date}
+                      onClick={() => dispatch(setSelectedDate(item))}
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        cursor: "pointer",
+                        transform: isDateSelected ? "scale(1.1)" : "scale(1)",
+                        transition: "transform 0.2s ease",
+                        flexShrink: 0,
+                        mt: { xs: -8.5, sm: -4 },
+                      }}
+                    >
+                      <Tooltip title="Gazette published date" placement="top" arrow>
+                        <Box
+                          ref={isDateSelected ? dotRef : null}
+                          sx={{
+                            width: 15,
+                            height: 15,
+                            borderRadius: "50%",
+                            backgroundColor: isDateSelected
+                              ? selectedPresident?.themeColorLight ||
+                              colors.timelineColor
+                              : colors.dotColorInactive,
+                            border: `3px solid ${colors.backgroundPrimary}`,
+                            zIndex: 20
+                          }}
+                        />
+                      </Tooltip>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          mt: 0.5,
+                          color: isDateSelected
+                            ? selectedPresident?.themeColorLight ||
+                            colors.timelineColor
+                            : colors.dotColorInactive,
+                          fontSize: "0.75rem",
+                          fontWeight: isDateSelected ? "bold" : "",
+                          fontFamily: "poppins",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {item.date}
+                      </Typography>
+                    </Box>
+                  );
+                })}
               </Box>
 
               <IconButton
                 onClick={() => scroll("right")}
                 sx={{
-                  zIndex: 2,
+                  zIndex: 9,
                   mt: -6.8,
                   backgroundColor: colors.backgroundPrimary,
                   visibility: canScrollRight ? "visible" : "hidden",
