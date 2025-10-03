@@ -255,7 +255,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                   }}
                 >
                   {selectedPresident.id === latestPresidentId ? (
-                    <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 } }}>
+                    <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 } , background: `linear-gradient(to right, ${colors.backgroundPrimary} 65%, rgba(0,0,0,0) 50%)`}}>
                       <StyledBadge
                         ref={avatarRef}
                         overlap="circular"
@@ -281,7 +281,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                           }}
                         />
                       </StyledBadge>
-                      <Box sx={{}}>
                         <Typography
                           variant="body2"
 
@@ -304,7 +303,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                             ? new Date(selectedPresident.endTime).getFullYear()
                             : "Present"}
                         </Typography>
-                      </Box>
+                    
                     </Box>
                   ) : (
                     <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 }, background: `linear-gradient(to right, ${colors.backgroundPrimary} 65%, rgba(0,0,0,0) 50%)`, }}>
