@@ -33,7 +33,7 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
         const nameText = utils.extractNameFromProtobuf(p.name);
         const q = searchTerm.toLowerCase();
         const rel = presidentRelationDict[p.id];
-        const startYear = p?.created ? p.created.split("-")[0] : "";
+        const startYear = rel?.startTime ? p.startTime.split("-")[0] : "";
         const endYear = rel?.endTime ? new Date(rel.endTime).getFullYear() : "Present";
         const term = startYear ? `${startYear} - ${endYear}` : "";
         return nameText.toLowerCase().includes(q) || term.toLowerCase().includes(q);
