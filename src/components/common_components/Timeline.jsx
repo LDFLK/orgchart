@@ -377,7 +377,14 @@ export default function YearRangeSelector({
     ).getUTCDate();
     const day = Math.max(1, Math.floor(dayProgress * daysInMonth) + 1);
 
-    const newDate = new Date(Date.UTC(targetYear, month, day));
+    let newDate = new Date(Date.UTC(targetYear, month, day));
+
+    // Clamp to today if future date
+    const today = new Date();
+    const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+    if (newDate > todayUTC) {
+      newDate = todayUTC;
+    }
 
     if (isDragging === "start") {
       if (newDate <= endDate) {
@@ -406,6 +413,10 @@ export default function YearRangeSelector({
     const totalYears = years.length;
     const yearDelta = percentageDelta * totalYears;
 
+    // Get today's date for clamping
+    const today = new Date();
+    const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
     // Calculate new start position
     const currentStartYearPos =
       years.indexOf(startDate.getUTCFullYear()) +
@@ -426,33 +437,9 @@ export default function YearRangeSelector({
         ).getUTCDate()) /
       12;
 
+    const windowSize = currentEndYearPos - currentStartYearPos;
     const newStartYearPos = currentStartYearPos + yearDelta;
     const newEndYearPos = currentEndYearPos + yearDelta;
-
-    // Clamp to bounds and convert back to dates
-    const clampedStartPos = Math.max(
-      0,
-      Math.min(newStartYearPos, totalYears - 1)
-    );
-    const clampedEndPos = Math.max(0, Math.min(newEndYearPos, totalYears - 1));
-
-    // If clamped, adjust both positions to maintain window size
-    let finalStartPos = clampedStartPos;
-    let finalEndPos = clampedEndPos;
-
-    if (newStartYearPos < 0) {
-      finalStartPos = 0;
-      finalEndPos = Math.min(
-        totalYears - 1,
-        currentEndYearPos - currentStartYearPos
-      );
-    } else if (newEndYearPos > totalYears - 1) {
-      finalEndPos = totalYears - 1;
-      finalStartPos = Math.max(
-        0,
-        totalYears - 1 - (currentEndYearPos - currentStartYearPos)
-      );
-    }
 
     // Convert positions back to dates
     function positionToDate(pos) {
@@ -472,8 +459,38 @@ export default function YearRangeSelector({
       return new Date(Date.UTC(targetYear, month, day));
     }
 
-    const newStartDate = positionToDate(finalStartPos);
-    const newEndDate = positionToDate(finalEndPos);
+    // Calculate tentative dates
+    let tentativeStartPos = Math.max(0, newStartYearPos);
+    let tentativeEndPos = Math.min(totalYears, newEndYearPos);
+
+    let newStartDate = positionToDate(tentativeStartPos);
+    let newEndDate = positionToDate(tentativeEndPos);
+
+    // Clamp end date to today if needed
+    if (newEndDate > todayUTC) {
+      newEndDate = todayUTC;
+      // Adjust start date to maintain window size
+      const endYearPos =
+        years.indexOf(newEndDate.getUTCFullYear()) +
+        (newEndDate.getUTCMonth() +
+          newEndDate.getUTCDate() /
+          new Date(
+            Date.UTC(newEndDate.getUTCFullYear(), newEndDate.getUTCMonth() + 1, 0)
+          ).getUTCDate()) /
+        12;
+      tentativeStartPos = Math.max(0, endYearPos - windowSize);
+      newStartDate = positionToDate(tentativeStartPos);
+    }
+
+    // Clamp to start bounds
+    if (newStartYearPos < 0) {
+      newStartDate = positionToDate(0);
+      tentativeEndPos = Math.min(totalYears, windowSize);
+      newEndDate = positionToDate(tentativeEndPos);
+      if (newEndDate > todayUTC) {
+        newEndDate = todayUTC;
+      }
+    }
 
     if (newStartDate <= newEndDate) {
       setStartDate(newStartDate);
