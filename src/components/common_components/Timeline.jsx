@@ -963,7 +963,7 @@ export default function YearRangeSelector({
       {/* Scrollable chart */}
       <div
         ref={scrollWrapperRef}
-        className="overflow-x-auto overflow-y-hidden scroll-wrapper"
+        className="overflow-x-auto no-scrollbar overflow-y-hidden scroll-wrapper"
         style={{ paddingLeft: "8px" }}
       >
         <div
