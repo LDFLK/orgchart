@@ -54,26 +54,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
     );
   };
 
-
-  useEffect(() => {
-    updateScrollButtons();
-  }, [selectedPresident]);
-
-  useEffect(() => {
-    if (selectedIndex !== null) {
-      setTimeout(() => {
-        const scrollContainer = scrollRef.current;
-        if (scrollContainer) {
-          scrollContainer.scrollTo({
-            left: 0,
-            behavior: "smooth",
-          });
-          updateScrollButtons();
-        }
-      }, 50);
-    }
-  }, [selectedIndex]);
-
   useEffect(() => {
     updateScrollButtons();
     const el = scrollRef.current;
@@ -150,7 +130,43 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
       setLatestPresStartDate(new Date(lastRelation.startTime.split("T")[0]));
     }
   }, [presidents, presidentRelationDict]);
+  
+  useEffect(() => {
+    if (selectedIndex !== null) {
+      setTimeout(() => {
+        const scrollContainer = scrollRef.current;
+        if (scrollContainer) {
+          scrollContainer.scrollTo({
+            left: 0,
+            behavior: "smooth",
+          });
+          updateScrollButtons();
+        }
+      }, 50);
+    }
+  }, [selectedIndex]);
 
+  // Auto-scroll selected dot into view
+  useEffect(() => {
+    if (selectedDate && dotRef.current && scrollRef.current) {
+      setTimeout(() => {
+        const container = scrollRef.current;
+        const dot = dotRef.current;
+
+        const containerRect = container.getBoundingClientRect();
+        const dotRect = dot.getBoundingClientRect();
+
+        const dotCenter = dotRect.left + dotRect.width / 2;
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        const scrollOffset = dotCenter - containerCenter;
+
+        container.scrollBy({
+          left: scrollOffset,
+          behavior: "smooth",
+        });
+      }, 100);
+    }
+  }, [selectedDate]);
 
   const handleDateRangeChange = useCallback((dateRange) => {
     const [startDate, endDate] = dateRange;
@@ -158,7 +174,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   }, []);
 
   const dates = gazetteDateClassic.map(d => `${d}T00:00:00Z`);
-
 
   return (
     <>
