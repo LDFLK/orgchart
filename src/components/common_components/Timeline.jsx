@@ -1075,7 +1075,7 @@ export default function YearRangeSelector({
         </div>
       </div>
 
-      <div className="text-gray-500 text-xs text-center">
+      <div className="text-gray-500 text-xs text-center mt-1">
         Gazettes Published by Year
       </div>
 
