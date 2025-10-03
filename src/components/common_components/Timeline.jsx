@@ -73,6 +73,7 @@ export default function YearRangeSelector({
   const [preciseMode, setPreciseMode] = useState(true);
   const [activePreset, setActivePreset] = useState(null);
   const [activePresident, setActivePresident] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: '' });
   const presidentsArray = useSelector(
     (state) => state.presidency.presidentDict
@@ -87,7 +88,9 @@ export default function YearRangeSelector({
 
   const presidents = React.useMemo(() => {
     if (!presidentsArray || !presidentRelationDict) return {};
+
     const obj = {};
+
     presidentsArray.forEach((president) => {
       const relation = presidentRelationDict[president.id];
       if (!relation) return;
@@ -95,26 +98,26 @@ export default function YearRangeSelector({
       const displayName = utils.extractNameFromProtobuf(president.name);
 
       obj[president.id] = {
-        name: displayName.split(" ")[0],
-        start: relation.startTime,
-        end: relation.endTime || new Date().toISOString().slice(0, 10),
+        name: displayName,
+        terms: [
+          {
+            start: relation.startTime,
+            end: relation.endTime || new Date().toISOString().slice(0, 10),
+          },
+        ],
       };
     });
 
+    // obj["mock1"] = {
+    //   name: "Mahinda Rajapaksa",
+    //   terms: [
+    //     { start: "2004-01-20", end: "2009-01-20" },
+    //     { start: "2010-01-20", end: "2015-01-20" },
+    //   ],
+    // };
+
     return obj;
   }, [presidentsArray, presidentRelationDict]);
-
-  //   useEffect(() => {
-  //     const latestYear = latestPresStartDate.getFullYear();
-  //     const validStartYear = Math.max(startYear, latestYear);
-  //     const validEndYear = Math.min(endYear, new Date().getFullYear());
-  //     console.log("President array", presidentsArray);
-  //     console.log("President relation dict", presidentRelationDict);
-
-  //     setStartDate(latestPresStartDate);
-  //     setSelectedRange([validStartYear, validEndYear]);
-  //     setTempStartDate(latestPresStartDate);
-  //   }, [latestPresStartDate, endYear, startYear]);
 
   // Preprocess dates into a lookup: year -> month -> count
   const dateCounts = dates.reduce((acc, d) => {
@@ -694,47 +697,135 @@ export default function YearRangeSelector({
               setActivePresident("");
             }}
             className={`px-2 text-sm font-medium rounded-lg transition-colors hover:cursor-pointer ${activePreset === preset.label
-                ? "bg-blue-600 text-white"
-                : "hover:bg-gray-800 bg-gray-700 text-gray-300 hover:cursor-pointer"
+              ? "bg-blue-600 text-white"
+              : "hover:bg-gray-800 bg-gray-700 text-gray-300 hover:cursor-pointer"
               }`}
           >
             {preset.label}
           </button>
         ))}
         {/* Presidents dropdown */}
-        <select
-          value={activePresident}
-          onChange={(e) => {
-            const selected = e.target.value;
-            if (selected && presidents[selected]) {
-              const { start, end } = presidents[selected];
-              setStartDate(new Date(start));
-              setEndDate(new Date(end));
-              setSelectedRange([
-                new Date(start).getUTCFullYear(),
-                new Date(end).getUTCFullYear(),
-              ]);
-              setPreciseMode(true);
-              setActivePreset(null);
-              setActivePresident(selected);
-            }
-          }}
-          className="px-4 py-2 text-sm font-medium rounded-lg
-     bg-gray-700
-     text-gray-300
-     focus:outline-none"
-        >
-          {!activePresident && (
-            <option value="" disabled hidden>
-              President
-            </option>
+        <div className="relative w-64 text-sm">
+          {/* Main button */}
+          <button
+            className={`w-full px-4 py-2 text-left cursor-pointer rounded-lg focus:outline-none flex justify-between items-center ${activePresident
+                ? "bg-blue-600 text-white"
+                : "bg-gray-700 text-gray-300"
+              }`}
+            onClick={() => setIsDropdownOpen((o) => !o)}
+          >
+            <span>
+              {activePresident
+                ? (() => {
+                  const pres = presidents[activePresident];
+                  if (!pres) return "By President Term";
+                  if (pres.terms.length === 1) return pres.name;
+                  const currentTerm = pres.terms.find(
+                    (t) =>
+                      startDate.getTime() === new Date(t.start).getTime() &&
+                      endDate.getTime() === new Date(t.end).getTime()
+                  );
+                  return currentTerm
+                    ? `${pres.name} (${new Date(
+                      currentTerm.start
+                    ).getUTCFullYear()} - ${new Date(
+                      currentTerm.end
+                    ).getUTCFullYear()})`
+                    : pres.name;
+                })()
+                : "By President Term"}
+            </span>
+            <svg
+              className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
+                }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
+          {/* Dropdown menu */}
+          {isDropdownOpen && (
+            <div className="absolute z-50 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+              {Object.entries(presidents).map(([id, data]) => (
+                <div key={id} className="group relative">
+                  {/* President row */}
+                  <button
+                    className={`w-full px-4 py-2 text-left flex justify-between items-center cursor-pointer hover:bg-gray-600 ${activePresident === id
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-300"
+                      }`}
+                    onClick={() => {
+                      if (data.terms.length === 1) {
+                        const term = data.terms[0];
+                        setActivePresident(id);
+                        setStartDate(new Date(term.start));
+                        setEndDate(new Date(term.end));
+                        setSelectedRange([
+                          new Date(term.start).getUTCFullYear(),
+                          new Date(term.end).getUTCFullYear(),
+                        ]);
+                        setPreciseMode(true);
+                        setActivePreset(null);
+                        setIsDropdownOpen(false);
+                      }
+                    }}
+                  >
+                    {data.name}
+                    {data.terms.length > 1 && (
+                      <span className="ml-2 text-gray-400">▶</span>
+                    )}
+                  </button>
+
+                  {/* Nested terms: show only on hover */}
+                  {data.terms.length > 1 && (
+                    <div className="absolute top-0 left-full mt-0 ml-1 w-48 bg-gray-700 border border-gray-600 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                      {data.terms.map((term, idx) => (
+                        <button
+                          key={idx}
+                          className={`w-full px-4 py-2 text-left cursor-pointer hover:bg-gray-600 ${activePresident === id &&
+                              startDate.getTime() ===
+                              new Date(term.start).getTime() &&
+                              endDate.getTime() === new Date(term.end).getTime()
+                              ? "bg-blue-600 text-white"
+                              : "text-gray-300"
+                            }`}
+                          onClick={() => {
+                            setActivePresident(id);
+                            setStartDate(new Date(term.start));
+                            setEndDate(new Date(term.end));
+                            setSelectedRange([
+                              new Date(term.start).getUTCFullYear(),
+                              new Date(term.end).getUTCFullYear(),
+                            ]);
+                            setPreciseMode(true);
+                            setActivePreset(null);
+                            setIsDropdownOpen(false);
+                          }}
+                        >
+                          {`${new Date(
+                            term.start
+                          ).getUTCFullYear()} - ${new Date(
+                            term.end
+                          ).getUTCFullYear()}`}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
-          {Object.entries(presidents).map(([id, data]) => (
-            <option key={id} value={id}>
-              {data.name}
-            </option>
-          ))}
-        </select>
+        </div>
+
+
         {/* Calendar button */}
         <div className="relative w-full sm:w-auto">
           <button
@@ -745,7 +836,7 @@ export default function YearRangeSelector({
             }}
             className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-2 text-sm text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors hover:cursor-pointer"
           >
-            Select Range
+            By Date
           </button>
           {calendarOpen && (
             <div className="absolute right-0 mt-2 z-50 w-full sm:w-auto bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
@@ -825,7 +916,7 @@ export default function YearRangeSelector({
                       setActivePresident("");
                     }
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:cursor-pointer"
                 >
                   Apply
                 </button>
@@ -959,6 +1050,10 @@ export default function YearRangeSelector({
                         </div>
                     )} */}
         </div>
+      </div>
+
+      <div className="text-gray-500 text-xs text-center">
+        Gazettes Published by Year
       </div>
 
       {/* FilteredPresidentCards Component */}

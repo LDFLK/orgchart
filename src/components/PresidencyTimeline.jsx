@@ -2,9 +2,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Box, Avatar, Typography, IconButton } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-// import colors from "../assets/colors";
 import { useSelector, useDispatch } from "react-redux";
-import {setSelectedDate} from "../store/presidencySlice";
+import { setSelectedDate } from "../store/presidencySlice";
 import utils from "../utils/utils";
 import StyledBadge from "../utils/materialCustomAvatar";
 import { useThemeContext } from "../themeContext";
@@ -240,7 +239,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                   }}
                 />
               )}
-
               <Box
                 ref={scrollRef}
                 sx={{
@@ -271,7 +269,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                     }}
                   >
                     {selectedPresident.id === latestPresidentId ? (
-                      // ✅ Latest president → with StyledBadge (green dot)
                       <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 } }}>
                         <StyledBadge
                           ref={avatarRef}
@@ -322,7 +319,6 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                         </Typography>
                       </Box>
                     ) : (
-                      // ❌ Not latest president → same border, but NO StyledBadge
                       <Box sx={{ textAlign: "center", minWidth: { xs: 60, sm: 80 } }}>
                         <Box
                           sx={{
@@ -366,10 +362,25 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                           variant="caption"
                           sx={{ color: colors.textMuted, fontFamily: "poppins" }}
                         >
-                          {selectedPresident.created.split("-")[0]} -{" "}
-                          {selectedPresident.endTime
-                            ? new Date(selectedPresident.endTime).getFullYear()
-                            : "Present"}
+                          {(() => {
+                            const relation =
+                              presidentRelationDict[selectedPresident.id];
+                            if (!relation) return "Unknown";
+
+                            return relation.startTime
+                              ? new Date(relation.startTime).getFullYear()
+                              : "Unknown";
+                          })()} -{" "}
+
+                          {(() => {
+                            const relation =
+                              presidentRelationDict[selectedPresident.id];
+                            if (!relation) return "Unknown";
+
+                            return relation.endTime
+                              ? new Date(relation.endTime).getFullYear()
+                              : "Present";
+                          })()}
                         </Typography>
                       </Box>
                     )}

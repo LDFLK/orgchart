@@ -83,14 +83,16 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
   }, [dateRange, filteredPresidents]);
 
 return (
-  <div className="rounded-lg w-full">
-    <input
-      type="text"
-      className="border border-gray-600 bg-gray-800 text-gray-200 p-2 mb-3 w-full rounded placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
-      placeholder="Search presidents..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-    />
+  <div className="rounded-lg w-full mt-4 -mb-6">
+    {filteredPresidents.length > 4 && (
+      <input
+        type="text"
+        className="border border-gray-600 bg-gray-800 text-gray-200 p-2 mb-3 w-full rounded placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
+        placeholder="Search presidents..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    )}
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
       {filteredPresidents.map((president) => {
         const isSelected = selectedPresident?.id === president.id;
