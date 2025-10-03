@@ -6,21 +6,21 @@ const SplashPage = ({ progress, setProgress }) => {
   const slides = [
     {
       image:
-        "https://res.cloudinary.com/dw2246wib/image/upload/v1759226480/ipwgewxehpjnik13wmrj.jpg",
+        "/loading_images/loading_image_1.jpg",
       title: "Loading Government Data",
       message: "Gathering information from various ministries...",
       gradient: "from-cyan-500/20 to-blue-500/20",
     },
     {
       image:
-        "https://res.cloudinary.com/dw2246wib/image/upload/v1759226480/ee4c0tyjmdcivv7azgqa.jpg",
+        "/loading_images/loading_image_2.jpg",
       title: "Fetching Officials",
       message: "Retrieving profiles and career histories...",
       gradient: "from-purple-500/20 to-pink-500/20",
     },
     {
       image:
-        "https://res.cloudinary.com/dw2246wib/image/upload/v1759226480/poyld1fajmbxyrpd85zp.jpg",
+        "/loading_images/loading_image_3.jpg",
       title: "Analyzing Statistics",
       message: "Processing organizational relationships...",
       gradient: "from-blue-500/20 to-purple-500/20",
@@ -41,15 +41,15 @@ const SplashPage = ({ progress, setProgress }) => {
 
   useEffect(() => {
     // Progress bar animation
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        return prev + 1;
-      });
-    }, 50);
+    // const progressInterval = setInterval(() => {
+    //   setProgress((prev) => {
+    //     if (prev >= 100) {
+    //       clearInterval(progressInterval);
+    //       return 100;
+    //     }
+    //     return prev + 1;
+    //   });
+    // }, 50);
 
     // Slide rotation
     const slideInterval = setInterval(() => {
@@ -57,7 +57,7 @@ const SplashPage = ({ progress, setProgress }) => {
     }, 3000);
 
     return () => {
-      clearInterval(progressInterval);
+      // clearInterval(progressInterval);
       clearInterval(slideInterval);
     };
   }, []);
@@ -161,7 +161,7 @@ const SplashPage = ({ progress, setProgress }) => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes bounce-slow {
           0%,
           100% {
