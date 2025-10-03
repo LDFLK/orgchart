@@ -963,7 +963,7 @@ export default function YearRangeSelector({
       {/* Scrollable chart */}
       <div
         ref={scrollWrapperRef}
-        className="overflow-x-auto overflow-y-hidden scroll-wrapper"
+        className="overflow-x-auto no-scrollbar overflow-y-hidden scroll-wrapper"
         style={{ paddingLeft: "8px" }}
       >
         <div
@@ -1075,7 +1075,7 @@ export default function YearRangeSelector({
         </div>
       </div>
 
-      <div className="text-gray-500 text-xs text-center">
+      <div className="text-gray-500 text-xs text-center mt-1">
         Gazettes Published by Year
       </div>
 
