@@ -75,6 +75,8 @@ export default function YearRangeSelector({
   const [activePresident, setActivePresident] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: '' });
+  const [calendarRange, setCalendarRange] = useState(null);
+
   const presidentsArray = useSelector(
     (state) => state.presidency.presidentDict
   );
@@ -709,8 +711,8 @@ export default function YearRangeSelector({
           {/* Main button */}
           <button
             className={`w-full px-4 py-2 text-left cursor-pointer rounded-lg focus:outline-none flex justify-between items-center ${activePresident
-                ? "bg-blue-600 text-white"
-                : "bg-gray-700 text-gray-300"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-700 text-gray-300"
               }`}
             onClick={() => setIsDropdownOpen((o) => !o)}
           >
@@ -759,8 +761,8 @@ export default function YearRangeSelector({
                   {/* President row */}
                   <button
                     className={`w-full px-4 py-2 text-left flex justify-between items-center cursor-pointer hover:bg-gray-600 ${activePresident === id
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-300"
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-300"
                       }`}
                     onClick={() => {
                       if (data.terms.length === 1) {
@@ -791,11 +793,11 @@ export default function YearRangeSelector({
                         <button
                           key={idx}
                           className={`w-full px-4 py-2 text-left cursor-pointer hover:bg-gray-600 ${activePresident === id &&
-                              startDate.getTime() ===
-                              new Date(term.start).getTime() &&
-                              endDate.getTime() === new Date(term.end).getTime()
-                              ? "bg-blue-600 text-white"
-                              : "text-gray-300"
+                            startDate.getTime() ===
+                            new Date(term.start).getTime() &&
+                            endDate.getTime() === new Date(term.end).getTime()
+                            ? "bg-blue-600 text-white"
+                            : "text-gray-300"
                             }`}
                           onClick={() => {
                             setActivePresident(id);
@@ -824,8 +826,6 @@ export default function YearRangeSelector({
             </div>
           )}
         </div>
-
-
         {/* Calendar button */}
         <div className="relative w-full sm:w-auto">
           <button
@@ -834,13 +834,21 @@ export default function YearRangeSelector({
               setTempEndDate(endDate);
               setCalendarOpen((o) => !o);
             }}
-            className="flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-2 text-sm text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors hover:cursor-pointer"
+            className={`flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer
+    ${calendarRange &&
+                startDate.toISOString() === calendarRange.start &&
+                endDate.toISOString() === calendarRange.end
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
           >
             By Date
           </button>
+
           {calendarOpen && (
             <div className="absolute right-0 mt-2 z-50 w-full sm:w-auto bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
               <div className="flex flex-col sm:flex-row gap-4">
+                {/* From date */}
                 <div className="flex-1 flex flex-col">
                   <p className="text-xs text-gray-300 mb-2">From</p>
                   <DatePicker
@@ -853,11 +861,7 @@ export default function YearRangeSelector({
                     dayClassName={(date) => {
                       if (!tempStartDate) return "";
                       const start = tempStartDate;
-                      const endOfMonth = new Date(
-                        start.getFullYear(),
-                        start.getMonth() + 1,
-                        0
-                      );
+                      const endOfMonth = new Date(start.getFullYear(), start.getMonth() + 1, 0);
                       if (date >= start && date <= endOfMonth) {
                         return "bg-blue-500/20 rounded-none";
                       }
@@ -865,6 +869,8 @@ export default function YearRangeSelector({
                     }}
                   />
                 </div>
+
+                {/* To date */}
                 <div className="flex-1 flex flex-col">
                   <p className="text-xs text-gray-300 mb-2">To</p>
                   <DatePicker
@@ -877,11 +883,7 @@ export default function YearRangeSelector({
                     dayClassName={(date) => {
                       if (!tempEndDate) return "";
                       const end = tempEndDate;
-                      const startOfMonth = new Date(
-                        end.getFullYear(),
-                        end.getMonth(),
-                        1
-                      );
+                      const startOfMonth = new Date(end.getFullYear(), end.getMonth(), 1);
                       if (date >= startOfMonth && date <= end) {
                         return "bg-blue-500/20 rounded-none";
                       }
@@ -890,20 +892,18 @@ export default function YearRangeSelector({
                   />
                 </div>
               </div>
+
+              {/* Action buttons */}
               <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
                 <button
                   onClick={() => setCalendarOpen(false)}
-                  className="px-4 py-2 bg-gray-600 text-gray-300 rounded-lg hover:cursor-pointer"
+                  className="px-4 py-2 bg-gray-600 text-gray-300 rounded-lg cursor-pointer hover:bg-gray-500"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => {
-                    if (
-                      tempStartDate &&
-                      tempEndDate &&
-                      tempStartDate <= tempEndDate
-                    ) {
+                    if (tempStartDate && tempEndDate && tempStartDate <= tempEndDate) {
                       setStartDate(tempStartDate);
                       setEndDate(tempEndDate);
                       setSelectedRange([
@@ -914,16 +914,22 @@ export default function YearRangeSelector({
                       setCalendarOpen(false);
                       setActivePreset(null);
                       setActivePresident("");
+                      setCalendarRange({
+                        start: tempStartDate.toISOString(),
+                        end: tempEndDate.toISOString(),
+                      });
                     }
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:cursor-pointer"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700"
                 >
                   Apply
                 </button>
+
               </div>
             </div>
           )}
         </div>
+
 
         {/* Selected range display */}
         <div className="flex items-center gap-2 w-full sm:w-auto ml-auto">
