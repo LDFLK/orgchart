@@ -19,7 +19,7 @@ import LoadingComponent from "./common_components/loading_component";
 import { useThemeContext } from "../themeContext";
 import { useNavigate } from "react-router-dom";
 
-export default function GraphComponent({ activeMinistries }) {
+export default function GraphComponent({ activeMinistries, filterType }) {
   const [loading, setLoading] = useState(true);
   const [webgl, setWebgl] = useState(true);
   const [expandDrawer, setExpandDrawer] = useState(true);
@@ -138,17 +138,6 @@ export default function GraphComponent({ activeMinistries }) {
     try {
       if (!parentNode) {
         setLoading(true);
-        const ministryDic = activeMinistries.reduce((acc, ministry) => {
-          acc[ministry.id] = {
-            id: ministry.id,
-            name: ministry.name,
-            created: ministry.startTime,
-            group: 2,
-            color: "#D3AF37",
-            type: "minister",
-          };
-          return acc;
-        }, {});
 
         const govNode = {
           id: "gov_01",
@@ -158,24 +147,87 @@ export default function GraphComponent({ activeMinistries }) {
           type: "government",
         };
 
-        const ministryToGovLinks = Object.keys(ministryDic).map((id) => ({
-          source: "gov_01",
-          target: id,
-          value: 1,
-          type: "level1",
-        }));
+        const ministryDic = {};
+        const ministryToGovLinks = [];
+        const personDic = {};
+        const personLinks = [];
+
+        activeMinistries.forEach((ministry) => {
+          // Ministry node
+          ministryDic[ministry.id] = {
+            id: ministry.id,
+            name: ministry.name,
+            created: ministry.startTime,
+            group: 2,
+            color: "#D3AF37",
+            type: "minister",
+          };
+
+          // Link to government
+          ministryToGovLinks.push({
+            source: "gov_01",
+            target: ministry.id,
+            value: 1,
+            type: "level1",
+          });
+
+          // To show person in level 3
+          let showPerson = false;
+          let personId = null;
+          let personName = null;
+
+          if (filterType === "newPerson" && ministry.newPerson && ministry.headMinisterId) {
+            showPerson = true;
+            personId = ministry.headMinisterId;
+            personName = utils.extractNameFromProtobuf(ministry.headMinisterName);
+          } else if (filterType === "presidentAsMinister") {
+            const headName = ministry.headMinisterName
+              ? utils.extractNameFromProtobuf(ministry.headMinisterName).split(":")[0].toLowerCase().trim()
+              : null;
+            const presidentName = selectedPresident
+              ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0].toLowerCase().trim()
+              : null;
+
+            if ((!ministry.headMinisterId && selectedPresident) || (headName && presidentName && headName === presidentName)) {
+              showPerson = true;
+              personId = selectedPresident.id;
+              personName = utils.extractNameFromProtobuf(selectedPresident.name);
+            }
+          }
+
+          if (showPerson && personId) {
+            personDic[personId] = {
+              id: personId,
+              name: personName,
+              group: 3,
+              color: "#4287f5",
+              type: "person",
+            };
+
+            personLinks.push({
+              source: ministry.id,
+              target: personId,
+              value: 2,
+              type: "level3",
+            });
+          }
+        });
+
 
         if (focusRef.current) {
           focusRef.current.stopAnimation?.();
         }
 
         setMinistryDictionary(ministryDic);
+        setPersonDictionary(personDic);
         setDepartmentDictionary({});
-        setPersonDictionary({});
         setMinisterToDepartment({});
-        setAllNodes([govNode, ...Object.values(ministryDic)]);
-        setRelations([...ministryToGovLinks]);
-      } else if (parentNode.type === "minister") {
+
+        setAllNodes([govNode, ...Object.values(ministryDic), ...Object.values(personDic)]);
+        setRelations([...ministryToGovLinks, ...personLinks]);
+      }
+
+      else if (parentNode.type === "minister") {
         const response = await api.fetchAllRelationsForMinistry({
           ministryId: parentNode.id,
           name: "AS_DEPARTMENT",
@@ -277,7 +329,7 @@ export default function GraphComponent({ activeMinistries }) {
     if (isDateTaken && selectedDate && selectedPresident) {
       buildGraph();
     }
-  }, [selectedDate, selectedPresident, isDateTaken, activeMinistries]);
+  }, [selectedDate, selectedPresident, isDateTaken, activeMinistries, filterType]);
 
   // Handle WebGL context loss and restoration
   useEffect(() => {
@@ -414,7 +466,7 @@ export default function GraphComponent({ activeMinistries }) {
           );
           if (cameraAnimTimeoutRef.current)
             clearTimeout(cameraAnimTimeoutRef.current);
-          cameraAnimTimeoutRef.current = setTimeout(() => {}, transitionMs + 2);
+          cameraAnimTimeoutRef.current = setTimeout(() => { }, transitionMs + 2);
           return true;
         };
 
@@ -522,9 +574,8 @@ export default function GraphComponent({ activeMinistries }) {
     <>
       <div className="flex h-screen w-full">
         <div
-          className={`${
-            expandDrawer ? "w-2/3" : "w-full"
-          } transition-all duration-300 ease-in-out`}
+          className={`${expandDrawer ? "w-2/3" : "w-full"
+            } transition-all duration-300 ease-in-out`}
           style={{
             backgroundColor: colors.backgroundPrimary,
           }}
