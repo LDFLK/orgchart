@@ -38,6 +38,45 @@ body {
   align-items: center;
 }
 
+/* Hides scrollbar but keeps scroll functionality */
+
+/* Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Firefox */
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+/* IE and Edge */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+}
+
+/* Scrollbar Styling for WebKit (Chrome, Safari, Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.4); /* Thumb color */
+  border-radius: 4px;
+}
+
+/* Scrollbar Styling for Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin; /* Makes it thin */
+  scrollbar-color: rgba(100, 100, 100, 0.4) transparent;
+}
+
+
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

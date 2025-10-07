@@ -8,10 +8,9 @@ import React, {
 import ForceGraph3D from "react-force-graph-3d";
 import api from "../services/services";
 import utils from "../utils/utils";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import Drawer from "./statistics_components/drawer";
-import InfoTabDialog from "./InfoTabDialog";
 import SpriteText from "three-spritetext";
 import WebGLChecker, {
   isWebGLAvailable,
@@ -20,34 +19,21 @@ import LoadingComponent from "./common_components/loading_component";
 import { useThemeContext } from "../themeContext";
 import { useNavigate } from "react-router-dom";
 
-
 export default function GraphComponent({ activeMinistries }) {
   const [loading, setLoading] = useState(true);
   const [webgl, setWebgl] = useState(true);
   const [expandDrawer, setExpandDrawer] = useState(true);
-  const [popupVisible, setPopupVisible] = useState(false);
-  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState(null);
-  const [infoTabOpen, setInfoTabOpen] = useState(false);
-  const [infoTabNode, setInfoTabNode] = useState(null);
-  const [infoTabDepartment, setInfoTabDepartment] = useState(null);
-  const [filterGraphBy, setFilterGraphBy] = useState(null);
   const [graphWidth, setGraphWidth] = useState(window.innerWidth);
   const [graphHeight, setGraphHeight] = useState(window.innerHeight);
-
-  const [mode, setMode] = useState("Structure");
-
   const [allNodes, setAllNodes] = useState([]);
   const [relations, setRelations] = useState([]);
   const [ministryDictionary, setMinistryDictionary] = useState({});
   const [departmentDictionary, setDepartmentDictionary] = useState({});
   const [personDictionary, setPersonDictionary] = useState({});
   const [ministerToDepartments, setMinisterToDepartment] = useState({});
-  const [filteredGraphData, setFilteredGraphData] = useState({
-    nodes: [],
-    links: [],
-  });
-
+  const [graphParent, setGraphParent] = useState(null);
+  const [nodeLoading, setNodeLoading] = useState(false);
   const [isDateTaken, setIsDateTake] = useState(false);
 
   const { colors, isDark } = useThemeContext();
@@ -56,7 +42,7 @@ export default function GraphComponent({ activeMinistries }) {
   useEffect(() => {
     const calculateGraphWidth = () => {
       if (expandDrawer) {
-        setGraphWidth(Math.floor(window.innerWidth * 2 / 3));
+        setGraphWidth(Math.floor((window.innerWidth * 2) / 3));
       } else {
         setGraphWidth(window.innerWidth);
       }
@@ -67,10 +53,10 @@ export default function GraphComponent({ activeMinistries }) {
     const handleResize = () => {
       calculateGraphWidth();
     };
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [expandDrawer]);
 
@@ -81,8 +67,8 @@ export default function GraphComponent({ activeMinistries }) {
     };
 
     calculateGraphHeight();
-    window.addEventListener('resize', calculateGraphHeight);
-    return () => window.removeEventListener('resize', calculateGraphHeight);
+    window.addEventListener("resize", calculateGraphHeight);
+    return () => window.removeEventListener("resize", calculateGraphHeight);
   }, []);
 
   const focusRef = useRef();
@@ -91,7 +77,9 @@ export default function GraphComponent({ activeMinistries }) {
 
   const presidents = useSelector((state) => state.presidency.presidentList);
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
-  const selectedPresident = useSelector((state) => state.presidency.selectedPresident);
+  const selectedPresident = useSelector(
+    (state) => state.presidency.selectedPresident
+  );
   const gazetteDataClassic = useSelector((state) => state.gazettes.gazetteData);
   const allMinistryData = useSelector(
     (state) => state.allMinistryData.allMinistryData
@@ -104,13 +92,6 @@ export default function GraphComponent({ activeMinistries }) {
   useEffect(() => {
     const checkWebGL = () => {
       const webglAvailable = isWebGLAvailable();
-      console.log("WebGL detection result:", webglAvailable);
-      console.log("Browser info:", {
-        userAgent: navigator.userAgent,
-        webgl: !!window.WebGLRenderingContext,
-        webgl2: !!window.WebGL2RenderingContext,
-      });
-
       setWebgl(webglAvailable);
 
       if (!webglAvailable) {
@@ -151,17 +132,17 @@ export default function GraphComponent({ activeMinistries }) {
     }
   }, [presidents, gazetteDataClassic]);
 
-  useEffect(() => {
-    const buildGraph = async () => {
-      // Do not close popup here; let user interaction control it
-      setLoading(true);
-
-      try {
-        //create a dictionary
+  // Build graph function
+  const buildGraph = async (parentNode = null) => {
+    setGraphParent(parentNode);
+    try {
+      if (!parentNode) {
+        setLoading(true);
         const ministryDic = activeMinistries.reduce((acc, ministry) => {
           acc[ministry.id] = {
             id: ministry.id,
             name: ministry.name,
+            created: ministry.startTime,
             group: 2,
             color: "#D3AF37",
             type: "minister",
@@ -169,28 +150,58 @@ export default function GraphComponent({ activeMinistries }) {
           return acc;
         }, {});
 
-        // Fetch relations: ministries → departments
-        const relationPromises = Object.keys(ministryDic).map(
-          async (ministryId) => {
-            const response = await api.fetchAllRelationsForMinistry({
-              ministryId,
-              name: "AS_DEPARTMENT",
-              activeAt: selectedDate.date,
-            });
+        const govNode = {
+          id: "gov_01",
+          name: "Government",
+          group: 1,
+          color: "#00ff00",
+          type: "government",
+        };
 
-            return response.map((department) => ({
-              source: ministryId,
-              target: department.relatedEntityId,
-              value: 2,
-              type: "level2",
-            }));
-          }
-        );
+        const ministryToGovLinks = Object.keys(ministryDic).map((id) => ({
+          source: "gov_01",
+          target: id,
+          value: 1,
+          type: "level1",
+        }));
 
-        const allRelations = (await Promise.all(relationPromises)).flat();
+        if (focusRef.current) {
+          focusRef.current.stopAnimation?.();
+        }
 
-        // Build department dictionary
-        const departmentDic = allRelations
+        setMinistryDictionary(ministryDic);
+        setDepartmentDictionary({});
+        setPersonDictionary({});
+        setMinisterToDepartment({});
+        setAllNodes([govNode, ...Object.values(ministryDic)]);
+        setRelations([...ministryToGovLinks]);
+      } else if (parentNode.type === "minister") {
+        const response = await api.fetchAllRelationsForMinistry({
+          ministryId: parentNode.id,
+          name: "AS_DEPARTMENT",
+          activeAt: selectedDate.date,
+        });
+        const responsePerson = await api.fetchAllRelationsForMinistry({
+          ministryId: parentNode.id,
+          name: "AS_APPOINTED",
+          activeAt: selectedDate.date,
+        });
+
+        const departmentLinks = response.map((department) => ({
+          source: parentNode.id,
+          target: department.relatedEntityId,
+          value: 2,
+          type: "level2",
+        }));
+
+        const personLinks = responsePerson.map((person) => ({
+          source: parentNode.id,
+          target: person.relatedEntityId,
+          value: 3,
+          type: "level3",
+        }));
+
+        const departmentDic = departmentLinks
           .map((rel) => allDepartmentData[rel.target])
           .filter(Boolean)
           .reduce((acc, department) => {
@@ -201,45 +212,12 @@ export default function GraphComponent({ activeMinistries }) {
               kind: department.kind,
               terminated: department.terminated,
               group: 3,
-              // color: "#D3AF37",
               type: "department",
             };
             return acc;
           }, {});
 
-        // Minister to departments map
-        const ministerToDepartments = {};
-        allRelations.forEach((rel) => {
-          if (!ministerToDepartments[rel.source]) {
-            ministerToDepartments[rel.source] = [];
-          }
-          ministerToDepartments[rel.source].push(rel);
-        });
-
-        // Fetch relations: ministries → person
-        const relationPromisesPerson = Object.keys(ministryDic).map(
-          async (ministryId) => {
-            const response = await api.fetchAllRelationsForMinistry({
-              ministryId,
-              name: "AS_APPOINTED",
-              activeAt: selectedDate.date,
-            });
-
-            return response.map((person) => ({
-              source: ministryId,
-              target: person.relatedEntityId,
-              value: 3,
-              type: "level3",
-            }));
-          }
-        );
-
-        const allRelationsPerson = (
-          await Promise.all(relationPromisesPerson)
-        ).flat();
-
-        // Build person dictionary
-        const personDic = allRelationsPerson
+        const personDic = personLinks
           .map((rel) => allPersonData[rel.target])
           .filter(Boolean)
           .reduce((acc, person) => {
@@ -249,112 +227,53 @@ export default function GraphComponent({ activeMinistries }) {
               created: person.created,
               kind: person.kind,
               terminated: person.terminated,
+              group: 4,
               type: "person",
             };
             return acc;
           }, {});
 
-        // Minister to departments map
+        const ministerToDepartments = {};
+        departmentLinks.forEach((rel) => {
+          if (!ministerToDepartments[rel.source]) {
+            ministerToDepartments[rel.source] = [];
+          }
+          ministerToDepartments[rel.source].push(rel);
+        });
+
         const ministerToPerson = {};
-        allRelationsPerson.forEach((rel) => {
+        personLinks.forEach((rel) => {
           if (!ministerToPerson[rel.source]) {
             ministerToPerson[rel.source] = [];
           }
-          ministerToPerson[rel.source].push(rel.target);
+          ministerToPerson[rel.source].push(rel);
         });
 
-        // Fetch relations: ministries → departments
-        // const relationDepartmentPersonPromises = Object.keys(departmentDic).map(
-        //   async (departmentId) => {
-        //     const response = await api.fetchAllRelationsForMinistry({
-        //       departmentId,
-        //       name: "AS_APPOINTED",
-        //       activeAt: selectedDate.date,
-        //     });
-
-        //     return response.map((person) => ({
-        //       source: departmentId,
-        //       target: person.relatedEntityId,
-        //       value: 4,
-        //       type: "level4",
-        //     }));
-        //   }
-        // );
-
-        // const allRelationsDepartmentPerson = (await Promise.all(relationDepartmentPersonPromises)).flat();
-
-        // // Build person dictionary
-        // const personDepartmentDic = allRelationsDepartmentPerson
-        //   .map((rel) => allPersonData[rel.target])
-        //   .filter(Boolean)
-        //   .reduce((acc, person) => {
-        //     acc[person.id] = {
-        //       id: person.id,
-        //       name: utils.extractNameFromProtobuf(person.name),
-        //       created: person.created,
-        //       kind: person.kind,
-        //       terminated: person.terminated,
-        //     };
-        //     return acc;
-        //   }, {});
-
-        // console.log(Object.assign(personDic, personDepartmentDic))
-
-        // // Department to person map
-        // const departmentToPerson = {};
-        // allRelationsDepartmentPerson.forEach((rel) => {
-        //   if (!departmentToPerson[rel.source]) {
-        //     departmentToPerson[rel.source] = [];
-        //   }
-        //   departmentToPerson[rel.source].push(rel.target);
-        // });
-
-        // Build nodes & links
-        const govNode = {
-          id: "gov_01",
-          name: "Government",
-          group: 1,
-          color: "#00ff00",
-        };
-
-        const ministryToGovLinks = Object.keys(ministryDic).map((id) => ({
-          source: "gov_01",
-          target: id,
-          value: 1,
-          type: "level1",
-        }));
-
-        const allGraphNodes = [
-          govNode,
-          ...Object.values(ministryDic),
-          ...Object.values(departmentDic),
-          ...Object.values(personDic),
-        ];
-
-        const allGraphLinks = [
-          ...ministryToGovLinks,
-          ...allRelations,
-          ...allRelationsPerson,
-        ];
-
         if (focusRef.current) {
-          focusRef.current.stopAnimation?.(); // important: prevent ticking
+          focusRef.current.stopAnimation?.();
         }
 
-        // Set all states in batch
-        setMinistryDictionary(ministryDic);
         setDepartmentDictionary(departmentDic);
         setPersonDictionary(personDic);
         setMinisterToDepartment(ministerToDepartments);
-        setAllNodes(allGraphNodes);
-        setRelations(allGraphLinks);
-      } catch (e) {
-        console.error("Error building graph:", e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
 
+        setAllNodes([
+          parentNode,
+          ...Object.values(departmentDic),
+          ...Object.values(personDic),
+        ]);
+        setRelations([...departmentLinks, ...personLinks]);
+      }
+    } catch (e) {
+      console.error("Error building graph:", e.message);
+    } finally {
+      setLoading(false);
+      // clear any node-specific loading state when graph build completes
+      setNodeLoading(false);
+    }
+  };
+
+  useEffect(() => {
     if (isDateTaken && selectedDate && selectedPresident) {
       buildGraph();
     }
@@ -404,53 +323,6 @@ export default function GraphComponent({ activeMinistries }) {
     }
   }, [focusRef.current]);
 
-  useEffect(() => {
-    try {
-      setLoading(true);
-      setExpandDrawer(false);
-      setTimeout(() => {
-        var newGraph = { nodes: [], links: [] };
-
-        const nodes = graphData.nodes.filter((node) => {
-          return node.type === filterGraphBy;
-        });
-
-        const relatedLinks = graphData.links.filter((link) => {
-          return nodes.some((node) => node.id === link.target.id);
-        });
-
-        relatedLinks.forEach((link) => {
-          if (!newGraph.nodes.some((node) => node.id === link.source.id)) {
-            const sourceNode = graphData.nodes.find(
-              (node) => node.id === link.source.id
-            );
-            if (sourceNode) {
-              newGraph.nodes.push(sourceNode);
-            }
-          }
-
-          if (!newGraph.nodes.some((node) => node.id === link.target.id)) {
-            const targetNode = graphData.nodes.find(
-              (node) => node.id === link.target.id
-            );
-            if (targetNode) {
-              newGraph.nodes.push(targetNode);
-            }
-          }
-
-          newGraph.links.push(link);
-        });
-
-        console.log("these are the nodes to pass ", nodes);
-        setFilteredGraphData(newGraph);
-        setLoading(false);
-        setExpandDrawer(true);
-      }, 5000);
-    } catch (e) {
-      console.log("filtering graph failed : ", e);
-    }
-  }, [filterGraphBy]);
-
   // Memoized graph data
   const graphData = useMemo(() => {
     if (loading || allNodes.length === 0 || relations.length === 0) {
@@ -475,7 +347,7 @@ export default function GraphComponent({ activeMinistries }) {
       nodes: validNodes,
       links: validLinks,
     };
-  }, [allNodes, relations, loading, filteredGraphData]);
+  }, [allNodes, relations, loading]);
 
   const getNodeObject = useCallback(
     (node) => {
@@ -492,38 +364,88 @@ export default function GraphComponent({ activeMinistries }) {
     [colors.textPrimary]
   );
 
-  const handleNodeClick = useCallback((node) => {
-    // Always open the popup for any node
-    setInfoTabOpen(false); // Ensure InfoTabDialog is closed so NodePopup can show
-    setSelectedNode(node);
-    setPopupVisible(true);
+  // store previous clicked node id
+  const previousClickedNodeRef = useRef(null);
 
-    // Use mouse position for popup positioning (more reliable)
-    const canvas = focusRef.current?.renderer()?.domElement;
-    if (canvas) {
-      const rect = canvas.getBoundingClientRect();
-      // Use center of canvas as fallback position
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      setPopupPosition({ x: centerX, y: centerY });
-    }
+  // Refactored handleNodeClick to use buildGraph for expansion
+  const handleNodeClick = useCallback(
+    async (node) => {
+      setSelectedNode(node);
 
-    // Still do camera movement for better UX
-    const distance = 600;
-    const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
-    const transitionMs = 3000;
+      if (node?.type === "minister") {
+        setNodeLoading(true);
+      }
 
-    focusRef.current.cameraPosition(
-      { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
-      node,
-      transitionMs
-    );
+      if (node?.type === "minister" && graphParent && graphParent.id === node.id) {
+        await buildGraph();
+        previousClickedNodeRef.current = null;
+        setSelectedNode(null);
+        return;
+      }
 
-    if (cameraAnimTimeoutRef.current) {
-      clearTimeout(cameraAnimTimeoutRef.current);
-    }
-    cameraAnimTimeoutRef.current = setTimeout(() => {}, transitionMs + 2);
-  }, []);
+      if (previousClickedNodeRef.current === node?.id) {
+        if (node.type === "minister") {
+          await buildGraph();
+        }
+        previousClickedNodeRef.current = null;
+        setSelectedNode(null);
+        return;
+      }
+
+      previousClickedNodeRef.current = node?.id;
+
+      try {
+        const distance = 600;
+        const transitionMs = 3000;
+
+        const doCameraMove = (n) => {
+          if (!focusRef.current) return false;
+          if (typeof focusRef.current.cameraPosition !== "function")
+            return false;
+          const x = typeof n?.x === "number" ? n.x : null;
+          const y = typeof n?.y === "number" ? n.y : null;
+          const z = typeof n?.z === "number" ? n.z : null;
+          if (x === null || y === null || z === null) return false;
+          const distRatio = 1 + distance / Math.hypot(x, y, z || 1);
+          focusRef.current.cameraPosition(
+            { x: x * distRatio, y: y * distRatio, z: z * distRatio },
+            n,
+            transitionMs
+          );
+          if (cameraAnimTimeoutRef.current)
+            clearTimeout(cameraAnimTimeoutRef.current);
+          cameraAnimTimeoutRef.current = setTimeout(() => {}, transitionMs + 2);
+          return true;
+        };
+
+        let moved = doCameraMove(node);
+        if (!moved) {
+          let attempts = 0;
+          const intervalId = setInterval(() => {
+            attempts += 1;
+            moved = doCameraMove(node);
+            if (moved || attempts >= 20) {
+              clearInterval(intervalId);
+              if (
+                !moved &&
+                focusRef.current &&
+                typeof focusRef.current.zoomToFit === "function"
+              ) {
+                focusRef.current.zoomToFit(400, 50);
+              }
+            }
+          }, 50);
+        }
+      } catch (err) {
+        // ignore camera errors and continue
+      }
+
+      if (node.type === "minister") {
+        await buildGraph(node);
+      }
+    },
+    [buildGraph]
+  );
 
   // Configure forces
   useEffect(() => {
@@ -541,13 +463,13 @@ export default function GraphComponent({ activeMinistries }) {
             focusRef.current.d3Force("link").distance((link) => {
               switch (link.type) {
                 case "level1":
-                  return 800;
+                  return 500;
                 case "level2":
-                  return 250;
+                  return 300;
                 case "level3":
-                  return 1000;
+                  return 500;
                 default:
-                  return 120;
+                  return 300;
               }
             });
             focusRef.current.d3Force("charge").theta(0.5).strength(-300);
@@ -565,7 +487,6 @@ export default function GraphComponent({ activeMinistries }) {
   useEffect(() => {
     return () => {
       if (focusRef.current) {
-        // Stop the animation loop
         focusRef.current.pauseAnimation();
 
         const renderer = focusRef.current.renderer();
@@ -597,280 +518,102 @@ export default function GraphComponent({ activeMinistries }) {
     };
   }, []);
 
-
-  // Handle popup close
-  const handleClosePopup = useCallback(() => {
-    setPopupVisible(false);
-    setSelectedNode(null);
-  }, []);
-
-
-  // Handle InfoTabDialog close
-  const handleCloseInfoTab = useCallback(() => {
-    setInfoTabOpen(false);
-    setInfoTabNode(null);
-    setInfoTabDepartment(null);
-  }, []);
-
-
-  // Handle navigation to another page or open InfoTabDialog
-  const handleNavigateToPage = useCallback(() => {
-    if (!selectedNode) return;
-
-    if (selectedNode.type === "person") {
-      navigate(`/person-profile/${selectedNode.id}`, {
-        state: { mode: "back" },
-      });
-      handleClosePopup();
-      return;
-    }
-
-    if (selectedNode.type === "minister") {
-      setInfoTabNode(selectedNode);
-      setInfoTabDepartment(null);
-      setInfoTabOpen(true);
-      // Only close popup after InfoTabDialog is open
-      setTimeout(() => handleClosePopup(), 0);
-      return;
-    }
-
-    if (selectedNode.type === "department") {
-      // Find the source ministry for this department
-      let ministryId = null;
-      for (const [minId, rels] of Object.entries(ministerToDepartments)) {
-        if (rels && rels.some((rel) => rel.target === selectedNode.id)) {
-          ministryId = minId;
-          break;
-        }
-      }
-      let ministry = null;
-      if (ministryId) {
-        ministry = ministryDictionary[ministryId];
-        if (!ministry) {
-          // Try to find the ministry node from allNodes (if available)
-          const ministryFromNodes = allNodes?.find(
-            (n) => n.id === ministryId && n.type === "minister"
-          );
-          if (ministryFromNodes) {
-            ministry = ministryFromNodes;
-          } else {
-            // fallback: minimal object with id only
-            ministry = { id: ministryId, name: ministryId };
-          }
-        }
-      }
-      if (!ministry) {
-        // fallback: show something instead of blocking InfoTab
-        ministry = { id: "unknown", name: "No Ministry Found" };
-      }
-      setInfoTabNode(ministry);
-      setInfoTabDepartment(selectedNode);
-      setInfoTabOpen(true);
-      setTimeout(() => handleClosePopup(), 0);
-      return;
-    }
-  }, [selectedNode, navigate, handleClosePopup, ministryDictionary, ministerToDepartments]);
-
-  // Popup component
-  const NodePopup = () => {
-    // Don't show popup if InfoTabDialog is open
-    if (infoTabOpen) return null;
-    if (!selectedNode || !popupVisible) return null;
-
-    return (
-      <div
-        className="fixed z-[1000] p-4 rounded-lg shadow-lg"
-        style={{
-          left: popupPosition.x + 20,
-          top: popupPosition.y - 10,
-          backgroundColor: colors.backgroundPrimary,
-          color: isDark ? "#fff" : "#000",
-        }}
-      >
-        <div className="text-lg font-semibold mb-2">{selectedNode.name}</div>
-        <div className="flex gap-2">
-          {selectedNode.type === "person" && (
-            <button
-              onClick={handleNavigateToPage}
-              className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
-              style={{ backgroundColor: colors.primary || "#1976d2" }}
-            >
-              Go to Profile
-            </button>
-          )}
-          {(selectedNode.type === "minister" || selectedNode.type === "department") && (
-            <button
-              onClick={handleNavigateToPage}
-              className="text-white text-sm px-3 py-1 rounded transition-opacity hover:opacity-90 cursor-pointer"
-              style={{ backgroundColor: colors.primary || "#1976d2" }}
-            >
-              View Details
-            </button>
-          )}
-          <button
-            onClick={handleClosePopup}
-            className="text-sm px-3 py-1 rounded border cursor-pointer"
-            style={{
-              borderColor: isDark ? "#666" : "#ccc",
-              color: isDark ? "#fff" : "#000",
-            }}
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  const typeMap = {
-    All: null,
-    Ministers: "minister",
-    Departments: "department",
-    Persons: "person",
-  };
-
-  const ColorMap = {
-    All: "#fff",
-    Ministers: "#ffee8c",
-    Departments: "#3e8ede",
-    Persons: "#004f98",
-  };
-
   return (
     <>
       <div className="flex h-screen w-full">
-        {/* Graph container - takes 2/3 width when drawer is open, full width when closed */}
-        <div 
-          className={`${expandDrawer ? "w-2/3" : "w-full"} transition-all duration-300 ease-in-out`}
+        <div
+          className={`${
+            expandDrawer ? "w-2/3" : "w-full"
+          } transition-all duration-300 ease-in-out`}
           style={{
             backgroundColor: colors.backgroundPrimary,
           }}
         >
-            {!loading ? (
-              <div
-                className="w-full h-full"
-                style={{
-                  backgroundColor: colors.backgroundPrimary,
-                }}
-              >
-                {webgl && (
-                  graphData.nodes.length > 0 && graphData.links.length > 0 ? (
-                    <div className="relative">
+          {!loading ? (
+            <div
+              className="w-full h-full"
+              style={{
+                backgroundColor: colors.backgroundPrimary,
+              }}
+            >
+              {webgl &&
+                (graphData.nodes.length > 0 && graphData.links.length > 0 ? (
+                  <div className="relative">
+                    {nodeLoading && selectedNode?.type === "minister" && (
                       <div
-                        className="w-full flex justify-start items-center gap-2 absolute top-5 left-5 transition-all duration-300 ease-in-out z-100 shadow-2xl"
+                        className="absolute inset-0 z-50 flex items-center justify-center"
+                        style={{ pointerEvents: "none" }}
                       >
-                        <p className="text-white mr-2">Filter by :</p>
-                        {["All", "Ministers", "Departments", "Persons"].map(
-                          (item, index) => {
-                            return (
-                              <button
-                                key={index}
-                                className="rounded-full px-3 py-2 flex items-center space-x-3  hover:cursor-pointer"
-                                onClick={() => setFilterGraphBy(typeMap[item])}
-                                style={{ backgroundColor: filterGraphBy === typeMap[item] ? colors.backgroundPrimary : colors.textMuted, color: filterGraphBy === typeMap[item] ? colors.textMuted : colors.backgroundPrimary }}
-                                disabled={
-                                  filterGraphBy === typeMap[item]
-                                }
-                              >
-                                <div
-                                  className={`w-2 h-2 rounded-full`}
-                                  style={{ backgroundColor: ColorMap[item] }}
-                                ></div>
-                                <p>{item}</p>
-                              </button>
-                            );
-                          }
-                        )}
-                      </div>
-                      {/* <div
-                        className={`w-full flex justify-end items-center gap-2 absolute top-5 ${
-                          expandDrawer ? "right-25" : "right-5"
-                        } transition-all duration-300 ease-in-out z-100 shadow-2xl`}
-                      >
-                        <button
-                          className="rounded-full text-black px-3 py-2 flex items-center space-x-3  hover:cursor-pointer"
-                          onClick={() => setFilterGraphBy(null)}
-                          style={{ backgroundColor: colors.textMuted }}
+                        <div
+                          className="px-4 py-2 rounded shadow"
+                          style={{
+                            backgroundColor: colors.backgroundPrimary,
+                            color: isDark ? "#fff" : "#000",
+                            border: `1px solid ${isDark ? "#333" : "#ddd"}`,
+                          }}
                         >
-                          <p>Clear</p>
-                        </button>
-                      </div> */}
-                      <ForceGraph3D
-                        height={graphHeight}
-                        width={graphWidth}
-                        graphData={
-                          filteredGraphData.nodes.length > 0 ||
-                          filteredGraphData.links.length > 0
-                            ? filteredGraphData
-                            : graphData
-                        }
-                        backgroundColor={isDark ? "#222" : "#fff"}
-                        // backgroundColor={colors.backgroundPrimary}
-                        linkWidth={3}
-                        // linkColor={() => "rgba(0,0,0,1.0)"}
-                        linkColor={colors.timelineLineActive}
-                        nodeRelSize={15}
-                        nodeResolution={8}
-                        ref={focusRef}
-                        rendererConfig={{
-                          alpha: true,
-                          antialias: false,
-                          powerPreference: "low-power",
-                          precision: "lowp",
-                          failIfMajorPerformanceCaveat: false,
-                          preserveDrawingBuffer: false,
-                          stencil: false,
-                          depth: true,
-                          logarithmicDepthBuffer: false,
-                        }}
-                        nodeAutoColorBy="group"
-                        nodeThreeObjectExtend={true}
-                        nodeThreeObject={getNodeObject}
-                        onNodeClick={handleNodeClick}
-                        cooldownTicks={100}
-                        onNodeDragEnd={(node) => {
-                          node.fx = node.x;
-                          node.fy = node.y;
-                          node.fz = node.z;
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex justify-center items-center w-full h-full">
-                      <LoadingComponent message="Preparing Graph Data" />
-                    </div>
-                  )
-                )}
-              </div>
-            ) : (
-              <LoadingComponent message="Graph Loading" OsColorMode={false} />
-            )}
+                          Loading...
+                        </div>
+                      </div>
+                    )}
+                    <ForceGraph3D
+                      height={graphHeight}
+                      width={graphWidth}
+                      graphData={graphData}
+                      backgroundColor={isDark ? "#222" : "#fff"}
+                      // backgroundColor={colors.backgroundPrimary}
+                      linkWidth={3}
+                      linkColor={colors.timelineLineActive}
+                      nodeRelSize={15}
+                      nodeResolution={12}
+                      ref={focusRef}
+                      rendererConfig={{
+                        alpha: true,
+                        antialias: false,
+                        powerPreference: "low-power",
+                        precision: "lowp",
+                        failIfMajorPerformanceCaveat: false,
+                        preserveDrawingBuffer: false,
+                        stencil: false,
+                        depth: true,
+                        logarithmicDepthBuffer: false,
+                      }}
+                      onEngineStop={() => focusRef.current.zoomToFit(400, 5)}
+                      nodeAutoColorBy="group"
+                      nodeThreeObjectExtend={true}
+                      nodeThreeObject={getNodeObject}
+                      onNodeClick={handleNodeClick}
+                      cooldownTicks={100}
+                      onNodeDragEnd={(node) => {
+                        node.fx = node.x;
+                        node.fy = node.y;
+                        node.fz = node.z;
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex justify-center items-center w-full h-full">
+                    <LoadingComponent message="Preparing Graph Data" />
+                  </div>
+                ))}
+            </div>
+          ) : (
+            <LoadingComponent message="Graph Loading" OsColorMode={false} />
+          )}
         </div>
-        
-        {/* Drawer component - takes 1/3 width when open, 0 width when closed */}
+
         <Drawer
           expandDrawer={expandDrawer}
           setExpandDrawer={setExpandDrawer}
-          ministerDictionary={ministryDictionary}
-          departmentDictionary={departmentDictionary}
-          ministerToDepartments={ministerToDepartments}
-          onMinistryClick={handleNodeClick}
-          mode={mode}
-          setMode={setMode}
           selectedNode={selectedNode}
-          filteredGraphData={filteredGraphData}
-          filterGraphBy={filterGraphBy}
+          onMinistryClick={handleNodeClick}
+          parentNode={graphParent}
+          personDic={personDictionary}
+          ministryDic={ministryDictionary}
+          departmentDic={departmentDictionary}
+          loading={nodeLoading}
         />
       </div>
-      <InfoTabDialog
-        open={infoTabOpen}
-        onClose={handleCloseInfoTab}
-        node={infoTabNode}
-        selectedDate={selectedDate}
-        selectedPresident={selectedPresident}
-        selectedDepartment={infoTabDepartment}
-      />
-      <NodePopup />
       <WebGLChecker />
     </>
   );

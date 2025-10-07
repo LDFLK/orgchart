@@ -182,21 +182,6 @@ const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedD
                   iconSize={14}
                 />
               </Typography>
-
-              {/* <Button
-                onClick={() => {
-                  setSelectedDepartment(selectedDepartment);
-                  setTimeout(() => navigate("/statistics"), 300);
-                }}
-                sx={{
-                  textTransform: "none",
-                  fontFamily: "poppins",
-                }}
-              >
-                <Typography sx={{ color: colors.textMuted }}>
-                  Explore statistics
-                </Typography>
-              </Button> */}
             </Box>
           </Box>
 

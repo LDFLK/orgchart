@@ -1,22 +1,23 @@
 import { useState, useEffect } from "react";
-import api from "./../services/services";
-import utils from "./../utils/utils";
-import { setAllMinistryData } from "../store/allMinistryData";
-import { setAllDepartmentData } from "../store/allDepartmentData";
-import presidentDetails from "./../assets/personImages.json";
-import { setAllPerson } from "../store/allPersonData";
+import api from "../../../services/services";
+import utils from "../../../utils/utils";
+import { setAllMinistryData } from "../../../store/allMinistryData";
+import { setAllDepartmentData } from "../../../store/allDepartmentData";
+import presidentDetails from "../../../assets/personImages.json";
+import { setAllPerson } from "../../../store/allPersonData";
 import {
   setPresidentRelationDict,
   setPresidentDict,
   setSelectedPresident,
   setSelectedIndex,
-} from "../store/presidencySlice";
+} from "../../../store/presidencySlice";
 import { useDispatch, useSelector } from "react-redux";
-import Navbar from "../components/NavBar";
-import { setGazetteDataClassic } from "../store/gazetteDate";
-import PersonProfile from "../components/PersonProfile";
-import SplashPage from "./splash_page";
-import Error500 from "../components/500Error";
+import Navbar from "../../../components/NavBar";
+import { setGazetteDataClassic } from "../../../store/gazetteDate";
+import PersonProfile from "../../../components/PersonProfile";
+import Error500 from "../../../components/500Error";
+import DepartmentProfile from "../../DepartmentPage/screens/DepartmentProfile";
+import SplashPage from "../components/splash_page";
 
 export default function DataLoadingAnimatedComponent({ mode }) {
   const [loading, setLoading] = useState(false);
@@ -36,7 +37,6 @@ export default function DataLoadingAnimatedComponent({ mode }) {
       if (Object.keys(presidentDict).length === 0) {
         setLoading(true);
         try {
-
           const totalSteps = 4;
           let completedSteps = 0;
 
@@ -52,8 +52,9 @@ export default function DataLoadingAnimatedComponent({ mode }) {
           await fetchAllGazetteDate();
           completedSteps++;
           updateProgress(completedSteps, totalSteps);
-          setLoading(false);
-          
+          setTimeout(() => {
+            setLoading(false);
+          }, 1000);
         } catch (e) {
           console.error("Error loading initial data:", e.message);
         }
@@ -188,18 +189,21 @@ export default function DataLoadingAnimatedComponent({ mode }) {
   return (
     <>
       {loading ? (
-        <SplashPage progress={progress} setProgress={setProgress}/>
+        <SplashPage progress={progress} setProgress={setProgress} />
       ) : showServerError ? (
-        <Error500/>
+        <Error500 />
       ) : (
         <>
           {Object.keys(presidentDict).length > 0 &&
           mode === "orgchart" &&
           selectedPresident ? (
             <Navbar />
+          ) : Object.keys(presidentDict).length > 0 &&
+            mode === "person-profile" ? (
+            <PersonProfile />
           ) : (
             Object.keys(presidentDict).length > 0 &&
-            mode === "person-profile" && (<PersonProfile/>)
+            mode === "department-profile" && <DepartmentProfile/>
           )}
         </>
       )}

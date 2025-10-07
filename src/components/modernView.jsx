@@ -48,18 +48,21 @@ const ModernView = () => {
 
   useEffect(() => {
     if (president) {
-      navigate(location.pathname, { replace: true,  state: {} });
+      const currentState = location.state || {};
+      const newState = { ...currentState };
+      if (Object.prototype.hasOwnProperty.call(newState, "president")) {
+        delete newState.president;
+      }
+      navigate(location.pathname, { replace: true, state: newState });
     }
   }, [president, navigate, location.pathname]);
 
   useEffect(() => {
     if (!selectedDate) {
-      console.warn("Selected date is null, cannot fetch prime minister data.");
       return;
     }
     setPrimeMinister({ relation: null, person: null });
     const timeoutId = setTimeout(() => {
-      console.log("fetching prime minister data");
       fetchPrimeMinister();
     }, 1000);
     return () => {

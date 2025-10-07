@@ -1,17 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./components/home";
 import Error404 from "./components/404Error";
 import './animations.css';
-import './components/TidyTree.variables.css';
-import './components/TidyTree.css';
 import { useThemeContext } from "./themeContext";
-import DataLoadingAnimatedComponent from "./pages/dataLoadingAnimatedComponent";
 import TouristGlobe from "./components/statistics_components/TouristGlobe";
 import DistrictMap from "./components/statistics_components/DistrictMap";
-import XploreGovHomepage from "./pages/XploreGovHome";
+import XploreGovHomepage from "./pages/XploreGovHome/screens/XploreGovHome";
 import YearRangeSelector from "./components/common_components/Timeline";
 import Dashboard from "./pages/StatComparison";
-import XploreDataHomepage from "./pages/XploreGovData";
+import "./index.css";
+import XploreDataHomepage from "./pages/XploreGovData/screens/XploreGovData";
+import DataLoadingAnimatedComponent from "./pages/SplashPage/screens/dataLoadingAnimatedComponent";
 
 const App = () => {
 
@@ -30,6 +28,7 @@ const App = () => {
         <Route path="/timeline" element={<YearRangeSelector/>}/>
         <Route path="/xploredata" element={<XploreDataHomepage/>}/>
         <Route path="/person-profile/:personId" element={<DataLoadingAnimatedComponent mode="person-profile"/>}/>
+        <Route path="/department-profile/:departmentId" element={<DataLoadingAnimatedComponent mode="department-profile"/>}/>
       </Routes>          
     </Router>
     </div>

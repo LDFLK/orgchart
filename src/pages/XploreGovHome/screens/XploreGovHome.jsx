@@ -1,19 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronRight,
   TrendingUp,
   Clock,
   Network,
-  BarChart3,
   Users,
   Building2,
-  Zap,
-  Eye,
+  History,
   Calendar,
   GitBranch,
+  BookOpenText,
 } from "lucide-react";
 import ForceGraph3D from "react-force-graph-3d";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import InformationDrawer from "../components/information_drawer";
 
 // Simulate the 3D network data structure
 const genRandomTree = (N = 100) => {
@@ -36,8 +36,13 @@ const XploreGovHomepage = () => {
   const navigate = useNavigate();
 
   const graphData = genRandomTree();
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  const [showLearn, setShowLearn] = useState(
+    searchParams.get("showLearn") === "true"
+  );
   const distance = 1400;
+
   useEffect(() => {
     if (!svgRef.current) return;
 
@@ -91,6 +96,7 @@ const XploreGovHomepage = () => {
       </div>
     </div>
   );
+
   // Mock presidential data
   const mockPresidents = [
     {
@@ -429,8 +435,23 @@ const XploreGovHomepage = () => {
     </div>
   );
 
+  const handleLearnToggle = () => {
+    setShowLearn(true);
+    setSearchParams({ showLearn: true });
+  };
+
+  const handleLearnClose = () => {
+    setShowLearn(false);
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.delete("showLearn");
+      return params;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 relative overflow-x-hidden">
+      {showLearn && <InformationDrawer onClose={handleLearnClose} />}
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.1)_0%,transparent_50%)]"></div>
@@ -456,22 +477,40 @@ const XploreGovHomepage = () => {
       <div className="relative z-10 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="p-6 z-20">
-            <h1 className="text-2xl font-bold text-white">
-              Xplore
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Gov
-              </span>
-            </h1>
+          <div className="flex mt-8">
+            <div className="z-20 flex">
+              <h1 className="text-2xl font-bold text-white">
+                Xplore
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Gov
+                </span>
+              </h1>
+            </div>
+            <img
+              src="https://imgs.search.brave.com/g1a5xxmzRkIhv3A2zqV-q55_m7bBju-lI6z2OF85BRQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA5LzMzLzk3LzU0/LzM2MF9GXzkzMzk3/NTQyOV9nbGc3NUpw/WFJBRzR4bHM1Vkxl/NmZEdkI0ZXNmWFE5/aC5qcGc"
+              alt="XploreGov Logo"
+              className="max-w-[35px] w-full object-contain h-auto ml-2"
+            />
           </div>
 
           {/* Hero Section */}
           <div className="pt-8 pb-6 text-center">
-            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-6">
+            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-4">
               <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                 XploreGov
               </span>
             </h2>
+
+            <div className="flex items-center justify-center mb-7">
+              <div className="border flex items-center space-x-3 px-5 py-3 rounded-full bg-gray-800/50 border-cyan-400/30">
+                <img
+                  src="https://imgs.search.brave.com/g1a5xxmzRkIhv3A2zqV-q55_m7bBju-lI6z2OF85BRQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA5LzMzLzk3LzU0/LzM2MF9GXzkzMzk3/NTQyOV9nbGc3NUpw/WFJBRzR4bHM1Vkxl/NmZEdkI0ZXNmWFE5/aC5qcGc"
+                  alt="XploreGov Logo"
+                  className="w-12"
+                />
+                <span className="text-white text-xl">Sri Lanka</span>
+              </div>
+            </div>
 
             <p className="text-2xl text-gray-300 mb-4 font-light">
               A Deep Dive into the Government of Sri Lanka
@@ -481,54 +520,29 @@ const XploreGovHomepage = () => {
               Transparency through Connecting Data, Time and Governance
             </p>
 
-            <p className="text-xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
               Visualize structural changes, track evolution, and explore the
               connections that shape governance.
             </p>
 
-            <button
-              className="-mt-6 mb-7 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white px-4 py-3 rounded-xl font-semibold text-lg hover:scale-105 transition transform inline-flex items-center space-x-3 hover:cursor-pointer"
-              onClick={() => navigate("/orgchart")}
-            >
-              <Zap className="w-6 h-6" />
-              <span>XploreGov</span>
-              <ChevronRight className="w-6 h-6" />
-            </button>
-            {/* Feature Highlights
-            <div className="grid md:grid-cols-3 gap-6 mb-16">
-              <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/30 text-center">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gradient-to-br from-cyan-400/20 to-blue-400/20 flex items-center justify-center">
-                  <span className="text-2xl">🗂️</span>
-                </div>
-                <h4 className="font-semibold text-white mb-2">Why</h4>
-                <p className="text-sm text-gray-400">
-                  Understanding government dynamics through temporal analysis is
-                  vital for transparency
-                </p>
-              </div>
-
-              <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/30 text-center">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gradient-to-br from-purple-400/20 to-pink-400/20 flex items-center justify-center">
-                  <span className="text-2xl">🔍</span>
-                </div>
-                <h4 className="font-semibold text-white mb-2">What</h4>
-                <p className="text-sm text-gray-400">
-                  Visualize structural changes and connections in Sri Lanka's
-                  central government over time
-                </p>
-              </div>
-
-              <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/30 text-center">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-400/20 to-teal-400/20 flex items-center justify-center">
-                  <span className="text-2xl">⚡</span>
-                </div>
-                <h4 className="font-semibold text-white mb-2">How</h4>
-                <p className="text-sm text-gray-400">
-                  Through gazette analysis and archived reports, connecting data
-                  points across time
-                </p>
-              </div>
-            </div> */}
+            <div className="flex justify-center my-10">
+              <button
+                className="bg-gradient-to-r mx-2 from-cyan-500 via-blue-500 to-purple-600 text-white px-4 py-3 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
+                onClick={() => navigate("/orgchart")}
+              >
+                <History className="w-6 h-6 mr-2" />
+                <span>Xplore</span>
+                <ChevronRight className="w-6 h-6" />
+              </button>
+              <button
+                className="bg-none border-1 mx-2 border-white cursor-pointer text-white px-4 py-3 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
+                onClick={handleLearnToggle}
+              >
+                <BookOpenText className="w-6 h-6 mr-2" />
+                <span>Learn</span>
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </div>
           </div>
 
           {/* Main Feature Cards */}
@@ -565,12 +579,6 @@ const XploreGovHomepage = () => {
                   </span>
                 </div>
               </div>
-
-              {/* <button className="w-full mt-6 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-cyan-400 hover:to-blue-500 transition-all duration-300 flex items-center justify-center space-x-2 group-hover:scale-105 cursor-pointer">
-                                <Eye className="w-4 h-4" />
-                                <span>Explore Timeline</span>
-                                <ChevronRight className="w-4 h-4" />
-                            </button> */}
             </div>
 
             {/* Network Analysis Card */}
@@ -588,9 +596,7 @@ const XploreGovHomepage = () => {
                   </p>
                 </div>
               </div>
-
               <NetworkVisualization />
-
               <div className="mt-6 space-y-4">
                 <div className="flex items-center space-x-3 p-3 rounded-lg bg-cyan-950/20 border-l-4 border-cyan-400">
                   <Building2 className="w-4 h-4 text-cyan-400" />
@@ -605,12 +611,6 @@ const XploreGovHomepage = () => {
                   </span>
                 </div>
               </div>
-
-              {/* <button className="w-full mt-6 bg-gradient-to-r from-purple-500 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-400 hover:to-pink-500 transition-all duration-300 flex items-center justify-center space-x-2 group-hover:scale-105 cursor-pointer">
-                               <Eye className="w-4 h-4" />
-                                <span>View Network</span>
-                                <ChevronRight className="w-4 h-4" />
-                            </button> */}
             </div>
           </div>
 
@@ -623,15 +623,23 @@ const XploreGovHomepage = () => {
               Dive deep into the data that shapes the nation. Track changes,
               analyze trends, and discover insights that matter.
             </p>
-            <button
-              onClick={() => navigate("/orgchart")}
-              className="bg-none border-2 border-blue-500 rounded-xl px-3 py-2 text-base cursor-pointer inline-flex items-center"
-            >
-              <span className="underline inline-flex items-center gap-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 bg-clip-text text-transparent">
-                XploreGov
-                <ChevronRight className="w-5 h-5 stroke-blue-500" />
-              </span>
-            </button>
+            <div className="flex justify-center space-x-3 my-10">
+              <button
+                className="bg-none border-white cursor-pointer text-white hover:text-cyan-500 px-4 py-3 rounded-xl font-normal text-lg hover:scale-105 transition-all duration-200 transform inline-flex items-center space-x-3 hover:cursor-pointer"
+                onClick={() => navigate("/orgchart")}
+              >
+                <History className="w-6 h-6" />
+                <span>Xplore</span>
+              </button>
+              <div className="border border-white/35"></div>
+              <button
+                className="bg-none border-white cursor-pointer text-white hover:text-cyan-500 px-4 py-3 rounded-xl font-normal text-lg hover:scale-105 transition-all duration-200 transform inline-flex items-center space-x-3 hover:cursor-pointer"
+                onClick={handleLearnToggle}
+              >
+                <BookOpenText className="w-6 h-6" />
+                <span>Learn</span>
+              </button>
+            </div>
           </div>
 
           <div className="flex justify-center mb-10">

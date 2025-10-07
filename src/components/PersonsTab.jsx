@@ -330,68 +330,8 @@ const PersonsTab = ({ selectedDate }) => {
             </Button>
           ))}
         </Stack>
-
-        <Box sx={{ p: 2 }}></Box>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            mt: -2,
-            fontSize: "1.25rem",
-            color: colors.textPrimary,
-            fontWeight: 600,
-            fontFamily: "poppins",
-          }}
-        >
-          Directors
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{
-            mt: 0.25,
-            fontSize: "1.0rem",
-            color: colors.textPrimary,
-            fontWeight: 200,
-            fontFamily: "poppins",
-          }}
-        >
-          No data available yet.
-        </Typography>
         <Divider sx={{ py: 1 }} />
       </Box>
-      {/* <Dialog
-        open={profileOpen}
-        onClose={() => setProfileOpen(false)}
-        maxWidth="xl"
-        fullWidth
-        PaperProps={{
-          sx: {
-            height: "100vh",
-            overflowY: "auto",
-            backgroundColor: colors.backgroundPrimary,
-            borderRadius: 3,
-            scrollbarWidth: "none",
-            "&::-webkit-scrollbar": { display: "none" },
-          },
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            px: 2,
-            pt: 2,
-          }}
-        >
-          <IconButton onClick={() => setProfileOpen(false)}>
-            <CloseIcon sx={{ color: colors.textPrimary }} />
-          </IconButton>
-        </Box>
-
-        <Box sx={{ px: 3, pb: 3 }}>
-          <PersonProfile selectedPerson={selectedPerson} />
-        </Box>
-      </Dialog> */}
     </>
   );
 };
