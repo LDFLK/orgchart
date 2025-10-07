@@ -10,6 +10,7 @@ import {
   TextField,
   InputAdornment,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
@@ -25,8 +26,7 @@ import enumMode from "../enums/mode";
 import { useNavigate } from "react-router-dom";
 import InfoTooltip from "./common_components/InfoToolTip";
 
-
-const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedDepartment, ministryId }) => {
+const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
   const { colors } = useThemeContext();
   const { selectedPresident } = useSelector((state) => state.presidency);
   const { selectedMinistry } = useSelector((state) => state.allMinistryData);
@@ -34,25 +34,12 @@ const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedD
     (state) => state.allDepartmentData.allDepartmentData
   );
 
-  const [departmentListForMinistry, setDepartmentListForMinistry] = useState([]);
+  const [departmentListForMinistry, setDepartmentListForMinistry] = useState(
+    []
+  );
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState(propSelectedDepartment || null); // local state for timeline
-
-  const navigate = useNavigate();
-
-
-  // Always select the department from prop when InfoTab opens
-  React.useEffect(() => {
-    if (propSelectedDepartment && (!selectedDepartment || selectedDepartment.id !== propSelectedDepartment.id)) {
-      setSelectedDepartment(propSelectedDepartment);
-    }
-    // If propSelectedDepartment is null, allow user to clear selection
-    if (!propSelectedDepartment && selectedDepartment) {
-      setSelectedDepartment(null);
-    }
-  }, [propSelectedDepartment]);
-
+  const [selectedDepartment, setSelectedDepartment] = useState(null);
 
   useEffect(() => {
     fetchDepartmentList(ministryId || selectedMinistry);
@@ -104,7 +91,7 @@ const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedD
         .includes(searchQuery.toLowerCase())
     ) || [];
   return (
-    <Box sx={{ px: 2, backgroundColor: colors.backgroundPrimary, mt: -2 }}>
+    <Box sx={{ mt: -2 }}>
       {loading ? (
         <Box
           sx={{
@@ -120,74 +107,6 @@ const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedD
             size={25}
           />
         </Box>
-      ) : selectedDepartment ? (
-        <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          <Box
-            sx={{
-              //position: 'sticky',
-              top: 0,
-              zIndex: 10,
-              mb: 2,
-              backgroundColor: colors.backgroundPrimary,
-            }}
-          >
-            <Button
-              onClick={() => setSelectedDepartment(null)}
-              disableRipple
-              sx={{
-                textTransform: "none",
-                fontFamily: "Poppins",
-                "&:focus": {
-                  outline: "none",
-                  boxShadow: "none",
-                },
-              }}
-            >
-              {ministryId != null && (<Typography sx={{ color: colors.textMuted }}>← Back</Typography>)}
-            </Button>
-
-            {ministryId != null && (<Typography
-              variant="h6"
-              gutterBottom
-              sx={{
-                fontWeight: "bold",
-                mb: 3,
-                color: colors.textPrimary,
-                fontFamily: "poppins",
-              }}
-            >
-              {utils.extractNameFromProtobuf(selectedDepartment.name)}
-            </Typography>)}
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 3,
-              }}
-            >
-              <Typography
-                gutterBottom
-                sx={{
-                  mt: -2,
-                  color: colors.textPrimary,
-                  fontFamily: "poppins",
-                }}
-              >
-                Department History Timeline{" "}
-                <InfoTooltip
-                  message="Ministers the department was under throughout the history"
-                  iconColor={colors.textPrimary}
-                  iconSize={14}
-                />
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Timeline */}
-          <DepartmentHistoryTimeline selectedDepartment={selectedDepartment} />
-        </Box>
       ) : (
         <>
           {/* Key Highlights */}
@@ -196,7 +115,7 @@ const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedD
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
-              mb: 3,
+              my: 3,
             }}
           >
             <Typography
@@ -218,10 +137,8 @@ const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedD
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                p: 3,
                 borderRadius: 2,
                 backgroundColor: colors.backgroundWhite,
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
               }}
             >
               <Box
@@ -356,10 +273,8 @@ const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedD
               display: "flex",
               flexDirection: "column",
               gap: 2,
-              p: 2,
               borderRadius: 2,
               backgroundColor: colors.backgroundWhite,
-              boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
             }}
           >
             <Stack spacing={1}>
@@ -367,54 +282,77 @@ const MinistryDrawerContent = ({ selectedDate, selectedDepartment: propSelectedD
                 filteredDepartments.map((dep, idx) => {
                   const depName = utils.extractNameFromProtobuf(dep.name);
                   return (
-                    <Button
+                    <Box
                       key={idx}
-                      variant="contained"
-                      size="medium"
                       sx={{
-                        justifyContent: "flex-start",
-                        textTransform: "none",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
                         backgroundColor: colors.backgroundPrimary,
                         color: selectedPresident.themeColorLight,
-                        boxShadow: "none",
-                        "&:hover": {
-                          backgroundColor: `${selectedPresident.themeColorLight}10`,
-                        },
+                        boxShadow: "0 2px 5px rgba(0, 0, 0, 0.05)",
+                        borderRadius: "12px",
+                        padding: "12px 16px",
+                        marginBottom: "12px",
+                        transition: "all 0.3s ease",
+                        cursor: "pointer",
                       }}
-                      fullWidth
-                      onClick={() => setSelectedDepartment(dep)}
                     >
-                      <AccountBalanceIcon
-                        fontSize="small"
-                        sx={{ mr: 2, color: selectedPresident.themeColorLight }}
-                      />
-                      <Typography
-                        sx={{
-                          fontFamily: "poppins",
-                          color: colors.textPrimary,
-                          textAlign: "left",
-                        }}
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
                       >
-                        {depName}
-                      </Typography>
-                      {dep.isNew && (
+                        <AccountBalanceIcon
+                          fontSize="small"
+                          sx={{ color: selectedPresident.themeColorLight }}
+                        />
                         <Typography
-                          variant="caption"
                           sx={{
-                            ml: 1,
-                            px: 1,
-                            py: 0.3,
-                            borderRadius: "5px",
-                            backgroundColor: selectedPresident.themeColorLight,
-                            color: colors.white,
-                            fontFamily: "poppins",
-                            fontWeight: 600,
+                            fontFamily: "Poppins, sans-serif",
+                            color: colors.textPrimary,
+                            fontWeight: 500,
+                            fontSize: "0.95rem",
                           }}
                         >
-                          New
+                          {depName}
                         </Typography>
-                      )}
-                    </Button>
+
+                        {dep.isNew && (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              ml: 1,
+                              px: 1,
+                              py: 0.2,
+                              borderRadius: "6px",
+                              backgroundColor:
+                                selectedPresident.themeColorLight,
+                              color: colors.white,
+                              fontFamily: "Poppins, sans-serif",
+                              fontWeight: 600,
+                              letterSpacing: "0.3px",
+                            }}
+                          >
+                            New
+                          </Typography>
+                        )}
+                      </Box>
+
+                      <Link
+                        to={`/department-profile/${dep.id}`}
+                        state={{ mode: "back" }}
+                        style={{
+                          textDecoration: "none",
+                          color: selectedPresident.themeColorLight,
+                          fontFamily: "Poppins, sans-serif",
+                          fontWeight: 500,
+                          fontSize: "0.9rem",
+                          borderRadius: "8px",
+                          transition: "all 0.3s ease",
+                        }}
+                      >
+                        View Profile
+                      </Link>
+                    </Box>
                   );
                 })
               ) : (

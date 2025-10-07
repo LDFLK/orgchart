@@ -60,7 +60,7 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
   const filteredDates = gazetteDateClassic
     .filter((d) => {
       const dd = new Date(d);
-      return dd >= finalStart && dd <= finalEnd;
+      return dd >= finalStart && dd < finalEnd;
     })
     .map((date) => ({ date }));
 

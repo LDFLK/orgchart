@@ -118,7 +118,7 @@ const PersonsTab = ({ selectedDate }) => {
 
   return (
     <>
-      <Box sx={{ p: 2 }}>
+      <Box>
         {/* Key Highlights */}
         <Box
           sx={{
