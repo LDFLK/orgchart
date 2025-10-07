@@ -472,7 +472,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      mt: { xs: -8.5, sm: -4 },
+                      mt: { xs: -7.5, sm: -2 },
                       flexShrink: 0,
                     }}
                   >
