@@ -39,33 +39,44 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
         return nameText.toLowerCase().includes(q) || term.toLowerCase().includes(q);
       });
   }, [presidents, presidentRelationDict, dateRange, searchTerm]);
-
+  
   const selectPresidentAndDates = (president) => {
-    if (!president) {
-      dispatch(setSelectedPresident(null));
-      dispatch(setGazetteData([]));
-      return;
-    }
+  if (!president) {
+    dispatch(setSelectedPresident(null));
+    dispatch(setGazetteData([]));
+    return;
+  }
 
-    dispatch(setSelectedPresident(president));
+  dispatch(setSelectedPresident(president));
 
-    const rel = presidentRelationDict[president.id];
-    const presStart = new Date(rel.startTime.split("T")[0]);
-    const presEnd = rel?.endTime ? new Date(rel.endTime.split("T")[0]) : new Date();
-    const [rangeStart, rangeEnd] = dateRange;
-    const finalStart = rangeStart ? new Date(Math.max(presStart, rangeStart)) : presStart;
-    const finalEnd = rangeEnd ? new Date(Math.min(presEnd, rangeEnd)) : presEnd;
+  const rel = presidentRelationDict[president.id];
+  const presStart = new Date(rel.startTime.split("T")[0]);
+  const presEnd = rel?.endTime ? new Date(rel.endTime.split("T")[0]) : new Date();
+  const [rangeStart, rangeEnd] = dateRange;
 
-    const filteredDates = gazetteDateClassic
-      .filter((d) => {
-        const dd = new Date(d);
-        return dd >= finalStart && dd <= finalEnd;
-      })
-      .map((date) => ({ date }));
+  const finalStart = rangeStart ? new Date(Math.max(presStart, rangeStart)) : presStart;
+  const finalEnd = rangeEnd ? new Date(Math.min(presEnd, rangeEnd)) : presEnd;
 
-    dispatch(setGazetteData(filteredDates));
-    dispatch(setSelectedDate(filteredDates.length > 0 ? filteredDates[filteredDates.length - 1] : null));
-  };
+  const filteredDates = gazetteDateClassic
+    .filter((d) => {
+      const dd = new Date(d);
+      return dd >= finalStart && dd <= finalEnd;
+    })
+    .map((date) => ({ date }));
+
+  dispatch(setGazetteData(filteredDates));
+
+  let selectedDateValue;
+  if (filteredDates.length > 0) {
+    selectedDateValue = filteredDates[filteredDates.length - 1];
+  } else if (rangeEnd) {
+    selectedDateValue = { date: new Date(rangeEnd).toISOString().split("T")[0] };
+  } else {
+    selectedDateValue = { date: presStart.toISOString().split("T")[0] };
+  }
+
+  dispatch(setSelectedDate(selectedDateValue));
+};
 
   // Auto-select last president only when dateRange changes
   useEffect(() => {
