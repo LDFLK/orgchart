@@ -10,6 +10,7 @@ import { useThemeContext } from "../themeContext";
 import modeEnum from "../../src/enums/mode";
 import YearRangeSelector from "./common_components/Timeline";
 import { Tooltip } from "@mui/material";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
 export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   const dispatch = useDispatch();
@@ -485,9 +486,13 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                         fontSize: "0.85rem",
                         fontFamily: "poppins",
                         whiteSpace: "nowrap",
+                        display: "flex",
+                        alignItems: "center"
                       }}
                     >
-                      No new gazette publications
+                      <InfoOutlinedIcon sx={{ fontSize: 15, color: colors.textMuted, mr: 0.5}} />
+                      <Typography variant="caption"
+                      >No new gazette publications</Typography>
                     </Box>
                   </Box>
                 )}
