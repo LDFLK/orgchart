@@ -53,6 +53,10 @@ export default function Drawer({
     setVisibleCount(BATCH_SIZE);
   }, [parentNode, selectedTab, ministryDic, departmentDic, personDic]);
 
+  useEffect(() => {
+    console.log(selectedNode);
+  }, [selectedNode]);
+
   return (
     <div
       className={`${
@@ -119,25 +123,21 @@ export default function Drawer({
                       ? `Created Date : ${selectedNode.created.split("T")[0]}`
                       : ""}
                   </p>
-                  {(selectedNode &&
-                    selectedNode.type != "government" &&
-                    selectedNode.type == "minister") ||
-                  selectedNode.type == "department" ? (
-                    <a
-                      href="#"
+                  {selectedNode && selectedNode.type == "department" ? (
+                    <Link
+                      to={`/department-profile/${selectedNode.id}`}
+                      state={{ mode: "back" }}
                       className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-gray-300 bg-blue-700 rounded-sm hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                     >
                       <History className="w-5 h-5 mr-2" />
                       View History
-                    </a>
+                    </Link>
                   ) : (
                     selectedNode &&
                     selectedNode.type == "person" && (
                       <Link
-                        to={{
-                          pathname: `/person-profile/${selectedNode.id}`,
-                          state: { mode: "back" },
-                        }}
+                        to={`/person-profile/${selectedNode.id}`}
+                        state={{ mode: "back" }}
                         className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-gray-300 bg-blue-700 rounded-sm hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                       >
                         <History className="w-5 h-5 mr-2" />
@@ -185,12 +185,12 @@ export default function Drawer({
                   parentNode &&
                   parentNode.type === "minister" &&
                   selectedTab === "departments"
-                    ? "Departments"
+                    ? " Departments"
                     : parentNode &&
                       parentNode.type === "minister" &&
                       selectedTab === "persons"
-                    ? "Persons"
-                    : "Ministries"
+                    ? " Persons"
+                    : " Ministries"
                 }`}
               </h2>
 

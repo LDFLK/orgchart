@@ -71,8 +71,6 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
           const ministryRelations = await relationsRes.json();
           allDepartmentRelations.push(...ministryRelations);
         }
-        console.log("Presidents", presidents);
-        console.log("Presidents relations", presidentRelationDict);
         const enriched = [];
 
         for (const relation of allDepartmentRelations) {

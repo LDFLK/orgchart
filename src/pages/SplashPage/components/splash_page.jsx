@@ -25,32 +25,9 @@ const SplashPage = ({ progress, setProgress }) => {
       message: "Processing organizational relationships...",
       gradient: "from-blue-500/20 to-purple-500/20",
     },
-    // {
-    //   image: "public/loading_images/loading_image_1.jpg",
-    //   title: "Syncing Updates",
-    //   message: "Getting the latest changes and updates...",
-    //   gradient: "from-cyan-500/20 to-teal-500/20"
-    // },
-    // {
-    //   image: "public/loading_images/loading_image_2.jpg",
-    //   title: "Almost Ready",
-    //   message: "Preparing your personalized dashboard...",
-    //   gradient: "from-pink-500/20 to-purple-500/20"
-    // }
   ];
 
   useEffect(() => {
-    // Progress bar animation
-    // const progressInterval = setInterval(() => {
-    //   setProgress((prev) => {
-    //     if (prev >= 100) {
-    //       clearInterval(progressInterval);
-    //       return 100;
-    //     }
-    //     return prev + 1;
-    //   });
-    // }, 50);
-
     // Slide rotation
     const slideInterval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);

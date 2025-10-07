@@ -92,13 +92,6 @@ export default function GraphComponent({ activeMinistries }) {
   useEffect(() => {
     const checkWebGL = () => {
       const webglAvailable = isWebGLAvailable();
-      console.log("WebGL detection result:", webglAvailable);
-      console.log("Browser info:", {
-        userAgent: navigator.userAgent,
-        webgl: !!window.WebGLRenderingContext,
-        webgl2: !!window.WebGL2RenderingContext,
-      });
-
       setWebgl(webglAvailable);
 
       if (!webglAvailable) {
