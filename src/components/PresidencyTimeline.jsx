@@ -130,7 +130,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
       setLatestPresStartDate(new Date(lastRelation.startTime.split("T")[0]));
     }
   }, [presidents, presidentRelationDict]);
-  
+
   useEffect(() => {
     if (selectedIndex !== null) {
       setTimeout(() => {
@@ -413,59 +413,84 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
 
                 }}
               >
-                {gazetteData?.length > 0 && gazetteData.map((item) => {
-                  const isDateSelected = selectedDate?.date === item.date;
-                  return (
-                    <Box
-                      key={item.date}
-                      onClick={() => dispatch(setSelectedDate(item))}
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        cursor: "pointer",
-                        transform: isDateSelected ? "scale(1.1)" : "scale(1)",
-                        transition: "transform 0.2s ease",
-                        flexShrink: 0,
-                        mt: { xs: -8.5, sm: -4 },
-                      }}
-                    >
-                      <Tooltip title="Gazette published date" placement="top" arrow>
-                        <Box
-                          ref={isDateSelected ? dotRef : null}
-                          sx={{
-                            width: 15,
-                            height: 15,
-                            borderRadius: "50%",
-                            backgroundColor: isDateSelected
-                              ? selectedPresident?.themeColorLight ||
-                              colors.timelineColor
-                              : colors.dotColorInactive,
-                            border: `3px solid ${colors.backgroundPrimary}`,
-                            zIndex: 20,
-                            pointerEvents: "auto"
-                          }}
-                        />
-                      </Tooltip>
-                      <Typography
-                        variant="caption"
+                {gazetteData?.length > 0 ? (
+                  gazetteData.map((item) => {
+                    const isDateSelected = selectedDate?.date === item.date;
+                    return (
+                      <Box
+                        key={item.date}
+                        onClick={() => dispatch(setSelectedDate(item))}
                         sx={{
-                          mt: 0.5,
-                          color: isDateSelected
-                            ? selectedPresident?.themeColorLight ||
-                            colors.timelineColor
-                            : colors.dotColorInactive,
-                          fontSize: "0.75rem",
-                          fontWeight: isDateSelected ? "bold" : "",
-                          fontFamily: "poppins",
-                          whiteSpace: "nowrap",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          cursor: "pointer",
+                          transform: isDateSelected ? "scale(1.1)" : "scale(1)",
+                          transition: "transform 0.2s ease",
+                          flexShrink: 0,
+                          mt: { xs: -8.5, sm: -4 },
                         }}
                       >
-                        {item.date}
-                      </Typography>
+                        <Tooltip title="Gazette published date" placement="top" arrow>
+                          <Box
+                            ref={isDateSelected ? dotRef : null}
+                            sx={{
+                              width: 15,
+                              height: 15,
+                              borderRadius: "50%",
+                              backgroundColor: isDateSelected
+                                ? selectedPresident?.themeColorLight || colors.timelineColor
+                                : colors.dotColorInactive,
+                              border: `3px solid ${colors.backgroundPrimary}`,
+                              zIndex: 20,
+                              pointerEvents: "auto",
+                            }}
+                          />
+                        </Tooltip>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            mt: 0.5,
+                            color: isDateSelected
+                              ? selectedPresident?.themeColorLight || colors.timelineColor
+                              : colors.dotColorInactive,
+                            fontSize: "0.75rem",
+                            fontWeight: isDateSelected ? "bold" : "",
+                            fontFamily: "poppins",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {item.date}
+                        </Typography>
+                      </Box>
+                    );
+                  })
+                ) : (
+                  <Box
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      mt: { xs: -8.5, sm: -4 },
+                      flexShrink: 0,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        color: colors.textMuted,
+                        borderRadius: 2,
+                        px: 2.5,
+                        py: 1,
+                        fontSize: "0.85rem",
+                        fontFamily: "poppins",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      No new gazette publications
                     </Box>
-                  );
-                })}
+                  </Box>
+                )}
               </Box>
 
               <IconButton
