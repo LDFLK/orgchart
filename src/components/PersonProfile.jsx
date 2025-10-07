@@ -50,6 +50,7 @@ const PersonHistoryTimeline = ({
         const data = await res.json();
 
         const enriched = data
+          .filter(d => d.startTime !== d.endTime)
           .map((d) => {
             const ministry = allMinistryData[d.relatedEntityId];
             return {
@@ -150,12 +151,11 @@ const PersonHistoryTimeline = ({
               >
                 {entry.startTime
                   ? `${new Date(entry.startTime)
-                      .toISOString()
-                      .slice(0, 10)} - ${
-                      entry.endTime
-                        ? new Date(entry.endTime).toISOString().slice(0, 10)
-                        : "Present"
-                    }`
+                    .toISOString()
+                    .slice(0, 10)} - ${entry.endTime
+                    ? new Date(entry.endTime).toISOString().slice(0, 10)
+                    : "Present"
+                  }`
                   : "Unknown"}
               </TimelineOppositeContent>
 

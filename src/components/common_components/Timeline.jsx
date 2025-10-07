@@ -963,7 +963,7 @@ export default function YearRangeSelector({
       {/* Scrollable chart */}
       <div
         ref={scrollWrapperRef}
-        className="overflow-x-auto overflow-y-hidden scroll-wrapper"
+        className="overflow-x-auto no-scrollbar overflow-y-hidden scroll-wrapper"
         style={{ paddingLeft: "8px" }}
       >
         <div
@@ -978,7 +978,7 @@ export default function YearRangeSelector({
               return (
                 <div
                   key={year}
-                  className={`relative transition-all duration-200 ${isInRange ? "opacity-100" : "opacity-40"
+                  className={`relative transition-all duration-200 hover:cursor-pointer ${isInRange ? "opacity-100" : "opacity-40"
                     } border-l-1 border-r-1 border-gray-500`}
                   style={{ height: "80px", flex: "1 0 0" }}
                   onClick={() => {
@@ -1075,7 +1075,7 @@ export default function YearRangeSelector({
         </div>
       </div>
 
-      <div className="text-gray-500 text-xs text-center">
+      <div className="text-gray-500 text-xs text-center mt-2">
         Gazettes Published by Year
       </div>
 
