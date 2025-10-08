@@ -41,6 +41,7 @@ const XploreGovHomepage = () => {
   const [showLearn, setShowLearn] = useState(
     searchParams.get("showLearn") === "true"
   );
+  
   const distance = 1400;
 
   useEffect(() => {

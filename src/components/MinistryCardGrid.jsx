@@ -803,7 +803,7 @@ const MinistryCardGrid = () => {
                                 flexDirection: "column",
                                 overflowY: "auto",
                                 scrollbarWidth: "none",
-                                backgroundColor: "#0a1929",
+                                backgroundColor: colors.backgroundBlue,
                                 "&::-webkit-scrollbar": { display: "none" },
                               }}
                             >

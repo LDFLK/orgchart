@@ -25,7 +25,7 @@ const MinistryCard = ({ card, onClick }) => {
           border: `2px solid ${selectedPresident.themeColorLight}`,
         },
 
-        backgroundColor: "#0a1929",
+        backgroundColor: colors.backgroundBlue,
         borderRadius: "10px",
         position: "relative",
         width: "100%",

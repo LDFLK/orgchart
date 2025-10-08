@@ -1,6 +1,7 @@
 const colors = {
   backgroundPrimary: '#000B18',          
-  backgroundSecondary: '#1E2A38',         
+  backgroundSecondary: '#1E2A38',     
+  backgroundBlue: '#0a1929',    
   backgroundWhite: '#1E2A38',
 
   // Text
@@ -32,7 +33,8 @@ const colors = {
   // Main colors
   white: '#ffffff',                    
   green: '#1FCE68',
-  purple: "#AD46FF"                      
+  purple: "#AD46FF"       
+
 
 };
 
