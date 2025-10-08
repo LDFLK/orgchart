@@ -178,6 +178,7 @@ const MinistryCardGrid = () => {
               return {
                 ...person,
                 startTime: startTimeMap.get(id) || null,
+                id
               };
             })
             .filter(Boolean); // remove any missing ids
@@ -185,9 +186,12 @@ const MinistryCardGrid = () => {
           const headMinisterName = personListInDetail[0]?.name || null;
           const headMinisterStartTime =
             personListInDetail[0]?.startTime || null;
+          const headMinisterId = personListInDetail[0]?.id ||null
+
 
           return {
             ...ministry,
+            headMinisterId,
             headMinisterName,
             newPerson:
               headMinisterStartTime?.startsWith(selectedDate.date) || false,
@@ -589,8 +593,8 @@ const MinistryCardGrid = () => {
                 }}
               >
                 <MenuItem value="all">All Ministries</MenuItem>
-                <MenuItem value="newPerson">New Person</MenuItem>
-                <MenuItem value="newMinistry">New Ministry</MenuItem>
+                <MenuItem value="newPerson">New Ministers Appointed</MenuItem>
+                <MenuItem value="newMinistry">New Ministries</MenuItem>
                 <MenuItem value="presidentAsMinister">
                   President as Minister
                 </MenuItem>
@@ -884,7 +888,7 @@ const MinistryCardGrid = () => {
                   ))}
                 </Stepper>
               ) : (
-                <GraphComponent activeMinistries={filteredMinistryList} />
+                <GraphComponent activeMinistries={filteredMinistryList} filterType={filterType}/>
               )}
             </Box>
           </>
