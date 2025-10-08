@@ -24,6 +24,7 @@ import { useThemeContext } from "../themeContext";
 import { ClipLoader } from "react-spinners";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
+import colors from "../assets/colors";
 
 const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -319,7 +320,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
   return (
     <>
       {!loading ? (
-        <>
+        <Box sx={{backgroundColor: colors.backgroundWhite, py: 2}}>
           {enrichedMinistries && enrichedMinistries.length > 0 ? (
             <Timeline position="alternate" sx={{ py: 0 }}>
               {enrichedMinistries
@@ -329,7 +330,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                     <TimelineOppositeContent
                       sx={{
                         m: "auto 0",
-                        color: selectedPresident.themeColorLight,
+                        color: colors.textMuted,
                         fontWeight: "600",
                         fontSize: 12,
                         minWidth: 70,
@@ -358,15 +359,15 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         sx={{
                           width: 2,
                           height: 2,
-                          boxShadow: `0 0 6px ${selectedPresident.themeColorLight}`,
+                          boxShadow: `0 0 6px ${colors.textPrimary}`,
                           animation: "pulse 2.5s infinite",
-                          backgroundColor: selectedPresident.themeColorLight,
+                          backgroundColor: colors.textPrimary,
                         }}
                       />
                       {idx < arr.length && (
                         <TimelineConnector
                           sx={{
-                            bgcolor: selectedPresident.themeColorLight,
+                            bgcolor: colors.textMuted,
                             height: 2,
                           }}
                         />
@@ -379,10 +380,10 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                         sx={{
                           p: 1,
                           borderRadius: 2,
-                          backgroundColor: colors.backgroundWhite,
+                          backgroundColor: colors.backgroundBlue,
                           boxShadow:
                             selectedIndex === idx
-                              ? `0 0 10px ${selectedPresident.themeColorLight}`
+                              ? `0 0 10px ${colors.textMuted}`
                               : "0 1px 5px rgba(0,0,0,0.1)",
                           transform:
                             selectedIndex === idx ? "scale(1.01)" : "scale(1)",
@@ -411,11 +412,13 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
                             {/* Avatar */}
                             <Avatar
                               sx={{
-                                bgcolor: selectedPresident.themeColorLight,
+                                bgcolor: colors.textPrimary,
                                 width: 30,
                                 height: 30,
                                 fontSize: 14,
+                                fontWeight: 500,
                                 flexShrink: 0,
+                                color: colors.backgroundBlue
                               }}
                             >
                               {entry.minister
@@ -496,7 +499,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
               No timeline history available.
             </Typography>
           )}
-        </>
+        </Box>
       ) : (
         <Box
           sx={{
@@ -507,7 +510,7 @@ const DepartmentHistoryTimeline = ({ selectedDepartment }) => {
           }}
         >
           <ClipLoader
-            color={selectedPresident.themeColorLight}
+            color={colors.textPrimary}
             loading={loading}
             size={25}
           />
