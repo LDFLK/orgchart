@@ -442,7 +442,7 @@ const ModernView = () => {
 
         {/* Card Grid for Modern View */}
         {selectedDate != null && (
-          <MinistryCardGrid onCardClick={handleCardClick}/>
+          <MinistryCardGrid/>
         )}
       </Box>
 

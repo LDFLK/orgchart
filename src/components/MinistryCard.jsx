@@ -24,16 +24,16 @@ const MinistryCard = ({ card, onClick }) => {
           // border: `2px solid ${colors.ministryCardBorderHover}`,
           border: `2px solid ${selectedPresident.themeColorLight}`,
         },
-        backgroundColor: colors.backgroundPrimary,
+
+        backgroundColor: colors.backgroundBlue,
         borderRadius: "10px",
         position: "relative",
-        width: '100%'
+        width: "100%",
       }}
       onMouseOver={() => setMouseHover(card)}
       onMouseOut={() => setMouseHover(null)}
       onClick={() => onClick(card)}
     >
-
       <Stack>
         {/* Ministry Title */}
         <Stack
@@ -41,19 +41,23 @@ const MinistryCard = ({ card, onClick }) => {
           alignItems="center"
           spacing={1}
           minHeight={50}
-          sx={{ px: 2, py: 1,
-             backgroundColor: mouseHover && mouseHover.id == card.id ? `${selectedPresident.themeColorLight}` : `${selectedPresident.themeColorLight}99`,
-             "&:hover": {
-              backgroundColor: selectedPresident.themeColorLight
-             }
+          sx={{
+            px: 2,
+            py: 1,
+            backgroundColor:
+              mouseHover && mouseHover.id == card.id
+                ? `${selectedPresident.themeColorLight}`
+                : `${selectedPresident.themeColorLight}99`,
+            "&:hover": {
+              backgroundColor: selectedPresident.themeColorLight,
+            },
             //  backgroundColor: colors.backgroundSecondary
-
-           }}
+          }}
         >
           <Typography variant="h7" sx={{ color: "#ffffff", fontWeight: 600 }}>
             {card.name.split(":")[0]}
           </Typography>
-           {(card.newMin && showMinistryBadge)&& (
+          {card.newMin && showMinistryBadge && (
             <Box
               sx={{
                 backgroundColor: selectedPresident.themeColorLight,
@@ -76,20 +80,21 @@ const MinistryCard = ({ card, onClick }) => {
         <Stack spacing={0.5} sx={{ p: 1, minHeight: 60 }}>
           <Stack direction="row" spacing={1}>
             <PersonIcon
-              sx={{ 
-                color: selectedPresident.themeColorLight, 
-                // color: colors.backgroundSecondary, 
-                alignSelf: "center" }}
+              sx={{
+                color: selectedPresident.themeColorLight,
+                // color: colors.backgroundSecondary,
+                alignSelf: "center",
+              }}
               fontSize="small"
             />
             <Stack direction="column" spacing={0}>
               {/* Minister / President label */}
-              {(!card.headMinisterName ||
-                (selectedPresident &&
-                  utils.extractNameFromProtobuf(card.headMinisterName) ===
+              {!card.headMinisterName ||
+              (selectedPresident &&
+                utils.extractNameFromProtobuf(card.headMinisterName) ===
                   utils
                     .extractNameFromProtobuf(selectedPresident.name)
-                    .split(":")[0])) ? (
+                    .split(":")[0]) ? (
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Typography
                     variant="subtitle2"
@@ -147,12 +152,12 @@ const MinistryCard = ({ card, onClick }) => {
                   {card.headMinisterName
                     ? utils.extractNameFromProtobuf(card.headMinisterName)
                     : selectedPresident &&
-                    utils
-                      .extractNameFromProtobuf(selectedPresident.name)
-                      .split(":")[0]}
+                      utils
+                        .extractNameFromProtobuf(selectedPresident.name)
+                        .split(":")[0]}
                 </Typography>
 
-                 {(card.newPerson && showPersonBadge)&& (
+                {card.newPerson && showPersonBadge && (
                   <Box
                     sx={{
                       // backgroundColor: colors.purple,

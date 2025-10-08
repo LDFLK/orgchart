@@ -11,6 +11,9 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Button,
+  Paper,
+  DialogContent,
 } from "@mui/material";
 import MinistryCard from "./MinistryCard";
 import { useSelector, useDispatch } from "react-redux";
@@ -33,8 +36,14 @@ import GraphComponent from "./graphComponent";
 import { clearTimeout } from "highcharts";
 import UrlParamState from "../hooks/singleSharingURL";
 
-const MinistryCardGrid = ({ onCardClick }) => {
-  const dispatch = useDispatch();
+import Stepper from "@mui/material/Stepper";
+import Step from "@mui/material/Step";
+import StepLabel from "@mui/material/StepLabel";
+import StepContent from "@mui/material/StepContent";
+import PersonsTab from "./PersonsTab";
+import MinistryDrawerContent from "./MinistryDrawerContent";
+
+const MinistryCardGrid = () => {
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
   const { selectedDate, selectedPresident } = useSelector(
     (state) => state.presidency
@@ -48,6 +57,7 @@ const MinistryCardGrid = ({ onCardClick }) => {
   const [filterType, setFilterType] = UrlParamState("filterByType", "all");
   const [viewMode, setViewMode] = UrlParamState("viewMode", "Grid");
   const { colors } = useThemeContext();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (
@@ -205,6 +215,33 @@ const MinistryCardGrid = ({ onCardClick }) => {
     }
   };
 
+  const steps = [
+    {
+      label: "Ministries",
+      description: `All active ministries on this date`,
+    },
+    {
+      label: "Departments & Persons",
+      description: "All departments under this ministry",
+    },
+  ];
+
+  const [activeStep, setActiveStep] = useState(0);
+  const [activeTab, setActiveTab] = useState("departments");
+  const [selectedCard, setSelectedCard] = useState();
+
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  useEffect(() => {
+    console.log(activeStep);
+  }, [activeStep]);
+
   return (
     <Box
       sx={{
@@ -275,7 +312,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
             p: 3,
             borderRadius: 2,
             backgroundColor: colors.backgroundWhite,
-            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
           }}
         >
           {/* Rows */}
@@ -413,7 +449,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
           borderRadius: 2,
           //backgroundColor: colors.backgroundColor,
           backgroundColor: colors.backgroundWhite,
-          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
         }}
       >
         {/* Top Bar with Title + Search + Filter */}
@@ -573,7 +608,6 @@ const MinistryCardGrid = ({ onCardClick }) => {
           setViewMode={setViewMode}
         />
 
-        {/* Ministries Grid / Loader / Alerts */}
         {loading ? (
           <Box
             sx={{
@@ -593,109 +627,270 @@ const MinistryCardGrid = ({ onCardClick }) => {
           </Box>
         ) : (
           <>
-            <Box sx={{ width: "100%" }}>
-              <Grid
-                position={"relative"}
-                container
-                justifyContent="center"
-                gap={1}
-                sx={{ width: "100%" }}
-              >
-                {filteredMinistryList && filteredMinistryList.length > 0 ? (
-                  viewMode == "Grid" ? (
-                    filteredMinistryList.map((card) => (
-                      <Grid
-                        key={card.id}
+            <Box sx={{ width: "100%", display: "flex", pl: viewMode == "Grid" ? 8 : 0 }}>
+              {viewMode == "Grid" ? (
+                <Stepper
+                  activeStep={activeStep}
+                  sx={{
+                    width: "100%",
+                    "& .MuiStepConnector-line": {
+                      borderColor: colors.textMuted,
+                    },
+                  }}
+                  orientation="vertical"
+                >
+                  {steps.map((step, index) => (
+                    <Step key={step.label}>
+                      <StepLabel
+                        onClick={
+                          (activeStep != 0 &&
+                            step.label == "Ministries" &&
+                            selectedCard) ||
+                          (activeStep == 1 &&
+                            step.label == "Departments & Persons")
+                            ? handleBack
+                            : null
+                        }
                         sx={{
-                          display: "grid",
-                          flexBasis: {
-                            xs: "100%",
-                            sm: "48%",
-                            md: "31.5%",
-                            lg: "23.5%",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          "&:hover .MuiTypography-root": {
+                            textDecoration: "underline",
                           },
-                          maxWidth: {
-                            xs: "100%",
-                            sm: "48%",
-                            md: "31.5%",
-                            lg: "23.5%",
+                          "& .MuiStepIcon-root": {
+                            fontSize: "2rem", // Increase icon size
+                            color: selectedPresident.themeColorLight,
+                            "&.Mui-active": {
+                              color: selectedPresident.themeColorLight,
+                            },
+                            "&.Mui-completed": {
+                              color: selectedPresident.themeColorLight,
+                            },
                           },
                         }}
                       >
-                        <MinistryCard
-                          card={card}
-                          onClick={() => {
-                            dispatch(setSelectedMinistry(card.id));
-                            onCardClick(card);
+                        <Typography
+                          component="span"
+                          sx={{
+                            color: colors.textPrimary,
+                            fontWeight: "semibold",
+                            fontSize: "1.1rem", // Increase text size
+                            transition: "text-decoration 0.2s ease-in-out",
                           }}
-                        />
-                      </Grid>
-                    ))
-                  ) : (
-                    <GraphComponent activeMinistries={filteredMinistryList} filterType={filterType}/>
-                  )
-                ) : !loading &&
-                  activeMinistryList &&
-                  activeMinistryList.length === 0 ? (
-                  <Box
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "center",
-                      marginTop: "15px",
-                    }}
-                  >
-                    <Alert
-                      severity="info"
-                      sx={{ backgroundColor: "transparent" }}
-                    >
-                      <AlertTitle
-                        sx={{
-                          fontFamily: "poppins",
-                          color: colors.textPrimary,
-                        }}
-                      >
-                        No ministries in the government. Sometimes this can be
-                        the president appointed date.
-                      </AlertTitle>
-                    </Alert>
-                  </Box>
-                ) : (
-                  <Box
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      justifyContent: "center",
-                      marginTop: "15px",
-                    }}
-                  >
-                    <Alert
-                      severity="info"
-                      sx={{ backgroundColor: "transparent" }}
-                    >
-                      <AlertTitle
-                        sx={{
-                          fontFamily: "poppins",
-                          color: colors.textPrimary,
-                        }}
-                      >
-                        No Search Result
-                      </AlertTitle>
-                    </Alert>
-                  </Box>
-                )}
-              </Grid>
+                        >
+                          {selectedCard &&
+                          step.label == "Ministries" &&
+                          activeStep !== 0
+                            ? selectedCard.name
+                            : step.label}
+                        </Typography>
+                      </StepLabel>
+                      <StepContent>
+                        {step.label == "Ministries" ? (
+                          <>
+                            <Grid
+                              mt={2}
+                              position={"relative"}
+                              container
+                              justifyContent="center"
+                              gap={1}
+                              sx={{ width: "100%" }}
+                            >
+                              {filteredMinistryList &&
+                              filteredMinistryList.length > 0 ? (
+                                filteredMinistryList.map((card) => (
+                                  <Grid
+                                    key={card.id}
+                                    sx={{
+                                      display: "grid",
+                                      flexBasis: {
+                                        xs: "100%",
+                                        sm: "48%",
+                                        md: "31.5%",
+                                        lg: "23.5%",
+                                      },
+                                      maxWidth: {
+                                        xs: "100%",
+                                        sm: "48%",
+                                        md: "31.5%",
+                                        lg: "23.5%",
+                                      },
+                                    }}
+                                  >
+                                    <MinistryCard
+                                      card={card}
+                                      onClick={() => {
+                                        dispatch(setSelectedMinistry(card.id));
+                                        handleNext();
+                                        setSelectedCard(card);
+                                      }}
+                                    />
+                                  </Grid>
+                                ))
+                              ) : !loading &&
+                                activeMinistryList &&
+                                activeMinistryList.length === 0 ? (
+                                <Box
+                                  sx={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    marginTop: "15px",
+                                  }}
+                                >
+                                  <Alert
+                                    severity="info"
+                                    sx={{ backgroundColor: "transparent" }}
+                                  >
+                                    <AlertTitle
+                                      sx={{
+                                        fontFamily: "poppins",
+                                        color: colors.textPrimary,
+                                      }}
+                                    >
+                                      No ministries in the government. Sometimes
+                                      this can be the president appointed date.
+                                    </AlertTitle>
+                                  </Alert>
+                                </Box>
+                              ) : (
+                                <Box
+                                  sx={{
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    marginTop: "15px",
+                                  }}
+                                >
+                                  <Alert
+                                    severity="info"
+                                    sx={{ backgroundColor: "transparent" }}
+                                  >
+                                    <AlertTitle
+                                      sx={{
+                                        fontFamily: "poppins",
+                                        color: colors.textPrimary,
+                                      }}
+                                    >
+                                      No Search Result
+                                    </AlertTitle>
+                                  </Alert>
+                                </Box>
+                              )}
+                            </Grid>
+                            {/* If filtering is happening, overlay a subtle loader */}
+                            {filterLoading && (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  mt: 2,
+                                }}
+                              >
+                                <ClipLoader
+                                  color={selectedPresident.themeColorLight}
+                                  loading={filterLoading}
+                                  size={18}
+                                />
+                              </Box>
+                            )}
+                          </>
+                        ) : (
+                          step.label == "Departments & Persons" && (
+                            <DialogContent
+                              sx={{
+                                p: 4,
+                                borderRadius: "14px",
+                                mr: 4,
+                                mt: 2,
+                                display: "flex",
+                                flexDirection: "column",
+                                overflowY: "auto",
+                                scrollbarWidth: "none",
+                                backgroundColor: colors.backgroundBlue,
+                                "&::-webkit-scrollbar": { display: "none" },
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 2,
+                                  mb: 4,
+                                  justifyContent: {
+                                    xs: "center",
+                                    sm: "flex-start",
+                                  },
+                                }}
+                              >
+                                {["departments", "persons"].map((tab) => {
+                                  const label =
+                                    tab.charAt(0).toUpperCase() + tab.slice(1);
+                                  const isActive = tab == activeTab;
+                                  return (
+                                    <Button
+                                      key={tab}
+                                      variant={
+                                        isActive ? "contained" : "outlined"
+                                      }
+                                      onClick={() => setActiveTab(tab)}
+                                      sx={{
+                                        textTransform: "none",
+                                        borderRadius: "50px",
+                                        px: { xs: 2, sm: 3 },
+                                        py: 0.8,
+                                        backgroundColor: isActive
+                                          ? selectedPresident.themeColorLight
+                                          : "none",
+                                        borderColor:
+                                          selectedPresident.themeColorLight,
+                                        color: isActive
+                                          ? colors.textPrimary
+                                          : selectedPresident.themeColorLight,
+                                        fontFamily: "poppins",
+                                        fontSize: {
+                                          xs: "0.8rem",
+                                          sm: "0.9rem",
+                                          md: "1rem",
+                                        },
+                                      }}
+                                    >
+                                      {label}
+                                    </Button>
+                                  );
+                                })}
+                              </Box>
+                              <Box sx={{ flexGrow: 1, mt: 2, width: "100%" }}>
+                                <>
+                                  {selectedCard &&
+                                    activeTab === "departments" && (
+                                      <MinistryDrawerContent
+                                        selectedDate={
+                                          selectedDate?.date || selectedDate
+                                        }
+                                        ministryId={selectedCard?.id}
+                                      />
+                                    )}
+                                  {selectedCard && activeTab === "persons" && (
+                                    <PersonsTab
+                                      selectedDate={
+                                        selectedDate?.date || selectedDate
+                                      }
+                                    />
+                                  )}
+                                </>
+                              </Box>
+                            </DialogContent>
+                          )
+                        )}
+                      </StepContent>
+                    </Step>
+                  ))}
+                </Stepper>
+              ) : (
+                <GraphComponent activeMinistries={filteredMinistryList} filterType={filterType}/>
+              )}
             </Box>
-            {/* If filtering is happening, overlay a subtle loader */}
-            {filterLoading && (
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-                <ClipLoader
-                  color={selectedPresident.themeColorLight}
-                  loading={filterLoading}
-                  size={18}
-                />
-              </Box>
-            )}
           </>
         )}
       </Box>
