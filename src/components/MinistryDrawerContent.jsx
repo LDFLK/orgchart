@@ -115,13 +115,16 @@ const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
-              my: 3,
+              width: "40%",
+              border: `2px solid ${colors.backgroundWhite}`,
+              p: 2,
+              backgroundColor: colors.backgroundWhite,
+              borderRadius: "14px",
             }}
           >
             <Typography
               variant="h6"
               sx={{
-                mt: 1,
                 fontFamily: "Poppins",
                 fontWeight: 600,
                 color: colors.textPrimary,
@@ -130,30 +133,28 @@ const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
             >
               Key Highlights
             </Typography>
+
             <Box
               sx={{
                 width: "100%",
-                maxWidth: 500,
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center",
-                borderRadius: 2,
-                backgroundColor: colors.backgroundWhite,
+                gap: 2,
               }}
             >
+              {/* Total Departments */}
               <Box
                 sx={{
-                  width: "100%",
                   display: "flex",
-                  flexDirection: "column",
-                  gap: 1,
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <ApartmentIcon sx={{ color: colors.textMuted }} />
                   <Typography
                     sx={{
-                      flex: 1,
                       fontFamily: "Poppins",
                       fontWeight: 500,
                       color: colors.textMuted,
@@ -166,22 +167,32 @@ const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
                       iconSize={14}
                     />
                   </Typography>
-                  <Typography
-                    sx={{
-                      fontFamily: "Poppins",
-                      fontSize: 20,
-                      fontWeight: 500,
-                      color: colors.textPrimary,
-                    }}
-                  >
-                    {departmentListForMinistry.length}
-                  </Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Typography
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontSize: 20,
+                    fontWeight: 500,
+                    color: colors.textPrimary,
+                  }}
+                >
+                  {departmentListForMinistry.length}
+                </Typography>
+              </Box>
+
+              {/* New Departments */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <DomainAddIcon sx={{ color: colors.textMuted }} />
                   <Typography
                     sx={{
-                      flex: 1,
                       fontFamily: "Poppins",
                       fontWeight: 500,
                       color: colors.textMuted,
@@ -194,20 +205,17 @@ const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
                       iconSize={14}
                     />
                   </Typography>
-                  <Typography
-                    sx={{
-                      fontFamily: "Poppins",
-                      fontSize: 20,
-                      fontWeight: 500,
-                      color: colors.textPrimary,
-                    }}
-                  >
-                    {
-                      departmentListForMinistry.filter((dep) => dep.isNew)
-                        .length
-                    }
-                  </Typography>
                 </Box>
+                <Typography
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontSize: 20,
+                    fontWeight: 500,
+                    color: colors.textPrimary,
+                  }}
+                >
+                  {departmentListForMinistry.filter((dep) => dep.isNew).length}
+                </Typography>
               </Box>
             </Box>
           </Box>
@@ -274,7 +282,6 @@ const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
               flexDirection: "column",
               gap: 2,
               borderRadius: 2,
-              backgroundColor: colors.backgroundWhite,
             }}
           >
             <Stack spacing={1}>
@@ -288,14 +295,12 @@ const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        backgroundColor: colors.backgroundPrimary,
-                        color: selectedPresident.themeColorLight,
                         boxShadow: "0 2px 5px rgba(0, 0, 0, 0.05)",
-                        borderRadius: "12px",
                         padding: "12px 16px",
                         marginBottom: "12px",
                         transition: "all 0.3s ease",
                         cursor: "pointer",
+                        borderBottom: `3px solid ${colors.backgroundWhite}`,
                       }}
                     >
                       <Box
@@ -308,7 +313,7 @@ const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
                         <Typography
                           sx={{
                             fontFamily: "Poppins, sans-serif",
-                            color: colors.textPrimary,
+                            color: colors.textMuted,
                             fontWeight: 500,
                             fontSize: "0.95rem",
                           }}
@@ -348,6 +353,12 @@ const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
                           fontSize: "0.9rem",
                           borderRadius: "8px",
                           transition: "all 0.3s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.textDecoration = "underline";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.textDecoration = "none";
                         }}
                       >
                         View Profile
