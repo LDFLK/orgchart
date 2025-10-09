@@ -176,22 +176,41 @@ export default function GraphComponent({ activeMinistries, filterType }) {
           let personId = null;
           let personName = null;
 
-          if (filterType === "newPerson" && ministry.newPerson && ministry.headMinisterId) {
+          if (
+            filterType === "newPerson" &&
+            ministry.newPerson &&
+            ministry.headMinisterId
+          ) {
             showPerson = true;
             personId = ministry.headMinisterId;
-            personName = utils.extractNameFromProtobuf(ministry.headMinisterName);
+            personName = utils.extractNameFromProtobuf(
+              ministry.headMinisterName
+            );
           } else if (filterType === "presidentAsMinister") {
             const headName = ministry.headMinisterName
-              ? utils.extractNameFromProtobuf(ministry.headMinisterName).split(":")[0].toLowerCase().trim()
+              ? utils
+                  .extractNameFromProtobuf(ministry.headMinisterName)
+                  .split(":")[0]
+                  .toLowerCase()
+                  .trim()
               : null;
             const presidentName = selectedPresident
-              ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0].toLowerCase().trim()
+              ? utils
+                  .extractNameFromProtobuf(selectedPresident.name)
+                  .split(":")[0]
+                  .toLowerCase()
+                  .trim()
               : null;
 
-            if ((!ministry.headMinisterId && selectedPresident) || (headName && presidentName && headName === presidentName)) {
+            if (
+              (!ministry.headMinisterId && selectedPresident) ||
+              (headName && presidentName && headName === presidentName)
+            ) {
               showPerson = true;
               personId = selectedPresident.id;
-              personName = utils.extractNameFromProtobuf(selectedPresident.name);
+              personName = utils.extractNameFromProtobuf(
+                selectedPresident.name
+              );
             }
           }
 
@@ -213,7 +232,6 @@ export default function GraphComponent({ activeMinistries, filterType }) {
           }
         });
 
-
         if (focusRef.current) {
           focusRef.current.stopAnimation?.();
         }
@@ -223,11 +241,13 @@ export default function GraphComponent({ activeMinistries, filterType }) {
         setDepartmentDictionary({});
         setMinisterToDepartment({});
 
-        setAllNodes([govNode, ...Object.values(ministryDic), ...Object.values(personDic)]);
+        setAllNodes([
+          govNode,
+          ...Object.values(ministryDic),
+          ...Object.values(personDic),
+        ]);
         setRelations([...ministryToGovLinks, ...personLinks]);
-      }
-
-      else if (parentNode.type === "minister") {
+      } else if (parentNode.type === "minister") {
         const response = await api.fetchAllRelationsForMinistry({
           ministryId: parentNode.id,
           name: "AS_DEPARTMENT",
@@ -326,10 +346,31 @@ export default function GraphComponent({ activeMinistries, filterType }) {
   };
 
   useEffect(() => {
-    if (isDateTaken && selectedDate && selectedPresident) {
+    const params = new URLSearchParams(location.search);
+    const selectedMinistry = params.get("ministry");
+
+    if (selectedMinistry) {
+      const ministryParent = {
+        id: allMinistryData[selectedMinistry].id,
+        name: utils.extractNameFromProtobuf(
+          allMinistryData[selectedMinistry].name
+        ),
+        created: allMinistryData[selectedMinistry].startTime,
+        group: 2,
+        color: "#D3AF37",
+        type: "minister",
+      };
+      buildGraph(ministryParent);
+    } else if (isDateTaken && selectedDate && selectedPresident) {
       buildGraph();
     }
-  }, [selectedDate, selectedPresident, isDateTaken, activeMinistries, filterType]);
+  }, [
+    selectedDate,
+    selectedPresident,
+    isDateTaken,
+    activeMinistries,
+    filterType,
+  ]);
 
   // Handle WebGL context loss and restoration
   useEffect(() => {
@@ -428,10 +469,18 @@ export default function GraphComponent({ activeMinistries, filterType }) {
         setNodeLoading(true);
       }
 
-      if (node?.type === "minister" && graphParent && graphParent.id === node.id) {
+      if (
+        node?.type === "minister" &&
+        graphParent &&
+        graphParent.id === node.id
+      ) {
         await buildGraph();
         previousClickedNodeRef.current = null;
         setSelectedNode(null);
+        const params = new URLSearchParams(location.search);
+        params.delete("ministry");
+        const newUrl = `${location.pathname}?${params.toString()}`;
+        window.history.pushState({}, "", newUrl);
         return;
       }
 
@@ -466,7 +515,7 @@ export default function GraphComponent({ activeMinistries, filterType }) {
           );
           if (cameraAnimTimeoutRef.current)
             clearTimeout(cameraAnimTimeoutRef.current);
-          cameraAnimTimeoutRef.current = setTimeout(() => { }, transitionMs + 2);
+          cameraAnimTimeoutRef.current = setTimeout(() => {}, transitionMs + 2);
           return true;
         };
 
@@ -488,11 +537,13 @@ export default function GraphComponent({ activeMinistries, filterType }) {
             }
           }, 50);
         }
-      } catch (err) {
-        // ignore camera errors and continue
-      }
+      } catch (err) {}
 
       if (node.type === "minister") {
+        const params = new URLSearchParams(location.search);
+        params.set("ministry", node.id);
+        const newUrl = `${location.pathname}?${params.toString()}`;
+        window.history.pushState({}, "", newUrl);
         await buildGraph(node);
       }
     },
@@ -574,8 +625,9 @@ export default function GraphComponent({ activeMinistries, filterType }) {
     <>
       <div className="flex h-screen w-full">
         <div
-          className={`${expandDrawer ? "w-2/3" : "w-full"
-            } transition-all duration-300 ease-in-out`}
+          className={`${
+            expandDrawer ? "w-2/3" : "w-full"
+          } transition-all duration-300 ease-in-out`}
           style={{
             backgroundColor: colors.backgroundPrimary,
           }}

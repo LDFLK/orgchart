@@ -1,7 +1,7 @@
 import utils from "../utils/utils";
 // 
 // const apiUrl = window?.configs?.apiUrl ? window.configs.apiUrl : "/"
-const apiUrl = "";
+const apiUrl = "https://aaf8ece1-3077-4a52-ab05-183a424f6d93-prod.e1-us-east-azure.choreoapis.dev/data-platform/query-api/v1.1";
 
 // Fetch initial gazette dates and all ministry protobuf data
 const fetchInitialGazetteData = async () => {
@@ -89,7 +89,6 @@ const fetchActiveMinistries = async (
   selectedPresident
 ) => {
   try {
-    const beforeTime = new Date().getTime();
 
     const response = await fetch(
       `${apiUrl}/v1/entities/${selectedPresident.id}/relations`,
@@ -114,13 +113,6 @@ const fetchActiveMinistries = async (
     }
 
     const activeMinistryRelations = await response.json();
-
-    const afterTime = new Date().getTime();
-    console.log(
-      `execusion time to fetch active ministries :  ${
-        afterTime - beforeTime
-      } msec`
-    );
 
     // Extract relatedEntityId and startTime from each relation
     const activeMinistryInfo = activeMinistryRelations

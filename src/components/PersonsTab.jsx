@@ -45,7 +45,6 @@ const PersonsTab = ({ selectedDate }) => {
           "AS_APPOINTED"
         );
         const resPersons = await resPersonsResponse.json();
-        console.log("act p : ", resPersons);
 
         const personMap = new Map();
         resPersons.forEach(

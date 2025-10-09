@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -14,69 +14,6 @@ export default function YearRangeSelector({
   latestPresStartDate,
   onDateChange,
 }) {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const endYear = new Date().getFullYear();
-  const years = Array.from(
-    { length: endYear - startYear + 1 },
-    (_, i) => startYear + i
-  );
-  const initialStartYear = Math.max(
-    startYear,
-    latestPresStartDate.getFullYear()
-  );
-  const initialEndYear = Math.min(endYear, new Date().getFullYear());
-
-  // Helper: safely parse YYYY-MM-DD → Date
-  const parseDate = (dateStr, fallback) => {
-    if (!dateStr) return fallback;
-    const date = new Date(dateStr);
-    return isNaN(date.getTime()) ? fallback : date;
-  };
-
-  // Helper: safely format Date → YYYY-MM-DD
-  const formatDate = (date, fallback = "") => {
-    if (!(date instanceof Date) || isNaN(date.getTime())) return fallback;
-    return date.toISOString().split("T")[0];
-  };
-
-  const [selectedRange, setSelectedRange] = useState([
-    initialStartYear,
-    initialEndYear,
-  ]);
-  const [startDate, setStartDate] = useState(latestPresStartDate);
-  const [endDate, setEndDate] = useState(new Date());
-
-  useEffect(() => {
-    let urlStart = parseDate(
-      searchParams.get("startDate"),
-      latestPresStartDate
-    );
-    let urlEnd = parseDate(searchParams.get("endDate"), new Date());
-
-    if (urlEnd < urlStart) {
-      urlEnd = new Date(urlStart); // clamp endDate to startDate
-    }
-
-    setStartDate(urlStart);
-    setEndDate(urlEnd);
-    setTempStartDate(urlStart);
-    setTempEndDate(urlEnd);
-    setSelectedRange([urlStart.getUTCFullYear(), urlEnd.getUTCFullYear()]);
-  }, [searchParams, latestPresStartDate]);
-
-  const [calendarOpen, setCalendarOpen] = useState(false);
-  const [isDragging, setIsDragging] = useState(null);
-  const [isMovingWindow, setIsMovingWindow] = useState(false);
-  const [tempStartDate, setTempStartDate] = useState(startDate);
-  const [tempEndDate, setTempEndDate] = useState(endDate);
-  const [preciseMode, setPreciseMode] = useState(true);
-  const [activePreset, setActivePreset] = useState(null);
-  const [activePresident, setActivePresident] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: '' });
-  const [calendarRange, setCalendarRange] = useState(null);
-
   const presidentsArray = useSelector(
     (state) => state.presidency.presidentDict
   );
@@ -88,7 +25,62 @@ export default function YearRangeSelector({
   const scrollWrapperRef = useRef(null);
   const debounceRef = useRef(null);
 
-  const presidents = React.useMemo(() => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [startDate, setStartDate] = useState(latestPresStartDate);
+  const [endDate, setEndDate] = useState(new Date());
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(null);
+  const [isMovingWindow, setIsMovingWindow] = useState(false);
+  const [tempStartDate, setTempStartDate] = useState(startDate);
+  const [tempEndDate, setTempEndDate] = useState(endDate);
+  const [preciseMode, setPreciseMode] = useState(true);
+  const [activePreset, setActivePreset] = useState(null);
+  const [activePresident, setActivePresident] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [tooltip, setTooltip] = useState({
+    show: false,
+    x: 0,
+    y: 0,
+    content: "",
+  });
+  const [calendarRange, setCalendarRange] = useState(null);
+
+  const endYear = new Date().getFullYear();
+  const years = Array.from(
+    { length: endYear - startYear + 1 },
+    (_, i) => startYear + i
+  );
+
+  const initialStartYear = Math.max(
+    startYear,
+    latestPresStartDate.getFullYear()
+  );
+  const initialEndYear = endYear;
+
+  const [selectedRange, setSelectedRange] = useState([
+    initialStartYear,
+    initialEndYear,
+  ]);
+
+  useEffect(() => {
+    let urlStart = utils.parseDate(
+      searchParams.get("startDate"),
+      latestPresStartDate
+    );
+    let urlEnd = utils.parseDate(searchParams.get("endDate"), new Date());
+
+    if (urlEnd < urlStart) {
+      urlEnd = new Date(urlStart);
+    }
+
+    setStartDate(urlStart);
+    setEndDate(urlEnd);
+    setTempStartDate(urlStart);
+    setTempEndDate(urlEnd);
+    setSelectedRange([urlStart.getUTCFullYear(), urlEnd.getUTCFullYear()]);
+  }, [searchParams, latestPresStartDate]);
+
+  const presidents = useMemo(() => {
     if (!presidentsArray || !presidentRelationDict) return {};
 
     const obj = {};
@@ -109,14 +101,6 @@ export default function YearRangeSelector({
         ],
       };
     });
-
-    // obj["mock1"] = {
-    //   name: "Mahinda Rajapaksa",
-    //   terms: [
-    //     { start: "2004-01-20", end: "2009-01-20" },
-    //     { start: "2010-01-20", end: "2015-01-20" },
-    //   ],
-    // };
 
     return obj;
   }, [presidentsArray, presidentRelationDict]);
@@ -181,17 +165,15 @@ export default function YearRangeSelector({
     const trigger = () => {
       onDateChange?.([startDate, endDate]);
       const newParams = new URLSearchParams(searchParams.toString());
-      newParams.set("startDate", formatDate(startDate));
-      newParams.set("endDate", formatDate(endDate));
+      newParams.set("startDate", utils.formatDate(startDate));
+      newParams.set("endDate", utils.formatDate(endDate));
       setSearchParams(newParams);
     };
 
     // While dragging/moving, debounce; otherwise fire immediately
     if (isDragging || isMovingWindow) {
-      console.log("debouncing date change");
-      debounceRef.current = setTimeout(trigger, 1000);
-    } else {
-      console.log("triggering date change");
+      debounceRef.current = setTimeout(trigger(), 2000);
+    } else if (!isDragging && !isMovingWindow) {
       trigger();
     }
 
@@ -348,7 +330,7 @@ export default function YearRangeSelector({
     e.stopPropagation();
     e.preventDefault();
     setIsDragging(handle);
-    setPreciseMode(true); // Enable precise mode when dragging
+    setPreciseMode(true);
     setActivePreset(null);
     setActivePresident("");
   };
@@ -381,7 +363,9 @@ export default function YearRangeSelector({
 
     // Clamp to today if future date
     const today = new Date();
-    const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+    const todayUTC = new Date(
+      Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())
+    );
     if (newDate > todayUTC) {
       newDate = todayUTC;
     }
@@ -415,27 +399,29 @@ export default function YearRangeSelector({
 
     // Get today's date for clamping
     const today = new Date();
-    const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+    const todayUTC = new Date(
+      Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())
+    );
 
     // Calculate new start position
     const currentStartYearPos =
       years.indexOf(startDate.getUTCFullYear()) +
       (startDate.getUTCMonth() +
         (startDate.getUTCDate() - 1) /
-        new Date(
-          Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth() + 1, 0)
-        ).getUTCDate()) /
-      12;
+          new Date(
+            Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth() + 1, 0)
+          ).getUTCDate()) /
+        12;
 
     // Calculate new end position
     const currentEndYearPos =
       years.indexOf(endDate.getUTCFullYear()) +
       (endDate.getUTCMonth() +
         endDate.getUTCDate() /
-        new Date(
-          Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth() + 1, 0)
-        ).getUTCDate()) /
-      12;
+          new Date(
+            Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth() + 1, 0)
+          ).getUTCDate()) /
+        12;
 
     const windowSize = currentEndYearPos - currentStartYearPos;
     const newStartYearPos = currentStartYearPos + yearDelta;
@@ -474,10 +460,14 @@ export default function YearRangeSelector({
         years.indexOf(newEndDate.getUTCFullYear()) +
         (newEndDate.getUTCMonth() +
           newEndDate.getUTCDate() /
-          new Date(
-            Date.UTC(newEndDate.getUTCFullYear(), newEndDate.getUTCMonth() + 1, 0)
-          ).getUTCDate()) /
-        12;
+            new Date(
+              Date.UTC(
+                newEndDate.getUTCFullYear(),
+                newEndDate.getUTCMonth() + 1,
+                0
+              )
+            ).getUTCDate()) /
+          12;
       tentativeStartPos = Math.max(0, endYearPos - windowSize);
       newStartDate = positionToDate(tentativeStartPos);
     }
@@ -575,8 +565,20 @@ export default function YearRangeSelector({
       const monthIndex = Math.floor(percentage * 12);
       const clampedMonth = Math.max(0, Math.min(11, monthIndex));
 
-      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
       const monthName = monthNames[clampedMonth];
       const count = validData[clampedMonth];
 
@@ -584,12 +586,12 @@ export default function YearRangeSelector({
         show: true,
         x: e.clientX,
         y: e.clientY - 10,
-        content: `${monthName} ${year}: ${count} gazettes`
+        content: `${monthName} ${year}: ${count} gazettes`,
       });
     };
 
     const handleMouseLeave = () => {
-      setTooltip({ show: false, x: 0, y: 0, content: '' });
+      setTooltip({ show: false, x: 0, y: 0, content: "" });
     };
 
     return (
@@ -598,9 +600,9 @@ export default function YearRangeSelector({
         height="100%"
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-      // onMouseMove={handleMouseMove}
-      // onMouseLeave={handleMouseLeave}
-      // style={{ cursor: 'crosshair' }}
+        // onMouseMove={handleMouseMove}
+        // onMouseLeave={handleMouseLeave}
+        // style={{ cursor: 'crosshair' }}
       >
         <defs>
           <linearGradient
@@ -675,7 +677,6 @@ export default function YearRangeSelector({
     );
   };
 
-  // UI rendering
   return (
     <div className="bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-6xl mx-auto mt-6">
       {/* Presets and calendar */}
@@ -715,10 +716,11 @@ export default function YearRangeSelector({
               setActivePreset(preset.label);
               setActivePresident("");
             }}
-            className={`px-2 text-sm font-medium rounded-lg transition-colors hover:cursor-pointer ${activePreset === preset.label
-              ? "bg-blue-600 text-white"
-              : "hover:bg-gray-800 bg-gray-700 text-gray-300 hover:cursor-pointer"
-              }`}
+            className={`px-2 text-sm font-medium rounded-lg transition-colors hover:cursor-pointer ${
+              activePreset === preset.label
+                ? "bg-blue-600 text-white"
+                : "hover:bg-gray-800 bg-gray-700 text-gray-300 hover:cursor-pointer"
+            }`}
           >
             {preset.label}
           </button>
@@ -727,36 +729,38 @@ export default function YearRangeSelector({
         <div className="relative w-64 text-sm">
           {/* Main button */}
           <button
-            className={`w-full px-4 py-2 text-left cursor-pointer rounded-lg focus:outline-none flex justify-between items-center ${activePresident
-              ? "bg-blue-600 text-white"
-              : "bg-gray-700 text-gray-300"
-              }`}
+            className={`w-full px-4 py-2 text-left cursor-pointer rounded-lg focus:outline-none flex justify-between items-center ${
+              activePresident
+                ? "bg-blue-600 text-white"
+                : "bg-gray-700 text-gray-300"
+            }`}
             onClick={() => setIsDropdownOpen((o) => !o)}
           >
             <span>
               {activePresident
                 ? (() => {
-                  const pres = presidents[activePresident];
-                  if (!pres) return "By President Term";
-                  if (pres.terms.length === 1) return pres.name;
-                  const currentTerm = pres.terms.find(
-                    (t) =>
-                      startDate.getTime() === new Date(t.start).getTime() &&
-                      endDate.getTime() === new Date(t.end).getTime()
-                  );
-                  return currentTerm
-                    ? `${pres.name} (${new Date(
-                      currentTerm.start
-                    ).getUTCFullYear()} - ${new Date(
-                      currentTerm.end
-                    ).getUTCFullYear()})`
-                    : pres.name;
-                })()
+                    const pres = presidents[activePresident];
+                    if (!pres) return "By President Term";
+                    if (pres.terms.length === 1) return pres.name;
+                    const currentTerm = pres.terms.find(
+                      (t) =>
+                        startDate.getTime() === new Date(t.start).getTime() &&
+                        endDate.getTime() === new Date(t.end).getTime()
+                    );
+                    return currentTerm
+                      ? `${pres.name} (${new Date(
+                          currentTerm.start
+                        ).getUTCFullYear()} - ${new Date(
+                          currentTerm.end
+                        ).getUTCFullYear()})`
+                      : pres.name;
+                  })()
                 : "By President Term"}
             </span>
             <svg
-              className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
-                }`}
+              className={`w-4 h-4 transition-transform duration-200 ${
+                isDropdownOpen ? "rotate-180" : ""
+              }`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -777,10 +781,11 @@ export default function YearRangeSelector({
                 <div key={id} className="group relative">
                   {/* President row */}
                   <button
-                    className={`w-full px-4 py-2 text-left flex justify-between items-center cursor-pointer hover:bg-gray-600 ${activePresident === id
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-300"
-                      }`}
+                    className={`w-full px-4 py-2 text-left flex justify-between items-center cursor-pointer hover:bg-gray-600 ${
+                      activePresident === id
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-300"
+                    }`}
                     onClick={() => {
                       if (data.terms.length === 1) {
                         const term = data.terms[0];
@@ -809,13 +814,14 @@ export default function YearRangeSelector({
                       {data.terms.map((term, idx) => (
                         <button
                           key={idx}
-                          className={`w-full px-4 py-2 text-left cursor-pointer hover:bg-gray-600 ${activePresident === id &&
+                          className={`w-full px-4 py-2 text-left cursor-pointer hover:bg-gray-600 ${
+                            activePresident === id &&
                             startDate.getTime() ===
-                            new Date(term.start).getTime() &&
+                              new Date(term.start).getTime() &&
                             endDate.getTime() === new Date(term.end).getTime()
-                            ? "bg-blue-600 text-white"
-                            : "text-gray-300"
-                            }`}
+                              ? "bg-blue-600 text-white"
+                              : "text-gray-300"
+                          }`}
                           onClick={() => {
                             setActivePresident(id);
                             setStartDate(new Date(term.start));
@@ -852,12 +858,13 @@ export default function YearRangeSelector({
               setCalendarOpen((o) => !o);
             }}
             className={`flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer
-    ${calendarRange &&
-                startDate.toISOString() === calendarRange.start &&
-                endDate.toISOString() === calendarRange.end
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
+    ${
+      calendarRange &&
+      startDate.toISOString() === calendarRange.start &&
+      endDate.toISOString() === calendarRange.end
+        ? "bg-blue-600 text-white hover:bg-blue-700"
+        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+    }`}
           >
             By Date
           </button>
@@ -878,7 +885,11 @@ export default function YearRangeSelector({
                     dayClassName={(date) => {
                       if (!tempStartDate) return "";
                       const start = tempStartDate;
-                      const endOfMonth = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+                      const endOfMonth = new Date(
+                        start.getFullYear(),
+                        start.getMonth() + 1,
+                        0
+                      );
                       if (date >= start && date <= endOfMonth) {
                         return "bg-blue-500/20 rounded-none";
                       }
@@ -900,7 +911,11 @@ export default function YearRangeSelector({
                     dayClassName={(date) => {
                       if (!tempEndDate) return "";
                       const end = tempEndDate;
-                      const startOfMonth = new Date(end.getFullYear(), end.getMonth(), 1);
+                      const startOfMonth = new Date(
+                        end.getFullYear(),
+                        end.getMonth(),
+                        1
+                      );
                       if (date >= startOfMonth && date <= end) {
                         return "bg-blue-500/20 rounded-none";
                       }
@@ -920,7 +935,11 @@ export default function YearRangeSelector({
                 </button>
                 <button
                   onClick={() => {
-                    if (tempStartDate && tempEndDate && tempStartDate <= tempEndDate) {
+                    if (
+                      tempStartDate &&
+                      tempEndDate &&
+                      tempStartDate <= tempEndDate
+                    ) {
                       setStartDate(tempStartDate);
                       setEndDate(tempEndDate);
                       setSelectedRange([
@@ -941,12 +960,10 @@ export default function YearRangeSelector({
                 >
                   Apply
                 </button>
-
               </div>
             </div>
           )}
         </div>
-
 
         {/* Selected range display */}
         <div className="flex items-center gap-2 w-full sm:w-auto ml-auto">
@@ -978,8 +995,9 @@ export default function YearRangeSelector({
               return (
                 <div
                   key={year}
-                  className={`relative transition-all duration-200 hover:cursor-pointer ${isInRange ? "opacity-100" : "opacity-40"
-                    } border-l-1 border-r-1 border-gray-500`}
+                  className={`relative transition-all duration-200 hover:cursor-pointer ${
+                    isInRange ? "opacity-100" : "opacity-40"
+                  } border-l-1 border-r-1 border-gray-500`}
                   style={{ height: "80px", flex: "1 0 0" }}
                   onClick={() => {
                     setSelectedRange([year, year]);
@@ -1011,8 +1029,9 @@ export default function YearRangeSelector({
                     isInRange={isInRange}
                   />
                   <div
-                    className={`absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${isInRange ? "text-blue-400" : "text-gray-400"
-                      }`}
+                    className={`absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${
+                      isInRange ? "text-blue-400" : "text-gray-400"
+                    }`}
                   >
                     {year}
                   </div>
@@ -1081,9 +1100,7 @@ export default function YearRangeSelector({
 
       {/* FilteredPresidentCards Component */}
       <div className="mb-6">
-        <FilteredPresidentCards
-          dateRange={[startDate, endDate]}
-        />
+        <FilteredPresidentCards dateRange={[startDate, endDate]} />
       </div>
     </div>
   );

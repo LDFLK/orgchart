@@ -31,12 +31,6 @@ export default function Drawer({
   }, [selectedPresident]);
 
   useEffect(() => {
-    console.log(
-      "Parent Node in Drawer:",
-      parentNode,
-      "selectedTab:",
-      selectedTab
-    );
     if (!parentNode) {
       setDrawerContentList(ministryDic || {});
     } else if (parentNode.type === "minister") {
@@ -52,10 +46,6 @@ export default function Drawer({
     }
     setVisibleCount(BATCH_SIZE);
   }, [parentNode, selectedTab, ministryDic, departmentDic, personDic]);
-
-  useEffect(() => {
-    console.log(selectedNode);
-  }, [selectedNode]);
 
   return (
     <div

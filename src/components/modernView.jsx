@@ -1,25 +1,13 @@
-import {
-  Box,
-  Card,
-  Typography,
-  Avatar,
-  Dialog,
-  IconButton,
-  Button,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
+import { Box, Card, Typography, Avatar, Button } from "@mui/material";
 import PresidencyTimeline from "./PresidencyTimeline";
 import MinistryCardGrid from "./MinistryCardGrid";
-import InfoTab from "./InfoTab";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useThemeContext } from "../themeContext";
-import PersonProfile from "./PersonProfile";
 import api from "../services/services";
 import personImages from "../assets/personImages.json";
-import { FaRegEye } from "react-icons/fa";
 
 const ModernView = () => {
   const { selectedDate, selectedPresident } = useSelector(
@@ -33,15 +21,11 @@ const ModernView = () => {
 
   const { colors } = useThemeContext();
 
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
-  const [drawerMode, setDrawerMode] = useState("ministry");
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [primeMinister, setPrimeMinister] = useState({
     relation: null,
     person: null,
   });
-  const [loading, setLoading] = useState(false);  
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { president } = location.state || {};
@@ -105,25 +89,6 @@ const ModernView = () => {
     } catch (e) {
       console.error("Failed to fetch prime minister data:", e);
     }
-  };
-
-  const handleCardClick = (card) => {
-    setSelectedCard(card);
-    setDrawerMode("ministry");
-    setSelectedDepartment(null);
-    setDrawerOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setDrawerOpen(false);
-    setSelectedCard(null);
-    setDrawerMode("ministry");
-    setSelectedDepartment(null);
-  };
-
-  const handleDepartmentClick = (dep) => {
-    setSelectedDepartment(dep);
-    setDrawerMode("department");
   };
 
   return (
@@ -441,24 +406,8 @@ const ModernView = () => {
         </Box>
 
         {/* Card Grid for Modern View */}
-        {selectedDate != null && (
-          <MinistryCardGrid/>
-        )}
+        {selectedDate != null && <MinistryCardGrid />}
       </Box>
-
-      {/* Right Drawer */}
-      <InfoTab
-        drawerOpen={drawerOpen}
-        drawerMode={drawerMode}
-        selectedCard={selectedCard}
-        selectedDepartment={selectedDepartment}
-        selectedDate={selectedDate}
-        onClose={handleDrawerClose}
-        onBack={() => setDrawerMode("ministry")}
-        onDepartmentClick={handleDepartmentClick}
-        ministryId={selectedMinistry}
-        selectedPresident={selectedPresident}
-      />
     </Box>
   );
 };

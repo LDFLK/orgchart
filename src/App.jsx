@@ -5,7 +5,6 @@ import { useThemeContext } from "./themeContext";
 import TouristGlobe from "./components/statistics_components/TouristGlobe";
 import DistrictMap from "./components/statistics_components/DistrictMap";
 import XploreGovHomepage from "./pages/XploreGovHome/screens/XploreGovHome";
-import YearRangeSelector from "./components/common_components/Timeline";
 import Dashboard from "./pages/StatComparison";
 import "./index.css";
 import XploreDataHomepage from "./pages/XploreGovData/screens/XploreGovData";
@@ -25,7 +24,6 @@ const App = () => {
         <Route path="*" element={<Error404 />} />
         <Route path="/globe" element={<TouristGlobe/>}/>
         <Route path="/map" element={<DistrictMap/>}/>
-        <Route path="/timeline" element={<YearRangeSelector/>}/>
         <Route path="/xploredata" element={<XploreDataHomepage/>}/>
         <Route path="/person-profile/:personId" element={<DataLoadingAnimatedComponent mode="person-profile"/>}/>
         <Route path="/department-profile/:departmentId" element={<DataLoadingAnimatedComponent mode="department-profile"/>}/>
