@@ -92,77 +92,99 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
   };
 
 
-  useEffect(() => {
+useEffect(() => {
+  if (initializedFromUrl) return;
 
-    if (initializedFromUrl) return;
-    
+  if (
+    !presidents ||
+    (Array.isArray(presidents)
+      ? presidents.length === 0
+      : Object.keys(presidents).length === 0)
+  )
+    return;
+  if (!presidentRelationDict || Object.keys(presidentRelationDict).length === 0)
+    return;
+  if (!gazetteDateClassic || gazetteDateClassic.length === 0) return;
 
-    if (!presidents || (Array.isArray(presidents) ? presidents.length === 0 : Object.keys(presidents).length === 0)) return;
-    if (!presidentRelationDict || Object.keys(presidentRelationDict).length === 0) return;
-    if (!gazetteDateClassic || gazetteDateClassic.length === 0) return;
+  const params = new URLSearchParams(window.location.search);
+  let urlSelectedDate = params.get("selectedDate");
+  let urlStartDate = params.get("startDate");
+  let urlEndDate = params.get("endDate");
 
-    const params = new URLSearchParams(window.location.search);
-    const urlSelectedDate = params.get("selectedDate");
-    const urlStartDate = params.get("startDate");
-    const urlEndDate = params.get("endDate");
+  console.log("=== URL PARAMS ===");
+  console.log("selectedDate:", urlSelectedDate);
+  console.log("startDate:", urlStartDate);
+  console.log("endDate:", urlEndDate);
 
-    console.log("=== URL PARAMS ===");
-    console.log("selectedDate:", urlSelectedDate);
-    console.log("startDate:", urlStartDate);
-    console.log("endDate:", urlEndDate);
+  if (urlSelectedDate) {
+    const targetDate = new Date(urlSelectedDate);
+    let start = urlStartDate ? new Date(urlStartDate) : null;
+    let end = urlEndDate ? new Date(urlEndDate) : null;
 
+  
+    if (!start || !end || targetDate < start || targetDate > end) {
+      const year = targetDate.getFullYear();
+      urlStartDate = `${year}-01-01`;
+      urlEndDate = `${year}-12-31`;
 
-    if (urlSelectedDate) {
-      const targetDate = new Date(urlSelectedDate);
-      const urlRange = urlStartDate && urlEndDate 
-        ? [new Date(urlStartDate), new Date(urlEndDate)]
-        : dateRange;
+      const url = new URL(window.location.href);
+      url.searchParams.set("startDate", urlStartDate);
+      url.searchParams.set("endDate", urlEndDate);
+      window.history.replaceState({}, "", url.toString());
 
-      console.log("Target date:", targetDate);
-      console.log("Looking through all presidents...");
-
-
-      const allPresidents = Array.isArray(presidents) ? presidents : Object.values(presidents);
-      
-
-      const presidentForDate = allPresidents.find((p) => {
-        const rel = presidentRelationDict[p.id];
-        if (!rel || !rel.startTime) {
-          console.log(`President ${p.id} - NO RELATION DATA`);
-          return false;
-        }
-        
-        const start = new Date(rel.startTime.split("T")[0]);
-        const end = rel.endTime ? new Date(rel.endTime.split("T")[0]) : new Date();
-        
-        console.log(`President: ${utils.extractNameFromProtobuf(p.name)}, Term: ${start.toISOString().split('T')[0]} to ${end.toISOString().split('T')[0]}`);
-        
-        const matches = targetDate >= start && targetDate <= end;
-        if (matches) {
-          console.log("✓✓✓ FOUND MATCHING PRESIDENT ✓✓✓");
-        }
-        return matches;
-      });
-
-      if (presidentForDate) {
-        console.log("Setting president:", utils.extractNameFromProtobuf(presidentForDate.name));
-        selectPresidentAndDates(presidentForDate, urlRange, urlSelectedDate);
-        setInitializedFromUrl(true);
-        setUrlInitComplete(true);
-        return;
-      } else {
-        console.log("ERROR: No president found for this date!");
-      }
+      console.log(
+        ` SelectedDate outside range → overriding to full year: ${urlStartDate} → ${urlEndDate}`
+      );
     }
+  }
 
-   
-    console.log("No selectedDate in URL, selecting last president");
-    if (filteredPresidents.length > 0) {
-      const lastPresident = filteredPresidents[filteredPresidents.length - 1];
-      selectPresidentAndDates(lastPresident);
+
+  const validSelectedDate = urlSelectedDate;
+
+  if (validSelectedDate) {
+    const urlRange = [new Date(urlStartDate), new Date(urlEndDate)];
+
+    console.log("Target date:", new Date(validSelectedDate));
+    console.log("Looking through all presidents...");
+
+    const allPresidents = Array.isArray(presidents)
+      ? presidents
+      : Object.values(presidents);
+
+    const presidentForDate = allPresidents.find((p) => {
+      const rel = presidentRelationDict[p.id];
+      if (!rel || !rel.startTime) return false;
+
+      const start = new Date(rel.startTime.split("T")[0]);
+      const end = rel.endTime ? new Date(rel.endTime.split("T")[0]) : new Date();
+
+      const matches = new Date(validSelectedDate) >= start && new Date(validSelectedDate) <= end;
+      return matches;
+    });
+
+    if (presidentForDate) {
+      selectPresidentAndDates(
+        presidentForDate,
+        urlRange,
+        validSelectedDate
+      );
       setInitializedFromUrl(true);
+      setUrlInitComplete(true);
+      return;
     }
-  }, [presidents, presidentRelationDict, gazetteDateClassic, initializedFromUrl]);
+  }
+
+  console.log("No valid selectedDate in URL, selecting last president");
+  if (filteredPresidents.length > 0) {
+    const lastPresident = filteredPresidents[filteredPresidents.length - 1];
+    selectPresidentAndDates(lastPresident);
+    setInitializedFromUrl(true);
+  }
+}, [presidents, presidentRelationDict, gazetteDateClassic, initializedFromUrl]);
+
+
+
+
 
 
   useEffect(() => {
