@@ -14,7 +14,7 @@ export default function YearRangeSelector({
   latestPresStartDate,
   onDateChange,
 }) {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const endYear = new Date().getFullYear();
   const years = Array.from(
@@ -32,12 +32,6 @@ export default function YearRangeSelector({
     if (!dateStr) return fallback;
     const date = new Date(dateStr);
     return isNaN(date.getTime()) ? fallback : date;
-  };
-
-  // Helper: safely format Date → YYYY-MM-DD
-  const formatDate = (date, fallback = "") => {
-    if (!(date instanceof Date) || isNaN(date.getTime())) return fallback;
-    return date.toISOString().split("T")[0];
   };
 
   const [selectedRange, setSelectedRange] = useState([
@@ -174,33 +168,21 @@ export default function YearRangeSelector({
   }
 
   useEffect(() => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
     const trigger = () => {
       onDateChange?.([startDate, endDate]);
-      const newParams = new URLSearchParams(searchParams.toString());
-      newParams.set("startDate", formatDate(startDate));
-      newParams.set("endDate", formatDate(endDate));
-      setSearchParams(newParams);
     };
 
-    // While dragging/moving, debounce; otherwise fire immediately
     if (isDragging || isMovingWindow) {
-      console.log("debouncing date change");
       debounceRef.current = setTimeout(trigger, 1000);
     } else {
-      console.log("triggering date change");
       trigger();
     }
 
     return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [startDate, endDate, onDateChange, isDragging, isMovingWindow]);
+
 
   // Get overlay metrics (left, width) for selected range
   function getPreciseOverlayMetrics() {

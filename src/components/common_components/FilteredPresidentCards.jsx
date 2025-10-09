@@ -85,7 +85,7 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
       selectedDateValue = filteredDates[filteredDates.length - 1];
     } else {
 
-      selectedDateValue = { date: finalStart.toISOString().split("T")[0] };
+      selectedDateValue = { date: finalEnd.toISOString().split("T")[0] };
     }
 
     dispatch(setSelectedDate(selectedDateValue));
