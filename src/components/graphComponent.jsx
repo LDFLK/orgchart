@@ -370,6 +370,7 @@ export default function GraphComponent({ activeMinistries, filterType }) {
     isDateTaken,
     activeMinistries,
     filterType,
+    location.search
   ]);
 
   // Handle WebGL context loss and restoration

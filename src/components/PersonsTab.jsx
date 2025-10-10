@@ -17,22 +17,25 @@ import { useThemeContext } from "../themeContext";
 import CloseIcon from "@mui/icons-material/Close";
 import PersonProfile from "./PersonProfile";
 import InfoTooltip from "./common_components/InfoToolTip";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 
 const PersonsTab = ({ selectedDate }) => {
   const { colors } = useThemeContext();
   const allPersonDict = useSelector((state) => state.allPerson.allPerson);
-  const { selectedMinistry } = useSelector((state) => state.allMinistryData);
+  // const { selectedMinistry } = useSelector((state) => state.allMinistryData);
   const { selectedPresident } = useSelector((state) => state.presidency);
   const [profileOpen, setProfileOpen] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [ministerListForMinistry, setministerListForMinistry] = useState([]);
   const [loading, setLoading] = useState(false);
+  const location = useLocation();
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const selectedMinistry = params.get("ministry");
     if (!selectedMinistry) return;
 
     const fetchPersons = async () => {
@@ -93,7 +96,7 @@ const PersonsTab = ({ selectedDate }) => {
     };
 
     fetchPersons();
-  }, [selectedDate, selectedMinistry, allPersonDict, selectedPresident]);
+  }, [selectedDate, allPersonDict, selectedPresident]);
 
   if (loading) {
     return (

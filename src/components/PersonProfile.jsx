@@ -44,7 +44,6 @@ const PersonHistoryTimeline = ({
     const fetchPersonHistory = async () => {
       if (!selectedPerson?.id) return;
       setLoading(true);
-      console.log(selectedPerson.id);
       try {
         const res = await api.getMinistriesByPerson(selectedPerson.id);
         const data = await res.json();

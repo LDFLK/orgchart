@@ -13,7 +13,7 @@ const ModernView = () => {
   const { selectedDate, selectedPresident } = useSelector(
     (state) => state.presidency
   );
-  const { selectedMinistry } = useSelector((state) => state.allMinistryData);
+  // const { selectedMinistry } = useSelector((state) => state.allMinistryData);
   const presidentRelationDict = useSelector(
     (state) => state.presidency.presidentRelationDict
   );

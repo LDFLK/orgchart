@@ -34,7 +34,6 @@ import utils from "./../utils/utils";
 import MinistryViewModeToggleButton from "./ministryViewModeToggleButton";
 import GraphComponent from "./graphComponent";
 import { clearTimeout } from "highcharts";
-import UrlParamState from "../hooks/singleSharingURL";
 
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
@@ -43,6 +42,7 @@ import StepContent from "@mui/material/StepContent";
 import PersonsTab from "./PersonsTab";
 import MinistryDrawerContent from "./MinistryDrawerContent";
 import { useLocation } from "react-router-dom";
+import useUrlParamState from "../hooks/singleSharingURL";
 
 const MinistryCardGrid = () => {
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
@@ -54,9 +54,9 @@ const MinistryCardGrid = () => {
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterLoading, setFilterLoading] = useState(false);
-  const [searchText, setSearchText] = UrlParamState("filterByName", "");
-  const [filterType, setFilterType] = UrlParamState("filterByType", "all");
-  const [viewMode, setViewMode] = UrlParamState("viewMode", "Grid");
+  const [searchText, setSearchText] = useUrlParamState("filterByName", "");
+  const [filterType, setFilterType] = useUrlParamState("filterByType", "all");
+  const [viewMode, setViewMode] = useUrlParamState("viewMode", "Grid");
   const [activeStep, setActiveStep] = useState(0);
   const [activeTab, setActiveTab] = useState("departments");
   const [selectedCard, setSelectedCard] = useState(null);
@@ -65,23 +65,26 @@ const MinistryCardGrid = () => {
   const location = useLocation();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(window.location.search);
     const ministryId = params.get("ministry");
 
-    if (!ministryId || activeMinistryList.length === 0) return;
+    if (!ministryId || activeMinistryList.length === 0) {
+      setSelectedCard(null);
+      setActiveStep(0);
+      return;
+    }
 
     const matchedCard = activeMinistryList.find(
       (card) => String(card.id) === String(ministryId)
     );
 
     if (matchedCard) {
-      dispatch(setSelectedMinistry(matchedCard.id));
+      // dispatch(setSelectedMinistry(matchedCard.id));
       setSelectedCard(matchedCard);
       setActiveStep(1);
     }
-  }, [location.search, activeMinistryList]);
+  }, [location.search, activeMinistryList, viewMode]);
 
-  
   useEffect(() => {
     if (
       !selectedDate ||
@@ -270,7 +273,7 @@ const MinistryCardGrid = () => {
   // }, [selectedDate]);
 
   const handleCardClick = async (card) => {
-    dispatch(setSelectedMinistry(card.id));
+    // dispatch(setSelectedMinistry(card.id));
     handleNext();
     setSelectedCard(card);
 

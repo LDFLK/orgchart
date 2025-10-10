@@ -23,10 +23,6 @@ export default function DepartmentProfile() {
     }
   }, [departmentId, allDepartmentData]);
 
-  useEffect(() => {
-    console.log('this is the state : ',state)
-  },[state])
-
   const { colors } = useThemeContext();
   return (
     <Box
