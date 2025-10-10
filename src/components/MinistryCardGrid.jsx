@@ -253,10 +253,10 @@ const MinistryCardGrid = () => {
       const newStep = prevActiveStep - 1;
 
       if (newStep === 0) {
-        const params = new URLSearchParams(location.search);
+        const params = new URLSearchParams(window.location.search);
         params.delete("ministry");
 
-        const newUrl = `${location.pathname}?${params.toString()}`;
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
         window.history.pushState({}, "", newUrl);
       }
 
@@ -265,10 +265,10 @@ const MinistryCardGrid = () => {
   };
 
   // useEffect(() => {
-  //   const params = new URLSearchParams(location.search);
+  //   const params = new URLSearchParams(window.location.search);
   //   params.delete("ministry");
   //   setActiveStep(0)
-  //   const newUrl = `${location.pathname}?${params.toString()}`;
+  //   const newUrl = `${window.location.pathname}?${params.toString()}`;
   //   window.history.pushState({}, "", newUrl);
   // }, [selectedDate]);
 
@@ -277,9 +277,9 @@ const MinistryCardGrid = () => {
     handleNext();
     setSelectedCard(card);
 
-    const params = new URLSearchParams(location.search);
+    const params = new URLSearchParams(window.location.search);
     params.set("ministry", card.id);
-    const newUrl = `${location.pathname}?${params.toString()}`;
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
     window.history.pushState({}, "", newUrl);
   };
 
