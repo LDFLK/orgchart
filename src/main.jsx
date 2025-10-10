@@ -5,7 +5,7 @@ import store from "./store/store";
 
 import { ThemeProvider as CustomThemeProvider } from "./themeContext.jsx";
 import { ThemeProvider as MUIThemeProvider, createTheme } from "@mui/material/styles";
-import { BadgeProvider } from "./badgeContext.jsx";
+import { BadgeProvider } from "./components/badgeContext.jsx";
 
 const theme = createTheme({
   palette: {

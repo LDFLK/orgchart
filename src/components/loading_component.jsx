@@ -1,30 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { ClipLoader } from "react-spinners";
-import { useThemeContext } from "../../themeContext";
-
-const sentences = [
-  "Fetching important data...",
-  "Polishing the charts...",
-  "Almost there, hang tight!",
-  "Loading awesomeness...",
-  "This won’t take long!",
-];
+import { useThemeContext } from "../themeContext";
 
 export default function LoadingComponent({ size = 40, OsColorMode = true }) {
   const { colors } = useThemeContext();
-  const [index, setIndex] = useState(0);
-  const [flip, setFlip] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFlip(true);
-      setTimeout(() => {
-        setIndex((prev) => (prev + 1) % sentences.length);
-        setFlip(false);
-      }, 600);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div

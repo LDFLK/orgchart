@@ -5,17 +5,18 @@ import React, {
   useRef,
   useMemo,
 } from "react";
+import { Box, Alert, AlertTitle } from "@mui/material";
 import ForceGraph3D from "react-force-graph-3d";
 import api from "../services/services";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
 
-import Drawer from "./statistics_components/drawer";
+import Drawer from "../components/graphDrawer"
 import SpriteText from "three-spritetext";
 import WebGLChecker, {
   isWebGLAvailable,
-} from "./common_components/webgl_checker";
-import LoadingComponent from "./common_components/loading_component";
+} from "../components/webgl_checker";
+import LoadingComponent from "./loading_component";
 import { useThemeContext } from "../themeContext";
 import { useNavigate } from "react-router-dom";
 
@@ -370,7 +371,7 @@ export default function GraphComponent({ activeMinistries, filterType }) {
     isDateTaken,
     activeMinistries,
     filterType,
-    location.search
+    location.search,
   ]);
 
   // Handle WebGL context loss and restoration
@@ -696,9 +697,34 @@ export default function GraphComponent({ activeMinistries, filterType }) {
                     />
                   </div>
                 ) : (
-                  <div className="flex justify-center items-center w-full h-full">
-                    <LoadingComponent message="Preparing Graph Data" />
-                  </div>
+                  graphData.nodes.length == 0 &&
+                  graphData.links.length == 0 &&
+                  !loading && (
+                    <div className="flex justify-center items-center w-full h-full">
+                      <Box
+                        sx={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "center",
+                          marginTop: "15px",
+                        }}
+                      >
+                        <Alert
+                          severity="info"
+                          sx={{ backgroundColor: "transparent" }}
+                        >
+                          <AlertTitle
+                            sx={{
+                              fontFamily: "poppins",
+                              color: colors.textPrimary,
+                            }}
+                          >
+                            No Search Result
+                          </AlertTitle>
+                        </Alert>
+                      </Box>
+                    </div>
+                  )
                 ))}
             </div>
           ) : (

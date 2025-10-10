@@ -1,8 +1,8 @@
 import { useSelector, useDispatch } from "react-redux"; 
 import { useState, useMemo, useEffect, useRef } from "react";
-import utils from "../../utils/utils";
-import { setSelectedPresident, setSelectedDate } from "../../store/presidencySlice";
-import { setGazetteData } from "../../store/gazetteDate";
+import utils from "../utils/utils";
+import { setSelectedPresident, setSelectedDate } from "../store/presidencySlice";
+import { setGazetteData } from "../store/gazetteDate";
 
 export default function FilteredPresidentCards({ dateRange = [null, null] }) {
   const dispatch = useDispatch();
@@ -69,7 +69,7 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
     const filteredDates = gazetteDateClassic
       .filter((d) => {
         const dd = new Date(d);
-        return dd >= finalStart && dd <= finalEnd;
+        return dd >= finalStart && dd < finalEnd;
       })
       .map((date) => ({ date }));
 
@@ -78,7 +78,6 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
 
     let selectedDateValue;
     if (urlSelectedDate) {
-
       selectedDateValue = { date: urlSelectedDate };
     } else if (filteredDates.length > 0) {
 

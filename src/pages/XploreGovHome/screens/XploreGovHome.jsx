@@ -487,11 +487,6 @@ const XploreGovHomepage = () => {
                 </span>
               </h1>
             </div>
-            <img
-              src="https://imgs.search.brave.com/g1a5xxmzRkIhv3A2zqV-q55_m7bBju-lI6z2OF85BRQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA5LzMzLzk3LzU0/LzM2MF9GXzkzMzk3/NTQyOV9nbGc3NUpw/WFJBRzR4bHM1Vkxl/NmZEdkI0ZXNmWFE5/aC5qcGc"
-              alt="XploreGov Logo"
-              className="max-w-[35px] w-full object-contain h-auto ml-2"
-            />
           </div>
 
           {/* Hero Section */}

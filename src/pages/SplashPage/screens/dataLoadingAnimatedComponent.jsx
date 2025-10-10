@@ -13,8 +13,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../../../components/NavBar";
 import { setGazetteDataClassic } from "../../../store/gazetteDate";
-import PersonProfile from "../../../components/PersonProfile";
-import Error500 from "../../../components/500Error";
+import PersonProfile from "../../PersonProfilePage/screens/PersonProfile";
+import Error500 from "../../ErrorBoundaries/screens/500Error";
 import DepartmentProfile from "../../DepartmentPage/screens/DepartmentProfile";
 import SplashPage from "../components/splash_page";
 

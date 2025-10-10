@@ -3,7 +3,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useThemeContext } from "../themeContext";
-import { useBadgeContext } from "../badgeContext";
+import { useBadgeContext } from "./badgeContext";
 import { useState } from "react";
 
 const MinistryCard = ({ card, onClick }) => {

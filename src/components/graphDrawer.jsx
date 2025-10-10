@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CiCircleChevLeft } from "react-icons/ci";
-import { useThemeContext } from "../../themeContext";
+import { useThemeContext } from "../themeContext";
 import { ClipLoader } from "react-spinners";
 import { useSelector } from "react-redux";
 import { Building, History, UserRound, Building2, User } from "lucide-react";

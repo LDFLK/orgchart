@@ -24,9 +24,9 @@ import api from "../services/services";
 import { useThemeContext } from "../themeContext";
 import enumMode from "../enums/mode";
 import { useNavigate } from "react-router-dom";
-import InfoTooltip from "./common_components/InfoToolTip";
+import InfoTooltip from "./InfoToolTip";
 
-const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
+const DepartmentTab = ({ selectedDate, ministryId }) => {
   const { colors } = useThemeContext();
   const { selectedPresident } = useSelector((state) => state.presidency);
   // const { selectedMinistry } = useSelector((state) => state.allMinistryData);
@@ -400,4 +400,4 @@ const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
   );
 };
 
-export default MinistryDrawerContent;
+export default DepartmentTab;
