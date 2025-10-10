@@ -89,7 +89,6 @@ const fetchActiveMinistries = async (
   selectedPresident
 ) => {
   try {
-    const beforeTime = new Date().getTime();
 
     const response = await fetch(
       `${apiUrl}/v1/entities/${selectedPresident.id}/relations`,
@@ -114,13 +113,6 @@ const fetchActiveMinistries = async (
     }
 
     const activeMinistryRelations = await response.json();
-
-    const afterTime = new Date().getTime();
-    console.log(
-      `execusion time to fetch active ministries :  ${
-        afterTime - beforeTime
-      } msec`
-    );
 
     // Extract relatedEntityId and startTime from each relation
     const activeMinistryInfo = activeMinistryRelations

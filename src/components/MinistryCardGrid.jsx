@@ -34,7 +34,6 @@ import utils from "./../utils/utils";
 import MinistryViewModeToggleButton from "./ministryViewModeToggleButton";
 import GraphComponent from "./graphComponent";
 import { clearTimeout } from "highcharts";
-import UrlParamState from "../hooks/singleSharingURL";
 
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
@@ -42,6 +41,8 @@ import StepLabel from "@mui/material/StepLabel";
 import StepContent from "@mui/material/StepContent";
 import PersonsTab from "./PersonsTab";
 import MinistryDrawerContent from "./MinistryDrawerContent";
+import { useLocation } from "react-router-dom";
+import useUrlParamState from "../hooks/singleSharingURL";
 
 const MinistryCardGrid = () => {
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
@@ -53,11 +54,36 @@ const MinistryCardGrid = () => {
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterLoading, setFilterLoading] = useState(false);
-  const [searchText, setSearchText] = UrlParamState("filterByName", "");
-  const [filterType, setFilterType] = UrlParamState("filterByType", "all");
-  const [viewMode, setViewMode] = UrlParamState("viewMode", "Grid");
+  const [searchText, setSearchText] = useUrlParamState("filterByName", "");
+  const [filterType, setFilterType] = useUrlParamState("filterByType", "all");
+  const [viewMode, setViewMode] = useUrlParamState("viewMode", "Grid");
+  const [activeStep, setActiveStep] = useState(0);
+  const [activeTab, setActiveTab] = useState("departments");
+  const [selectedCard, setSelectedCard] = useState(null);
   const { colors } = useThemeContext();
   const dispatch = useDispatch();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ministryId = params.get("ministry");
+
+    if (!ministryId || activeMinistryList.length === 0) {
+      setSelectedCard(null);
+      setActiveStep(0);
+      return;
+    }
+
+    const matchedCard = activeMinistryList.find(
+      (card) => String(card.id) === String(ministryId)
+    );
+
+    if (matchedCard) {
+      // dispatch(setSelectedMinistry(matchedCard.id));
+      setSelectedCard(matchedCard);
+      setActiveStep(1);
+    }
+  }, [location.search, activeMinistryList, viewMode]);
 
   useEffect(() => {
     if (
@@ -145,7 +171,6 @@ const MinistryCardGrid = () => {
       return;
 
     try {
-      const startTime = new Date().getTime();
       setLoading(true);
       const activeMinistry = await api.fetchActiveMinistries(
         selectedDate,
@@ -178,7 +203,7 @@ const MinistryCardGrid = () => {
               return {
                 ...person,
                 startTime: startTimeMap.get(id) || null,
-                id
+                id,
               };
             })
             .filter(Boolean); // remove any missing ids
@@ -186,8 +211,7 @@ const MinistryCardGrid = () => {
           const headMinisterName = personListInDetail[0]?.name || null;
           const headMinisterStartTime =
             personListInDetail[0]?.startTime || null;
-          const headMinisterId = personListInDetail[0]?.id ||null
-
+          const headMinisterId = personListInDetail[0]?.id || null;
 
           return {
             ...ministry,
@@ -203,12 +227,6 @@ const MinistryCardGrid = () => {
       setActiveMinistryList(enrichedMinistries);
       setFilteredMinistryList(enrichedMinistries);
       setLoading(false);
-      const endTime = new Date().getTime();
-      console.log(
-        "Fetch and Enrichment time for active ministry list:",
-        endTime - startTime,
-        "ms"
-      );
     } catch (e) {
       console.log("error fetch ministry list : ", e.message);
       setLoading(false);
@@ -226,21 +244,44 @@ const MinistryCardGrid = () => {
     },
   ];
 
-  const [activeStep, setActiveStep] = useState(0);
-  const [activeTab, setActiveTab] = useState("departments");
-  const [selectedCard, setSelectedCard] = useState();
-
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    setActiveStep((prevActiveStep) => {
+      const newStep = prevActiveStep - 1;
+
+      if (newStep === 0) {
+        const params = new URLSearchParams(location.search);
+        params.delete("ministry");
+
+        const newUrl = `${location.pathname}?${params.toString()}`;
+        window.history.pushState({}, "", newUrl);
+      }
+
+      return newStep;
+    });
   };
 
-  useEffect(() => {
-    console.log(activeStep);
-  }, [activeStep]);
+  // useEffect(() => {
+  //   const params = new URLSearchParams(location.search);
+  //   params.delete("ministry");
+  //   setActiveStep(0)
+  //   const newUrl = `${location.pathname}?${params.toString()}`;
+  //   window.history.pushState({}, "", newUrl);
+  // }, [selectedDate]);
+
+  const handleCardClick = async (card) => {
+    // dispatch(setSelectedMinistry(card.id));
+    handleNext();
+    setSelectedCard(card);
+
+    const params = new URLSearchParams(location.search);
+    params.set("ministry", card.id);
+    const newUrl = `${location.pathname}?${params.toString()}`;
+    window.history.pushState({}, "", newUrl);
+  };
 
   return (
     <Box
@@ -563,15 +604,21 @@ const MinistryCardGrid = () => {
                 onChange={(e) => setFilterType(e.target.value)}
                 sx={{
                   backgroundColor: colors.backgroundColor,
-                  color: colors.textMuted, // selected value color
+                  color: colors.textMuted,
                   "& .MuiOutlinedInput-notchedOutline": {
                     borderColor: colors.textMuted,
                   },
                   "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
                     borderColor: colors.textMuted,
                   },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: colors.textMuted,
+                  },
+                  "&.MuiOutlinedInput-root:hover": {
+                    backgroundColor: colors.backgroundColor,
+                  },
                   "& .MuiSvgIcon-root": {
-                    color: colors.textMuted, // dropdown arrow
+                    color: colors.textMuted,
                   },
                 }}
                 MenuProps={{
@@ -627,7 +674,13 @@ const MinistryCardGrid = () => {
           </Box>
         ) : (
           <>
-            <Box sx={{ width: "100%", display: "flex", pl: viewMode == "Grid" ? 8 : 0 }}>
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                pl: viewMode == "Grid" ? 8 : 0,
+              }}
+            >
               {viewMode == "Grid" ? (
                 <Stepper
                   activeStep={activeStep}
@@ -719,11 +772,7 @@ const MinistryCardGrid = () => {
                                   >
                                     <MinistryCard
                                       card={card}
-                                      onClick={() => {
-                                        dispatch(setSelectedMinistry(card.id));
-                                        handleNext();
-                                        setSelectedCard(card);
-                                      }}
+                                      onClick={() => handleCardClick(card)}
                                     />
                                   </Grid>
                                 ))
@@ -888,7 +937,10 @@ const MinistryCardGrid = () => {
                   ))}
                 </Stepper>
               ) : (
-                <GraphComponent activeMinistries={filteredMinistryList} filterType={filterType}/>
+                <GraphComponent
+                  activeMinistries={filteredMinistryList}
+                  filterType={filterType}
+                />
               )}
             </Box>
           </>

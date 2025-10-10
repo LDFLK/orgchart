@@ -8,8 +8,7 @@ import { setAllPerson } from "../../../store/allPersonData";
 import {
   setPresidentRelationDict,
   setPresidentDict,
-  setSelectedPresident,
-  setSelectedIndex,
+  setSelectedPresident
 } from "../../../store/presidencySlice";
 import { useDispatch, useSelector } from "react-redux";
 import Navbar from "../../../components/NavBar";
@@ -126,9 +125,6 @@ export default function DataLoadingAnimatedComponent({ mode }) {
       // Only select the last president if no president is currently selected
       if (!selectedPresident) {
         const selectedPre = enrichedPresidents[enrichedPresidents.length - 1];
-        console.log("this is the selected president ", selectedPre);
-        const lastIndex = enrichedPresidents.length - 1;
-        dispatch(setSelectedIndex(lastIndex));
         dispatch(setSelectedPresident(selectedPre));
       }
     } catch (e) {

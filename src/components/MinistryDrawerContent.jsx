@@ -10,7 +10,7 @@ import {
   TextField,
   InputAdornment,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import ApartmentIcon from "@mui/icons-material/Apartment";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
@@ -29,7 +29,7 @@ import InfoTooltip from "./common_components/InfoToolTip";
 const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
   const { colors } = useThemeContext();
   const { selectedPresident } = useSelector((state) => state.presidency);
-  const { selectedMinistry } = useSelector((state) => state.allMinistryData);
+  // const { selectedMinistry } = useSelector((state) => state.allMinistryData);
   const allDepartmentList = useSelector(
     (state) => state.allDepartmentData.allDepartmentData
   );
@@ -40,10 +40,16 @@ const MinistryDrawerContent = ({ selectedDate, ministryId }) => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
-    fetchDepartmentList(ministryId || selectedMinistry);
-  }, [ministryId, selectedMinistry, selectedDate]);
+    const params = new URLSearchParams(window.location.search);
+    const selectedMinistry = params.get("ministry");
+
+    if(selectedMinistry){
+      fetchDepartmentList(ministryId || selectedMinistry);
+    }
+  }, [ministryId, selectedDate, location.search]);
 
   const fetchDepartmentList = async (ministryId) => {
     if (!ministryId) return;

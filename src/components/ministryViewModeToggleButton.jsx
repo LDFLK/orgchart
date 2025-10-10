@@ -2,14 +2,14 @@ import React, { useEffect } from "react";
 import { PiGraph } from "react-icons/pi";
 import { MdGridOn } from "react-icons/md";
 import { useThemeContext } from "../themeContext";
-import { color } from "highcharts";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 export default function MinistryViewModeToggleButton({
   viewMode,
   setViewMode,
 }) {
   const { colors } = useThemeContext();
-
+  
   return (
     <div className="flex justify-end mx-10">
       <button
