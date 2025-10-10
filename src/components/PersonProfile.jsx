@@ -26,6 +26,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import personDetails from "./../assets/personImages.json";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FaAngleLeft } from "react-icons/fa6";
+import colors from "../assets/colors";
 
 /* ------------------- Timeline Component ------------------- */
 const PersonHistoryTimeline = ({
@@ -119,7 +120,7 @@ const PersonHistoryTimeline = ({
       sx={{
         width: "100%",
         alignItems: "center",
-        p: { xs: 0, sm: 6 },
+        p: { xs: 2, sm: 4 },
         borderRadius: 2,
         backgroundColor: colors.backgroundWhite,
         boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
@@ -134,7 +135,7 @@ const PersonHistoryTimeline = ({
           );
 
           return (
-            <TimelineItem key={idx} sx={{ py: 0.5 }}>
+            <TimelineItem key={idx} sx={{ py: 0 }}>
               <TimelineOppositeContent
                 sx={{
                   m: "auto 0",
@@ -152,8 +153,8 @@ const PersonHistoryTimeline = ({
                   ? `${new Date(entry.startTime)
                     .toISOString()
                     .slice(0, 10)} - ${entry.endTime
-                    ? new Date(entry.endTime).toISOString().slice(0, 10)
-                    : "Present"
+                      ? new Date(entry.endTime).toISOString().slice(0, 10)
+                      : "Present"
                   }`
                   : "Unknown"}
               </TimelineOppositeContent>
@@ -164,9 +165,9 @@ const PersonHistoryTimeline = ({
                   sx={{
                     width: 2,
                     height: 2,
-                    boxShadow: `0 0 6px ${colors.textMuted}`,
+                    boxShadow: `0 0 6px ${colors.textPrimary}`,
                     animation: "pulse 2.5s infinite",
-                    backgroundColor: colors.textMuted,
+                    backgroundColor: colors.textPrimary,
                   }}
                 />
                 {idx < arr.length && (
@@ -182,7 +183,7 @@ const PersonHistoryTimeline = ({
                   sx={{
                     p: 1,
                     borderRadius: 2,
-                    backgroundColor: "background.paper",
+                    backgroundColor: colors.backgroundBlue,
                     boxShadow: "0 1px 5px rgba(0,0,0,0.1)",
                   }}
                 >
@@ -192,13 +193,13 @@ const PersonHistoryTimeline = ({
                     {/* Avatar */}
                     <Avatar
                       sx={{
-                        bgcolor: colors.textMuted2,
-                        width: 30,
-                        height: 30,
+                        bgcolor: colors.textPrimary,
+                        width: 25,
+                        height: 25,
                         fontSize: 14,
                       }}
                     >
-                      <AccountBalanceIcon />
+                      <AccountBalanceIcon style={{ color: colors.backgroundBlue, width: 15, height: 15 }} />
                     </Avatar>
 
                     {/* Text + President badge */}
@@ -215,12 +216,13 @@ const PersonHistoryTimeline = ({
                       <Typography
                         variant="subtitle2"
                         sx={{
-                          fontWeight: "700",
+                          fontWeight: "600",
                           fontSize: { xs: 12, sm: 15 }, // responsive font
                           fontFamily: "poppins",
                           wordBreak: "break-word",
                           width: "100%",
                           textAlign: "left",
+                          color: colors.textPrimary
                         }}
                       >
                         {entry.ministryName.split(":")[0]}
@@ -235,9 +237,9 @@ const PersonHistoryTimeline = ({
                             py: 0.2,
                             borderRadius: 1,
                             bgcolor: colors.textMuted,
-                            color: "white",
+                            color: colors.backgroundBlue,
                             fontSize: { xs: 8, sm: 10 }, // responsive font
-                            fontWeight: 600,
+                            fontWeight: 500,
                             fontFamily: "poppins",
                             alignSelf: "flex-start",
                           }}
@@ -368,15 +370,15 @@ const PersonProfile = () => {
       <Box
         sx={{
           width: "100%",
-          // maxWidth: 400,
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
           alignItems: { xs: "flex-start", sm: "center" },
-          // p: 3,
+          justifyContent: "space-between",
+          p: { xs: 2, sm: 3 },
           borderRadius: 2,
-          // backgroundColor: colors.backgroundWhite,
+          backgroundColor: colors.backgroundWhite,
           boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-          gap: 2,
+          gap: { xs: 2, sm: 3 },
           my: 3,
         }}
       >
@@ -385,21 +387,22 @@ const PersonProfile = () => {
           src={imageUrl}
           alt={selectedPerson?.name}
           sx={{
-            width: { xs: 80, sm: 100 },
-            height: { xs: 80, sm: 100 },
+            width: { xs: 70, sm: 90, md: 100 },
+            height: { xs: 70, sm: 90, md: 100 },
             bgcolor: colors.textMuted2,
-            fontSize: { xs: 20, sm: 24 },
+            fontSize: { xs: 18, sm: 22, md: 24 },
+            flexShrink: 0,
           }}
         >
           {personName.charAt(0).toUpperCase() || "?"}
         </Avatar>
 
-        {/* Info stacked in column */}
+        {/* Info */}
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column", // always column, so two lines
-            gap: 1,
+            flexDirection: "column",
+            gap: 1.5,
             flex: 1,
             width: "100%",
           }}
@@ -409,81 +412,76 @@ const PersonProfile = () => {
               fontFamily: "Poppins",
               fontWeight: 600,
               color: colors.textPrimary,
-              fontSize: { xs: "1rem", sm: "1.1rem" },
+              fontSize: { xs: "1rem", sm: "1.1rem", md: "1.2rem" },
               wordBreak: "break-word",
             }}
           >
             {utils.extractNameFromProtobuf(selectedPerson?.name || "Unknown")}
           </Typography>
 
-          {/* Fields always stacked */}
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                width: "350px",
-              }}
-            >
-              <Typography
+          {/* Info Fields */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              width: "100%",
+            }}
+          >
+            {[
+              {
+                icon: <AccountBalanceIcon sx={{ fontSize: 18, color: colors.textMuted }} />,
+                label: "Ministries Worked At",
+                value: workedMinistries,
+              },
+              {
+                icon: <PersonIcon sx={{ fontSize: 18, color: colors.textMuted }} />,
+                label: "Worked as President",
+                value: workedAsPresident,
+              },
+            ].map((item, idx) => (
+              <Box
+                key={idx}
                 sx={{
                   display: "flex",
-                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
                   gap: 1,
-                  fontFamily: "Poppins",
-                  fontWeight: 500,
-                  color: colors.textMuted,
+                  width: "100%",
+                  maxWidth: { xs: "100%", sm: "400px" },
                 }}
               >
-                <AccountBalanceIcon
-                  sx={{ fontSize: 18, color: colors.textMuted }}
-                />
-                Ministries Worked At
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: "Poppins",
-                  fontWeight: 500,
-                  color: colors.textPrimary,
-                }}
-              >
-                {workedMinistries}
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                width: "350px",
-              }}
-            >
-              <Typography
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  fontFamily: "Poppins",
-                  fontWeight: 500,
-                  color: colors.textMuted,
-                }}
-              >
-                <PersonIcon sx={{ fontSize: 18, color: colors.textMuted }} />
-                Worked as President
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: "Poppins",
-                  fontWeight: 500,
-                  color: colors.textPrimary,
-                }}
-              >
-                {workedAsPresident}
-              </Typography>
-            </Box>
+                <Typography
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    fontFamily: "Poppins",
+                    fontWeight: 500,
+                    color: colors.textMuted,
+                    flexShrink: 0,
+                  }}
+                >
+                  {item.icon}
+                  {item.label}
+                </Typography>
+                <Typography
+                  sx={{
+                    fontFamily: "Poppins",
+                    fontWeight: 500,
+                    color: colors.textPrimary,
+                    textAlign: "right",
+                    wordBreak: "break-word",
+                  }}
+                >
+                  {item.value}
+                </Typography>
+              </Box>
+            ))}
           </Box>
         </Box>
       </Box>
+
 
       {/* --- Tabs (Elliptical Buttons) --- */}
       <Box
