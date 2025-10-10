@@ -101,313 +101,326 @@ const ModernView = () => {
         overflowX: "hidden",
       }}
     >
-      (<Box sx={{ display: "flex", mt: 5, justifyContent: "center" }}>
+      (
+      <Box sx={{ display: "flex", mt: 5, justifyContent: "center" }}>
         <PresidencyTimeline />
-      </Box>)
-
-      {selectedPresident && (<><Box
-        sx={{
-          p: 3,
-          mx: { xs: 2, xl: 5 },
-          my: 2,
-          borderRadius: "15px",
-        }}
-      >
-        <Box
-          sx={{
-            textAlign: "left",
-            width: "100%",
-            display: { xs: "block", md: "flex" },
-            justifyContent: "center",
-          }}
-        >
-          {/* President Card */}
-          <Card
+      </Box>
+      )
+      {selectedPresident && (
+        <>
+          <Box
             sx={{
-              width: { xs: "100%", sm: "45%", lg: "25%" },
-              marginRight: 1,
-              border: `2px solid ${selectedPresident.themeColorLight}`,
+              p: 3,
+              mx: { xs: 2, xl: 5 },
+              my: 2,
               borderRadius: "15px",
-              backgroundColor: colors.backgroundPrimary,
-              boxShadow: "none",
-              mr: 1,
             }}
           >
             <Box
               sx={{
-                width: "175px",
-                height: "35px",
-                backgroundColor: `${selectedPresident.themeColorLight}`,
-                borderBottomRightRadius: "15px",
-                textAlign: "left", // Align the header text left
-              }}
-            >
-              <Typography
-                sx={{
-                  fontWeight: 300,
-                  color: colors.white,
-                  fontSize: 18,
-                  textAlign: "center",
-                  pt: "5px",
-                }}
-              >
-                President
-              </Typography>
-            </Box>
-
-            <Box sx={{ padding: 2 }}>
-              {selectedPresident && (
-                <Box
-                  direction="row"
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                    ml: 0,
-                    my: 0,
-                  }}
-                >
-                  <Avatar
-                    src={selectedPresident.imageUrl}
-                    alt={selectedPresident.name}
-                    sx={{
-                      width: 75,
-                      height: 75,
-                      // border: `3px solid ${selectedPresident.themeColorLight}`,
-                      backgroundColor: colors.backgroundPrimary,
-                    }}
-                  />
-                  <Box
-                    sx={{
-                      display: "block",
-                      ml: "15px",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontWeight: 400,
-                        fontSize: 18,
-                        whiteSpace: "normal",
-                        wordBreak: "break-word",
-                        fontFamily: "poppins",
-                        color: colors.textPrimary,
-                        textAlign: "left",
-                        margin: 0,
-                      }}
-                    >
-                      {utils.extractNameFromProtobuf(selectedPresident.name)}
-                    </Typography>
-                    <Typography sx={{ fontSize: 18, color: colors.textMuted }}>
-                      {(() => {
-                        const relation =
-                          presidentRelationDict[selectedPresident.id];
-                        if (!relation) return "Unknown";
-                        return relation.endTime
-                          ? `${relation.startTime.split("-")[0]} - ${new Date(
-                              relation.endTime
-                            ).getFullYear()}`
-                          : `${relation.startTime.split("-")[0]} - Present`;
-                      })()}
-                    </Typography>
-
-                    <Button
-                      component={Link}
-                      to={`/person-profile/${selectedPresident?.id}`}
-                      state={{ mode: "back" }}
-                      disableRipple
-                      disableElevation
-                      sx={{
-                        p: 0,
-                        minWidth: "auto",
-                        backgroundColor: "transparent",
-                        textTransform: "none",
-                        textAlign: "left",
-                        "&:hover": {
-                          backgroundColor: "transparent",
-                        },
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          fontSize: 14,
-                          color: "#6491DA",
-                          transition: "color 0.3s, text-decoration 0.3s",
-                          ":hover": {
-                            textDecoration: "underline",
-                            color: selectedPresident.themeColorLight,
-                          },
-                        }}
-                      >
-                        View Profile
-                      </Typography>
-                    </Button>
-                  </Box>
-                </Box>
-              )}
-            </Box>
-          </Card>
-
-          {/* Prime Minister Card */}
-          <Card
-            sx={{
-              width: { xs: "100%", sm: "45%", lg: "25%" },
-              marginRight: 1,
-              border: `2px solid ${selectedPresident.themeColorLight}`,
-              borderRadius: "15px",
-              backgroundColor: colors.backgroundPrimary,
-              boxShadow: "none",
-              ml: 1,
-            }}
-          >
-            <Box
-              sx={{
-                width: "175px",
-                height: "35px",
-                backgroundColor: `${selectedPresident.themeColorLight}`,
-                borderBottomRightRadius: "15px",
                 textAlign: "left",
+                width: "100%",
+                display: { xs: "block", md: "flex" },
+                justifyContent: "center",
               }}
             >
-              <Typography
+              {/* President Card */}
+              <Card
                 sx={{
-                  fontWeight: 300,
-                  color: colors.white,
-                  fontSize: 18,
-                  textAlign: "center",
-                  pt: "5px",
+                  width: { xs: "100%", sm: "45%", lg: "25%" },
+                  marginRight: 1,
+                  border: `2px solid ${selectedPresident.themeColorLight}`,
+                  borderRadius: "15px",
+                  backgroundColor: colors.backgroundPrimary,
+                  boxShadow: "none",
+                  mr: 1,
                 }}
               >
-                Prime Minister
-              </Typography>
-            </Box>
-
-            <Box sx={{ padding: 2 }}>
-              {primeMinister.person &&
-              primeMinister.relation &&
-              selectedPresident ? (
                 <Box
-                  direction="row"
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                    ml: 0,
-                    my: 0,
+                    width: "175px",
+                    height: "35px",
+                    backgroundColor: `${selectedPresident.themeColorLight}`,
+                    borderBottomRightRadius: "15px",
+                    textAlign: "left", // Align the header text left
                   }}
                 >
-                  <Avatar
-                    src={primeMinister.person.imageUrl}
-                    alt={primeMinister.person.name}
+                  <Typography
                     sx={{
-                      width: 75,
-                      height: 75,
-                      // border: `3px solid ${selectedPresident.themeColorLight}`,
-                      backgroundColor: colors.backgroundPrimary,
-                    }}
-                  />
-                  <Box
-                    sx={{
-                      display: "block",
-                      ml: "15px",
+                      fontWeight: 300,
+                      color: colors.white,
+                      fontSize: 18,
+                      textAlign: "center",
+                      pt: "5px",
                     }}
                   >
-                    <Typography
+                    President
+                  </Typography>
+                </Box>
+
+                <Box sx={{ padding: 2 }}>
+                  {selectedPresident && (
+                    <Box
+                      direction="row"
                       sx={{
-                        fontWeight: 400,
-                        fontSize: 18,
-                        whiteSpace: "normal",
-                        wordBreak: "break-word",
-                        fontFamily: "poppins",
-                        color: colors.textPrimary,
-                        textAlign: "left",
-                        margin: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-start",
+                        ml: 0,
+                        my: 0,
                       }}
                     >
-                      {utils.extractNameFromProtobuf(primeMinister.person.name)}
-                    </Typography>
-                    <Typography sx={{ fontSize: 18, color: colors.textMuted }}>
-                      {(() => {
-                        if (!primeMinister.relation) return "Unknown";
-                        return primeMinister.relation.endTime
-                          ? `${
-                              primeMinister.relation.startTime.split("-")[0]
-                            } - ${new Date(
-                              primeMinister.relation.endTime
-                            ).getFullYear()}`
-                          : `${
-                              primeMinister.relation.startTime.split("-")[0]
-                            } - Present`;
-                      })()}
-                    </Typography>
-                    <Button
-                      component={Link}
-                      to={`/person-profile/${primeMinister.person?.id}`}
-                      state={{ mode: "back" }}
-                      disableRipple
-                      disableElevation
-                      sx={{
-                        p: 0,
-                        minWidth: "auto",
-                        backgroundColor: "transparent",
-                        textTransform: "none",
-                        textAlign: "left",
-                        "&:hover": {
-                          backgroundColor: "transparent",
-                        },
-                      }}
-                    >
-                      <Typography
+                      <Avatar
+                        src={selectedPresident.imageUrl}
+                        alt={selectedPresident.name}
                         sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          fontSize: 14,
-                          color: "#6491DA",
-                          transition: "color 0.3s, text-decoration 0.3s",
-                          ":hover": {
-                            textDecoration: "underline",
-                            color: selectedPresident.themeColorLight,
-                          },
+                          width: 75,
+                          height: 75,
+                          // border: `3px solid ${selectedPresident.themeColorLight}`,
+                          backgroundColor: colors.backgroundPrimary,
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          display: "block",
+                          ml: "15px",
                         }}
                       >
-                        View Profile
-                      </Typography>
-                    </Button>
-                  </Box>
+                        <Typography
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: 18,
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            fontFamily: "poppins",
+                            color: colors.textPrimary,
+                            textAlign: "left",
+                            margin: 0,
+                          }}
+                        >
+                          {utils.extractNameFromProtobuf(
+                            selectedPresident.name
+                          )}
+                        </Typography>
+                        <Typography
+                          sx={{ fontSize: 18, color: colors.textMuted }}
+                        >
+                          {(() => {
+                            const relation =
+                              presidentRelationDict[selectedPresident.id];
+                            if (!relation) return "Unknown";
+                            return relation.endTime
+                              ? `${
+                                  relation.startTime.split("-")[0]
+                                } - ${new Date(relation.endTime).getFullYear()}`
+                              : `${relation.startTime.split("-")[0]} - Present`;
+                          })()}
+                        </Typography>
+
+                        <Button
+                          component={Link}
+                          to={`/person-profile/${selectedPresident?.id}`}
+                          state={{ mode: "back" }}
+                          disableRipple
+                          disableElevation
+                          sx={{
+                            p: 0,
+                            minWidth: "auto",
+                            backgroundColor: "transparent",
+                            textTransform: "none",
+                            textAlign: "left",
+                            "&:hover": {
+                              backgroundColor: "transparent",
+                            },
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              fontSize: 14,
+                              color: "#6491DA",
+                              transition: "color 0.3s, text-decoration 0.3s",
+                              ":hover": {
+                                textDecoration: "underline",
+                                color: selectedPresident.themeColorLight,
+                              },
+                            }}
+                          >
+                            View Profile
+                          </Typography>
+                        </Button>
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
-              ) : primeMinister.person == null &&
-                primeMinister.relation == null &&
-                !loading ? (
-                <Typography
+              </Card>
+
+              {/* Prime Minister Card */}
+              <Card
+                sx={{
+                  width: { xs: "100%", sm: "45%", lg: "25%" },
+                  marginRight: 1,
+                  border: `2px solid ${selectedPresident.themeColorLight}`,
+                  borderRadius: "15px",
+                  backgroundColor: colors.backgroundPrimary,
+                  boxShadow: "none",
+                  ml: 1,
+                }}
+              >
+                <Box
                   sx={{
-                    fontStyle: "italic",
-                    color: colors.textMuted,
+                    width: "175px",
+                    height: "35px",
+                    backgroundColor: `${selectedPresident.themeColorLight}`,
+                    borderBottomRightRadius: "15px",
                     textAlign: "left",
                   }}
                 >
-                  No Prime Minister appointed on this date.
-                </Typography>
-              ) : (
-                loading && (
                   <Typography
                     sx={{
-                      fontStyle: "italic",
-                      color: colors.textMuted,
-                      textAlign: "left",
+                      fontWeight: 300,
+                      color: colors.white,
+                      fontSize: 18,
+                      textAlign: "center",
+                      pt: "5px",
                     }}
                   >
-                    Loading Prime Minister data...
+                    Prime Minister
                   </Typography>
-                )
-              )}
-            </Box>
-          </Card>
-        </Box>
+                </Box>
 
-        {/* Card Grid for Modern View */}
-        {selectedDate != null && <MinistryCardGrid />}
-      </Box>
+                <Box sx={{ padding: 2 }}>
+                  {primeMinister.person &&
+                  primeMinister.relation &&
+                  selectedPresident ? (
+                    <Box
+                      direction="row"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-start",
+                        ml: 0,
+                        my: 0,
+                      }}
+                    >
+                      <Avatar
+                        src={primeMinister.person.imageUrl}
+                        alt={primeMinister.person.name}
+                        sx={{
+                          width: 75,
+                          height: 75,
+                          // border: `3px solid ${selectedPresident.themeColorLight}`,
+                          backgroundColor: colors.backgroundPrimary,
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          display: "block",
+                          ml: "15px",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontWeight: 400,
+                            fontSize: 18,
+                            whiteSpace: "normal",
+                            wordBreak: "break-word",
+                            fontFamily: "poppins",
+                            color: colors.textPrimary,
+                            textAlign: "left",
+                            margin: 0,
+                          }}
+                        >
+                          {utils.extractNameFromProtobuf(
+                            primeMinister.person.name
+                          )}
+                        </Typography>
+                        <Typography
+                          sx={{ fontSize: 18, color: colors.textMuted }}
+                        >
+                          {(() => {
+                            if (!primeMinister.relation) return "Unknown";
+                            return primeMinister.relation.endTime
+                              ? `${
+                                  primeMinister.relation.startTime.split("-")[0]
+                                } - ${new Date(
+                                  primeMinister.relation.endTime
+                                ).getFullYear()}`
+                              : `${
+                                  primeMinister.relation.startTime.split("-")[0]
+                                } - Present`;
+                          })()}
+                        </Typography>
+                        <Button
+                          component={Link}
+                          to={`/person-profile/${primeMinister.person?.id}`}
+                          state={{ mode: "back" }}
+                          disableRipple
+                          disableElevation
+                          sx={{
+                            p: 0,
+                            minWidth: "auto",
+                            backgroundColor: "transparent",
+                            textTransform: "none",
+                            textAlign: "left",
+                            "&:hover": {
+                              backgroundColor: "transparent",
+                            },
+                          }}
+                        >
+                          <Typography
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              fontSize: 14,
+                              color: "#6491DA",
+                              transition: "color 0.3s, text-decoration 0.3s",
+                              ":hover": {
+                                textDecoration: "underline",
+                                color: selectedPresident.themeColorLight,
+                              },
+                            }}
+                          >
+                            View Profile
+                          </Typography>
+                        </Button>
+                      </Box>
+                    </Box>
+                  ) : primeMinister.person == null &&
+                    primeMinister.relation == null &&
+                    !loading ? (
+                    <Typography
+                      sx={{
+                        fontStyle: "italic",
+                        color: colors.textMuted,
+                        textAlign: "left",
+                      }}
+                    >
+                      No Prime Minister appointed on this date.
+                    </Typography>
+                  ) : (
+                    loading && (
+                      <Typography
+                        sx={{
+                          fontStyle: "italic",
+                          color: colors.textMuted,
+                          textAlign: "left",
+                        }}
+                      >
+                        Loading Prime Minister data...
+                      </Typography>
+                    )
+                  )}
+                </Box>
+              </Card>
+            </Box>
+
+            {/* Card Grid for Modern View */}
+            {selectedDate != null && <MinistryCardGrid />}
+          </Box>
+        </>
+      )}
     </Box>
   );
 };

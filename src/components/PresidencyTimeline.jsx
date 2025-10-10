@@ -19,7 +19,6 @@ export default function PresidencyTimeline() {
   const selectedPresident = useSelector(
     (state) => state.presidency.selectedPresident
   );
-
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
   const presidentRelationDict = useSelector(
     (state) => state.presidency.presidentRelationDict
@@ -102,13 +101,6 @@ export default function PresidencyTimeline() {
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      drawLine();
-    }, 200);
-  }, [selectedDate]);
-
-
-
     window.addEventListener("resize", drawLine);
     const scrollContainer = scrollRef.current;
     scrollContainer?.addEventListener("scroll", drawLine);
@@ -136,21 +128,6 @@ export default function PresidencyTimeline() {
     }
   }, [presidents, presidentRelationDict]);
 
-  useEffect(() => {
-    
-      setTimeout(() => {
-        const scrollContainer = scrollRef.current;
-        if (scrollContainer) {
-          scrollContainer.scrollTo({
-            left: 0,
-            behavior: "smooth",
-          });
-          updateScrollButtons();
-        }
-      }, 50);
-    
-  }, []);
-
   // Auto-scroll selected dot into view
   useEffect(() => {
     setTimeout(() => {
@@ -160,8 +137,6 @@ export default function PresidencyTimeline() {
       setTimeout(() => {
         const container = scrollRef.current;
         const dot = dotRef.current;
-
-        if(!container) return;
 
         const containerRect = container.getBoundingClientRect();
         const dotRect = dot.getBoundingClientRect();
@@ -338,9 +313,7 @@ export default function PresidencyTimeline() {
                   minWidth: { xs: 60, sm: 80 },
                   background: `linear-gradient(to right, ${colors.backgroundPrimary} 65%, rgba(0,0,0,0) 50%)`,
                 }}
-              />
-
-              {lineStyle && selectedDate && (
+              >
                 <Box
                   sx={{
                     border: `4px solid ${
@@ -493,7 +466,7 @@ export default function PresidencyTimeline() {
                 mt: { xs: -7.5, sm: -2 },
                 flexShrink: 0,
               }}
-            >
+            >z
               <Box
                 sx={{
                   color: colors.textMuted,

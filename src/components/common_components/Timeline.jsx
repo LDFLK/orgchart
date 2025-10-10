@@ -24,8 +24,6 @@ export default function YearRangeSelector({
   const dragStartRef = useRef(null);
   const scrollWrapperRef = useRef(null);
   const debounceRef = useRef(null);
-
-  const [searchParams, setSearchParams] = useSearchParams();
   const [startDate, setStartDate] = useState(latestPresStartDate);
   const [endDate, setEndDate] = useState(new Date());
   const [calendarOpen, setCalendarOpen] = useState(false);
