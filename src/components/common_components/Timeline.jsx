@@ -41,23 +41,82 @@ export default function YearRangeSelector({
   const [startDate, setStartDate] = useState(latestPresStartDate);
   const [endDate, setEndDate] = useState(new Date());
 
-  useEffect(() => {
-    let urlStart = parseDate(
-      searchParams.get("startDate"),
-      latestPresStartDate
-    );
-    let urlEnd = parseDate(searchParams.get("endDate"), new Date());
 
-    if (urlEnd < urlStart) {
-      urlEnd = new Date(urlStart); // clamp endDate to startDate
+
+useEffect(() => {
+  const selectedDateParam = searchParams.get("selectedDate");
+  let urlStart = parseDate(searchParams.get("startDate"), latestPresStartDate);
+  let urlEnd = parseDate(searchParams.get("endDate"), new Date());
+
+  const minDate = latestPresStartDate;
+  const maxDate = new Date();
+
+  if (selectedDateParam) {
+    const targetDate = new Date(selectedDateParam);
+
+    // 1️⃣ SelectedDate year is within the URL range → keep URL range as-is
+    if (targetDate >= urlStart && targetDate <= urlEnd) {
+      console.log(
+        `🟢 SelectedDate within URL range → keeping range: ${urlStart
+          .toISOString()
+          .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
+      );
     }
+    // 2️⃣ SelectedDate year is outside URL range but within available range → override range to full year
+    else if (targetDate >= minDate && targetDate <= maxDate) {
+      urlStart = new Date(`${targetDate.getFullYear()}-01-01`);
+      urlEnd = new Date(`${targetDate.getFullYear()}-12-31`);
+      console.log(
+        `🟡 SelectedDate outside URL range but within available range → overriding to full year: ${urlStart
+          .toISOString()
+          .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
+      );
+    }
+    // SelectedDate outside available range → default
+    else {
+      urlStart = minDate;
+      urlEnd = maxDate;
+      console.log(
+        `SelectedDate out of available range → using default: ${urlStart
+          .toISOString()
+          .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
+      );
+    }
+  } 
+  else {
+    // No selectedDate → clamp URL range to available range
+    const clampedStart = urlStart < minDate ? minDate : urlStart;
+    const clampedEnd = urlEnd > maxDate ? maxDate : urlEnd;
 
-    setStartDate(urlStart);
-    setEndDate(urlEnd);
-    setTempStartDate(urlStart);
-    setTempEndDate(urlEnd);
-    setSelectedRange([urlStart.getUTCFullYear(), urlEnd.getUTCFullYear()]);
-  }, [searchParams, latestPresStartDate]);
+    // If clamped range is valid, use it
+    if (clampedEnd >= clampedStart) {
+      urlStart = clampedStart;
+      urlEnd = clampedEnd;
+      console.log(
+        ` URL range clamped to available range: ${urlStart
+          .toISOString()
+          .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
+      );
+    }
+    // If clamped range invalid → fallback to default
+    else {
+      urlStart = minDate;
+      urlEnd = maxDate;
+      console.log(
+        `⚠️ URL range completely outside available range → using default: ${urlStart
+          .toISOString()
+          .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
+      );
+    }
+  }
+
+  // Set state
+  setStartDate(urlStart);
+  setEndDate(urlEnd);
+  setTempStartDate(urlStart);
+  setTempEndDate(urlEnd);
+  setSelectedRange([urlStart.getUTCFullYear(), urlEnd.getUTCFullYear()]);
+}, [searchParams, latestPresStartDate]);
 
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(null);
