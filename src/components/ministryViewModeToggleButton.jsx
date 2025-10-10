@@ -1,8 +1,6 @@
-import React, { useEffect } from "react";
 import { PiGraph } from "react-icons/pi";
 import { MdGridOn } from "react-icons/md";
 import { useThemeContext } from "../themeContext";
-import { useLocation, useSearchParams } from "react-router-dom";
 
 export default function MinistryViewModeToggleButton({
   viewMode,

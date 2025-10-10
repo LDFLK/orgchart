@@ -5,7 +5,7 @@ import { useThemeContext } from "../../../themeContext";
 import utils from "../../../utils/utils";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import InfoTooltip from "../../../components/common_components/InfoToolTip";
+import InfoTooltip from "../../../components/InfoToolTip";
 import { FaAngleLeft } from "react-icons/fa6";
 
 export default function DepartmentProfile() {

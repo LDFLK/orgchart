@@ -3,10 +3,10 @@ import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSelector } from "react-redux";
-import utils from "../../utils/utils";
+import utils from "../utils/utils";
 import { useSearchParams } from "react-router-dom";
 import Tooltip from "@mui/material/Tooltip";
-import FilteredPresidentCards from "./FilteredPresidentCards";
+import FilteredPresidentCards from "../components/FilteredPresidentCards";
 
 export default function YearRangeSelector({
   startYear,

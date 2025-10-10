@@ -5,9 +5,9 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedDate } from "../store/presidencySlice";
 import utils from "../utils/utils";
-import StyledBadge from "../utils/materialCustomAvatar";
+import StyledBadge from "../components/materialCustomAvatar";
 import { useThemeContext } from "../themeContext";
-import YearRangeSelector from "./common_components/Timeline";
+import YearRangeSelector from "../components/Timeline";
 import { Tooltip } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
@@ -138,6 +138,8 @@ export default function PresidencyTimeline() {
         const container = scrollRef.current;
         const dot = dotRef.current;
 
+        if(!container) return;
+
         const containerRect = container.getBoundingClientRect();
         const dotRect = dot.getBoundingClientRect();
 
@@ -177,6 +179,7 @@ export default function PresidencyTimeline() {
         latestPresStartDate={latestPresStartDate}
         onDateChange={handleDateRangeChange}
       />
+      {selectedPresident&& (
       <Box
         sx={{
           position: "relative",
@@ -508,6 +511,7 @@ export default function PresidencyTimeline() {
           <ArrowForwardIosIcon />
         </IconButton>
       </Box>
+)}
     </Box>
   );
 }

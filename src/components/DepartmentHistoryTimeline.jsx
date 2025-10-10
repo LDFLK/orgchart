@@ -10,7 +10,7 @@ import {
 import { useSelector } from "react-redux";
 import utils from "../utils/utils";
 import api from "../services/services";
-import PersonProfile from "./PersonProfile";
+import PersonProfile from "../pages/PersonProfilePage/screens/PersonProfile";
 import {
   Timeline,
   TimelineItem,

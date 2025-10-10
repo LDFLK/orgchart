@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Error404 from "./components/404Error";
-import './animations.css';
+import Error404 from "./pages/ErrorBoundaries/screens/404Error";
 import { useThemeContext } from "./themeContext";
 import TouristGlobe from "./components/statistics_components/TouristGlobe";
 import DistrictMap from "./components/statistics_components/DistrictMap";

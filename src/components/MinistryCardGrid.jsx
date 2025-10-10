@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import MinistryCard from "./MinistryCard";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from "./../services/services";
 import { ClipLoader } from "react-spinners";
 import { setSelectedMinistry } from "../store/allMinistryData";
@@ -28,7 +28,7 @@ import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import PersonIcon from "@mui/icons-material/Person";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
-import InfoTooltip from "./common_components/InfoToolTip";
+import InfoTooltip from "../components/InfoToolTip";
 
 import utils from "./../utils/utils";
 import MinistryViewModeToggleButton from "./ministryViewModeToggleButton";
@@ -40,9 +40,9 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import StepContent from "@mui/material/StepContent";
 import PersonsTab from "./PersonsTab";
-import MinistryDrawerContent from "./MinistryDrawerContent";
 import { useLocation } from "react-router-dom";
 import useUrlParamState from "../hooks/singleSharingURL";
+import DepartmentTab from "./DepartmentTab";
 
 const MinistryCardGrid = () => {
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
@@ -93,8 +93,9 @@ const MinistryCardGrid = () => {
     ) {
       return;
     }
-
-    fetchActiveMinistryList();
+    setTimeout(() => {
+      fetchActiveMinistryList();
+    }, 1500);
   }, [selectedDate, allMinistryData, selectedPresident]);
 
   useEffect(() => {
@@ -264,13 +265,19 @@ const MinistryCardGrid = () => {
     });
   };
 
-  // useEffect(() => {
-  //   const params = new URLSearchParams(window.location.search);
-  //   params.delete("ministry");
-  //   setActiveStep(0)
-  //   const newUrl = `${window.location.pathname}?${params.toString()}`;
-  //   window.history.pushState({}, "", newUrl);
-  // }, [selectedDate]);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    params.delete("ministry");
+    setActiveStep(0);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.pushState({}, "", newUrl);
+  }, [selectedDate]);
 
   const handleCardClick = async (card) => {
     // dispatch(setSelectedMinistry(card.id));
@@ -797,8 +804,7 @@ const MinistryCardGrid = () => {
                                         color: colors.textPrimary,
                                       }}
                                     >
-                                      No ministries in the government. Sometimes
-                                      this can be the president appointed date.
+                                      No ministries.
                                     </AlertTitle>
                                   </Alert>
                                 </Box>
@@ -913,7 +919,7 @@ const MinistryCardGrid = () => {
                                 <>
                                   {selectedCard &&
                                     activeTab === "departments" && (
-                                      <MinistryDrawerContent
+                                      <DepartmentTab
                                         selectedDate={
                                           selectedDate?.date || selectedDate
                                         }

@@ -1,6 +1,6 @@
 import { Tooltip, IconButton } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import colors from "../../assets/colors";
+import colors from "../assets/colors";
 
 export default function InfoTooltip({
     message,

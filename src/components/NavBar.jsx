@@ -10,12 +10,9 @@ import {
 import ModernView from "./modernView";
 import CloseIcon from "@mui/icons-material/Close";
 import SettingsIcon from "@mui/icons-material/Settings";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import { BiStats } from "react-icons/bi";
 import { Switch, FormControlLabel } from "@mui/material";
 import { useThemeContext } from "../themeContext";
-import { useBadgeContext } from "../badgeContext.jsx";
+import { useBadgeContext } from "../components/badgeContext";
 import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useSelector } from "react-redux";
@@ -74,28 +71,6 @@ function Navbar() {
         >
           {/* open settings drawer */}
           <Box sx={{ textAlign: "right", color: colors.textPrimary, flex: 1 }}>
-            
-            {/* <Button
-              onClick={handleNavigateToStatistics}
-              startIcon={<BiStats/>}
-              sx={{
-                justifyContent: "flex-start",
-                textTransform: "none",
-                fontWeight: 500,
-                color: colors.textPrimary,
-                border: `1px solid ${colors.textPrimary}33`,
-                borderRadius: "10px",
-                px: 2,
-                py: 1,
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: `${colors.primary}22`,
-                },
-                mx: 1,
-              }}
-            >
-              Statistics
-            </Button> */}
             <Button
               onClick={() => setDrawerOpen(true)}
               startIcon={<SettingsIcon />}
@@ -147,60 +122,6 @@ function Navbar() {
               <CloseIcon sx={{ color: colors.textPrimary }} />
             </IconButton>
           </Box>
-
-          {/* <FormControlLabel
-            control={
-              <Switch
-                checked={isDark}
-                onChange={toggleTheme}
-                icon={
-                  <LightModeIcon
-                    sx={{
-                      fontSize: 20,
-                      color: colors.textPrimary,
-                      m: 0.1,
-                    }}
-                  />
-                }
-                checkedIcon={
-                  <DarkModeIcon
-                    sx={{
-                      fontSize: 20,
-                      color: colors.textPrimary,
-                      m: 0.1,
-                    }}
-                  />
-                }
-                sx={{
-                  "& .MuiSwitch-switchBase": {
-                    padding: 1,
-                  },
-                  "& .MuiSwitch-thumb": {
-                    backgroundColor: "transparent",
-                    width: 24,
-                    height: 24,
-                  },
-                  "& .MuiSwitch-track": {
-                    backgroundColor: isDark
-                      ? `${colors.primary}99`
-                      : `${colors.textMuted}55`,
-                    borderRadius: 20,
-                  },
-                }}
-              />
-            }
-            label={isDark ? "Dark Mode" : "Light Mode"}
-            labelPlacement="start"
-            sx={{
-              color: colors.textPrimary,
-              justifyContent: "space-between",
-              mx: 0,
-              "& .MuiFormControlLabel-label": {
-                fontWeight: 500,
-                fontFamily: "poppins",
-              },
-            }}
-          /> */}
           <Accordion
             disableGutters
             sx={{
