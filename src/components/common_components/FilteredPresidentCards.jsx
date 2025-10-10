@@ -241,17 +241,23 @@ useEffect(() => {
   }, [selectedDate, dateRange]);
 
   
-  return (
-    <div className="rounded-lg w-full mt-4 -mb-6">
-      {filteredPresidents.length > 4 && (
-        <input
-          type="text"
-          className="border border-gray-600 bg-gray-800 text-gray-200 p-2 mb-3 w-full rounded placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
-          placeholder="Search presidents..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      )}
+return (
+  <div className="rounded-lg w-full mt-4 -mb-6">
+    {filteredPresidents.length > 4 && (
+      <input
+        type="text"
+        className="border border-gray-600 bg-gray-800 text-gray-200 p-2 mb-3 w-full rounded placeholder-gray-400 focus:outline-none focus:border-blue-500 text-sm"
+        placeholder="Search presidents..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    )}
+
+    {filteredPresidents.length === 0 ? (
+      <div className="text-left text-gray-500 py-2 text-xs italic">
+        No president information found for the selected date range.
+      </div>
+    ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         {filteredPresidents.map((president) => {
           const isSelected = selectedPresident?.id === president.id;
@@ -266,9 +272,10 @@ useEffect(() => {
               key={president.id}
               onClick={() => selectPresidentAndDates(president)}
               className={`flex items-start p-2 rounded-lg border transition-all duration-200 hover:cursor-pointer
-                ${isSelected
-                  ? "bg-blue-600/20 border-blue-400 shadow-md"
-                  : "bg-gray-800 border-gray-700 hover:bg-gray-700"
+                ${
+                  isSelected
+                    ? "bg-blue-600/20 border-blue-400 shadow-md"
+                    : "bg-gray-800 border-gray-700 hover:bg-gray-700"
                 }`}
             >
               <img
@@ -277,17 +284,23 @@ useEffect(() => {
                 className="w-10 h-10 rounded-full mr-3 border border-gray-600 flex-shrink-0"
               />
               <div className="flex flex-col text-left break-words">
-                <p className={isSelected ? "text-blue-400 font-medium text-sm" : "text-gray-200 font-medium text-sm"}>
+                <p
+                  className={
+                    isSelected
+                      ? "text-blue-400 font-medium text-sm"
+                      : "text-gray-200 font-medium text-sm"
+                  }
+                >
                   {nameText}
                 </p>
-                <p className="text-xs text-gray-400">
-                  {term}
-                </p>
+                <p className="text-xs text-gray-400">{term}</p>
               </div>
             </button>
           );
         })}
       </div>
-    </div>
-  );
+    )}
+  </div>
+);
+
 }

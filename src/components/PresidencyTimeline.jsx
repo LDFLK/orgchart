@@ -20,7 +20,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   const selectedPresident = useSelector(
     (state) => state.presidency.selectedPresident
   );
-  const selectedIndex = useSelector((state) => state.presidency.selectedIndex);
+
   const selectedDate = useSelector((state) => state.presidency.selectedDate);
   const presidentRelationDict = useSelector(
     (state) => state.presidency.presidentRelationDict
@@ -102,7 +102,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
     setTimeout(() => {
       drawLine();
     }, 200);
-  }, [selectedIndex, selectedDate]);
+  }, [selectedDate]);
 
   useEffect(() => {
     drawLine();
@@ -133,7 +133,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
   }, [presidents, presidentRelationDict]);
 
   useEffect(() => {
-    if (selectedIndex !== null) {
+    
       setTimeout(() => {
         const scrollContainer = scrollRef.current;
         if (scrollContainer) {
@@ -144,8 +144,8 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
           updateScrollButtons();
         }
       }, 50);
-    }
-  }, [selectedIndex]);
+    
+  }, []);
 
   // Auto-scroll selected dot into view
   useEffect(() => {
@@ -198,7 +198,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
             latestPresStartDate={latestPresStartDate}
             onDateChange={handleDateRangeChange}
           />
-          {selectedIndex !== null && (
+          {selectedPresident && (
             <Box
               sx={{
                 position: "relative",
@@ -241,7 +241,7 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
                 }}
               />
 
-              {lineStyle && selectedIndex !== null && selectedDate && (
+              {lineStyle && selectedDate && (
                 <Box
                   sx={{
                     position: "absolute",
