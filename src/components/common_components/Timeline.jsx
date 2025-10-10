@@ -72,80 +72,80 @@ export default function YearRangeSelector({
 
 
 
-useEffect(() => {
-  const selectedDateParam = searchParams.get("selectedDate");
-  let urlStart = parseDate(searchParams.get("startDate"), latestPresStartDate);
-  let urlEnd = parseDate(searchParams.get("endDate"), new Date());
+  useEffect(() => {
+    const selectedDateParam = searchParams.get("selectedDate");
+    let urlStart = parseDate(searchParams.get("startDate"), latestPresStartDate);
+    let urlEnd = parseDate(searchParams.get("endDate"), new Date());
 
-  const minDate = latestPresStartDate;
-  const maxDate = new Date();
+    const minDate = new Date(`${startYear}-01-01`);
+    const maxDate = new Date();
 
-  if (selectedDateParam) {
-    const targetDate = new Date(selectedDateParam);
+    if (selectedDateParam) {
+      const targetDate = new Date(selectedDateParam);
 
-    // 1️⃣ SelectedDate year is within the URL range → keep URL range as-is
-    if (targetDate >= urlStart && targetDate <= urlEnd) {
-      console.log(
-        `🟢 SelectedDate within URL range → keeping range: ${urlStart
-          .toISOString()
-          .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
-      );
+      // SelectedDate year is within the URL range → keep URL range as-is
+      if (targetDate >= urlStart && targetDate <= urlEnd) {
+        console.log(
+          `SelectedDate within URL range → keeping range: ${urlStart
+            .toISOString()
+            .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
+        );
+      }
+      // SelectedDate year is outside URL range but within available range → override range to full year
+      else if (targetDate >= minDate && targetDate <= maxDate) {
+        urlStart = new Date(`${targetDate.getFullYear()}-01-01`);
+        urlEnd = new Date(`${targetDate.getFullYear()}-12-31`);
+        console.log(
+          `SelectedDate outside URL range but within available range → overriding to full year: ${urlStart
+            .toISOString()
+            .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
+        );
+      }
+      // SelectedDate outside available range → default
+      else {
+        urlStart = minDate;
+        urlEnd = maxDate;
+        console.log(
+          `SelectedDate out of available range → using default: ${urlStart
+            .toISOString()
+            .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
+        );
+      }
     }
-    // 2️⃣ SelectedDate year is outside URL range but within available range → override range to full year
-    else if (targetDate >= minDate && targetDate <= maxDate) {
-      urlStart = new Date(`${targetDate.getFullYear()}-01-01`);
-      urlEnd = new Date(`${targetDate.getFullYear()}-12-31`);
-      console.log(
-        `🟡 SelectedDate outside URL range but within available range → overriding to full year: ${urlStart
-          .toISOString()
-          .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
-      );
-    }
-    // SelectedDate outside available range → default
     else {
-      urlStart = minDate;
-      urlEnd = maxDate;
-      console.log(
-        `SelectedDate out of available range → using default: ${urlStart
-          .toISOString()
-          .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
-      );
-    }
-  } 
-  else {
-    // No selectedDate → clamp URL range to available range
-    const clampedStart = urlStart < minDate ? minDate : urlStart;
-    const clampedEnd = urlEnd > maxDate ? maxDate : urlEnd;
+      // No selectedDate → clamp URL range to available range
+      const clampedStart = urlStart < minDate ? minDate : urlStart;
+      const clampedEnd = urlEnd > maxDate ? maxDate : urlEnd;
 
-    // If clamped range is valid, use it
-    if (clampedEnd >= clampedStart) {
-      urlStart = clampedStart;
-      urlEnd = clampedEnd;
-      console.log(
-        ` URL range clamped to available range: ${urlStart
-          .toISOString()
-          .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
-      );
+      // If clamped range is valid, use it
+      if (clampedEnd >= clampedStart) {
+        urlStart = clampedStart;
+        urlEnd = clampedEnd;
+        console.log(
+          ` URL range clamped to available range: ${urlStart
+            .toISOString()
+            .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
+        );
+      }
+      // If clamped range invalid → fallback to default
+      else {
+        urlStart = minDate;
+        urlEnd = maxDate;
+        console.log(
+          `URL range completely outside available range → using default: ${urlStart
+            .toISOString()
+            .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
+        );
+      }
     }
-    // If clamped range invalid → fallback to default
-    else {
-      urlStart = minDate;
-      urlEnd = maxDate;
-      console.log(
-        `⚠️ URL range completely outside available range → using default: ${urlStart
-          .toISOString()
-          .split("T")[0]} → ${urlEnd.toISOString().split("T")[0]}`
-      );
-    }
-  }
 
-  // Set state
-  setStartDate(urlStart);
-  setEndDate(urlEnd);
-  setTempStartDate(urlStart);
-  setTempEndDate(urlEnd);
-  setSelectedRange([urlStart.getUTCFullYear(), urlEnd.getUTCFullYear()]);
-}, [searchParams, latestPresStartDate]);
+    // Set state
+    setStartDate(urlStart);
+    setEndDate(urlEnd);
+    setTempStartDate(urlStart);
+    setTempEndDate(urlEnd);
+    setSelectedRange([urlStart.getUTCFullYear(), urlEnd.getUTCFullYear()]);
+  }, [searchParams, latestPresStartDate]);
 
   const presidents = useMemo(() => {
     if (!presidentsArray || !presidentRelationDict) return {};
@@ -1122,19 +1122,15 @@ useEffect(() => {
 
           {/* Drag handles */}
           <div
-            className="absolute top-7 transform -translate-y-1/2 -translate-x-1/2 w-4 h-6 bg-blue-600 rounded cursor-ew-resize flex items-center justify-center shadow hover:bg-blue-700 z-20"
-            style={{ left: handlePositions.startLeft }}
+            className="absolute top-0 bottom-0 w-2 bg-blue-600 cursor-ew-resize hover:bg-blue-500 transition-colors z-10"
+            style={{ left: handlePositions.startLeft, transform: 'translateX(-50%)' }}
             onMouseDown={(e) => handleMouseDown(e, "start")}
-          >
-            <DragIndicatorIcon className="w-4 h-6 text-white" />
-          </div>
+          />
           <div
-            className="absolute top-7 transform -translate-y-1/2 -translate-x-1/2 w-4 h-6 bg-blue-600 rounded cursor-ew-resize flex items-center justify-center shadow hover:bg-blue-700 z-20"
-            style={{ left: handlePositions.endLeft }}
+            className="absolute top-0 bottom-0 w-2 bg-blue-600 cursor-ew-resize hover:bg-blue-500 transition-colors z-10"
+            style={{ left: handlePositions.endLeft, transform: 'translateX(-50%)' }}
             onMouseDown={(e) => handleMouseDown(e, "end")}
-          >
-            <DragIndicatorIcon className="w-4 h-6 text-white" />
-          </div>
+          />
           {/* Tooltip */}
           {/* {tooltip.show && (
                         <div
