@@ -624,7 +624,6 @@ export default function StatisticTimeline({ startYear, onDateChange }) {
             className="absolute top-0 h-full cursor-move z-10"
             style={{ left: overlayMetrics.left, width: overlayMetrics.width }}
             onMouseDown={(e) => {
-              console.log("Starting window drag"); // Debug log
               e.preventDefault();
               e.stopPropagation();
               setIsMovingWindow(true);

@@ -31,12 +31,6 @@ export default function Drawer({
   }, [selectedPresident]);
 
   useEffect(() => {
-    console.log(
-      "Parent Node in Drawer:",
-      parentNode,
-      "selectedTab:",
-      selectedTab
-    );
     if (!parentNode) {
       setDrawerContentList(ministryDic || {});
     } else if (parentNode.type === "minister") {
@@ -53,9 +47,7 @@ export default function Drawer({
     setVisibleCount(BATCH_SIZE);
   }, [parentNode, selectedTab, ministryDic, departmentDic, personDic]);
 
-  useEffect(() => {
-    console.log(selectedNode);
-  }, [selectedNode]);
+  useEffect(()=>{console.log('loading ',loading)},[loading])
 
   return (
     <div
@@ -151,7 +143,7 @@ export default function Drawer({
               {parentNode && parentNode.type === "minister" && (
                 <div className="flex justify-center mt-4 border border-white/20 p-1 rounded-sm bg-[#0F172A]">
                   <button
-                    className={`hover:cursor-pointer w-1/2 py-3 font-normal text-lg transition-colors duration-300 transform rounded-l-sm inline-flex items-center justify-center space-x-2
+                    className={`hover:cursor-pointer w-1/2 py-3 font-normal text-lg transition-colors duration-300 transform rounded-l-xs inline-flex items-center justify-center space-x-2
                             ${
                               selectedTab === "departments"
                                 ? "text-cyan-300 bg-[#1E2A38]"
@@ -164,7 +156,7 @@ export default function Drawer({
                   </button>
 
                   <button
-                    className={`hover:cursor-pointer w-1/2 py-3 font-normal text-lg transition-colors duration-300 transform rounded-r-sm inline-flex items-center justify-center space-x-2 border-l border-white/20
+                    className={`hover:cursor-pointer w-1/2 py-3 font-normal text-lg transition-colors duration-300 transform rounded-r-xs inline-flex items-center justify-center space-x-2 border-l border-white/20
                     ${
                       selectedTab === "persons"
                         ? "text-cyan-300 bg-[#1E2A38]"
@@ -179,20 +171,26 @@ export default function Drawer({
               )}
 
               {/* Header (stays visible) */}
-              <h2 className="text-md font-normal text-gray-300 mt-4 mb-2 shrink-0">
-                {Object.keys(drawerContentList).length} Active
-                {`${
-                  parentNode &&
-                  parentNode.type === "minister" &&
-                  selectedTab === "departments"
-                    ? " Departments"
-                    : parentNode &&
-                      parentNode.type === "minister" &&
-                      selectedTab === "persons"
-                    ? " Persons"
-                    : " Ministries"
-                }`}
-              </h2>
+              {loading ? (
+                <h2 className="text-md font-normal text-gray-300 mt-4 mb-2 shrink-0">
+                  Loading...
+                </h2>
+              ) : (
+                <h2 className="text-md font-normal text-gray-300 mt-4 mb-2 shrink-0">
+                  {Object.keys(drawerContentList).length} Active
+                  {`${
+                    parentNode &&
+                    parentNode.type === "minister" &&
+                    selectedTab === "departments"
+                      ? " Departments"
+                      : parentNode &&
+                        parentNode.type === "minister" &&
+                        selectedTab === "persons"
+                      ? " Persons"
+                      : " Ministries"
+                  }`}
+                </h2>
+              )}
 
               {/* Scrollable content */}
               <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">

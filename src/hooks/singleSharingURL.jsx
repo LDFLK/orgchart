@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export default function UrlParamState(key, defaultValue = '') {
+export default function useUrlParamState(key, defaultValue = '') {
   const [value, setValue] = useState(() => {
     const param = new URLSearchParams(window.location.search).get(key);
     return param ?? defaultValue;
