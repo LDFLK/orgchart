@@ -136,11 +136,11 @@ const ModernView = () => {
         overflowX: "hidden",
       }}
     >
-      <Box sx={{ display: "flex", mt: 5, justifyContent: "center" }}>
+      (<Box sx={{ display: "flex", mt: 5, justifyContent: "center" }}>
         <PresidencyTimeline />
-      </Box>
+      </Box>)
 
-      <Box
+      {selectedPresident && (<><Box
         sx={{
           p: 3,
           mx: { xs: 2, xl: 5 },
@@ -440,13 +440,11 @@ const ModernView = () => {
           </Card>
         </Box>
 
-        {/* Card Grid for Modern View */}
         {selectedDate != null && (
           <MinistryCardGrid/>
         )}
       </Box>
 
-      {/* Right Drawer */}
       <InfoTab
         drawerOpen={drawerOpen}
         drawerMode={drawerMode}
@@ -458,7 +456,7 @@ const ModernView = () => {
         onDepartmentClick={handleDepartmentClick}
         ministryId={selectedMinistry}
         selectedPresident={selectedPresident}
-      />
+      /></>)}
     </Box>
   );
 };

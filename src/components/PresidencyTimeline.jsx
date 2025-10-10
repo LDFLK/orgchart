@@ -154,6 +154,8 @@ export default function PresidencyTimeline({ mode = modeEnum.ORGCHART }) {
         const container = scrollRef.current;
         const dot = dotRef.current;
 
+        if(!container) return;
+
         const containerRect = container.getBoundingClientRect();
         const dotRect = dot.getBoundingClientRect();
 

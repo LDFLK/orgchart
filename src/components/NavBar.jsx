@@ -304,7 +304,7 @@ function Navbar() {
         </Stack>
       </Drawer>
 
-      {selectedPresident && <ModernView />}
+      <ModernView />
     </Box>
   );
 }

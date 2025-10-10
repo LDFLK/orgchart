@@ -195,8 +195,7 @@ export default function DataLoadingAnimatedComponent({ mode }) {
       ) : (
         <>
           {Object.keys(presidentDict).length > 0 &&
-          mode === "orgchart" &&
-          selectedPresident ? (
+          mode === "orgchart" ? (
             <Navbar />
           ) : Object.keys(presidentDict).length > 0 &&
             mode === "person-profile" ? (
