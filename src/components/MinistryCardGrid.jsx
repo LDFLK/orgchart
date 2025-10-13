@@ -196,7 +196,7 @@ const MinistryCardGrid = () => {
             }
           });
 
-          // Lookup only the relevant persons directly from allPerson dict
+          // Lookup only the relevant people directly from allPerson dict
           const personListInDetail = Array.from(startTimeMap.keys())
             .map((id) => {
               const person = allPersonDict[id];
@@ -240,7 +240,7 @@ const MinistryCardGrid = () => {
       description: `All active ministries on this date`,
     },
     {
-      label: "Departments & Persons",
+      label: "Departments & People",
       description: "All departments under this ministry",
     },
   ];
@@ -402,7 +402,7 @@ const MinistryCardGrid = () => {
               </Typography>
             </Box>
 
-            {/* new persons */}
+            {/* new people */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
               <Typography
@@ -707,7 +707,7 @@ const MinistryCardGrid = () => {
                             step.label == "Ministries" &&
                             selectedCard) ||
                           (activeStep == 1 &&
-                            step.label == "Departments & Persons")
+                            step.label == "Departments & People")
                             ? handleBack
                             : null
                         }
@@ -851,7 +851,7 @@ const MinistryCardGrid = () => {
                             )}
                           </>
                         ) : (
-                          step.label == "Departments & Persons" && (
+                          step.label == "Departments & People" && (
                             <DialogContent
                               sx={{
                                 p: 4,
@@ -878,7 +878,7 @@ const MinistryCardGrid = () => {
                                   },
                                 }}
                               >
-                                {["departments", "persons"].map((tab) => {
+                                {["departments", "people"].map((tab) => {
                                   const label =
                                     tab.charAt(0).toUpperCase() + tab.slice(1);
                                   const isActive = tab == activeTab;
@@ -926,7 +926,7 @@ const MinistryCardGrid = () => {
                                         ministryId={selectedCard?.id}
                                       />
                                     )}
-                                  {selectedCard && activeTab === "persons" && (
+                                  {selectedCard && activeTab === "people" && (
                                     <PersonsTab
                                       selectedDate={
                                         selectedDate?.date || selectedDate

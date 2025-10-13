@@ -165,7 +165,7 @@ export default function Drawer({
                     onClick={() => setSelectedTab("persons")}
                   >
                     <UserRound className="w-5 h-5" />
-                    <span className="text-sm">Persons</span>
+                    <span className="text-sm">People</span>
                   </button>
                 </div>
               )}
@@ -186,7 +186,7 @@ export default function Drawer({
                       : parentNode &&
                         parentNode.type === "minister" &&
                         selectedTab === "persons"
-                      ? " Persons"
+                      ? " People"
                       : " Ministries"
                   }`}
                 </h2>
