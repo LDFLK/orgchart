@@ -56,7 +56,7 @@ const PersonProfile = () => {
         flexDirection: "column",
         backgroundColor: colors.backgroundPrimary,
         width: "100%",
-        minHeight: { xs: "auto", sm: "100vh" },
+        minHeight: { xs: "100vh", sm: "100vh" },
         px: { xs: 6, sm: 14, md: 36 },
         py: { xs: 4, sm: 6 },
       }}
@@ -125,7 +125,7 @@ const PersonProfile = () => {
       {/* --- Person Card --- */}
       <Box
         sx={{
-          width: "100%",
+          width: { xs: "100%", sm: "fit-content", md: "fit-content" },
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
           alignItems: { xs: "flex-start", sm: "center" },
@@ -202,7 +202,7 @@ const PersonProfile = () => {
                   display: "flex",
                   justifyContent: "space-between",
                   flexWrap: "wrap",
-                  gap: 1,
+                  gap: { xs: 2, sm: 3, lg: 20, md: 3 },
                   width: "100%",
                   maxWidth: { xs: "100%", sm: "400px" },
                 }}
