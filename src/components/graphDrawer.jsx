@@ -110,16 +110,16 @@ export default function Drawer({
                       {selectedNode ? selectedNode.name : ""}
                     </p>
                   </a>
-                  <p className="mt-1 mb-4 text-sm font-normal text-gray-700 dark:text-gray-400">
+                  {/* <p className="mt-1 mb-4 text-sm font-normal text-gray-700 dark:text-gray-400">
                     {selectedNode && selectedNode.created
                       ? `Created Date : ${selectedNode.created.split("T")[0]}`
                       : ""}
-                  </p>
+                  </p> */}
                   {selectedNode && selectedNode.type == "department" ? (
                     <Link
                       to={`/department-profile/${selectedNode.id}`}
                       state={{ mode: "back" }}
-                      className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-gray-300 bg-blue-700 rounded-sm hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                      className="mt-2 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-gray-300 bg-blue-700 rounded-sm hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                     >
                       <History className="w-5 h-5 mr-2" />
                       View History
@@ -130,7 +130,7 @@ export default function Drawer({
                       <Link
                         to={`/person-profile/${selectedNode.id}`}
                         state={{ mode: "back" }}
-                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-gray-300 bg-blue-700 rounded-sm hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        className="mt-2 inline-flex items-center px-3 py-2 text-sm font-medium text-center text-gray-300 bg-blue-700 rounded-sm hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                       >
                         <History className="w-5 h-5 mr-2" />
                         View Profile
