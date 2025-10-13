@@ -190,17 +190,17 @@ export default function GraphComponent({ activeMinistries, filterType }) {
           } else if (filterType === "presidentAsMinister") {
             const headName = ministry.headMinisterName
               ? utils
-                  .extractNameFromProtobuf(ministry.headMinisterName)
-                  .split(":")[0]
-                  .toLowerCase()
-                  .trim()
+                .extractNameFromProtobuf(ministry.headMinisterName)
+                .split(":")[0]
+                .toLowerCase()
+                .trim()
               : null;
             const presidentName = selectedPresident
               ? utils
-                  .extractNameFromProtobuf(selectedPresident.name)
-                  .split(":")[0]
-                  .toLowerCase()
-                  .trim()
+                .extractNameFromProtobuf(selectedPresident.name)
+                .split(":")[0]
+                .toLowerCase()
+                .trim()
               : null;
 
             if (
@@ -305,6 +305,26 @@ export default function GraphComponent({ activeMinistries, filterType }) {
             };
             return acc;
           }, {});
+
+        // FALLBACK: If no AS_APPOINTED person found, add the presid
+        if (personLinks.length === 0 && selectedPresident) {
+          personDic[selectedPresident.id] = {
+            id: selectedPresident.id,
+            name: utils.extractNameFromProtobuf(selectedPresident.name),
+            created: selectedPresident.created,
+            kind: selectedPresident.kind,
+            terminated: selectedPresident.terminated,
+            group: 4,
+            type: "person",
+          };
+
+          personLinks.push({
+            source: parentNode.id,
+            target: selectedPresident.id,
+            value: 3,
+            type: "level3",
+          });
+        }
 
         const ministerToDepartments = {};
         departmentLinks.forEach((rel) => {
@@ -517,7 +537,7 @@ export default function GraphComponent({ activeMinistries, filterType }) {
           );
           if (cameraAnimTimeoutRef.current)
             clearTimeout(cameraAnimTimeoutRef.current);
-          cameraAnimTimeoutRef.current = setTimeout(() => {}, transitionMs + 2);
+          cameraAnimTimeoutRef.current = setTimeout(() => { }, transitionMs + 2);
           return true;
         };
 
@@ -539,7 +559,7 @@ export default function GraphComponent({ activeMinistries, filterType }) {
             }
           }, 50);
         }
-      } catch (err) {}
+      } catch (err) { }
 
       if (node.type === "minister") {
         const params = new URLSearchParams(location.search);
@@ -627,9 +647,8 @@ export default function GraphComponent({ activeMinistries, filterType }) {
     <>
       <div className="flex h-screen w-full">
         <div
-          className={`${
-            expandDrawer ? "w-2/3" : "w-full"
-          } transition-all duration-300 ease-in-out`}
+          className={`${expandDrawer ? "w-2/3" : "w-full"
+            } transition-all duration-300 ease-in-out`}
           style={{
             backgroundColor: colors.backgroundPrimary,
           }}
