@@ -64,7 +64,7 @@ export default function Drawer({
         <button
           className={`${
             !expandDrawer
-              ? "rounded-l-full bg-[#305cde] text-gray-300 text-5xl p-1 absolute right-0 top-12 cursor-pointer shadow-xl"
+              ? "rounded-l-full bg-[#305cde] text-gray-300 text-5xl p-1 absolute right-12 cursor-pointer shadow-xl"
               : ""
           }`}
           onClick={() => setExpandDrawer(true)}
