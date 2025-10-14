@@ -113,15 +113,15 @@ const MinistryCardGrid = () => {
           const headName = m.headMinisterName
             ? utils.extractNameFromProtobuf(m.headMinisterName)
             : selectedPresident?.name
-            ? utils
+              ? utils
                 .extractNameFromProtobuf(selectedPresident.name)
                 .split(":")[0]
-            : null;
+              : null;
 
           const presidentName = selectedPresident?.name
             ? utils
-                .extractNameFromProtobuf(selectedPresident.name)
-                .split(":")[0]
+              .extractNameFromProtobuf(selectedPresident.name)
+              .split(":")[0]
             : null;
 
           return (
@@ -313,7 +313,11 @@ const MinistryCardGrid = () => {
         </Typography>
         <Divider>
           <Chip
-            label={selectedDate.date}
+            label={new Date(selectedDate.date).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
             sx={{
               backgroundColor: "transparent",
               fontWeight: "bold",
@@ -466,8 +470,8 @@ const MinistryCardGrid = () => {
 
                     const presidentName = selectedPresident?.name
                       ? utils
-                          .extractNameFromProtobuf(selectedPresident.name)
-                          .split(":")[0]
+                        .extractNameFromProtobuf(selectedPresident.name)
+                        .split(":")[0]
                       : null;
 
                     if (!headName && presidentName) return true;
@@ -476,7 +480,7 @@ const MinistryCardGrid = () => {
                       headName &&
                       presidentName &&
                       headName.toLowerCase().trim() ===
-                        presidentName.toLowerCase().trim()
+                      presidentName.toLowerCase().trim()
                     );
                   }).length
                 }
@@ -706,8 +710,8 @@ const MinistryCardGrid = () => {
                           (activeStep != 0 &&
                             step.label == "Ministries" &&
                             selectedCard) ||
-                          (activeStep == 1 &&
-                            step.label == "Departments & People")
+                            (activeStep == 1 &&
+                              step.label == "Departments & People")
                             ? handleBack
                             : null
                         }
@@ -739,8 +743,8 @@ const MinistryCardGrid = () => {
                           }}
                         >
                           {selectedCard &&
-                          step.label == "Ministries" &&
-                          activeStep !== 0
+                            step.label == "Ministries" &&
+                            activeStep !== 0
                             ? selectedCard.name
                             : step.label}
                         </Typography>
@@ -757,7 +761,7 @@ const MinistryCardGrid = () => {
                               sx={{ width: "100%" }}
                             >
                               {filteredMinistryList &&
-                              filteredMinistryList.length > 0 ? (
+                                filteredMinistryList.length > 0 ? (
                                 filteredMinistryList.map((card) => (
                                   <Grid
                                     key={card.id}
