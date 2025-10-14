@@ -91,7 +91,7 @@ export default function Drawer({
             <>
               {selectedNode && (
                 <div className="w-full mb-2 p-4 bg-white/90 border border-gray-500 rounded-sm shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                  <a href="#">
+                  <a>
                     {selectedNode.type == "minister" ? (
                       <div className="flex items-center gap-2 mb-1 text-gray-600">
                         <Building2 className="w-5 h-5" /> <span>Ministry</span>
