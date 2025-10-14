@@ -8,6 +8,7 @@ import Dashboard from "./pages/StatComparison";
 import "./index.css";
 import XploreDataHomepage from "./pages/XploreGovData/screens/XploreGovData";
 import DataLoadingAnimatedComponent from "./pages/SplashPage/screens/dataLoadingAnimatedComponent";
+import ShareLinkButton from "./components/ShareLinkButton";
 
 const App = () => {
 
@@ -28,6 +29,7 @@ const App = () => {
         <Route path="/department-profile/:departmentId" element={<DataLoadingAnimatedComponent mode="department-profile"/>}/>
       </Routes>          
     </Router>
+     <ShareLinkButton />
     </div>
   );
 }
