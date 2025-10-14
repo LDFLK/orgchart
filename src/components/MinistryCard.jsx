@@ -5,12 +5,20 @@ import { useSelector } from "react-redux";
 import { useThemeContext } from "../themeContext";
 import { useBadgeContext } from "./badgeContext";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const MinistryCard = ({ card, onClick }) => {
   const { selectedPresident } = useSelector((state) => state.presidency);
   const { colors } = useThemeContext();
   const { showMinistryBadge, showPersonBadge } = useBadgeContext();
   const [mouseHover, setMouseHover] = useState(false);
+  const navigate = useNavigate();
+
+  const handleOpenProfile = (id) => {
+    navigate(`/person-profile/${id}`, {
+      state: { mode: "back" },
+    })
+  }
 
   return (
     <Card
@@ -90,8 +98,8 @@ const MinistryCard = ({ card, onClick }) => {
             <Stack direction="column" spacing={0}>
               {/* Minister / President label */}
               {!card.headMinisterName ||
-              (selectedPresident &&
-                utils.extractNameFromProtobuf(card.headMinisterName) ===
+                (selectedPresident &&
+                  utils.extractNameFromProtobuf(card.headMinisterName) ===
                   utils
                     .extractNameFromProtobuf(selectedPresident.name)
                     .split(":")[0]) ? (
@@ -114,8 +122,8 @@ const MinistryCard = ({ card, onClick }) => {
                       // color: colors.textSecondary,
                       color: colors.white,
                       fontFamily: "poppins",
-                      py: "5px",
-                      px: "8px",
+                      py: "3px",
+                      px: "5px",
                       // backgroundColor: `${colors.green}50`,
                       backgroundColor: `${selectedPresident.themeColorLight}`,
                       borderRadius: "5px",
@@ -144,19 +152,28 @@ const MinistryCard = ({ card, onClick }) => {
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography
                   variant="subtitle2"
+                  onClick={() =>
+                    handleOpenProfile(card.headMinisterId || selectedPresident?.id)
+                  }
                   sx={{
                     fontWeight: 600,
                     color: colors.textPrimary,
                     fontFamily: "poppins",
+                    textDecorationThickness: "1px",
+                    textUnderlineOffset: "3px",
+                    cursor: "pointer",
+                    "&:hover": {
+                      textDecoration: "underline",
+                      opacity: 0.9,
+                    },
                   }}
                 >
                   {card.headMinisterName
                     ? utils.extractNameFromProtobuf(card.headMinisterName)
                     : selectedPresident &&
-                      utils
-                        .extractNameFromProtobuf(selectedPresident.name)
-                        .split(":")[0]}
+                    utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]}
                 </Typography>
+
 
                 {card.newPerson && showPersonBadge && (
                   <Box
