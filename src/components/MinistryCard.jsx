@@ -79,14 +79,14 @@ const MinistryCard = ({ card, onClick }) => {
         {/* Minister Info */}
         <Stack spacing={0.5} sx={{ p: 1, minHeight: 60 }}>
           <Stack direction="row" spacing={1}>
-            <PersonIcon
+            {/* <PersonIcon
               sx={{
                 color: selectedPresident.themeColorLight,
                 // color: colors.backgroundSecondary,
                 alignSelf: "center",
               }}
               fontSize="small"
-            />
+            /> */}
             <Stack direction="column" spacing={0}>
               {/* Minister / President label */}
               {!card.headMinisterName ||
@@ -96,7 +96,7 @@ const MinistryCard = ({ card, onClick }) => {
                     .extractNameFromProtobuf(selectedPresident.name)
                     .split(":")[0]) ? (
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography
+                  {/* <Typography
                     variant="subtitle2"
                     sx={{
                       // color: colors.textSecondary,
@@ -107,7 +107,7 @@ const MinistryCard = ({ card, onClick }) => {
                     }}
                   >
                     Minister
-                  </Typography>
+                  </Typography> */}
                   <Typography
                     variant="subtitle2"
                     sx={{
@@ -125,18 +125,19 @@ const MinistryCard = ({ card, onClick }) => {
                   </Typography>
                 </Box>
               ) : (
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    // color: colors.textSecondary,
-                    color: selectedPresident.themeColorLight,
-                    fontFamily: "poppins",
-                    py: "5px",
-                    pr: "10px",
-                  }}
-                >
-                  Minister
-                </Typography>
+                // <Typography
+                //   variant="subtitle2"
+                //   sx={{
+                //     // color: colors.textSecondary,
+                //     color: selectedPresident.themeColorLight,
+                //     fontFamily: "poppins",
+                //     py: "5px",
+                //     pr: "10px",
+                //   }}
+                // >
+                //   Minister
+                // </Typography>
+                <></>
               )}
 
               {/* Head Minister Name + NEW badge if newPerson */}
