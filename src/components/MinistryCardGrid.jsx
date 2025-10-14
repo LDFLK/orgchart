@@ -544,7 +544,11 @@ const MinistryCardGrid = () => {
                 fontFamily: "Poppins",
               }}
             >
-              {selectedDate.date}
+              {new Date(selectedDate.date).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
             </Typography>
           </Box>
 
