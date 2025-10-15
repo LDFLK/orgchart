@@ -93,4 +93,4 @@ Legislative branch and supreme legislative body:
 
 ## Gazettes
 
-Official publications for laws, regulations, and government decisions, freely available at documents.gov.lk
+Official publications for laws, regulations, and government decisions, freely available at https://www.documents.gov.lk
