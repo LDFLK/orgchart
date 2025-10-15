@@ -34,12 +34,12 @@ const ShareLinkButton = () => {
                     transition: "all 0.2s ease",
                 }}
             >
-                <Share2 size={20} />
+                <Share2 size={18} />
                 {hovered && (
                     <span
                         style={{
                             marginLeft: "8px",
-                            fontSize: "14px",
+                            fontSize: "12px",
                             whiteSpace: "nowrap",
                         }}
                     >
