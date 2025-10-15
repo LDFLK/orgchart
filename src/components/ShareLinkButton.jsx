@@ -6,46 +6,29 @@ const ShareLinkButton = () => {
 
     const copyLink = () => {
         const currentUrl = window.location.href;
-        navigator.clipboard.writeText(currentUrl)
+        navigator.clipboard
+            .writeText(currentUrl)
             .then(() => alert("Link copied to clipboard!"))
             .catch(() => alert("Failed to copy link."));
     };
 
     return (
         <div
-            style={{
-                zIndex: 9999,
-            }}
+            className="relative z-50"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
             <button
                 onClick={copyLink}
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: "10px",
-                    borderRadius: "8px",
-                    //   backgroundColor: hovered ? "#0056b3" : "#007bff",
-                    color: "#fff",
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                }}
+                className={`
+          flex items-center justify-center px-3 py-2 rounded-lg
+          text-white border-none cursor-pointer
+          transition-all duration-200
+          ${hovered ? "bg-gray-800" : ""}
+        `}
             >
                 <Share2 size={18} />
-                {hovered && (
-                    <span
-                        style={{
-                            marginLeft: "8px",
-                            fontSize: "12px",
-                            whiteSpace: "nowrap",
-                        }}
-                    >
-                        Share Link
-                    </span>
-                )}
+                <span className="ml-2 text-sm whitespace-nowrap">Share</span>
             </button>
         </div>
     );
