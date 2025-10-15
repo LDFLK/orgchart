@@ -15,6 +15,7 @@ import personDetails from "../../../assets/personImages.json";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FaAngleLeft } from "react-icons/fa6";
 import PersonHistoryTimeline from "../components/PersonHistoryTimeline";
+import ShareLinkButton from "../../../components/ShareLinkButton";
 
 const PersonProfile = () => {
   const { colors } = useThemeContext();
@@ -111,17 +112,29 @@ const PersonProfile = () => {
           </Typography>
         </ButtonBase>
       )}
-      <Typography
-        variant="h6"
+      <Box
         sx={{
-          fontFamily: "Poppins",
-          fontWeight: 600,
-          color: colors.textPrimary,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
           my: 2,
         }}
       >
-        Person profile
-      </Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            fontFamily: "Poppins",
+            fontWeight: 600,
+            color: colors.textPrimary,
+          }}
+        >
+          Person profile
+        </Typography>
+
+        <ShareLinkButton />
+      </Box>
+
       {/* --- Person Card --- */}
       <Box
         sx={{

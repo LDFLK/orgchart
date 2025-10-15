@@ -14,10 +14,6 @@ const ShareLinkButton = () => {
     return (
         <div
             style={{
-                position: "fixed",
-                top: "50%",
-                left: "5px",
-                transform: "translateY(-50%)",
                 zIndex: 9999,
             }}
             onMouseEnter={() => setHovered(true)}
