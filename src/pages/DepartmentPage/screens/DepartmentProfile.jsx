@@ -7,6 +7,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import InfoTooltip from "../../../components/InfoToolTip";
 import { FaAngleLeft } from "react-icons/fa6";
+import ShareLinkButton from "../../../components/ShareLinkButton";
 
 export default function DepartmentProfile() {
   const { departmentId } = useParams();
@@ -47,69 +48,80 @@ export default function DepartmentProfile() {
           }}
         >
           {state.mode === "back" ? (
-        <ButtonBase
-          onClick={() => navigate(-1)}
-          sx={{
-            display: "flex",
-            justifyContent: "flex-start",
-            alignItems: "center",
-            mb: 2,
-            width: 100,
-            color: colors.textPrimary,
-          }}
-        >
-          <FaAngleLeft />
-          <Typography
-            variant="h8"
-            sx={{
-              fontFamily: "Poppins",
-              color: colors.textPrimary,
-              textTransform: "none",
-              ml: 1,
-            }}
-          >
-            Back
-          </Typography>
-        </ButtonBase>
-      ) : (
-        <ButtonBase
-          onClick={() => navigate('/')}
-          sx={{
-            display: "flex",
-            justifyContent: "flex-start",
-            alignItems: "center",
-            mb: 2,
-            width: 200,
-            color: colors.textPrimary,
-          }}
-        >
-          <FaAngleLeft />
-          <Typography
-            variant="h8"
-            sx={{
-              fontFamily: "Poppins",
-              color: colors.textPrimary,
-              textTransform: "none",
-            }}
-          >
-            Go to XploreGov
-          </Typography>
-        </ButtonBase>
-      )}
+            <ButtonBase
+              onClick={() => navigate(-1)}
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                mb: 2,
+                width: 100,
+                color: colors.textPrimary,
+              }}
+            >
+              <FaAngleLeft />
+              <Typography
+                variant="h8"
+                sx={{
+                  fontFamily: "Poppins",
+                  color: colors.textPrimary,
+                  textTransform: "none",
+                  ml: 1,
+                }}
+              >
+                Back
+              </Typography>
+            </ButtonBase>
+          ) : (
+            <ButtonBase
+              onClick={() => navigate('/')}
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+                mb: 2,
+                width: 200,
+                color: colors.textPrimary,
+              }}
+            >
+              <FaAngleLeft />
+              <Typography
+                variant="h8"
+                sx={{
+                  fontFamily: "Poppins",
+                  color: colors.textPrimary,
+                  textTransform: "none",
+                }}
+              >
+                Go to XploreGov
+              </Typography>
+            </ButtonBase>
+          )}
 
-          <Typography
-            variant="h6"
-            gutterBottom
+          <Box
             sx={{
-              fontWeight: "bold",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
               mb: 3,
-              color: colors.textPrimary,
-              fontFamily: "poppins",
             }}
           >
-            {selectedDepartment && utils.extractNameFromProtobuf(selectedDepartment.name)}
-          </Typography>
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{
+                fontWeight: "bold",
+                color: colors.textPrimary,
+                fontFamily: "Poppins",
+              }}
+            >
+              {selectedDepartment &&
+                utils.extractNameFromProtobuf(selectedDepartment.name)}
+            </Typography>
 
+            <ShareLinkButton />
+          </Box>
           <Box
             sx={{
               display: "flex",

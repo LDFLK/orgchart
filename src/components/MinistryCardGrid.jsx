@@ -113,15 +113,15 @@ const MinistryCardGrid = () => {
           const headName = m.headMinisterName
             ? utils.extractNameFromProtobuf(m.headMinisterName)
             : selectedPresident?.name
-            ? utils
+              ? utils
                 .extractNameFromProtobuf(selectedPresident.name)
                 .split(":")[0]
-            : null;
+              : null;
 
           const presidentName = selectedPresident?.name
             ? utils
-                .extractNameFromProtobuf(selectedPresident.name)
-                .split(":")[0]
+              .extractNameFromProtobuf(selectedPresident.name)
+              .split(":")[0]
             : null;
 
           return (
@@ -196,7 +196,7 @@ const MinistryCardGrid = () => {
             }
           });
 
-          // Lookup only the relevant persons directly from allPerson dict
+          // Lookup only the relevant people directly from allPerson dict
           const personListInDetail = Array.from(startTimeMap.keys())
             .map((id) => {
               const person = allPersonDict[id];
@@ -240,7 +240,7 @@ const MinistryCardGrid = () => {
       description: `All active ministries on this date`,
     },
     {
-      label: "Departments & Persons",
+      label: "Departments & People",
       description: "All departments under this ministry",
     },
   ];
@@ -313,7 +313,11 @@ const MinistryCardGrid = () => {
         </Typography>
         <Divider>
           <Chip
-            label={selectedDate.date}
+            label={new Date(selectedDate.date).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
             sx={{
               backgroundColor: "transparent",
               fontWeight: "bold",
@@ -402,7 +406,7 @@ const MinistryCardGrid = () => {
               </Typography>
             </Box>
 
-            {/* new persons */}
+            {/* new people */}
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
               <Typography
@@ -466,8 +470,8 @@ const MinistryCardGrid = () => {
 
                     const presidentName = selectedPresident?.name
                       ? utils
-                          .extractNameFromProtobuf(selectedPresident.name)
-                          .split(":")[0]
+                        .extractNameFromProtobuf(selectedPresident.name)
+                        .split(":")[0]
                       : null;
 
                     if (!headName && presidentName) return true;
@@ -476,7 +480,7 @@ const MinistryCardGrid = () => {
                       headName &&
                       presidentName &&
                       headName.toLowerCase().trim() ===
-                        presidentName.toLowerCase().trim()
+                      presidentName.toLowerCase().trim()
                     );
                   }).length
                 }
@@ -540,7 +544,11 @@ const MinistryCardGrid = () => {
                 fontFamily: "Poppins",
               }}
             >
-              {selectedDate.date}
+              {new Date(selectedDate.date).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
             </Typography>
           </Box>
 
@@ -706,8 +714,8 @@ const MinistryCardGrid = () => {
                           (activeStep != 0 &&
                             step.label == "Ministries" &&
                             selectedCard) ||
-                          (activeStep == 1 &&
-                            step.label == "Departments & Persons")
+                            (activeStep == 1 &&
+                              step.label == "Departments & People")
                             ? handleBack
                             : null
                         }
@@ -739,8 +747,8 @@ const MinistryCardGrid = () => {
                           }}
                         >
                           {selectedCard &&
-                          step.label == "Ministries" &&
-                          activeStep !== 0
+                            step.label == "Ministries" &&
+                            activeStep !== 0
                             ? selectedCard.name
                             : step.label}
                         </Typography>
@@ -757,7 +765,7 @@ const MinistryCardGrid = () => {
                               sx={{ width: "100%" }}
                             >
                               {filteredMinistryList &&
-                              filteredMinistryList.length > 0 ? (
+                                filteredMinistryList.length > 0 ? (
                                 filteredMinistryList.map((card) => (
                                   <Grid
                                     key={card.id}
@@ -851,7 +859,7 @@ const MinistryCardGrid = () => {
                             )}
                           </>
                         ) : (
-                          step.label == "Departments & Persons" && (
+                          step.label == "Departments & People" && (
                             <DialogContent
                               sx={{
                                 p: 4,
@@ -878,7 +886,7 @@ const MinistryCardGrid = () => {
                                   },
                                 }}
                               >
-                                {["departments", "persons"].map((tab) => {
+                                {["departments", "people"].map((tab) => {
                                   const label =
                                     tab.charAt(0).toUpperCase() + tab.slice(1);
                                   const isActive = tab == activeTab;
@@ -926,7 +934,7 @@ const MinistryCardGrid = () => {
                                         ministryId={selectedCard?.id}
                                       />
                                     )}
-                                  {selectedCard && activeTab === "persons" && (
+                                  {selectedCard && activeTab === "people" && (
                                     <PersonsTab
                                       selectedDate={
                                         selectedDate?.date || selectedDate

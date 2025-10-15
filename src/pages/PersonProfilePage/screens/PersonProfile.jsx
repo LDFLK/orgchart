@@ -15,6 +15,7 @@ import personDetails from "../../../assets/personImages.json";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { FaAngleLeft } from "react-icons/fa6";
 import PersonHistoryTimeline from "../components/PersonHistoryTimeline";
+import ShareLinkButton from "../../../components/ShareLinkButton";
 
 const PersonProfile = () => {
   const { colors } = useThemeContext();
@@ -56,7 +57,7 @@ const PersonProfile = () => {
         flexDirection: "column",
         backgroundColor: colors.backgroundPrimary,
         width: "100%",
-        minHeight: { xs: "auto", sm: "100vh" },
+        minHeight: { xs: "100vh", sm: "100vh" },
         px: { xs: 6, sm: 14, md: 36 },
         py: { xs: 4, sm: 6 },
       }}
@@ -111,21 +112,33 @@ const PersonProfile = () => {
           </Typography>
         </ButtonBase>
       )}
-      <Typography
-        variant="h6"
+      <Box
         sx={{
-          fontFamily: "Poppins",
-          fontWeight: 600,
-          color: colors.textPrimary,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          width: "100%",
           my: 2,
         }}
       >
-        Person profile
-      </Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            fontFamily: "Poppins",
+            fontWeight: 600,
+            color: colors.textPrimary,
+          }}
+        >
+          Person profile
+        </Typography>
+
+        <ShareLinkButton />
+      </Box>
+
       {/* --- Person Card --- */}
       <Box
         sx={{
-          width: "100%",
+          width: { xs: "100%", sm: "fit-content", md: "fit-content" },
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
           alignItems: { xs: "flex-start", sm: "center" },
@@ -202,7 +215,7 @@ const PersonProfile = () => {
                   display: "flex",
                   justifyContent: "space-between",
                   flexWrap: "wrap",
-                  gap: 1,
+                  gap: { xs: 2, sm: 3, lg: 20, md: 3 },
                   width: "100%",
                   maxWidth: { xs: "100%", sm: "400px" },
                 }}

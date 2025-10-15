@@ -194,7 +194,7 @@ const PersonsTab = ({ selectedDate }) => {
                     color: colors.textMuted,
                   }}
                 >
-                  New Persons{" "}
+                  New People{" "}
                   <InfoTooltip
                     message="New people assigned to this ministry on this date"
                     iconColor={colors.textPrimary}

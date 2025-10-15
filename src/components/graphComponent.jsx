@@ -19,6 +19,8 @@ import WebGLChecker, {
 import LoadingComponent from "./loading_component";
 import { useThemeContext } from "../themeContext";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+
 
 export default function GraphComponent({ activeMinistries, filterType }) {
   const [loading, setLoading] = useState(true);
@@ -190,17 +192,17 @@ export default function GraphComponent({ activeMinistries, filterType }) {
           } else if (filterType === "presidentAsMinister") {
             const headName = ministry.headMinisterName
               ? utils
-                  .extractNameFromProtobuf(ministry.headMinisterName)
-                  .split(":")[0]
-                  .toLowerCase()
-                  .trim()
+                .extractNameFromProtobuf(ministry.headMinisterName)
+                .split(":")[0]
+                .toLowerCase()
+                .trim()
               : null;
             const presidentName = selectedPresident
               ? utils
-                  .extractNameFromProtobuf(selectedPresident.name)
-                  .split(":")[0]
-                  .toLowerCase()
-                  .trim()
+                .extractNameFromProtobuf(selectedPresident.name)
+                .split(":")[0]
+                .toLowerCase()
+                .trim()
               : null;
 
             if (
@@ -305,6 +307,26 @@ export default function GraphComponent({ activeMinistries, filterType }) {
             };
             return acc;
           }, {});
+
+        // FALLBACK: If no AS_APPOINTED person found, add the presid
+        if (personLinks.length === 0 && selectedPresident) {
+          personDic[selectedPresident.id] = {
+            id: selectedPresident.id,
+            name: utils.extractNameFromProtobuf(selectedPresident.name),
+            created: selectedPresident.created,
+            kind: selectedPresident.kind,
+            terminated: selectedPresident.terminated,
+            group: 4,
+            type: "person",
+          };
+
+          personLinks.push({
+            source: parentNode.id,
+            target: selectedPresident.id,
+            value: 3,
+            type: "level3",
+          });
+        }
 
         const ministerToDepartments = {};
         departmentLinks.forEach((rel) => {
@@ -458,7 +480,15 @@ export default function GraphComponent({ activeMinistries, filterType }) {
     },
     [colors.textPrimary]
   );
-
+  const handleBackClick = useCallback(async () => {
+    await buildGraph();
+    previousClickedNodeRef.current = null;
+    setSelectedNode(null);
+    const params = new URLSearchParams(location.search);
+    params.delete("ministry");
+    const newUrl = `${location.pathname}?${params.toString()}`;
+    window.history.pushState({}, "", newUrl);
+  }, [buildGraph]);
   // store previous clicked node id
   const previousClickedNodeRef = useRef(null);
 
@@ -517,7 +547,7 @@ export default function GraphComponent({ activeMinistries, filterType }) {
           );
           if (cameraAnimTimeoutRef.current)
             clearTimeout(cameraAnimTimeoutRef.current);
-          cameraAnimTimeoutRef.current = setTimeout(() => {}, transitionMs + 2);
+          cameraAnimTimeoutRef.current = setTimeout(() => { }, transitionMs + 2);
           return true;
         };
 
@@ -539,7 +569,7 @@ export default function GraphComponent({ activeMinistries, filterType }) {
             }
           }, 50);
         }
-      } catch (err) {}
+      } catch (err) { }
 
       if (node.type === "minister") {
         const params = new URLSearchParams(location.search);
@@ -627,9 +657,8 @@ export default function GraphComponent({ activeMinistries, filterType }) {
     <>
       <div className="flex h-screen w-full">
         <div
-          className={`${
-            expandDrawer ? "w-2/3" : "w-full"
-          } transition-all duration-300 ease-in-out`}
+          className={`${expandDrawer ? "w-2/3" : "w-full"
+            } transition-all duration-300 ease-in-out`}
           style={{
             backgroundColor: colors.backgroundPrimary,
           }}
@@ -642,11 +671,28 @@ export default function GraphComponent({ activeMinistries, filterType }) {
               }}
             >
               {webgl &&
+
                 (graphData.nodes.length > 0 && graphData.links.length > 0 ? (
                   <div className="relative">
-                    {nodeLoading && selectedNode?.type === "minister" && (
+                    {graphParent && (
+                      <button
+                        onClick={handleBackClick}
+                        className="absolute top-4 left-4 z-50 flex items-center gap-2 px-2 py-2 rounded-lg shadow-lg transition-all duration-200 hover:cursor-pointer hover:scale-105"
+                        style={{
+                          backgroundColor:
+                            colors.backgroundSecondary || (isDark ? "#333" : "#f5f5f5"),
+                          color: colors.textPrimary,
+                          border: `1px solid ${isDark ? "#444" : "#ddd"}`,
+                        }}
+                      >
+                        <ArrowLeft size={18} />
+                        <span className="font-medium">Back</span>
+                      </button>
+                    )}
+
+                    {nodeLoading && (
                       <div
-                        className="absolute inset-0 z-50 flex items-center justify-center"
+                        className="absolute inset-0 z-40 flex items-center justify-center"
                         style={{ pointerEvents: "none" }}
                       >
                         <div
@@ -661,12 +707,12 @@ export default function GraphComponent({ activeMinistries, filterType }) {
                         </div>
                       </div>
                     )}
+
                     <ForceGraph3D
                       height={graphHeight}
                       width={graphWidth}
                       graphData={graphData}
                       backgroundColor={isDark ? "#222" : "#fff"}
-                      // backgroundColor={colors.backgroundPrimary}
                       linkWidth={3}
                       linkColor={colors.timelineLineActive}
                       nodeRelSize={15}
@@ -697,8 +743,8 @@ export default function GraphComponent({ activeMinistries, filterType }) {
                     />
                   </div>
                 ) : (
-                  graphData.nodes.length == 0 &&
-                  graphData.links.length == 0 &&
+                  graphData.nodes.length === 0 &&
+                  graphData.links.length === 0 &&
                   !loading && (
                     <div className="flex justify-center items-center w-full h-full">
                       <Box
@@ -709,10 +755,7 @@ export default function GraphComponent({ activeMinistries, filterType }) {
                           marginTop: "15px",
                         }}
                       >
-                        <Alert
-                          severity="info"
-                          sx={{ backgroundColor: "transparent" }}
-                        >
+                        <Alert severity="info" sx={{ backgroundColor: "transparent" }}>
                           <AlertTitle
                             sx={{
                               fontFamily: "poppins",
@@ -725,7 +768,8 @@ export default function GraphComponent({ activeMinistries, filterType }) {
                       </Box>
                     </div>
                   )
-                ))}
+                ))
+              }
             </div>
           ) : (
             <LoadingComponent message="Graph Loading" OsColorMode={false} />

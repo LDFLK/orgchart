@@ -17,6 +17,7 @@ import { Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import ShareLinkButton from "./ShareLinkButton";
 
 function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -49,49 +50,46 @@ function Navbar() {
         sx={{
           width: "100%",
           backgroundColor: colors.backgroundPrimary,
+          position: "relative",
         }}
       >
         <Stack
           direction="row"
-          spacing={2}
+          spacing={1} // smaller spacing to bring buttons closer
           sx={{
             px: 5,
             py: 2,
             border: "none",
-            justifyContent: "center",
+            justifyContent: "flex-end", // align to right
             alignItems: "center",
             position: "absolute",
             top: 10,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "98%",
-            display: "flex",
+            right: 0, // align stack to right
+            width: "auto", // fit content
             zIndex: 1000,
           }}
         >
-          {/* open settings drawer */}
-          <Box sx={{ textAlign: "right", color: colors.textPrimary, flex: 1 }}>
-            <Button
-              onClick={() => setDrawerOpen(true)}
-              startIcon={<SettingsIcon />}
-              sx={{
-                justifyContent: "flex-start",
-                textTransform: "none",
-                fontWeight: 500,
-                color: colors.textPrimary,
-                border: `1px solid ${colors.textPrimary}33`,
-                borderRadius: "10px",
-                px: 2,
-                py: 1,
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor: `${colors.primary}22`,
-                },
-              }}
-            >
-              Settings
-            </Button>
-          </Box>
+          <ShareLinkButton />
+          <Button
+            onClick={() => setDrawerOpen(true)}
+            startIcon={<SettingsIcon />}
+            sx={{
+              justifyContent: "flex-start",
+              textTransform: "none",
+              fontWeight: 500,
+              color: colors.textPrimary,
+              border: `1px solid ${colors.textPrimary}33`,
+              borderRadius: "10px",
+              px: 2,
+              py: 1,
+              cursor: "pointer",
+              "&:hover": {
+                backgroundColor: `${colors.primary}22`,
+              },
+            }}
+          >
+            Settings
+          </Button>
         </Stack>
       </Box>
 

@@ -136,27 +136,28 @@ const ModernView = () => {
                   mr: 1,
                 }}
               >
-                <Box
+                {/* <Box
                   sx={{
                     width: "175px",
                     height: "35px",
-                    backgroundColor: `${selectedPresident.themeColorLight}`,
+                    // backgroundColor: `${selectedPresident.themeColorLight}`,
                     borderBottomRightRadius: "15px",
                     textAlign: "left", // Align the header text left
                   }}
-                >
+                > */}
                   <Typography
                     sx={{
                       fontWeight: 300,
                       color: colors.white,
                       fontSize: 18,
-                      textAlign: "center",
+                      textAlign: "left",
                       pt: "5px",
+                      px: 2
                     }}
                   >
                     President
                   </Typography>
-                </Box>
+                {/* </Box> */}
 
                 <Box sx={{ padding: 2 }}>
                   {selectedPresident && (
@@ -268,27 +269,28 @@ const ModernView = () => {
                   ml: 1,
                 }}
               >
-                <Box
+                {/* <Box
                   sx={{
                     width: "175px",
                     height: "35px",
-                    backgroundColor: `${selectedPresident.themeColorLight}`,
+                    // backgroundColor: `${selectedPresident.themeColorLight}`,
                     borderBottomRightRadius: "15px",
                     textAlign: "left",
                   }}
-                >
+                > */}
                   <Typography
                     sx={{
                       fontWeight: 300,
                       color: colors.white,
                       fontSize: 18,
-                      textAlign: "center",
+                      textAlign: "left",
                       pt: "5px",
+                      px: 2
                     }}
                   >
                     Prime Minister
                   </Typography>
-                </Box>
+                {/* </Box> */}
 
                 <Box sx={{ padding: 2 }}>
                   {primeMinister.person &&
