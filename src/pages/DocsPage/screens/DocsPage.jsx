@@ -18,6 +18,7 @@ export default function DocsPage() {
     const contentRef = useRef(null);
     const pendingFileRef = useRef(null);
     const pendingHashRef = useRef(null);
+    const isManualScrollRef = useRef(false);
 
     // parse URL once on mount
     useEffect(() => {
@@ -189,17 +190,91 @@ export default function DocsPage() {
     const handleHeadingClick = (h) => {
         const el = document.getElementById(h.id);
         if (el) {
+            isManualScrollRef.current = true;
             el.scrollIntoView({ behavior: "smooth", block: "start" });
             const fileSlug = activeFile.slug || activeFile.file.replace(".md", "");
             const newUrl = `?file=${fileSlug}#${h.hash}`;
             window.history.replaceState(null, "", newUrl);
             setCurrentHash(h.hash);
+            setTimeout(() => {
+                isManualScrollRef.current = false;
+            }, 1000);
         }
     };
+    // Track active heading based on scroll position
+    useEffect(() => {
+        if (!activeFile || !headings.length || !contentRef.current) return;
 
+        const handleScroll = () => {
+            if (isManualScrollRef.current) return;
+
+            const container = contentRef.current;
+            if (!container) return;
+
+            const scrollTop = container.scrollTop;
+            const scrollHeight = container.scrollHeight;
+            const clientHeight = container.clientHeight;
+
+            const isNearBottom = scrollTop + clientHeight >= scrollHeight - 100;
+
+            const containerRect = container.getBoundingClientRect();
+            const triggerPoint = containerRect.top + 100; // 100px from top of container
+
+            const headingElements = headings
+                .map((h) => {
+                    const el = document.getElementById(h.id);
+                    if (!el) return null;
+                    const rect = el.getBoundingClientRect();
+                    return {
+                        ...h,
+                        top: rect.top,
+                        bottom: rect.bottom,
+                        element: el,
+                    };
+                })
+                .filter(Boolean);
+
+            if (headingElements.length === 0) return;
+
+            let activeHeading;
+
+            if (isNearBottom) {
+                // When near bottom, find the last visible heading
+                const visibleHeadings = headingElements.filter(
+                    (h) => h.top <= containerRect.bottom
+                );
+                activeHeading = visibleHeadings[visibleHeadings.length - 1] || headingElements[headingElements.length - 1];
+            } else {
+                // Normal scroll: find the last heading above trigger point
+                activeHeading = headingElements[0];
+                for (const heading of headingElements) {
+                    if (heading.top <= triggerPoint) {
+                        activeHeading = heading;
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            if (activeHeading && currentHash !== activeHeading.hash) {
+                setCurrentHash(activeHeading.hash);
+                const fileSlug = activeFile.slug || activeFile.file.replace(".md", "");
+                const newUrl = `?file=${fileSlug}#${activeHeading.hash}`;
+                window.history.replaceState(null, "", newUrl);
+            }
+        };
+
+        const container = contentRef.current;
+        container.addEventListener("scroll", handleScroll);
+        handleScroll();
+
+        return () => {
+            container.removeEventListener("scroll", handleScroll);
+        };
+    }, [activeFile, headings, currentHash]);
     return (
         <div className="flex h-screen bg-gray-50 text-gray-800">
-            <nav className="w-90 bg-white border-r border-gray-200 shadow-sm p-4 overflow-y-auto">
+            <nav className="w-90 bg-white border-r border-gray-200 shadow-xs p-4 overflow-y-auto">
                 <h2 className="text-lg font-semibold mb-4 text-gray-800 border-b border-gray-200 pb-2">
                     Documentation
                 </h2>
@@ -214,7 +289,13 @@ export default function DocsPage() {
                                     const fileSlug = f.slug;
                                     if (activeFile?.file === f.file) {
                                         // Same file clicked — scroll to top and clear hash + highlight
-                                        if (contentRef.current) contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+                                        if (contentRef.current) {
+                                            isManualScrollRef.current = true;
+                                            contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+                                            setTimeout(() => {
+                                                isManualScrollRef.current = false;
+                                            }, 1000);
+                                        }
                                         window.history.replaceState(null, "", `?file=${fileSlug}`);
                                         setCurrentHash("");
                                     }
