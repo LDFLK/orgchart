@@ -135,7 +135,7 @@ export default function DocsPage() {
         async function fetchMarkdown(fileName) {
             try {
                 const res = await fetch(
-                    `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${DOCS_BRANCH}/docs/${fileName}`
+                    `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${REPO_NAME}/${DOCS_BRANCH}/docs/${fileName}?t=${Date.now()}`
                 );
                 const md = await res.text();
                 if (cancelled) return;
@@ -181,6 +181,7 @@ export default function DocsPage() {
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeFile]);
+
 
     const getHeadingId = (text, level) => {
         const h = headings.find((h) => h.text === text && h.level === level);
