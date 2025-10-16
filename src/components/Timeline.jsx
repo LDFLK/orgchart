@@ -550,9 +550,9 @@ export default function YearRangeSelector({
 
     if (preciseMode && isInRange) {
       const currentYear = new Date().getFullYear();
-      if (year === startDate.getUTCFullYear()) {
-        const startMonth = startDate.getUTCMonth();
-        const startDay = startDate.getUTCDate();
+      if (year === tempStartDate.getUTCFullYear()) {
+        const startMonth = tempStartDate.getUTCMonth();
+        const startDay = tempStartDate.getUTCDate();
         const daysInMonth = new Date(
           Date.UTC(year, startMonth + 1, 0)
         ).getUTCDate();
@@ -560,12 +560,12 @@ export default function YearRangeSelector({
         startPercent = ((startMonth + dayProgress) / 12) * 100;
       }
 
-      if (year === endDate.getUTCFullYear()) {
+      if (year === tempEndDate.getUTCFullYear()) {
         if (year === currentYear && isEndDateToday()) {
           endPercent = 100;
         } else {
-          const endMonth = endDate.getUTCMonth();
-          const endDay = endDate.getUTCDate();
+          const endMonth = tempEndDate.getUTCMonth();
+          const endDay = tempEndDate.getUTCDate();
           const daysInMonth = new Date(
             Date.UTC(year, endMonth + 1, 0)
           ).getUTCDate();
