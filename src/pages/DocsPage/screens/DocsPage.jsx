@@ -352,7 +352,16 @@ export default function DocsPage() {
                             return <h3 id={id} className="text-xl font-medium text-gray-700 mt-6 mb-3" {...props} />;
                         },
                         p: ({ node, ...props }) => <p className="mb-5 leading-relaxed text-gray-700" {...props} />,
-                        a: ({ node, ...props }) => <a {...props} className="text-blue-600 underline hover:text-blue-800 break-words font-medium" target="_blank" rel="noopener noreferrer" />
+                        a: ({ node, ...props }) => <a {...props} className="text-blue-600 underline hover:text-blue-800 break-words font-medium" target="_blank" rel="noopener noreferrer" />,
+                        ul: ({ node, ...props }) => (
+                            <ul className="list-disc pl-6 mb-5 space-y-1 text-gray-700" {...props} />
+                        ),
+                        ol: ({ node, ...props }) => (
+                            <ol className="list-decimal pl-6 mb-5 space-y-1 text-gray-700" {...props} />
+                        ),
+                        li: ({ node, ...props }) => (
+                            <li className="ml-2 leading-relaxed" {...props} />
+                        ),
                     }}
                 >
                     {content}
