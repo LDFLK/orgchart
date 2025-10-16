@@ -213,12 +213,12 @@ export default function DocsPage() {
                                 onClick={() => {
                                     const fileSlug = f.slug;
                                     if (activeFile?.file === f.file) {
-                                        // Same file - scroll to top but keep hash if present
+                                        // Same file clicked — scroll to top and clear hash + highlight
                                         if (contentRef.current) contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
-                                        const currentUrl = new URL(window.location.href);
-                                        const hash = currentUrl.hash;
-                                        window.history.replaceState(null, "", `?file=${fileSlug}${hash}`);
-                                    } else {
+                                        window.history.replaceState(null, "", `?file=${fileSlug}`);
+                                        setCurrentHash("");
+                                    }
+                                    else {
                                         // Different file - clear hash
                                         window.history.replaceState(null, "", `?file=${fileSlug}`);
                                         setActiveFile(f);
