@@ -41,7 +41,7 @@ export default function DocsPage() {
         async function fetchDocFiles() {
             try {
                 const res = await fetch(
-                    `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/docs?ref=${DOCS_BRANCH}`
+                    `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/docs?ref=${DOCS_BRANCH}&t=${Date.now()}`
                 );
                 const data = await res.json();
                 const mdFiles = Array.isArray(data)
@@ -72,6 +72,7 @@ export default function DocsPage() {
         fetchDocFiles();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
 
     // helper to make slug
     const slugify = (s) =>
