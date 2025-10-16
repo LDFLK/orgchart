@@ -293,20 +293,16 @@ const MinistryCardGrid = () => {
   return (
     <Box
       sx={{
-        py: {
-          xs: 2,
-          sm: 3,
-          md: 5,
-        },
+       
         overflowX: "auto",
       }}
     >
-      <Box sx={{ textAlign: "center", mb: 2 }}>
+      <Box sx={{ textAlign: "center", mb: 1 }}>
         <Typography
-          variant="h6"
           sx={{
             color: colors.textPrimary,
             fontFamily: "poppins",
+            fontSize: 18
           }}
         >
           Gazette Date
@@ -324,7 +320,7 @@ const MinistryCardGrid = () => {
               // color: colors.textSecondary,
               color: selectedPresident.themeColorLight,
               fontFamily: "poppins",
-              fontSize: 25,
+              fontSize: 18,
               P: 1,
             }}
           />
@@ -336,18 +332,17 @@ const MinistryCardGrid = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          mb: 3,
+          mb: 2,
         }}
       >
         {/* Heading outside the box */}
         <Typography
-          variant="h6"
           sx={{
-            mt: 1,
             fontFamily: "Poppins",
-            fontWeight: 600,
+            fontWeight: 400,
+            fontSize: 18,
             color: colors.textPrimary,
-            mb: 2, // space between heading and card
+            mb: 1, // space between heading and card
           }}
         >
           Key Highlights
@@ -361,7 +356,7 @@ const MinistryCardGrid = () => {
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            p: 3,
+            p: 2,
             borderRadius: 2,
             backgroundColor: colors.backgroundWhite,
           }}
