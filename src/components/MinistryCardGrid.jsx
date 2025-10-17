@@ -339,13 +339,20 @@ const MinistryCardGrid = () => {
     >
       <Box
         sx={{
-          display: "flex",
-          flexWrap: "wrap",
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "1fr",
+            md: "1fr",
+            lg: "18% 45% 32%",
+            xl: "18% 45% 34%"
+          },
           alignItems: "stretch",
-          justifyContent: { xs: "center", md: "space-between" },
           width: "100%",
           gap: { xs: 2, sm: 4, md: 6, lg: 4, xl: 3 },
           mb: 3,
+          py: 2,
+          px: 3,
           backgroundColor: colors.backgroundWhite,
           borderRadius: 2
         }}
@@ -353,18 +360,18 @@ const MinistryCardGrid = () => {
         {/* Gazette Date */}
         <Box
           sx={{
-            flex: { xs: "1 1 100%", sm: "0 0 40%", md: "1 1 100%", lg: "0 0 10%" },
+            gridColumn: { xs: "1 / -1", sm: "1 / 2", md: "1 / -1", lg: "1 / 2" },
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            ml: { xs: 0, md: 1 , xl: 2},
+            ml: { xs: 0, md: 1},
             mb: { xs: 2, md: 0 },
-            pb: {xs: 2},
-            pt: {xs: 2},
-             pr: { lg: 6 },
+            pb: { xs: 2 },
+            pt: { xs: 2 },
+            pr: { lg: 6 },
             borderRight: { lg: `1px solid ${colors.timelineColor}` },
-             borderBottom: { xs: `1px solid ${colors.timelineColor}`, lg: "none" },
+            borderBottom: { xs: `1px solid ${colors.timelineColor}`, lg: "none" },
           }}
         >
           <Typography
@@ -397,7 +404,7 @@ const MinistryCardGrid = () => {
         {/* Key Highlights */}
         <Box
           sx={{
-            flex: { xs: "1 1 100%", sm: "1 1 60%", md: "1 1 100%", lg: "0 0 45%" },
+            gridColumn: { xs: "1 / -1", sm: "2 / 3", md: "1 / -1", lg: "2 / 3" },
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -405,13 +412,13 @@ const MinistryCardGrid = () => {
             backgroundColor: colors.backgroundWhite,
             overflow: "hidden",
             p: 1.5,
-            ml: { xs: 0, md: 3 , lg: -2},
+            ml: { xs: 0, md: 3 },
             pr: { lg: 6 },
             borderRight: { lg: `1px solid ${colors.timelineColor}` },
             borderBottom: { xs: `1px solid ${colors.timelineColor}`, lg: "none" },
           }}
         >
-          <Typography
+          {/* <Typography
             sx={{
               fontFamily: "Poppins",
               fontWeight: 400,
@@ -421,7 +428,7 @@ const MinistryCardGrid = () => {
             }}
           >
             Key Highlights
-          </Typography>
+          </Typography> */}
 
           <Box
             sx={{
@@ -548,7 +555,7 @@ const MinistryCardGrid = () => {
         {/* Prime Minister */}
         <Card
           sx={{
-            flex: { xs: "1 1 100%", sm: "1 1 60%", md: "1 1 100%", lg: "0 0 35%" },
+            gridColumn: { xs: "1 / -1", sm: "2 / 3", md: "1 / -1", lg: "3 / 4" },
             backgroundColor: colors.backgroundWhite,
             boxShadow: "none",
             display: "flex",
@@ -559,7 +566,7 @@ const MinistryCardGrid = () => {
             borderRadius: 2
           }}
         >
-          <Typography
+          {/* <Typography
             sx={{
               fontWeight: 400,
               color: colors.textPrimary,
@@ -571,9 +578,9 @@ const MinistryCardGrid = () => {
             }}
           >
             Prime Minister
-          </Typography>
+          </Typography> */}
 
-          <Box sx={{ p: 1.2 , mt: -0.5}}>
+          <Box sx={{ p: 1.2, mt: -0.5 }}>
             {primeMinister.person && primeMinister.relation && selectedPresident ? (
               <Box
                 sx={{
