@@ -171,6 +171,7 @@ export default function PresidencyTimeline() {
         gap: 2,
         px: { xs: 1, sm: 2 },
         width: "100%",
+        mt: -2
       }}
     >
       <YearRangeSelector
@@ -189,7 +190,7 @@ export default function PresidencyTimeline() {
             maxWidth: { xs: "100vw", sm: "90vw", md: "80vw", lg: "1200px" },
             overflow: "hidden",
             minWidth: 0,
-            height: "150px",
+            height: "130px",
           }}
         >
           <IconButton

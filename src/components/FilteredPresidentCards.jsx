@@ -241,7 +241,7 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
 
 
   return (
-    <div className="rounded-lg w-full mt-4 -mb-6">
+    <div className="rounded-lg w-full mt-2 -mb-6">
       {filteredPresidents.length > 4 && (
         <input
           type="text"
@@ -270,7 +270,7 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
               <button
                 key={president.id}
                 onClick={() => selectPresidentAndDates(president)}
-                className={`flex items-center p-2 rounded-lg border transition-all duration-200 hover:cursor-pointer
+                className={`flex items-center p-1 rounded-lg border transition-all duration-200 hover:cursor-pointer
     ${isSelected
                     ? "bg-blue-600/20 border-blue-400 shadow-md"
                     : "bg-gray-800 border-gray-700 hover:bg-gray-700"
@@ -279,7 +279,7 @@ export default function FilteredPresidentCards({ dateRange = [null, null] }) {
                 <img
                   src={president.imageUrl || president.image || ""}
                   alt={nameText}
-                  className="w-12 h-12 object-cover rounded-full mr-3 border border-gray-600 flex-shrink-0"
+                  className="w-10 h-10 object-cover rounded-full mr-3 border border-gray-600 flex-shrink-0"
                 />
                 <div className="flex flex-col flex-1 text-left min-w-0">
                   <p
