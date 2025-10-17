@@ -1,5 +1,4 @@
-import {
-  Box, Grid, Typography, Alert, AlertTitle, Chip, TextField, Select, MenuItem, FormControl, InputLabel, Button, Card, DialogContent, Avatar
+import {Box, Grid, Typography, Alert, AlertTitle, Chip, TextField, Select, MenuItem, FormControl, InputLabel, Button, Card, DialogContent, Avatar
 } from "@mui/material";
 import MinistryCard from "./MinistryCard";
 import { useSelector, useDispatch } from "react-redux";
@@ -349,7 +348,7 @@ const MinistryCardGrid = () => {
           },
           alignItems: "stretch",
           width: "100%",
-          gap: { xs: 2, sm: 4, md: 6, lg: 4, xl: 3 },
+          gap: { xs: 2, sm: 2, md: 2, lg: 4, xl: 3 },
           mb: 3,
           py: 2,
           px: 3,
@@ -360,12 +359,12 @@ const MinistryCardGrid = () => {
         {/* Gazette Date */}
         <Box
           sx={{
-            gridColumn: { xs: "1 / -1", sm: "1 / 2", md: "1 / -1", lg: "1 / 2" },
+            gridColumn: { xs: "1 / -1", sm: "1 / -1", md: "1 / -1", lg: "1 / 2" },
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            ml: { xs: 0, md: 1},
+            ml: { xs: 0, md: 1 },
             mb: { xs: 2, md: 0 },
             pb: { xs: 2 },
             pt: { xs: 2 },
@@ -404,7 +403,7 @@ const MinistryCardGrid = () => {
         {/* Key Highlights */}
         <Box
           sx={{
-            gridColumn: { xs: "1 / -1", sm: "2 / 3", md: "1 / -1", lg: "2 / 3" },
+            gridColumn: { xs: "1 / -1", sm: "1 / -1", md: "1 / -1", lg: "2 / 3" },
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -440,7 +439,7 @@ const MinistryCardGrid = () => {
             }}
           >
             {/* New Ministries */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <AccountBalanceIcon sx={{ color: colors.textMuted, fontSize: 18 }} />
               <Typography
                 sx={{
@@ -471,7 +470,7 @@ const MinistryCardGrid = () => {
             </Box>
 
             {/* New Ministers */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <PersonAddAlt1Icon sx={{ color: colors.textMuted, fontSize: 18 }} />
               <Typography
                 sx={{
@@ -502,7 +501,7 @@ const MinistryCardGrid = () => {
             </Box>
 
             {/* Ministries under president */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <WorkspacePremiumIcon sx={{ color: colors.textMuted, fontSize: 18 }} />
               <Typography
                 sx={{
@@ -555,7 +554,7 @@ const MinistryCardGrid = () => {
         {/* Prime Minister */}
         <Card
           sx={{
-            gridColumn: { xs: "1 / -1", sm: "2 / 3", md: "1 / -1", lg: "3 / 4" },
+            gridColumn: { xs: "1 / -1", sm: "1 / -1", md: "1 / -1", lg: "3 / 4" },
             backgroundColor: colors.backgroundWhite,
             boxShadow: "none",
             display: "flex",
@@ -601,6 +600,19 @@ const MinistryCardGrid = () => {
                 <Box sx={{ display: "block", ml: 1.2 }}>
                   <Typography
                     sx={{
+                      fontSize: 12,
+                      color: colors.textMuted,
+                      fontWeight: 500,
+                      backgroundColor: `${selectedPresident.themeColorLight}50`,
+                      px: 0.5,
+                      borderRadius: 1,
+                      width: "95px"
+                    }}
+                  >
+                    Prime Minister
+                  </Typography>
+                  <Typography
+                    sx={{
                       fontWeight: 400,
                       fontSize: 15,
                       fontFamily: "poppins",
@@ -611,6 +623,8 @@ const MinistryCardGrid = () => {
                   >
                     {utils.extractNameFromProtobuf(primeMinister.person.name)}
                   </Typography>
+
+
                   <Typography sx={{ fontSize: 14, color: colors.textMuted }}>
                     {(() => {
                       if (!primeMinister.relation) return "Unknown";
@@ -681,8 +695,6 @@ const MinistryCardGrid = () => {
         </Card>
 
       </Box>
-
-
 
       {/* Container for Active Ministries Section */}
       <Box
