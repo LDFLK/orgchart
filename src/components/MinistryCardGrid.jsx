@@ -344,8 +344,10 @@ const MinistryCardGrid = () => {
           alignItems: "stretch",
           justifyContent: { xs: "center", md: "space-between" },
           width: "100%",
-          gap: { xs: 2, sm: 4, md: 6, lg: 4, xl: 4 },
+          gap: { xs: 2, sm: 4, md: 6, lg: 4, xl: 3 },
           mb: 3,
+          backgroundColor: colors.backgroundWhite,
+          borderRadius: 2
         }}
       >
         {/* Gazette Date */}
@@ -356,8 +358,13 @@ const MinistryCardGrid = () => {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            ml: { xs: 0, md: 1 },
+            ml: { xs: 0, md: 1 , xl: 2},
             mb: { xs: 2, md: 0 },
+            pb: {xs: 2},
+            pt: {xs: 2},
+             pr: { lg: 6 },
+            borderRight: { lg: `1px solid ${colors.timelineColor}` },
+             borderBottom: { xs: `1px solid ${colors.timelineColor}`, lg: "none" },
           }}
         >
           <Typography
@@ -390,17 +397,18 @@ const MinistryCardGrid = () => {
         {/* Key Highlights */}
         <Box
           sx={{
-            flex: { xs: "1 1 100%", sm: "1 1 60%", md: "1 1 100%", lg: "0 0 40%" },
+            flex: { xs: "1 1 100%", sm: "1 1 60%", md: "1 1 100%", lg: "0 0 45%" },
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            borderRadius: 2,
             backgroundColor: colors.backgroundWhite,
             overflow: "hidden",
             p: 1.5,
-            ml: { xs: 0, md: 3 },
-            mb: { xs: 2, md: 0 },
+            ml: { xs: 0, md: 3 , lg: -2},
+            pr: { lg: 6 },
+            borderRight: { lg: `1px solid ${colors.timelineColor}` },
+            borderBottom: { xs: `1px solid ${colors.timelineColor}`, lg: "none" },
           }}
         >
           <Typography
@@ -540,31 +548,32 @@ const MinistryCardGrid = () => {
         {/* Prime Minister */}
         <Card
           sx={{
-            flex: { xs: "1 1 100%", sm: "1 1 60%", md: "1 1 100%", lg: "0 0 34%" },
-            border: `2px solid ${selectedPresident.themeColorLight}`,
-            borderRadius: "15px",
-            backgroundColor: colors.backgroundPrimary,
+            flex: { xs: "1 1 100%", sm: "1 1 60%", md: "1 1 100%", lg: "0 0 35%" },
+            backgroundColor: colors.backgroundWhite,
             boxShadow: "none",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             mb: { xs: 2, md: 0 },
+            ml: 1,
+            borderRadius: 2
           }}
         >
           <Typography
             sx={{
-              fontWeight: 300,
-              color: colors.white,
+              fontWeight: 400,
+              color: colors.textPrimary,
               fontSize: 16,
-              textAlign: "left",
-              pt: "5px",
+              textAlign: "center",
+              mt: 2,
               px: 2,
+              fontFamily: "Poppins",
             }}
           >
             Prime Minister
           </Typography>
 
-          <Box sx={{ p: 1.2 }}>
+          <Box sx={{ p: 1.2 , mt: -0.5}}>
             {primeMinister.person && primeMinister.relation && selectedPresident ? (
               <Box
                 sx={{
@@ -663,6 +672,7 @@ const MinistryCardGrid = () => {
             )}
           </Box>
         </Card>
+
       </Box>
 
 
@@ -884,248 +894,258 @@ const MinistryCardGrid = () => {
                   }}
                   orientation="vertical"
                 >
-                  {steps.map((step, index) => (
-                    <Step key={step.label}>
-                      <StepLabel
-                        onClick={
-                          (activeStep != 0 &&
-                            step.label == "Ministries" &&
-                            selectedCard) ||
-                            (activeStep == 1 &&
-                              step.label == "Departments & People")
-                            ? handleBack
-                            : null
-                        }
-                        sx={{
-                          fontWeight: 700,
-                          cursor: "pointer",
-                          "&:hover .MuiTypography-root": {
-                            textDecoration: "underline",
-                          },
-                          "& .MuiStepIcon-root": {
-                            fontSize: "2rem", // Increase icon size
-                            color: selectedPresident.themeColorLight,
-                            "&.Mui-active": {
-                              color: selectedPresident.themeColorLight,
-                            },
-                            "&.Mui-completed": {
-                              color: selectedPresident.themeColorLight,
-                            },
-                          },
-                        }}
-                      >
-                        <Typography
-                          component="span"
+                  {steps.map((step, index) => {
+                    // Hide "Departments & People" step if it's not clickable
+                    if (
+                      step.label == "Departments & People" &&
+                      activeStep != 1
+                    ) {
+                      return null;
+                    }
+
+                    return (
+                      <Step key={step.label}>
+                        <StepLabel
+                          onClick={
+                            (activeStep != 0 &&
+                              step.label == "Ministries" &&
+                              selectedCard) ||
+                              (activeStep == 1 &&
+                                step.label == "Departments & People")
+                              ? handleBack
+                              : null
+                          }
                           sx={{
-                            color: colors.textPrimary,
-                            fontWeight: "semibold",
-                            fontSize: "1.1rem", // Increase text size
-                            transition: "text-decoration 0.2s ease-in-out",
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            "&:hover .MuiTypography-root": {
+                              textDecoration: "underline",
+                            },
+                            "& .MuiStepIcon-root": {
+                              fontSize: "2rem", // Increase icon size
+                              color: selectedPresident.themeColorLight,
+                              "&.Mui-active": {
+                                color: selectedPresident.themeColorLight,
+                              },
+                              "&.Mui-completed": {
+                                color: selectedPresident.themeColorLight,
+                              },
+                            },
                           }}
                         >
-                          {selectedCard &&
-                            step.label == "Ministries" &&
-                            activeStep !== 0
-                            ? selectedCard.name
-                            : step.label}
-                        </Typography>
-                      </StepLabel>
-                      <StepContent>
-                        {step.label == "Ministries" ? (
-                          <>
-                            <Grid
-                              mt={2}
-                              position={"relative"}
-                              container
-                              justifyContent="center"
-                              gap={1}
-                              sx={{ width: "100%" }}
-                            >
-                              {filteredMinistryList &&
-                                filteredMinistryList.length > 0 ? (
-                                filteredMinistryList.map((card) => (
-                                  <Grid
-                                    key={card.id}
-                                    sx={{
-                                      display: "grid",
-                                      flexBasis: {
-                                        xs: "100%",
-                                        sm: "48%",
-                                        md: "31.5%",
-                                        lg: "23.5%",
-                                      },
-                                      maxWidth: {
-                                        xs: "100%",
-                                        sm: "48%",
-                                        md: "31.5%",
-                                        lg: "23.5%",
-                                      },
-                                    }}
-                                  >
-                                    <MinistryCard
-                                      card={card}
-                                      onClick={() => handleCardClick(card)}
-                                    />
-                                  </Grid>
-                                ))
-                              ) : !loading &&
-                                activeMinistryList &&
-                                activeMinistryList.length === 0 ? (
-                                <Box
-                                  sx={{
-                                    width: "100%",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    marginTop: "15px",
-                                  }}
-                                >
-                                  <Alert
-                                    severity="info"
-                                    sx={{ backgroundColor: "transparent" }}
-                                  >
-                                    <AlertTitle
-                                      sx={{
-                                        fontFamily: "poppins",
-                                        color: colors.textPrimary,
-                                      }}
-                                    >
-                                      No ministries.
-                                    </AlertTitle>
-                                  </Alert>
-                                </Box>
-                              ) : (
-                                <Box
-                                  sx={{
-                                    width: "100%",
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    marginTop: "15px",
-                                  }}
-                                >
-                                  <Alert
-                                    severity="info"
-                                    sx={{ backgroundColor: "transparent" }}
-                                  >
-                                    <AlertTitle
-                                      sx={{
-                                        fontFamily: "poppins",
-                                        color: colors.textPrimary,
-                                      }}
-                                    >
-                                      No Search Result
-                                    </AlertTitle>
-                                  </Alert>
-                                </Box>
-                              )}
-                            </Grid>
-                            {/* If filtering is happening, overlay a subtle loader */}
-                            {filterLoading && (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  mt: 2,
-                                }}
+                          <Typography
+                            component="span"
+                            sx={{
+                              color: colors.textPrimary,
+                              fontWeight: "semibold",
+                              fontSize: "1.1rem", // Increase text size
+                              transition: "text-decoration 0.2s ease-in-out",
+                            }}
+                          >
+                            {selectedCard &&
+                              step.label == "Ministries" &&
+                              activeStep !== 0
+                              ? selectedCard.name
+                              : step.label}
+                          </Typography>
+                        </StepLabel>
+                        <StepContent>
+                          {step.label == "Ministries" ? (
+                            <>
+                              <Grid
+                                mt={2}
+                                position={"relative"}
+                                container
+                                justifyContent="center"
+                                gap={1}
+                                sx={{ width: "100%" }}
                               >
-                                <ClipLoader
-                                  color={selectedPresident.themeColorLight}
-                                  loading={filterLoading}
-                                  size={18}
-                                />
-                              </Box>
-                            )}
-                          </>
-                        ) : (
-                          step.label == "Departments & People" && (
-                            <DialogContent
-                              sx={{
-                                p: 4,
-                                borderRadius: "14px",
-                                mr: 4,
-                                mt: 2,
-                                display: "flex",
-                                flexDirection: "column",
-                                overflowY: "auto",
-                                scrollbarWidth: "none",
-                                backgroundColor: colors.backgroundBlue,
-                                "&::-webkit-scrollbar": { display: "none" },
-                              }}
-                            >
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  flexWrap: "wrap",
-                                  gap: 2,
-                                  mb: 4,
-                                  justifyContent: {
-                                    xs: "center",
-                                    sm: "flex-start",
-                                  },
-                                }}
-                              >
-                                {["departments", "people"].map((tab) => {
-                                  const label =
-                                    tab.charAt(0).toUpperCase() + tab.slice(1);
-                                  const isActive = tab == activeTab;
-                                  return (
-                                    <Button
-                                      key={tab}
-                                      variant={
-                                        isActive ? "contained" : "outlined"
-                                      }
-                                      onClick={() => setActiveTab(tab)}
+                                {filteredMinistryList &&
+                                  filteredMinistryList.length > 0 ? (
+                                  filteredMinistryList.map((card) => (
+                                    <Grid
+                                      key={card.id}
                                       sx={{
-                                        textTransform: "none",
-                                        borderRadius: "50px",
-                                        px: { xs: 2, sm: 3 },
-                                        py: 0.8,
-                                        backgroundColor: isActive
-                                          ? selectedPresident.themeColorLight
-                                          : "none",
-                                        borderColor:
-                                          selectedPresident.themeColorLight,
-                                        color: isActive
-                                          ? colors.textPrimary
-                                          : selectedPresident.themeColorLight,
-                                        fontFamily: "poppins",
-                                        fontSize: {
-                                          xs: "0.8rem",
-                                          sm: "0.9rem",
-                                          md: "1rem",
+                                        display: "grid",
+                                        flexBasis: {
+                                          xs: "100%",
+                                          sm: "48%",
+                                          md: "31.5%",
+                                          lg: "23.5%",
+                                        },
+                                        maxWidth: {
+                                          xs: "100%",
+                                          sm: "48%",
+                                          md: "31.5%",
+                                          lg: "23.5%",
                                         },
                                       }}
                                     >
-                                      {label}
-                                    </Button>
-                                  );
-                                })}
-                              </Box>
-                              <Box sx={{ flexGrow: 1, mt: 2, width: "100%" }}>
-                                <>
-                                  {selectedCard &&
-                                    activeTab === "departments" && (
-                                      <DepartmentTab
+                                      <MinistryCard
+                                        card={card}
+                                        onClick={() => handleCardClick(card)}
+                                      />
+                                    </Grid>
+                                  ))
+                                ) : !loading &&
+                                  activeMinistryList &&
+                                  activeMinistryList.length === 0 ? (
+                                  <Box
+                                    sx={{
+                                      width: "100%",
+                                      display: "flex",
+                                      justifyContent: "center",
+                                      marginTop: "15px",
+                                    }}
+                                  >
+                                    <Alert
+                                      severity="info"
+                                      sx={{ backgroundColor: "transparent" }}
+                                    >
+                                      <AlertTitle
+                                        sx={{
+                                          fontFamily: "poppins",
+                                          color: colors.textPrimary,
+                                        }}
+                                      >
+                                        No ministries.
+                                      </AlertTitle>
+                                    </Alert>
+                                  </Box>
+                                ) : (
+                                  <Box
+                                    sx={{
+                                      width: "100%",
+                                      display: "flex",
+                                      justifyContent: "center",
+                                      marginTop: "15px",
+                                    }}
+                                  >
+                                    <Alert
+                                      severity="info"
+                                      sx={{ backgroundColor: "transparent" }}
+                                    >
+                                      <AlertTitle
+                                        sx={{
+                                          fontFamily: "poppins",
+                                          color: colors.textPrimary,
+                                        }}
+                                      >
+                                        No Search Result
+                                      </AlertTitle>
+                                    </Alert>
+                                  </Box>
+                                )}
+                              </Grid>
+                              {/* If filtering is happening, overlay a subtle loader */}
+                              {filterLoading && (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    mt: 2,
+                                  }}
+                                >
+                                  <ClipLoader
+                                    color={selectedPresident.themeColorLight}
+                                    loading={filterLoading}
+                                    size={18}
+                                  />
+                                </Box>
+                              )}
+                            </>
+                          ) : (
+                            step.label == "Departments & People" && (
+                              <DialogContent
+                                sx={{
+                                  p: 4,
+                                  borderRadius: "14px",
+                                  mr: 4,
+                                  mt: 2,
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  overflowY: "auto",
+                                  scrollbarWidth: "none",
+                                  backgroundColor: colors.backgroundBlue,
+                                  "&::-webkit-scrollbar": { display: "none" },
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: 2,
+                                    mb: 4,
+                                    justifyContent: {
+                                      xs: "center",
+                                      sm: "flex-start",
+                                    },
+                                  }}
+                                >
+                                  {["departments", "people"].map((tab) => {
+                                    const label =
+                                      tab.charAt(0).toUpperCase() + tab.slice(1);
+                                    const isActive = tab == activeTab;
+                                    return (
+                                      <Button
+                                        key={tab}
+                                        variant={
+                                          isActive ? "contained" : "outlined"
+                                        }
+                                        onClick={() => setActiveTab(tab)}
+                                        sx={{
+                                          textTransform: "none",
+                                          borderRadius: "50px",
+                                          px: { xs: 2, sm: 3 },
+                                          py: 0.8,
+                                          backgroundColor: isActive
+                                            ? selectedPresident.themeColorLight
+                                            : "none",
+                                          borderColor:
+                                            selectedPresident.themeColorLight,
+                                          color: isActive
+                                            ? colors.textPrimary
+                                            : selectedPresident.themeColorLight,
+                                          fontFamily: "poppins",
+                                          fontSize: {
+                                            xs: "0.8rem",
+                                            sm: "0.9rem",
+                                            md: "1rem",
+                                          },
+                                        }}
+                                      >
+                                        {label}
+                                      </Button>
+                                    );
+                                  })}
+                                </Box>
+                                <Box sx={{ flexGrow: 1, mt: 2, width: "100%" }}>
+                                  <>
+                                    {selectedCard &&
+                                      activeTab === "departments" && (
+                                        <DepartmentTab
+                                          selectedDate={
+                                            selectedDate?.date || selectedDate
+                                          }
+                                          ministryId={selectedCard?.id}
+                                        />
+                                      )}
+                                    {selectedCard && activeTab === "people" && (
+                                      <PersonsTab
                                         selectedDate={
                                           selectedDate?.date || selectedDate
                                         }
-                                        ministryId={selectedCard?.id}
                                       />
                                     )}
-                                  {selectedCard && activeTab === "people" && (
-                                    <PersonsTab
-                                      selectedDate={
-                                        selectedDate?.date || selectedDate
-                                      }
-                                    />
-                                  )}
-                                </>
-                              </Box>
-                            </DialogContent>
-                          )
-                        )}
-                      </StepContent>
-                    </Step>
-                  ))}
+                                  </>
+                                </Box>
+                              </DialogContent>
+                            )
+                          )}
+                        </StepContent>
+                      </Step>
+                    );
+                  })}
                 </Stepper>
               ) : (
                 <GraphComponent
