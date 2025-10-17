@@ -1,4 +1,5 @@
-import {Box, Grid, Typography, Alert, AlertTitle, Chip, TextField, Select, MenuItem, FormControl, InputLabel, Button, Card, DialogContent, Avatar
+import {
+  Box, Grid, Typography, Alert, AlertTitle, Chip, TextField, Select, MenuItem, FormControl, InputLabel, Button, Card, DialogContent, Avatar
 } from "@mui/material";
 import MinistryCard from "./MinistryCard";
 import { useSelector, useDispatch } from "react-redux";
@@ -11,6 +12,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
+import ApartmentIcon from "@mui/icons-material/Apartment";
+import PeopleIcon from "@mui/icons-material/People";
 import InfoTooltip from "../components/InfoToolTip";
 import { Link, useLocation } from "react-router-dom";
 
@@ -282,6 +285,32 @@ const MinistryCardGrid = () => {
       description: "All departments under this ministry",
     },
   ];
+
+  // Custom icon component
+  const StepIcon = ({ label }) => {
+    let IconComponent = null;
+
+    if (label === "Ministries") IconComponent = ApartmentIcon;
+    if (label === "Departments & People") IconComponent = PeopleIcon;
+
+    if (!IconComponent) return null;
+
+    return (
+      <Box
+        sx={{
+          width: 35,
+          height: 35,
+          borderRadius: "50%",
+          backgroundColor: selectedPresident.themeColorLight,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <IconComponent sx={{ color: "#fff" }} />
+      </Box>
+    );
+  };
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -925,6 +954,7 @@ const MinistryCardGrid = () => {
                     return (
                       <Step key={step.label}>
                         <StepLabel
+                          StepIconComponent={() => <StepIcon label={step.label} />}
                           onClick={
                             (activeStep != 0 &&
                               step.label == "Ministries" &&
