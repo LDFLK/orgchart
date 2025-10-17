@@ -1,34 +1,19 @@
 import {
-  Box,
-  Grid,
-  Typography,
-  Alert,
-  AlertTitle,
-  Divider,
-  Chip,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Button,
-  Paper,
-  DialogContent,
+  Box, Grid, Typography, Alert, AlertTitle, Chip, TextField, Select, MenuItem, FormControl, InputLabel, Button, Card, DialogContent, Avatar
 } from "@mui/material";
 import MinistryCard from "./MinistryCard";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import api from "./../services/services";
 import { ClipLoader } from "react-spinners";
-import { setSelectedMinistry } from "../store/allMinistryData";
 import { useThemeContext } from "../themeContext";
 import InputAdornment from "@mui/material/InputAdornment";
 import SearchIcon from "@mui/icons-material/Search";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import PersonIcon from "@mui/icons-material/Person";
 import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremium";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import InfoTooltip from "../components/InfoToolTip";
+import { Link, useLocation } from "react-router-dom";
 
 import utils from "./../utils/utils";
 import MinistryViewModeToggleButton from "./ministryViewModeToggleButton";
@@ -40,9 +25,9 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import StepContent from "@mui/material/StepContent";
 import PersonsTab from "./PersonsTab";
-import { useLocation } from "react-router-dom";
 import useUrlParamState from "../hooks/singleSharingURL";
 import DepartmentTab from "./DepartmentTab";
+import personImages from "../assets/personImages.json";
 
 const MinistryCardGrid = () => {
   const { allMinistryData } = useSelector((state) => state.allMinistryData);
@@ -63,6 +48,10 @@ const MinistryCardGrid = () => {
   const { colors } = useThemeContext();
   const dispatch = useDispatch();
   const location = useLocation();
+  const [primeMinister, setPrimeMinister] = useState({
+    relation: null,
+    person: null,
+  });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -97,6 +86,56 @@ const MinistryCardGrid = () => {
       fetchActiveMinistryList();
     }, 1500);
   }, [selectedDate, allMinistryData, selectedPresident]);
+
+  useEffect(() => {
+    if (!selectedDate) {
+      return;
+    }
+    setPrimeMinister({ relation: null, person: null });
+    const timeoutId = setTimeout(() => {
+      fetchPrimeMinister();
+    }, 1000);
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [selectedDate]);
+
+  const fetchPrimeMinister = async () => {
+    try {
+      setLoading(true);
+      var response = await api.fetchActiveRelationsForMinistry(
+        selectedDate.date,
+        "gov_01",
+        "AS_PRIME_MINISTER"
+      );
+
+      response = await response.json();
+      if (response.length === 0) {
+        setLoading(false);
+        return;
+      }
+      let pmPerson = allPersonDict[response[0].relatedEntityId];
+      // Try to find a matching image from personImages
+      if (pmPerson && pmPerson.name) {
+        const pmName = utils.extractNameFromProtobuf(pmPerson.name).trim();
+        const found = personImages.find(
+          (img) => img.presidentName.trim() === pmName
+        );
+        if (found && found.imageUrl) {
+          pmPerson = { ...pmPerson, imageUrl: found.imageUrl };
+        }
+      }
+      if (response.length > 0 && pmPerson) {
+        setPrimeMinister({
+          relation: response[0],
+          person: pmPerson,
+        });
+      }
+      setLoading(false);
+    } catch (e) {
+      console.error("Failed to fetch prime minister data:", e);
+    }
+  };
 
   useEffect(() => {
     let delayDebounceFunction;
@@ -293,21 +332,44 @@ const MinistryCardGrid = () => {
   return (
     <Box
       sx={{
-       
-        overflowX: "auto",
+        px: { xs: 2, sm: 4, md: 10, lg: 15, xl: 23 },
+        mt: -2
+
       }}
     >
-      <Box sx={{ textAlign: "center", mb: 1 }}>
-        <Typography
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "stretch",
+          justifyContent: { xs: "center", md: "space-between" },
+          width: "100%",
+          gap: { xs: 2, sm: 4, md: 6, lg: 4, xl: 4 },
+          mb: 3,
+        }}
+      >
+        {/* Gazette Date */}
+        <Box
           sx={{
-            color: colors.textPrimary,
-            fontFamily: "poppins",
-            fontSize: 18
+            flex: { xs: "1 1 100%", sm: "0 0 40%", md: "1 1 100%", lg: "0 0 10%" },
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            ml: { xs: 0, md: 1 },
+            mb: { xs: 2, md: 0 },
           }}
         >
-          Gazette Date
-        </Typography>
-        <Divider>
+          <Typography
+            sx={{
+              color: colors.textPrimary,
+              fontFamily: "poppins",
+              fontSize: 16,
+            }}
+          >
+            Gazette Date
+          </Typography>
+
           <Chip
             label={new Date(selectedDate.date).toLocaleDateString("en-GB", {
               day: "2-digit",
@@ -317,82 +379,74 @@ const MinistryCardGrid = () => {
             sx={{
               backgroundColor: "transparent",
               fontWeight: "bold",
-              // color: colors.textSecondary,
               color: selectedPresident.themeColorLight,
               fontFamily: "poppins",
-              fontSize: 18,
-              P: 1,
+              fontSize: 16,
             }}
           />
-        </Divider>
-      </Box>
-      {/* Key Highlights Section */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        {/* Heading outside the box */}
-        <Typography
-          sx={{
-            fontFamily: "Poppins",
-            fontWeight: 400,
-            fontSize: 18,
-            color: colors.textPrimary,
-            mb: 1, // space between heading and card
-          }}
-        >
-          Key Highlights
-        </Typography>
 
-        {/* The Card */}
+        </Box>
+
+        {/* Key Highlights */}
         <Box
           sx={{
-            width: "100%",
-            maxWidth: 500,
+            flex: { xs: "1 1 100%", sm: "1 1 60%", md: "1 1 100%", lg: "0 0 40%" },
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            p: 2,
+            justifyContent: "center",
             borderRadius: 2,
             backgroundColor: colors.backgroundWhite,
+            overflow: "hidden",
+            p: 1.5,
+            ml: { xs: 0, md: 3 },
+            mb: { xs: 2, md: 0 },
           }}
         >
-          {/* Rows */}
+          <Typography
+            sx={{
+              fontFamily: "Poppins",
+              fontWeight: 400,
+              fontSize: 16,
+              color: colors.textPrimary,
+              mb: 0.5,
+            }}
+          >
+            Key Highlights
+          </Typography>
+
           <Box
             sx={{
               width: "100%",
+              px: 1,
               display: "flex",
               flexDirection: "column",
-              gap: 1,
+              gap: 0.4,
             }}
           >
             {/* New Ministries */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <AccountBalanceIcon sx={{ color: colors.textMuted }} />
-
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+              <AccountBalanceIcon sx={{ color: colors.textMuted, fontSize: 18 }} />
               <Typography
                 sx={{
                   flex: 1,
                   fontFamily: "Poppins",
                   fontWeight: 500,
                   color: colors.textMuted,
+                  fontSize: 15,
                 }}
               >
                 New Ministries{" "}
                 <InfoTooltip
                   message="New ministry portfolios created on selected date"
                   iconColor={colors.textPrimary}
-                  iconSize={14}
+                  iconSize={13}
                 />
               </Typography>
               <Typography
                 sx={{
                   fontFamily: "Poppins",
-                  fontSize: 20,
+                  fontSize: 17,
                   fontWeight: 500,
                   color: colors.textPrimary,
                 }}
@@ -401,28 +455,29 @@ const MinistryCardGrid = () => {
               </Typography>
             </Box>
 
-            {/* new people */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
+            {/* New Ministers */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+              <PersonAddAlt1Icon sx={{ color: colors.textMuted, fontSize: 18 }} />
               <Typography
                 sx={{
                   flex: 1,
                   fontFamily: "Poppins",
                   fontWeight: 500,
                   color: colors.textMuted,
+                  fontSize: 15,
                 }}
               >
                 New Ministers{" "}
                 <InfoTooltip
                   message="New ministers assigned to portfolios on selected date"
                   iconColor={colors.textPrimary}
-                  iconSize={14}
+                  iconSize={13}
                 />
               </Typography>
               <Typography
                 sx={{
                   fontFamily: "Poppins",
-                  fontSize: 20,
+                  fontSize: 17,
                   fontWeight: 500,
                   color: colors.textPrimary,
                 }}
@@ -431,28 +486,29 @@ const MinistryCardGrid = () => {
               </Typography>
             </Box>
 
-            {/* Ministries assigned to president */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <WorkspacePremiumIcon sx={{ color: colors.textMuted }} />
+            {/* Ministries under president */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+              <WorkspacePremiumIcon sx={{ color: colors.textMuted, fontSize: 18 }} />
               <Typography
                 sx={{
                   flex: 1,
                   fontFamily: "Poppins",
                   fontWeight: 500,
                   color: colors.textMuted,
+                  fontSize: 15,
                 }}
               >
-                Ministries assigned to president{" "}
+                Ministries under president{" "}
                 <InfoTooltip
                   message="Ministry portfolios under the president on selected date"
                   iconColor={colors.textPrimary}
-                  iconSize={14}
+                  iconSize={13}
                 />
               </Typography>
               <Typography
                 sx={{
                   fontFamily: "Poppins",
-                  fontSize: 20,
+                  fontSize: 17,
                   fontWeight: 500,
                   color: colors.textPrimary,
                 }}
@@ -462,15 +518,12 @@ const MinistryCardGrid = () => {
                     const headName = m.headMinisterName
                       ? utils.extractNameFromProtobuf(m.headMinisterName)
                       : null;
-
                     const presidentName = selectedPresident?.name
                       ? utils
                         .extractNameFromProtobuf(selectedPresident.name)
                         .split(":")[0]
                       : null;
-
                     if (!headName && presidentName) return true;
-
                     return (
                       headName &&
                       presidentName &&
@@ -483,7 +536,136 @@ const MinistryCardGrid = () => {
             </Box>
           </Box>
         </Box>
+
+        {/* Prime Minister */}
+        <Card
+          sx={{
+            flex: { xs: "1 1 100%", sm: "1 1 60%", md: "1 1 100%", lg: "0 0 34%" },
+            border: `2px solid ${selectedPresident.themeColorLight}`,
+            borderRadius: "15px",
+            backgroundColor: colors.backgroundPrimary,
+            boxShadow: "none",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            mb: { xs: 2, md: 0 },
+          }}
+        >
+          <Typography
+            sx={{
+              fontWeight: 300,
+              color: colors.white,
+              fontSize: 16,
+              textAlign: "left",
+              pt: "5px",
+              px: 2,
+            }}
+          >
+            Prime Minister
+          </Typography>
+
+          <Box sx={{ p: 1.2 }}>
+            {primeMinister.person && primeMinister.relation && selectedPresident ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                }}
+              >
+                <Avatar
+                  src={primeMinister.person.imageUrl}
+                  alt={primeMinister.person.name}
+                  sx={{
+                    width: 55,
+                    height: 55,
+                    backgroundColor: colors.backgroundPrimary,
+                  }}
+                />
+                <Box sx={{ display: "block", ml: 1.2 }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 400,
+                      fontSize: 15,
+                      fontFamily: "poppins",
+                      color: colors.textPrimary,
+                      textAlign: "left",
+                      margin: 0,
+                    }}
+                  >
+                    {utils.extractNameFromProtobuf(primeMinister.person.name)}
+                  </Typography>
+                  <Typography sx={{ fontSize: 14, color: colors.textMuted }}>
+                    {(() => {
+                      if (!primeMinister.relation) return "Unknown";
+                      return primeMinister.relation.endTime
+                        ? `${primeMinister.relation.startTime.split("-")[0]} - ${new Date(
+                          primeMinister.relation.endTime
+                        ).getFullYear()}`
+                        : `${primeMinister.relation.startTime.split("-")[0]} - Present`;
+                    })()}
+                  </Typography>
+                  <Button
+                    component={Link}
+                    to={`/person-profile/${primeMinister.person?.id}`}
+                    state={{ mode: "back" }}
+                    disableRipple
+                    disableElevation
+                    sx={{
+                      p: 0,
+                      minWidth: "auto",
+                      backgroundColor: "transparent",
+                      textTransform: "none",
+                      textAlign: "left",
+                      "&:hover": { backgroundColor: "transparent" },
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        fontSize: 13,
+                        color: "#6491DA",
+                        transition: "color 0.3s, text-decoration 0.3s",
+                        ":hover": {
+                          textDecoration: "underline",
+                          color: selectedPresident.themeColorLight,
+                        },
+                      }}
+                    >
+                      View Profile
+                    </Typography>
+                  </Button>
+                </Box>
+              </Box>
+            ) : primeMinister.person == null && primeMinister.relation == null && !loading ? (
+              <Typography
+                sx={{
+                  fontStyle: "italic",
+                  color: colors.textMuted,
+                  textAlign: "left",
+                }}
+              >
+                No Prime Minister appointed on this date.
+              </Typography>
+            ) : (
+              loading && (
+                <Typography
+                  sx={{
+                    fontStyle: "italic",
+                    color: colors.textMuted,
+                    textAlign: "left",
+                  }}
+                >
+                  Loading Prime Minister data...
+                </Typography>
+              )
+            )}
+          </Box>
+        </Card>
       </Box>
+
+
 
       {/* Container for Active Ministries Section */}
       <Box
@@ -540,10 +722,10 @@ const MinistryCardGrid = () => {
               }}
             >
               {new Date(selectedDate.date).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}
             </Typography>
           </Box>
 
