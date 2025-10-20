@@ -39,7 +39,7 @@ const MinistryCardGrid = () => {
   const allPersonDict = useSelector((state) => state.allPerson.allPerson);
   const [activeMinistryList, setActiveMinistryList] = useState([]);
   const [filteredMinistryList, setFilteredMinistryList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [pmloading, setPmLoading] = useState(true);
   const [filterLoading, setFilterLoading] = useState(false);
   const [searchText, setSearchText] = useUrlParamState("filterByName", "");
   const [filterType, setFilterType] = useUrlParamState("filterByType", "all");
@@ -47,6 +47,7 @@ const MinistryCardGrid = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [activeTab, setActiveTab] = useState("departments");
   const [selectedCard, setSelectedCard] = useState(null);
+  const [ministryLoading, setMinistryLoading] = useState(false)
   const { colors } = useThemeContext();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -104,7 +105,7 @@ const MinistryCardGrid = () => {
 
   const fetchPrimeMinister = async () => {
     try {
-      setLoading(true);
+      setPmLoading(true);
       var response = await api.fetchActiveRelationsForMinistry(
         selectedDate.date,
         "gov_01",
@@ -113,7 +114,7 @@ const MinistryCardGrid = () => {
 
       response = await response.json();
       if (response.length === 0) {
-        setLoading(false);
+        setPmLoading(false);
         return;
       }
       let pmPerson = allPersonDict[response[0].relatedEntityId];
@@ -133,7 +134,7 @@ const MinistryCardGrid = () => {
           person: pmPerson,
         });
       }
-      setLoading(false);
+      setPmLoading(false);
     } catch (e) {
       console.error("Failed to fetch prime minister data:", e);
     }
@@ -205,20 +206,11 @@ const MinistryCardGrid = () => {
   };
 
   const fetchActiveMinistryList = async () => {
-    if (
-      !selectedDate ||
-      !allMinistryData ||
-      Object.keys(allMinistryData).length === 0
-    )
-      return;
+    if (!selectedDate || !allMinistryData || Object.keys(allMinistryData).length === 0) return;
 
     try {
-      setLoading(true);
-      const activeMinistry = await api.fetchActiveMinistries(
-        selectedDate,
-        allMinistryData,
-        selectedPresident
-      );
+      setMinistryLoading(true);
+      const activeMinistry = await api.fetchActiveMinistries(selectedDate, allMinistryData, selectedPresident);
 
       const enrichedMinistries = await Promise.all(
         activeMinistry.children.map(async (ministry) => {
@@ -229,38 +221,28 @@ const MinistryCardGrid = () => {
           );
           const res = await response.json();
 
-          // Create a map of relatedEntityId -> startTime for fast lookup
           const startTimeMap = new Map();
           res.forEach((relation) => {
-            if (relation.relatedEntityId) {
-              startTimeMap.set(relation.relatedEntityId, relation.startTime);
-            }
+            if (relation.relatedEntityId) startTimeMap.set(relation.relatedEntityId, relation.startTime);
           });
 
-          // Lookup only the relevant people directly from allPerson dict
           const personListInDetail = Array.from(startTimeMap.keys())
             .map((id) => {
               const person = allPersonDict[id];
               if (!person) return null;
-              return {
-                ...person,
-                startTime: startTimeMap.get(id) || null,
-                id,
-              };
+              return { ...person, startTime: startTimeMap.get(id) || null, id };
             })
-            .filter(Boolean); // remove any missing ids
+            .filter(Boolean);
 
           const headMinisterName = personListInDetail[0]?.name || null;
-          const headMinisterStartTime =
-            personListInDetail[0]?.startTime || null;
+          const headMinisterStartTime = personListInDetail[0]?.startTime || null;
           const headMinisterId = personListInDetail[0]?.id || null;
 
           return {
             ...ministry,
             headMinisterId,
             headMinisterName,
-            newPerson:
-              headMinisterStartTime?.startsWith(selectedDate.date) || false,
+            newPerson: headMinisterStartTime?.startsWith(selectedDate.date) || false,
             newMin: ministry.startTime?.startsWith(selectedDate.date) || false,
           };
         })
@@ -268,12 +250,13 @@ const MinistryCardGrid = () => {
 
       setActiveMinistryList(enrichedMinistries);
       setFilteredMinistryList(enrichedMinistries);
-      setLoading(false);
+      setMinistryLoading(false); 
     } catch (e) {
       console.log("error fetch ministry list : ", e.message);
-      setLoading(false);
+      setMinistryLoading(false); 
     }
   };
+
 
   const steps = [
     {
@@ -548,7 +531,7 @@ const MinistryCardGrid = () => {
                   </Button>
                 </Box>
               </Box>
-            ) : primeMinister.person == null && primeMinister.relation == null && !loading ? (
+            ) : primeMinister.person == null && primeMinister.relation == null && !pmloading ? (
               <Typography
                 sx={{
                   fontStyle: "italic",
@@ -559,7 +542,7 @@ const MinistryCardGrid = () => {
                 No Prime Minister appointed on this date.
               </Typography>
             ) : (
-              loading && (
+              pmloading && (
                 <Typography
                   sx={{
                     fontStyle: "italic",
@@ -906,7 +889,7 @@ const MinistryCardGrid = () => {
           setViewMode={setViewMode}
         />
 
-        {loading ? (
+        {pmloading || ministryLoading ? (
           <Box
             sx={{
               display: "flex",
@@ -917,7 +900,7 @@ const MinistryCardGrid = () => {
           >
             <ClipLoader
               color={selectedPresident.themeColorLight}
-              loading={loading}
+              loading={pmloading || ministryLoading}
               size={25}
               aria-label="Loading Spinner"
               data-testid="loader"
@@ -1037,7 +1020,7 @@ const MinistryCardGrid = () => {
                                       />
                                     </Grid>
                                   ))
-                                ) : !loading &&
+                                ) : !ministryLoading &&
                                   activeMinistryList &&
                                   activeMinistryList.length === 0 ? (
                                   <Box
