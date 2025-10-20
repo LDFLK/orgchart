@@ -405,7 +405,53 @@ export default function DocsPage() {
                         },
 
                         p: ({ node, ...props }) => <p className="mb-5 leading-relaxed text-gray-700" {...props} />,
-                        a: ({ node, ...props }) => <a {...props} className="text-blue-600 underline hover:text-blue-800 break-words font-medium" target="_blank" rel="noopener noreferrer" />,
+                        a: ({ href, children, ...props }) => {
+                            const isExternal = href?.startsWith("http://") || href?.startsWith("https://");
+                            const isGlossaryLink = href?.includes("file=glossary") || href?.startsWith("#");
+
+                            const showArrow = isExternal || isGlossaryLink;
+
+                            // Conditional classes: blue only for external links
+                            const linkClass = isExternal
+                                ? "text-blue-600 underline hover:text-blue-800 font-medium"
+                                : "font-medium text-gray-800 hover:text-gray-900";
+
+                            // Open all links in new tab
+                            const linkTarget = "_blank";
+                            const linkRel = "noopener noreferrer";
+
+                            return (
+                                <a
+                                    href={href}
+                                    className={`${linkClass} inline-flex items-center gap-0.2`}
+                                    target={linkTarget}
+                                    rel={linkRel}
+                                    {...props}
+                                >
+                                    {children}
+
+                                    {showArrow && (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="11"
+                                            height="11"
+                                            fill="none"
+                                            viewBox="0 0 20 20"
+                                            strokeWidth={2.5}
+                                            stroke="currentColor"
+                                            className="opacity-70 inline-block"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M13 5h6m0 0v6m0-6L10 14"
+                                            />
+                                        </svg>
+                                    )}
+                                </a>
+                            );
+                        },
+
                         ul: ({ node, ...props }) => (
                             <ul className="list-disc pl-6 mb-5 space-y-1 text-gray-700" {...props} />
                         ),
