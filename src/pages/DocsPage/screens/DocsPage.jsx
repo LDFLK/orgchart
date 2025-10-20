@@ -436,7 +436,7 @@ export default function DocsPage() {
                                             width="11"
                                             height="11"
                                             fill="none"
-                                            viewBox="0 0 20 20"
+                                            viewBox="0 0 21 21"
                                             strokeWidth={2.5}
                                             stroke="currentColor"
                                             className="opacity-70 inline-block"
