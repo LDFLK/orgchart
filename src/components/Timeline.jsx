@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSelector } from "react-redux";
@@ -24,7 +23,6 @@ export default function YearRangeSelector({
   const containerRef = useRef(null);
   const dragStartRef = useRef(null);
   const scrollWrapperRef = useRef(null);
-  const debounceRef = useRef(null);
   const [startDate, setStartDate] = useState(latestPresStartDate);
   const [endDate, setEndDate] = useState(new Date());
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -44,6 +42,8 @@ export default function YearRangeSelector({
   });
   const [calendarRange, setCalendarRange] = useState(null);
   const [searchParams] = useSearchParams();
+  const [calendarStart, setCalendarStart] = useState(startDate)
+  const [calendarEnd, setCalendarEnd] = useState(endDate)
 
   const endYear = new Date().getFullYear();
   const years = Array.from(
@@ -68,8 +68,6 @@ export default function YearRangeSelector({
     initialStartYear,
     initialEndYear,
   ]);
-
-
 
   useEffect(() => {
     const selectedDateParam = searchParams.get("selectedDate");
@@ -223,22 +221,6 @@ export default function YearRangeSelector({
     return endDateUTC.getTime() === todayUTC.getTime();
   }
 
-  useEffect(() => {
-    const trigger = () => {
-      onDateChange?.([startDate, endDate]);
-    };
-
-    if (isDragging || isMovingWindow) {
-      debounceRef.current = setTimeout(trigger, 1000);
-    } else {
-      trigger();
-    }
-
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-  }, [startDate, endDate, onDateChange, isDragging, isMovingWindow]);
-
 
   // Get overlay metrics (left, width) for selected range
   function getPreciseOverlayMetrics() {
@@ -252,12 +234,12 @@ export default function YearRangeSelector({
       };
     }
 
-    const startYearVal = startDate.getUTCFullYear();
-    const endYearVal = endDate.getUTCFullYear();
-    const startMonth = startDate.getUTCMonth();
-    const startDay = startDate.getUTCDate();
-    const endMonth = endDate.getUTCMonth();
-    const endDay = endDate.getUTCDate();
+    const startYearVal = tempStartDate.getUTCFullYear();
+    const endYearVal = tempEndDate.getUTCFullYear();
+    const startMonth = tempStartDate.getUTCMonth();
+    const startDay = tempStartDate.getUTCDate();
+    const endMonth = tempEndDate.getUTCMonth();
+    const endDay = tempEndDate.getUTCDate();
 
     const daysInStartMonth = new Date(
       Date.UTC(startYearVal, startMonth + 1, 0)
@@ -301,12 +283,12 @@ export default function YearRangeSelector({
       };
     }
 
-    const startYearVal = startDate.getUTCFullYear();
-    const endYearVal = endDate.getUTCFullYear();
-    const startMonth = startDate.getUTCMonth();
-    const startDay = startDate.getUTCDate();
-    const endMonth = endDate.getUTCMonth();
-    const endDay = endDate.getUTCDate();
+    const startYearVal = tempStartDate.getUTCFullYear();
+    const endYearVal = tempEndDate.getUTCFullYear();
+    const startMonth = tempStartDate.getUTCMonth();
+    const startDay = tempStartDate.getUTCDate();
+    const endMonth = tempEndDate.getUTCMonth();
+    const endDay = tempEndDate.getUTCDate();
 
     const daysInStartMonth = new Date(
       Date.UTC(startYearVal, startMonth + 1, 0)
@@ -353,11 +335,11 @@ export default function YearRangeSelector({
   // overlay and handle positions
   const overlayMetrics = React.useMemo(
     () => getPreciseOverlayMetrics(),
-    [startDate, endDate, selectedRange]
+    [startDate, endDate, tempEndDate, tempStartDate, selectedRange]
   );
   const handlePositions = React.useMemo(
     () => getHandlePositions(),
-    [startDate, endDate, selectedRange]
+    [startDate, endDate, tempEndDate, tempStartDate, selectedRange]
   );
 
   // Scroll overlay into view when metrics change
@@ -428,14 +410,14 @@ export default function YearRangeSelector({
 
     if (isDragging === "start") {
       if (newDate <= endDate) {
-        setStartDate(newDate);
+        setTempStartDate(newDate);
         setSelectedRange([newDate.getUTCFullYear(), endDate.getUTCFullYear()]);
       }
     }
 
     if (isDragging === "end") {
       if (newDate >= startDate) {
-        setEndDate(newDate);
+        setTempEndDate(newDate);
         setSelectedRange([
           startDate.getUTCFullYear(),
           newDate.getUTCFullYear(),
@@ -453,29 +435,27 @@ export default function YearRangeSelector({
     const totalYears = years.length;
     const yearDelta = percentageDelta * totalYears;
 
-    // Get today's date for clamping
     const today = new Date();
     const todayUTC = new Date(
       Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())
     );
 
-    // Calculate new start position
+    // Current positions as floats
     const currentStartYearPos =
-      years.indexOf(startDate.getUTCFullYear()) +
-      (startDate.getUTCMonth() +
-        (startDate.getUTCDate() - 1) /
+      years.indexOf(tempStartDate.getUTCFullYear()) +
+      (tempStartDate.getUTCMonth() +
+        (tempStartDate.getUTCDate() - 1) /
         new Date(
-          Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth() + 1, 0)
+          Date.UTC(tempStartDate.getUTCFullYear(), tempStartDate.getUTCMonth() + 1, 0)
         ).getUTCDate()) /
       12;
 
-    // Calculate new end position
     const currentEndYearPos =
-      years.indexOf(endDate.getUTCFullYear()) +
-      (endDate.getUTCMonth() +
-        endDate.getUTCDate() /
+      years.indexOf(tempEndDate.getUTCFullYear()) +
+      (tempEndDate.getUTCMonth() +
+        tempEndDate.getUTCDate() /
         new Date(
-          Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth() + 1, 0)
+          Date.UTC(tempEndDate.getUTCFullYear(), tempEndDate.getUTCMonth() + 1, 0)
         ).getUTCDate()) /
       12;
 
@@ -483,77 +463,60 @@ export default function YearRangeSelector({
     const newStartYearPos = currentStartYearPos + yearDelta;
     const newEndYearPos = currentEndYearPos + yearDelta;
 
-    // Convert positions back to dates
     function positionToDate(pos) {
       const yearIndex = Math.floor(pos);
       const yearProgress = pos - yearIndex;
-      const targetYear =
-        years[Math.max(0, Math.min(yearIndex, years.length - 1))];
-
+      const targetYear = years[Math.max(0, Math.min(yearIndex, years.length - 1))];
       const monthProgress = yearProgress * 12;
       const month = Math.floor(monthProgress);
       const dayProgress = monthProgress - month;
-      const daysInMonth = new Date(
-        Date.UTC(targetYear, month + 1, 0)
-      ).getUTCDate();
+      const daysInMonth = new Date(Date.UTC(targetYear, month + 1, 0)).getUTCDate();
       const day = Math.max(1, Math.floor(dayProgress * daysInMonth) + 1);
-
       return new Date(Date.UTC(targetYear, month, day));
     }
 
-    // Calculate tentative dates
-    let tentativeStartPos = Math.max(0, newStartYearPos);
-    let tentativeEndPos = Math.min(totalYears, newEndYearPos);
+    // Tentative dates
+    let newTempStart = positionToDate(Math.max(0, newStartYearPos));
+    let newTempEnd = positionToDate(Math.min(totalYears, newEndYearPos));
 
-    let newStartDate = positionToDate(tentativeStartPos);
-    let newEndDate = positionToDate(tentativeEndPos);
-
-    // Clamp end date to today if needed
-    if (newEndDate > todayUTC) {
-      newEndDate = todayUTC;
-      // Adjust start date to maintain window size
+    // Clamp end to today
+    if (newTempEnd > todayUTC) {
+      newTempEnd = todayUTC;
       const endYearPos =
-        years.indexOf(newEndDate.getUTCFullYear()) +
-        (newEndDate.getUTCMonth() +
-          newEndDate.getUTCDate() /
+        years.indexOf(newTempEnd.getUTCFullYear()) +
+        (newTempEnd.getUTCMonth() +
+          newTempEnd.getUTCDate() /
           new Date(
-            Date.UTC(
-              newEndDate.getUTCFullYear(),
-              newEndDate.getUTCMonth() + 1,
-              0
-            )
+            Date.UTC(newTempEnd.getUTCFullYear(), newTempEnd.getUTCMonth() + 1, 0)
           ).getUTCDate()) /
         12;
-      tentativeStartPos = Math.max(0, endYearPos - windowSize);
-      newStartDate = positionToDate(tentativeStartPos);
+      newTempStart = positionToDate(Math.max(0, endYearPos - windowSize));
     }
 
-    // Clamp to start bounds
-    if (newStartYearPos < 0) {
-      newStartDate = positionToDate(0);
-      tentativeEndPos = Math.min(totalYears, windowSize);
-      newEndDate = positionToDate(tentativeEndPos);
-      if (newEndDate > todayUTC) {
-        newEndDate = todayUTC;
-      }
-    }
-
-    if (newStartDate <= newEndDate) {
-      setStartDate(newStartDate);
-      setEndDate(newEndDate);
+    // Update temp dates only
+    if (newTempStart <= newTempEnd) {
+      setTempStartDate(newTempStart);
+      setTempEndDate(newTempEnd);
       setSelectedRange([
-        newStartDate.getUTCFullYear(),
-        newEndDate.getUTCFullYear(),
+        newTempStart.getUTCFullYear(),
+        newTempEnd.getUTCFullYear(),
       ]);
     }
 
     dragStartRef.current = e.clientX;
   };
 
+
   const handleMouseUp = () => {
+    if (isDragging || isMovingWindow) {
+      setStartDate(tempStartDate);
+      setEndDate(tempEndDate);
+      onDateChange?.([tempStartDate, tempEndDate]); // single call
+    }
     setIsDragging(null);
     setIsMovingWindow(false);
   };
+
 
   useEffect(() => {
     if (isDragging || isMovingWindow) {
@@ -569,14 +532,15 @@ export default function YearRangeSelector({
 
   // MiniChart component
   const MiniChart = ({ data, year, isInRange }) => {
-    // Ensure data is valid and has values
     const validData =
       Array.isArray(data) && data.length > 0 ? data : Array(12).fill(0);
-    const maxValue = Math.max(...validData, 1); // Ensure maxValue is at least 1 to avoid division by zero
+    const maxValue = Math.max(...validData, 1);
+
+    // Adjusted vertical scaling (half)
     const points = validData
       .map((value, index) => {
         const x = (index / (validData.length - 1)) * 100;
-        const y = 20 + (100 - (value / maxValue) * 80);
+        const y = 10 + (100 - (value / maxValue) * 50); // was 20 + 80
         return `${x},${y}`;
       })
       .join(" ");
@@ -587,9 +551,9 @@ export default function YearRangeSelector({
 
     if (preciseMode && isInRange) {
       const currentYear = new Date().getFullYear();
-      if (year === startDate.getUTCFullYear()) {
-        const startMonth = startDate.getUTCMonth();
-        const startDay = startDate.getUTCDate();
+      if (year === tempStartDate.getUTCFullYear()) {
+        const startMonth = tempStartDate.getUTCMonth();
+        const startDay = tempStartDate.getUTCDate();
         const daysInMonth = new Date(
           Date.UTC(year, startMonth + 1, 0)
         ).getUTCDate();
@@ -597,12 +561,12 @@ export default function YearRangeSelector({
         startPercent = ((startMonth + dayProgress) / 12) * 100;
       }
 
-      if (year === endDate.getUTCFullYear()) {
+      if (year === tempEndDate.getUTCFullYear()) {
         if (year === currentYear && isEndDateToday()) {
           endPercent = 100;
         } else {
-          const endMonth = endDate.getUTCMonth();
-          const endDay = endDate.getUTCDate();
+          const endMonth = tempEndDate.getUTCMonth();
+          const endDay = tempEndDate.getUTCDate();
           const daysInMonth = new Date(
             Date.UTC(year, endMonth + 1, 0)
           ).getUTCDate();
@@ -614,51 +578,12 @@ export default function YearRangeSelector({
 
     const selectedWidth = endPercent - startPercent;
 
-    const handleMouseMove = (e) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const percentage = x / rect.width;
-      const monthIndex = Math.floor(percentage * 12);
-      const clampedMonth = Math.max(0, Math.min(11, monthIndex));
-
-      const monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ];
-      const monthName = monthNames[clampedMonth];
-      const count = validData[clampedMonth];
-
-      setTooltip({
-        show: true,
-        x: e.clientX,
-        y: e.clientY - 10,
-        content: `${monthName} ${year}: ${count} gazettes`,
-      });
-    };
-
-    const handleMouseLeave = () => {
-      setTooltip({ show: false, x: 0, y: 0, content: "" });
-    };
-
     return (
       <svg
         width="100%"
         height="100%"
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-      // onMouseMove={handleMouseMove}
-      // onMouseLeave={handleMouseLeave}
-      // style={{ cursor: 'crosshair' }}
       >
         <defs>
           <linearGradient
@@ -699,14 +624,14 @@ export default function YearRangeSelector({
         <polyline
           fill={`url(#gradient-unselected-${year})`}
           stroke="#94a3b8"
-          strokeWidth="1"
+          strokeWidth="0.75"
           points={`0,100 ${points} 100,100`}
           clipPath={hasSelection ? `url(#clip-unselected-${year})` : undefined}
         />
         <polyline
           fill="none"
           stroke="#64748b"
-          strokeWidth="1.5"
+          strokeWidth="1"
           points={points}
           clipPath={hasSelection ? `url(#clip-unselected-${year})` : undefined}
         />
@@ -716,14 +641,14 @@ export default function YearRangeSelector({
             <polyline
               fill={`url(#gradient-selected-${year})`}
               stroke="#2563eb"
-              strokeWidth="1"
+              strokeWidth="0.75"
               points={`0,100 ${points} 100,100`}
               clipPath={`url(#clip-selected-${year})`}
             />
             <polyline
               fill="none"
               stroke="#1d4ed8"
-              strokeWidth="1.5"
+              strokeWidth="1"
               points={points}
               clipPath={`url(#clip-selected-${year})`}
             />
@@ -733,10 +658,11 @@ export default function YearRangeSelector({
     );
   };
 
+
   return (
-    <div className="bg-gray-800 p-6 rounded-xl shadow-lg w-full max-w-6xl mx-auto mt-6">
+    <div className="bg-gray-800 p-3 rounded-xl shadow-lg w-full max-w-6xl mx-auto">
       {/* Presets and calendar */}
-      <div className="flex gap-2 mb-6 flex-wrap sm:justify-start justify-center">
+      <div className="flex gap-2 mb-4 flex-wrap sm:justify-start justify-center">
         {/* Year presets */}
         {[
           { label: "1Y", years: 1 },
@@ -750,7 +676,9 @@ export default function YearRangeSelector({
             onClick={() => {
               if (preset.label === "All") {
                 setStartDate(new Date(Date.UTC(startYear, 0, 1)));
+                setTempStartDate(new Date(Date.UTC(startYear, 0, 1)));
                 setEndDate(new Date());
+                setTempEndDate(new Date());
                 setSelectedRange([startYear, endYear]);
               } else {
                 const today = new Date();
@@ -762,7 +690,9 @@ export default function YearRangeSelector({
                   )
                 );
                 setStartDate(start);
+                setTempStartDate(start);
                 setEndDate(today);
+                setTempEndDate(today);
                 setSelectedRange([
                   start.getUTCFullYear(),
                   today.getUTCFullYear(),
@@ -772,21 +702,22 @@ export default function YearRangeSelector({
               setActivePreset(preset.label);
               setActivePresident("");
             }}
-            className={`px-2 text-sm font-medium rounded-lg transition-colors hover:cursor-pointer ${activePreset === preset.label
-              ? "bg-blue-600 text-white"
-              : "hover:bg-gray-800 bg-gray-700 text-gray-300 hover:cursor-pointer"
+            className={`px-1.5 py-1 text-xs font-medium rounded-md transition-colors hover:cursor-pointer ${activePreset === preset.label
+                ? "bg-blue-600 text-white"
+                : "hover:bg-gray-800 bg-gray-700 text-gray-300 hover:cursor-pointer"
               }`}
           >
             {preset.label}
           </button>
         ))}
+
         {/* Presidents dropdown */}
-        <div className="relative w-64 text-sm">
+        <div className="relative w-56 text-xs">
           {/* Main button */}
           <button
-            className={`w-full px-4 py-2 text-left cursor-pointer rounded-lg focus:outline-none flex justify-between items-center ${activePresident
-              ? "bg-blue-600 text-white"
-              : "bg-gray-700 text-gray-300"
+            className={`w-full px-3 py-1.5 text-left cursor-pointer rounded-md focus:outline-none flex justify-between items-center ${activePresident
+                ? "bg-blue-600 text-white"
+                : "bg-gray-700 text-gray-300"
               }`}
             onClick={() => setIsDropdownOpen((o) => !o)}
           >
@@ -812,7 +743,7 @@ export default function YearRangeSelector({
                 : "By President Term"}
             </span>
             <svg
-              className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""
                 }`}
               fill="none"
               stroke="currentColor"
@@ -829,21 +760,23 @@ export default function YearRangeSelector({
 
           {/* Dropdown menu */}
           {isDropdownOpen && (
-            <div className="absolute z-50 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+            <div className="absolute z-50 mt-1 w-full bg-gray-700 border border-gray-600 rounded-md shadow-lg">
               {Object.entries(presidents).map(([id, data]) => (
                 <div key={id} className="group relative">
                   {/* President row */}
                   <button
-                    className={`w-full px-4 py-2 text-left flex justify-between items-center cursor-pointer hover:bg-gray-600 ${activePresident === id
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-300"
+                    className={`w-full px-3 py-1.5 text-left flex justify-between items-center cursor-pointer hover:bg-gray-600 ${activePresident === id
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-300"
                       }`}
                     onClick={() => {
                       if (data.terms.length === 1) {
                         const term = data.terms[0];
                         setActivePresident(id);
                         setStartDate(new Date(term.start));
+                        setTempStartDate(new Date(term.start));
                         setEndDate(new Date(term.end));
+                        setTempEndDate(new Date(term.end));
                         setSelectedRange([
                           new Date(term.start).getUTCFullYear(),
                           new Date(term.end).getUTCFullYear(),
@@ -856,27 +789,29 @@ export default function YearRangeSelector({
                   >
                     {data.name}
                     {data.terms.length > 1 && (
-                      <span className="ml-2 text-gray-400">▶</span>
+                      <span className="ml-1 text-gray-400 text-xs">▶</span>
                     )}
                   </button>
 
-                  {/* Nested terms: show only on hover */}
+                  {/* Nested terms */}
                   {data.terms.length > 1 && (
-                    <div className="absolute top-0 left-full mt-0 ml-1 w-48 bg-gray-700 border border-gray-600 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-0 left-full mt-0 ml-1 w-40 bg-gray-700 border border-gray-600 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
                       {data.terms.map((term, idx) => (
                         <button
                           key={idx}
-                          className={`w-full px-4 py-2 text-left cursor-pointer hover:bg-gray-600 ${activePresident === id &&
-                            startDate.getTime() ===
-                            new Date(term.start).getTime() &&
-                            endDate.getTime() === new Date(term.end).getTime()
-                            ? "bg-blue-600 text-white"
-                            : "text-gray-300"
+                          className={`w-full px-3 py-1.5 text-left cursor-pointer hover:bg-gray-600 ${activePresident === id &&
+                              startDate.getTime() ===
+                              new Date(term.start).getTime() &&
+                              endDate.getTime() === new Date(term.end).getTime()
+                              ? "bg-blue-600 text-white"
+                              : "text-gray-300"
                             }`}
                           onClick={() => {
                             setActivePresident(id);
                             setStartDate(new Date(term.start));
+                            setTempStartDate(new Date(term.start));
                             setEndDate(new Date(term.end));
+                            setTempEndDate(new Date(term.end));
                             setSelectedRange([
                               new Date(term.start).getUTCFullYear(),
                               new Date(term.end).getUTCFullYear(),
@@ -886,9 +821,7 @@ export default function YearRangeSelector({
                             setIsDropdownOpen(false);
                           }}
                         >
-                          {`${new Date(
-                            term.start
-                          ).getUTCFullYear()} - ${new Date(
+                          {`${new Date(term.start).getUTCFullYear()} - ${new Date(
                             term.end
                           ).getUTCFullYear()}`}
                         </button>
@@ -900,16 +833,17 @@ export default function YearRangeSelector({
             </div>
           )}
         </div>
+
         {/* Calendar button */}
         <div className="relative w-full sm:w-auto">
           <button
             onClick={() => {
-              setTempStartDate(startDate);
-              setTempEndDate(endDate);
+              setCalendarStart(startDate);
+              setCalendarEnd(endDate);
               setCalendarOpen((o) => !o);
             }}
-            className={`flex items-center justify-center gap-2 w-full sm:w-auto px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer
-    ${calendarRange &&
+            className={`flex items-center justify-center gap-2 w-full sm:w-auto px-2.5 py-1.5 text-xs rounded-md transition-colors cursor-pointer
+      ${calendarRange &&
                 startDate.toISOString() === calendarRange.start &&
                 endDate.toISOString() === calendarRange.end
                 ? "bg-blue-600 text-white hover:bg-blue-700"
@@ -920,18 +854,18 @@ export default function YearRangeSelector({
           </button>
 
           {calendarOpen && (
-            <div className="absolute right-0 mt-2 z-50 w-full sm:w-auto bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col">
-              <div className="flex flex-col sm:flex-row gap-4">
+            <div className="absolute right-0 mt-1.5 z-50 w-full sm:w-auto bg-gray-800 p-3 rounded-md shadow-lg flex flex-col">
+              <div className="flex flex-col sm:flex-row gap-3">
                 {/* From date */}
                 <div className="flex-1 flex flex-col">
-                  <p className="text-xs text-gray-300 mb-2">From</p>
+                  <p className="text-[11px] text-gray-300 mb-1">From</p>
                   <DatePicker
-                    selected={tempStartDate}
-                    onChange={setTempStartDate}
+                    selected={calendarStart}
+                    onChange={setCalendarStart}
                     inline
                     monthsShown={1}
                     minDate={new Date(startYear, 0, 1)}
-                    maxDate={tempEndDate || new Date()}
+                    maxDate={calendarEnd || new Date()}
                     renderCustomHeader={({
                       date,
                       changeMonth,
@@ -941,8 +875,8 @@ export default function YearRangeSelector({
                       prevMonthButtonDisabled,
                       nextMonthButtonDisabled,
                     }) => {
-                      const toYear = tempEndDate?.getFullYear();
-                      const toMonth = tempEndDate?.getMonth();
+                      const toYear = calendarEnd?.getFullYear();
+                      const toMonth = calendarEnd?.getMonth();
 
                       const years = Array.from(
                         { length: new Date().getFullYear() - startYear + 1 },
@@ -950,7 +884,8 @@ export default function YearRangeSelector({
                       ).filter((year) => !toYear || year <= toYear);
 
                       const months = Array.from({ length: 12 }, (_, i) => i).filter(
-                        (month) => !toYear || date.getFullYear() !== toYear || month <= toMonth
+                        (month) =>
+                          !toYear || date.getFullYear() !== toYear || month <= toMonth
                       );
 
                       return (
@@ -958,7 +893,10 @@ export default function YearRangeSelector({
                           <button
                             onClick={decreaseMonth}
                             disabled={prevMonthButtonDisabled}
-                            className={`p-1 rounded-full ${prevMonthButtonDisabled ? "text-gray-500 cursor-not-allowed" : "hover:cursor-pointer text-gray-700 hover:text-gray-800"}`}
+                            className={`p-1 rounded-full ${prevMonthButtonDisabled
+                              ? "text-gray-500 cursor-not-allowed"
+                              : "hover:cursor-pointer text-gray-700 hover:text-gray-800"
+                              }`}
                           >
                             <ChevronLeft size={18} />
                           </button>
@@ -970,7 +908,9 @@ export default function YearRangeSelector({
                           >
                             {months.map((m) => (
                               <option key={m} value={m}>
-                                {new Date(0, m).toLocaleString("default", { month: "long" })}
+                                {new Date(0, m).toLocaleString("default", {
+                                  month: "long",
+                                })}
                               </option>
                             ))}
                           </select>
@@ -981,14 +921,19 @@ export default function YearRangeSelector({
                             className="bg-white text-gray-900 px-2 py-1 rounded-sm border border-gray-300"
                           >
                             {years.map((y) => (
-                              <option key={y} value={y}>{y}</option>
+                              <option key={y} value={y}>
+                                {y}
+                              </option>
                             ))}
                           </select>
 
                           <button
                             onClick={increaseMonth}
                             disabled={nextMonthButtonDisabled}
-                            className={`p-1 rounded-full ${nextMonthButtonDisabled ? "text-gray-500 cursor-not-allowed" : "hover:cursor-pointer text-gray-700 hover:text-gray-800"}`}
+                            className={`p-1 rounded-full ${nextMonthButtonDisabled
+                              ? "text-gray-500 cursor-not-allowed"
+                              : "hover:cursor-pointer text-gray-700 hover:text-gray-800"
+                              }`}
                           >
                             <ChevronRight size={18} />
                           </button>
@@ -996,43 +941,53 @@ export default function YearRangeSelector({
                       );
                     }}
                     dayClassName={(date) => {
-                      if (!tempStartDate || !tempEndDate) {
-                        if (!tempStartDate) return "";
-                        const start = tempStartDate;
-                        const endOfMonth = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+                      if (!calendarStart || !calendarEnd) {
+                        if (!calendarStart) return "";
+                        const start = calendarStart;
+                        const endOfMonth = new Date(
+                          start.getFullYear(),
+                          start.getMonth() + 1,
+                          0
+                        );
                         if (date >= start && date <= endOfMonth) {
                           return "bg-blue-500/20 rounded-none";
                         }
                         return "";
                       }
-                      const start = tempStartDate;
-                      const end = tempEndDate;
+                      const start = calendarStart;
+                      const end = calendarEnd;
 
-                      if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth()) {
+                      if (
+                        start.getFullYear() === end.getFullYear() &&
+                        start.getMonth() === end.getMonth()
+                      ) {
                         if (date >= start && date <= end) {
                           return "bg-blue-500/20 rounded-none";
                         }
                         return "";
                       }
-                      const endOfMonth = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+                      const endOfMonth = new Date(
+                        start.getFullYear(),
+                        start.getMonth() + 1,
+                        0
+                      );
                       if (date >= start && date <= endOfMonth) {
                         return "bg-blue-500/20 rounded-none";
                       }
                       return "";
                     }}
-
                   />
                 </div>
 
                 {/* To date */}
                 <div className="flex-1 flex flex-col">
-                  <p className="text-xs text-gray-300 mb-2">To</p>
+                  <p className="text-[11px] text-gray-300 mb-1">To</p>
                   <DatePicker
-                    selected={tempEndDate}
-                    onChange={setTempEndDate}
+                    selected={calendarEnd}
+                    onChange={setCalendarEnd}
                     inline
                     monthsShown={1}
-                    minDate={tempStartDate || new Date(startYear, 0, 1)}
+                    minDate={calendarStart || new Date(startYear, 0, 1)}
                     maxDate={new Date()}
                     renderCustomHeader={({
                       date,
@@ -1043,8 +998,8 @@ export default function YearRangeSelector({
                       prevMonthButtonDisabled,
                       nextMonthButtonDisabled,
                     }) => {
-                      const fromYear = tempStartDate?.getFullYear();
-                      const fromMonth = tempStartDate?.getMonth();
+                      const fromYear = calendarStart?.getFullYear();
+                      const fromMonth = calendarStart?.getMonth();
 
                       const years = Array.from(
                         { length: new Date().getFullYear() - startYear + 1 },
@@ -1052,7 +1007,8 @@ export default function YearRangeSelector({
                       ).filter((year) => !fromYear || year >= fromYear);
 
                       const months = Array.from({ length: 12 }, (_, i) => i).filter(
-                        (month) => !fromYear || date.getFullYear() !== fromYear || month >= fromMonth
+                        (month) =>
+                          !fromYear || date.getFullYear() !== fromYear || month >= fromMonth
                       );
 
                       return (
@@ -1060,7 +1016,10 @@ export default function YearRangeSelector({
                           <button
                             onClick={decreaseMonth}
                             disabled={prevMonthButtonDisabled}
-                            className={`p-1 rounded-full ${prevMonthButtonDisabled ? "text-gray-500 cursor-not-allowed" : "hover:cursor-pointer text-gray-700 hover:text-gray-800"}`}
+                            className={`p-1 rounded-full ${prevMonthButtonDisabled
+                              ? "text-gray-500 cursor-not-allowed"
+                              : "hover:cursor-pointer text-gray-700 hover:text-gray-800"
+                              }`}
                           >
                             <ChevronLeft size={18} />
                           </button>
@@ -1072,7 +1031,9 @@ export default function YearRangeSelector({
                           >
                             {months.map((m) => (
                               <option key={m} value={m}>
-                                {new Date(0, m).toLocaleString("default", { month: "long" })}
+                                {new Date(0, m).toLocaleString("default", {
+                                  month: "long",
+                                })}
                               </option>
                             ))}
                           </select>
@@ -1083,14 +1044,19 @@ export default function YearRangeSelector({
                             className="bg-white text-gray-900 px-2 py-1 rounded-sm border border-gray-300"
                           >
                             {years.map((y) => (
-                              <option key={y} value={y}>{y}</option>
+                              <option key={y} value={y}>
+                                {y}
+                              </option>
                             ))}
                           </select>
 
                           <button
                             onClick={increaseMonth}
                             disabled={nextMonthButtonDisabled}
-                            className={`p-1 rounded-full ${nextMonthButtonDisabled ? "text-gray-500 cursor-not-allowed" : "hover:cursor-pointer text-gray-700 hover:text-gray-800"}`}
+                            className={`p-1 rounded-full ${nextMonthButtonDisabled
+                              ? "text-gray-500 cursor-not-allowed"
+                              : "hover:cursor-pointer text-gray-700 hover:text-gray-800"
+                              }`}
                           >
                             <ChevronRight size={18} />
                           </button>
@@ -1098,10 +1064,10 @@ export default function YearRangeSelector({
                       );
                     }}
                     dayClassName={(date) => {
-                      if (!tempStartDate || !tempEndDate) return "";
+                      if (!calendarStart || !calendarEnd) return "";
 
-                      const start = tempStartDate;
-                      const end = tempEndDate;
+                      const start = calendarStart;
+                      const end = calendarEnd;
                       if (
                         start.getFullYear() === end.getFullYear() &&
                         start.getMonth() === end.getMonth()
@@ -1111,73 +1077,80 @@ export default function YearRangeSelector({
                         }
                         return "";
                       }
-                      if (date >= start && date <= new Date(start.getFullYear(), start.getMonth() + 1, 0)) {
+                      if (
+                        date >= start &&
+                        date <= new Date(start.getFullYear(), start.getMonth() + 1, 0)
+                      ) {
                         return "bg-blue-500/20 rounded-none";
                       }
-                      if (date >= new Date(end.getFullYear(), end.getMonth(), 1) && date <= end) {
+                      if (
+                        date >= new Date(end.getFullYear(), end.getMonth(), 1) &&
+                        date <= end
+                      ) {
                         return "bg-blue-500/20 rounded-none";
                       }
                       return "";
                     }}
-
                   />
                 </div>
               </div>
 
               {/* Action buttons */}
-              <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-1.5 mt-3">
                 <button
                   onClick={() => setCalendarOpen(false)}
-                  className="px-4 py-2 bg-gray-600 text-gray-300 rounded-lg hover:bg-gray-500"
+                  className="px-3 py-1.5 bg-gray-600 text-gray-300 rounded-md hover:bg-gray-500 text-xs"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => {
-                    if (tempStartDate && tempEndDate && tempStartDate <= tempEndDate) {
-                      setStartDate(tempStartDate);
-                      setEndDate(tempEndDate);
-                      setSelectedRange([tempStartDate.getUTCFullYear(), tempEndDate.getUTCFullYear()]);
+                    if (calendarStart && calendarEnd && calendarStart <= calendarEnd) {
+                      setStartDate(calendarStart);
+                      setEndDate(calendarEnd);
+                      setTempStartDate(calendarStart);
+                      setTempEndDate(calendarEnd);
+                      setSelectedRange([
+                        calendarStart.getUTCFullYear(),
+                        calendarEnd.getUTCFullYear(),
+                      ]);
                       setPreciseMode(true);
                       setCalendarOpen(false);
                       setActivePreset(null);
                       setActivePresident("");
                       setCalendarRange({
-                        start: tempStartDate.toISOString(),
-                        end: tempEndDate.toISOString(),
+                        start: calendarStart.toISOString(),
+                        end: calendarEnd.toISOString(),
                       });
                     }
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-xs"
                 >
                   Apply
                 </button>
               </div>
             </div>
           )}
-
         </div>
 
         {/* Selected range display */}
-        <div className="flex items-center gap-2 w-full sm:w-auto ml-auto">
-          <div className="px-3 py-1.5 rounded-full text-xs bg-blue-500/10 border border-blue-500/30 text-blue-300 font-medium">
-            {/* {startDate.toISOString().split("T")[0]} */}
-            {new Date(startDate.toISOString().split("T")[0]).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
+        <div className="flex items-center gap-1.5 w-full sm:w-auto ml-auto">
+          <div className="px-2.5 py-1 text-xs rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 font-medium">
+            {new Date(tempStartDate.toISOString().split("T")[0]).toLocaleDateString(
+              "en-GB",
+              { day: "2-digit", month: "short", year: "numeric" }
+            )}
           </div>
-          <span className="text-blue-300 font-medium">→</span>
-          <div className="px-3 py-1.5 rounded-full text-xs bg-blue-500/10 border border-blue-500/30 text-blue-300 font-medium">
-            {new Date(endDate.toISOString().split("T")[0]).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
+          <span className="text-blue-300 font-medium text-xs">→</span>
+          <div className="px-2.5 py-1 text-xs rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 font-medium">
+            {new Date(tempEndDate.toISOString().split("T")[0]).toLocaleDateString(
+              "en-GB",
+              { day: "2-digit", month: "short", year: "numeric" }
+            )}
           </div>
         </div>
       </div>
+
 
       {/* Scrollable chart */}
       <div
@@ -1187,19 +1160,18 @@ export default function YearRangeSelector({
       >
         <div
           ref={containerRef}
-          className="relative bg-gray-700 mb-6"
-          style={{ height: "55px", minWidth: `${years.length * 80}px` }}
+          className="relative bg-gray-700 mb-3"
+          style={{ height: "27.5px", minWidth: `${years.length * 80}px` }}
         >
           <div className="flex h-full items-end">
             {years.map((year) => {
-              const isInRange =
-                year >= selectedRange[0] && year <= selectedRange[1];
+              const isInRange = year >= selectedRange[0] && year <= selectedRange[1];
               return (
                 <div
                   key={year}
                   className={`relative transition-all duration-200 hover:cursor-pointer ${isInRange ? "opacity-100" : "opacity-40"
                     } border-l-1 border-r-1 border-gray-500`}
-                  style={{ height: "80px", flex: "1 0 0" }}
+                  style={{ height: "40px", flex: "1 0 0" }}
                   onClick={() => {
                     setSelectedRange([year, year]);
                     const newStartDate = new Date(Date.UTC(year, 0, 1));
@@ -1219,7 +1191,9 @@ export default function YearRangeSelector({
                     }
 
                     setStartDate(newStartDate);
+                    setTempStartDate(newStartDate);
                     setEndDate(newEndDate);
+                    setTempEndDate(newEndDate);
                     setActivePreset(null);
                     setActivePresident("");
                   }}
@@ -1230,7 +1204,7 @@ export default function YearRangeSelector({
                     isInRange={isInRange}
                   />
                   <div
-                    className={`absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold ${isInRange ? "text-blue-400" : "text-gray-400"
+                    className={`absolute -bottom-4 left-1/2 transform -translate-x-1/2 text-[11px] font-semibold ${isInRange ? "text-blue-400" : "text-gray-400"
                       }`}
                   >
                     {year}
@@ -1258,6 +1232,7 @@ export default function YearRangeSelector({
             onMouseDown={(e) => {
               e.preventDefault();
               setIsMovingWindow(true);
+              onDateChange?.([tempStartDate, tempEndDate]);
               setPreciseMode(true);
               dragStartRef.current = e.clientX;
             }}
@@ -1266,29 +1241,17 @@ export default function YearRangeSelector({
           {/* Drag handles */}
           <div
             className="absolute top-0 bottom-0 w-2 bg-blue-600 cursor-ew-resize hover:bg-blue-500 transition-colors z-10"
-            style={{ left: handlePositions.startLeft, transform: 'translateX(-50%)' }}
+            style={{ left: handlePositions.startLeft, transform: "translateX(-50%)" }}
             onMouseDown={(e) => handleMouseDown(e, "start")}
           />
           <div
             className="absolute top-0 bottom-0 w-2 bg-blue-600 cursor-ew-resize hover:bg-blue-500 transition-colors z-10"
-            style={{ left: handlePositions.endLeft, transform: 'translateX(-50%)' }}
+            style={{ left: handlePositions.endLeft, transform: "translateX(-50%)" }}
             onMouseDown={(e) => handleMouseDown(e, "end")}
           />
-          {/* Tooltip */}
-          {/* {tooltip.show && (
-                        <div
-                            className="fixed bg-gray-900 text-white px-2 py-1 rounded text-xs pointer-events-none z-50"
-                            style={{
-                                left: tooltip.x + 10,
-                                top: tooltip.y - 30,
-                                transform: 'translateX(-50%)'
-                            }}
-                        >
-                            {tooltip.content}
-                        </div>
-                    )} */}
         </div>
       </div>
+
 
       <div className="text-gray-500 text-xs text-center mt-2">
         Gazettes Published by Year
