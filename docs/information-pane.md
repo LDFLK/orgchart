@@ -1,7 +1,7 @@
 # The Sri Lanka Government
 
-Sri Lanka is a Free, Sovereign, Independent and Democratic Socialist Republic and is a
-Unitary State [Article 1,2 of the constitution]. The sovereignty of the people of Sri Lanka are exercised through the three main branches of the government: the executive, the legislature and the judiciary.
+Sri Lanka is a Free, Sovereign, Independent and **Democratic Socialist Republic** and is a
+**Unitary State** [Article 1,2 of the constitution]. The sovereignty of the people of Sri Lanka are exercised through the three main branches of the government: the **executive**, the **legislature** and the **judiciary**.
 
 ## The Executive Branch
 
@@ -21,24 +21,24 @@ The executive branch is responsible for implementing and enforcing laws. The exe
 
 ## The Legislative Branch
 
-The legislative branch is responsible for creating, changing, and repealing laws, it is primarily embodied by Parliament [Article 4(a) of the constitution] which is the supreme legislative body [Handbook on Cabinet Affairs 2024- Introduction - The Legislature, Parliament] consisting of 196 MPs (members of parliament) elected from electoral districts and 29 from the National List [Article99A of the constitution]
+The legislative branch is responsible for **creating, changing, and repealing laws**, it is primarily embodied by **Parliament** [Article 4(a) of the constitution] which is the supreme legislative body [Handbook on Cabinet Affairs 2024- Introduction - The Legislature, Parliament] consisting of 196 MPs (members of parliament) elected from electoral districts and 29 from the National List [Article99A of the constitution]
 
 ### Relationship to the Executive
 
 The Executive is accountable to the Legislative in several ways:
 
-- The President is responsible to Parliament for the exercise and discharge of his powers and functions. [Article 42 of the constitution]
-- The Cabinet of Ministers is collectively responsible and answerable to Parliament [Article 42(2) of the constitution]
-- The President has the power to make the Statement of Government Policy in Parliament at the commencement of each session [Article 33(a) of the constitution]
-- The President may summon, prorogue, and dissolve Parliament, though this power is subject to a number of constitutional conditions [Article 70(1) of the constitution]
+- The **President** is responsible to **Parliament** for the exercise and discharge of his powers and functions. [Article 42 of the constitution]
+- The **Cabinet of Ministers** is collectively responsible and answerable to **Parliament** [Article 42(2) of the constitution]
+- The **President** has the power to make the **Statement of Government Policy** in Parliament at the commencement of each session [Article 33(a) of the constitution]
+- The **President** may summon, prorogue, and dissolve **Parliament**, though this power is subject to a number of constitutional conditions [Article 70(1) of the constitution]
 
 ## The Judiciary Branch
 
-The judiciary branch in Sri Lanka is responsible for administering justice by interpreting and applying the law in its decisions.
+The judiciary branch in Sri Lanka is responsible for **administering justice** by interpreting and applying the law in its decisions.
 
 It is designed to function with independence from both the Executive (the Government of the day) and the Legislature (Parliament) to ensure the fair and impartial administration of justice. [Handbook on Cabinet Affairs 2024- Introduction - The Judiciary]
 
-The judicial power of the People is exercised by Parliament through courts, tribunals, and institutions [Article 4(c) of the constitution]
+The judicial power of the People is exercised by **Parliament** through courts, tribunals, and institutions [Article 4(c) of the constitution]
 
 Justice is administered through the following institutions [Article 105(1) of the constitution]:
 
@@ -61,16 +61,16 @@ The executive power of the People, including the defence of Sri Lanka, is exerci
 
 ### Election and Tenure
 
-- The president is elected by the people and holds office for a term of 5 years [Article 30(2) of the constitution]
-- The election must be held not less than one month and not more than two months before the current President’s tenure ends [Article 31(3) of the constitution]
-- An individual can only be elected president twice [Article 31(2) of the constitution]
-- If the President wishes to seek a second term they can do so (i.e declare their intent via the issuance of a proclamation) at any time after the expiration of four years of their first term [Article 31 ((3A) (a) (i)) of the constitution]
+- The president is elected by the people and holds office **for a term of 5 years** [Article 30(2) of the constitution]
+- The election must be held **not less than one month** and **not more than two months** before the current President’s tenure ends [Article 31(3) of the constitution]
+- An individual can only be elected president **twice** [Article 31(2) of the constitution]
+- If the President wishes to seek a second term they can do so (i.e declare their intent via the issuance of a proclamation) at any time **after the expiration of four years** of their first term [Article 31 ((3A) (a) (i)) of the constitution]
 
 ## Executive Powers and the Cabinet
 
 - The President is Head of the Cabinet, chairs meetings, and determines the procedures of the Cabinet, including the date of meetings [Handbook on Cabinet Affairs 2024- 1.3]
 - The President appoints the Prime Minister (the MP most likely to command the confidence of Parliament) [Article 43(4) of the constitution] View each prime minister appointed for the last three presidents from the home page
-- The President also determines the number of Ministers of the Cabinet, the Ministries, and the assignment of subjects and functions to those Ministers, in consultation with the Prime Minister where necessary. [Article 44(1) of the constitution] View the composition of ministers and ministries of each president through the home page
+- The President also determines the **number of Ministers of the Cabinet**, the **Ministries**, and the **assignment of subjects and functions** to those Ministers, in consultation with the Prime Minister where necessary. [Article 44(1) of the constitution] View the composition of ministers and ministries of each president through the home page
 - The President is the minister in charge of Defence [Article 44(3) of the constitution] Take a look through our orgchart - the president is always the minister of defence
 - In the event that no person is assigned to a minister, the president may temporarily undertake the powers and functions of the said minister for up to 14 days [Article 44(3) of the constitution] Take a look through our orgchart, you may find multiple ministers assigned to a president for short periods of time- use the filters and the badges to easily find these ministers
 - The President may also assign any minister to himself in consultation with the Prime Minister [Article 44(3) of the constitution] Look at the key highlights box to find how many ministers were appointed to the president for each timestamp
@@ -90,7 +90,7 @@ While the President is the Head of the Executive and the Head of the Cabinet, th
 
 Parliament is the legislative branch of the Government and acts as the supreme legislative body.
 
-Parliament has two hundred and twenty-five members- 196 of whom are elected from electoral districts and 29 from the National List [Article 98(1), 99A of the constitution]. Every Parliament shall continue for a maximum of five years from the date of its first meeting. [Article 49(2) of the constitution]
+Parliament has two hundred and twenty-five members- 196 of whom are elected from electoral districts and 29 from the National List [Article 98(1), 99A of the constitution]. Every Parliament shall continue for a **maximum of five years** from the date of its first meeting. [Article 49(2) of the constitution]
 
 Parliament exercises the legislative power of the People through the following functions:
 
@@ -109,13 +109,13 @@ Note that the Cabinet of Ministers are part of Parliament - all cabinet minister
 
 - The President is the Head of the Cabinet of Ministers and is a member of the Cabinet
 - The President holds significant power in shaping the composition of the Cabinet, see [Executive Powers and the Cabinet](#executive-powers-and-the-cabinet)
-- The total number of Ministers of the Cabinet should not exceed thirty (30), while the number of non-cabinet ministers (for example, state ministers, deputy ministers etc) should not exceed a total of forty (40) [Article 47(1)] From the key highlights box, view the total number of ministers at each timestamp, note that this only includes all cabinet ministers and state ministers
+- The total number of Ministers of the Cabinet **should not exceed thirty (30)**, while the number of non-cabinet ministers (for example, state ministers, deputy ministers etc) **should not exceed a total of forty (40)** [Article 47(1)] From the key highlights box, view the total number of ministers at each timestamp, note that this only includes all cabinet ministers and state ministers
 
 ## Departments
 
-A department is an administrative unit of the central government.
+A **department** is an **administrative unit of the central government**.
 
-It is a permanent public institution created by law or gazette notification to carry out specific functions of the government under the control of a Cabinet Minister.
+It is a **permanent public institution** created by law or gazette notification to carry out specific functions of the government under the control of a **Cabinet Minister**.
 
 Each minister has a department or set of departments under it (eg Department of Conservation under the Minister of Environment)
 
