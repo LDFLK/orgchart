@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { CopyButton } from "../components/CopyButton";
+
 
 const GITHUB_USERNAME = "sehansi-9";
 const REPO_NAME = "orgchart";
@@ -72,6 +74,7 @@ export default function DocsPage() {
         fetchDocFiles();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
 
 
     // helper to make slug
@@ -341,18 +344,66 @@ export default function DocsPage() {
                         h1: ({ node, ...props }) => {
                             const text = props.children[0]?.toString() || "";
                             const id = getHeadingId(text, 1);
-                            return <h1 id={id} className="text-3xl font-bold text-gray-900 border-b border-gray-200 pb-2 mt-10 mb-6" {...props} />;
+                            const headingData = headings.find((h) => h.id === id);
+                            const showLink = Boolean(headingData); // only show if it's a real heading with hash
+                            const link = showLink
+                                ? `${window.location.origin}${window.location.pathname}?file=${activeFile?.slug || activeFile?.file.replace(".md", "")}#${headingData.hash}`
+                                : null;
+
+                            return (
+                                <div className="group relative flex items-center gap-2">
+                                    <h1
+                                        id={id}
+                                        className="text-3xl font-bold text-gray-900 border-b border-gray-200 pb-2 mt-10 mb-6 scroll-mt-24"
+                                        {...props}
+                                    />
+                                    {showLink && <CopyButton link={link} />}
+                                </div>
+                            );
                         },
+
                         h2: ({ node, ...props }) => {
                             const text = props.children[0]?.toString() || "";
                             const id = getHeadingId(text, 2);
-                            return <h2 id={id} className="text-2xl font-semibold text-gray-800 mt-8 mb-4" {...props} />;
+                            const headingData = headings.find((h) => h.id === id);
+                            const showLink = Boolean(headingData);
+                            const link = showLink
+                                ? `${window.location.origin}${window.location.pathname}?file=${activeFile?.slug || activeFile?.file.replace(".md", "")}#${headingData.hash}`
+                                : null;
+
+                            return (
+                                <div className="group relative flex items-center gap-2">
+                                    <h2
+                                        id={id}
+                                        className="text-2xl font-semibold text-gray-800 mt-8 mb-4 scroll-mt-24"
+                                        {...props}
+                                    />
+                                    {showLink && <CopyButton link={link} />}
+                                </div>
+                            );
                         },
+
                         h3: ({ node, ...props }) => {
                             const text = props.children[0]?.toString() || "";
                             const id = getHeadingId(text, 3);
-                            return <h3 id={id} className="text-xl font-medium text-gray-700 mt-6 mb-3" {...props} />;
+                            const headingData = headings.find((h) => h.id === id);
+                            const showLink = Boolean(headingData);
+                            const link = showLink
+                                ? `${window.location.origin}${window.location.pathname}?file=${activeFile?.slug || activeFile?.file.replace(".md", "")}#${headingData.hash}`
+                                : null;
+
+                            return (
+                                <div className="group relative flex items-center gap-2">
+                                    <h3
+                                        id={id}
+                                        className="text-xl font-medium text-gray-700 mt-6 mb-3 scroll-mt-24"
+                                        {...props}
+                                    />
+                                    {showLink && <CopyButton link={link} />}
+                                </div>
+                            );
                         },
+
                         p: ({ node, ...props }) => <p className="mb-5 leading-relaxed text-gray-700" {...props} />,
                         a: ({ node, ...props }) => <a {...props} className="text-blue-600 underline hover:text-blue-800 break-words font-medium" target="_blank" rel="noopener noreferrer" />,
                         ul: ({ node, ...props }) => (
