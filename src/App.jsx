@@ -9,6 +9,7 @@ import "./index.css";
 import XploreDataHomepage from "./pages/XploreGovData/screens/XploreGovData";
 import DataLoadingAnimatedComponent from "./pages/SplashPage/screens/dataLoadingAnimatedComponent";
 import ShareLinkButton from "./components/ShareLinkButton";
+import DocsPage from "./pages/DocsPage/screens/DocsPage";
 
 const App = () => {
 
@@ -27,6 +28,7 @@ const App = () => {
           <Route path="/xploredata" element={<XploreDataHomepage />} />
           <Route path="/person-profile/:personId" element={<DataLoadingAnimatedComponent mode="person-profile" />} />
           <Route path="/department-profile/:departmentId" element={<DataLoadingAnimatedComponent mode="department-profile" />} />
+          <Route path="/docs" element ={<DocsPage></DocsPage>}/>
         </Routes>
       </Router>
       {/* <div
