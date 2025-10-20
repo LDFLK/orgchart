@@ -1,6 +1,6 @@
 # The Sri Lanka Government
 
-Sri Lanka is a Free, Sovereign, Independent and **Democratic Socialist Republic** and is a
+Sri Lanka is a Free, Sovereign, Independent and [**Democratic Socialist Republic**](?file=glossary#democratic-socialism) and is a
 **Unitary State** [Article 1,2 of the constitution]. The sovereignty of the people of Sri Lanka are exercised through the three main branches of the government: the **executive**, the **legislature** and the **judiciary**.
 
 ## The Executive Branch
