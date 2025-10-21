@@ -122,7 +122,7 @@ Each minister has a department or set of departments under it (eg Department of 
 Note the difference between the creation and composition of ministers and departments.
 
 The president has full executive power to change the composition of the cabinet of ministers, this includes the creation and termination of minister portfolios, appointments of ministers as well as the departments that go under each minister.
-However, when it comes to the creation of departments, this is an administrative action governed by strict cabinet proceedings and requiring the approval of the cabinet of ministers. Use OpenGov to study how often new ministries are created and departments are moved between ministries, compare this to the creation of new departments.
+However, when it comes to the creation of departments, this is an administrative action governed by strict cabinet proceedings and requiring the approval of the cabinet of ministers. Use XploreGov to study how often new ministries are created and departments are moved between ministries, compare this to the creation of new departments.
 
 ### Creating a department
 
@@ -138,4 +138,4 @@ However, when it comes to the creation of departments, this is an administrative
 
 Gazettes are official publications released by the government. They serve as a mandatory official document for publishing laws, regulations and any government decisions. All gazettes are freely available for download in English, Tamil or Sinhala from https://www.documents.gov.lk
 
-Gazettes are issued whenever changes occur within the Cabinet. For example, when a new ministry is created, a department is reassigned between ministries, or a new minister is appointed. OpenGov tracks these developments by capturing the structure of the government as it stood at each gazette publication. Since gazettes are the official record of such changes, our timeline aligns with their publication dates, reflecting each moment when the government’s structure was formally updated.
+Gazettes are issued whenever changes occur within the Cabinet. For example, when a new ministry is created, a department is reassigned between ministries, or a new minister is appointed. XploreGov tracks these developments by capturing the structure of the government as it stood at each gazette publication. Since gazettes are the official record of such changes, our timeline aligns with their publication dates, reflecting each moment when the government’s structure was formally updated.
