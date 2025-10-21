@@ -3,9 +3,9 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { CopyButton } from "../components/CopyButton";
 
-const GITHUB_USERNAME = "ldflk";
+const GITHUB_USERNAME = "sehansi-9";
 const REPO_NAME = "orgchart";
-const DOCS_BRANCH = "main";
+const DOCS_BRANCH = "docs";
 
 export default function DocsPage() {
     const [files, setFiles] = useState([]);
