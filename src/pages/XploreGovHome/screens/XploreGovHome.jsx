@@ -480,12 +480,12 @@ const XploreGovHomepage = () => {
           {/* Header */}
           <div className="flex mt-8">
             <div className="z-20 flex">
-              <h1 className="text-2xl font-bold text-white">
+              {/* <h1 className="text-2xl font-bold text-white">
                 Xplore
                 <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                   Gov
                 </span>
-              </h1>
+              </h1> */}
             </div>
           </div>
 
@@ -496,34 +496,33 @@ const XploreGovHomepage = () => {
                 XploreGov
               </span>
             </h2>
-
-            <div className="flex items-center justify-center mb-7">
-              <div className="border flex items-center space-x-3 px-5 py-3 rounded-full bg-gray-800/50 border-cyan-400/30">
+            <div className="flex items-center justify-center mb-7 mt-5">
+              <div className="border flex items-center space-x-3 px-4 py-2 rounded-full bg-gray-800/50 border-cyan-400/30">
                 <img
                   src="https://imgs.search.brave.com/g1a5xxmzRkIhv3A2zqV-q55_m7bBju-lI6z2OF85BRQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA5LzMzLzk3LzU0/LzM2MF9GXzkzMzk3/NTQyOV9nbGc3NUpw/WFJBRzR4bHM1Vkxl/NmZEdkI0ZXNmWFE5/aC5qcGc"
                   alt="XploreGov Logo"
-                  className="w-12"
+                  className="w-7"
                 />
                 <span className="text-white text-xl">Sri Lanka</span>
               </div>
             </div>
 
-            <p className="text-2xl text-gray-300 mb-4 font-light">
+            <p className="text-lg text-gray-300 mb-4 font-light">
               A Deep Dive into the Government of Sri Lanka
             </p>
 
-            <p className="text-lg text-cyan-400 mb-8 font-semibold">
+            {/* <p className="text-lg text-cyan-400 mb-8 font-semibold">
               Transparency through Connecting Data, Time and Governance
             </p>
 
             <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
               Visualize structural changes, track evolution, and explore the
               connections that shape governance.
-            </p>
+            </p> */}
 
-            <div className="flex justify-center my-10">
+            <div className="flex justify-center my-8">
               <button
-                className="bg-gradient-to-r mx-2 from-cyan-500 via-blue-500 to-purple-600 text-white px-4 py-3 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
+                className="bg-gradient-to-r mx-2 from-cyan-500 via-blue-500 to-purple-600 text-white px-2.5 py-2 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
                 onClick={() => navigate("/orgchart")}
               >
                 <History className="w-6 h-6 mr-2" />
@@ -531,7 +530,7 @@ const XploreGovHomepage = () => {
                 <ChevronRight className="w-6 h-6" />
               </button>
               <button
-                className="bg-none border-1 mx-2 border-white cursor-pointer text-white px-4 py-3 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
+                className="bg-none border-1 mx-2 border-white cursor-pointer text-white px-2.5 py-2 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
                 onClick={handleLearnToggle}
               >
                 <BookOpenText className="w-6 h-6 mr-2" />
