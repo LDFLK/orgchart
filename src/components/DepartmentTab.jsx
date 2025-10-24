@@ -367,7 +367,7 @@ const DepartmentTab = ({ selectedDate, ministryId }) => {
                           e.target.style.textDecoration = "none";
                         }}
                       >
-                        View Profile
+                        View History
                       </Link>
                     </Box>
                   );
