@@ -75,13 +75,14 @@ const MinistryCard = ({ card, onClick }) => {
               variant="h7"
               sx={{
                 color: "#ffffff",
-                fontWeight: 600,
+                fontWeight: 400,
                 display: "-webkit-box",
                 WebkitLineClamp: 4,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
                 lineHeight: 1.4,
+                fontSize: "14px"
               }}
             >
               {card.name.split(":")[0]}
@@ -94,7 +95,7 @@ const MinistryCard = ({ card, onClick }) => {
                 backgroundColor: selectedPresident.themeColorLight,
                 color: "#fff",
                 fontSize: "0.7rem",
-                fontWeight: "bold",
+                fontWeight: "semibold",
                 borderRadius: "5px",
                 px: 1,
                 py: "2px",
@@ -135,11 +136,13 @@ const MinistryCard = ({ card, onClick }) => {
                       // color: colors.textSecondary,
                       color: colors.white,
                       fontFamily: "poppins",
-                      py: "3px",
-                      px: "5px",
+                      py: "2px",
+                      px: "6px",
+                      fontSize: "10px",
                       // backgroundColor: `${colors.green}50`,
                       backgroundColor: `${selectedPresident.themeColorLight}`,
-                      borderRadius: "5px",
+                      borderRadius: "3px",
+                      mb: "2px",
                     }}
                   >
                     President
@@ -157,7 +160,8 @@ const MinistryCard = ({ card, onClick }) => {
                     handleOpenProfile(card.headMinisterId || selectedPresident?.id)
                   }
                   sx={{
-                    fontWeight: 600,
+                    fontWeight: 400,
+                    fontSize: "13px",
                     color: colors.textPrimary,
                     fontFamily: "poppins",
                     textDecorationThickness: "1px",
@@ -181,11 +185,11 @@ const MinistryCard = ({ card, onClick }) => {
                     sx={{
                       // backgroundColor: colors.purple,
                       // backgroundColor: selectedPresident.themeColorLight,
-                      border: `2px solid ${selectedPresident.themeColorLight}`,
+                      border: `1px solid ${selectedPresident.themeColorLight}`,
                       // color: "#fff",
                       color: `${selectedPresident.themeColorLight}`,
                       fontSize: "0.65rem",
-                      fontWeight: "bold",
+                      fontWeight: "semibold",
                       borderRadius: "4px",
                       px: 1,
                       py: "1px",

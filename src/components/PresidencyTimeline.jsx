@@ -424,20 +424,39 @@ export default function PresidencyTimeline() {
                   >
                     <Tooltip title="Gazette published date" placement="top" arrow>
                       <Box
-                        ref={isDateSelected ? dotRef : null}
-                        sx={{
-                          width: 15,
-                          height: 15,
-                          borderRadius: "50%",
-                          backgroundColor: isDateSelected
-                            ? selectedPresident?.themeColorLight ||
-                            colors.timelineColor
-                            : colors.dotColorInactive,
-                          border: `3px solid ${colors.backgroundPrimary}`,
-                          zIndex: 20,
-                          pointerEvents: "auto",
-                        }}
-                      />
+  ref={isDateSelected ? dotRef : null}
+  sx={{
+    width:  15,
+    height:  15,
+    borderRadius: "50%",
+    backgroundColor: isDateSelected
+      ? selectedPresident?.themeColorLight || colors.timelineColor
+      : colors.dotColorInactive,
+    border: `3px solid ${colors.backgroundPrimary}`,
+    zIndex: 99,
+    pointerEvents: "auto",
+    transition: "all 0.3s ease",
+    // Pulse animation
+    animation: isDateSelected
+      ? "pulse 1.2s infinite ease-in-out"
+      : "none",
+    "@keyframes pulse": {
+      "0%": {
+        transform: "scale(1)",
+         zIndex: 1000,
+      },
+      "50%": {
+        transform: "scale(1.2)",
+         zIndex: 1000,
+      },
+      "100%": {
+        transform: "scale(1)",
+         zIndex: 1000,
+      },
+    },
+  }}
+/>
+
                     </Tooltip>
                     <Typography
                       variant="caption"

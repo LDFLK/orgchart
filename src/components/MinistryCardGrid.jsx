@@ -398,10 +398,12 @@ const MinistryCardGrid = () => {
                       fontSize: 12,
                       color: colors.textMuted,
                       fontWeight: 500,
-                      backgroundColor: `${selectedPresident.themeColorLight}50`,
-                      px: 0.5,
+                      backgroundColor: `${selectedPresident.themeColorLight}75`,
+                      py: 0.25,
+                      px: 1,
                       borderRadius: 1,
-                      width: "95px"
+                      width: "102px",
+                      mb: 0.5
                     }}
                   >
                     Prime Minister
