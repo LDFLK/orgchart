@@ -440,8 +440,9 @@ const XploreGovHomepage = () => {
 
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.1)_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(128, 131, 133, 0.1)_0%,transparent_50%)]"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(168,85,247,0.1)_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_90%,rgba(168,85,247,0.25)_0%,rgba(34,211,238,0.15)_30%,transparent_60%)]"></div>
       </div>
 
       {/* Animated particles */}
@@ -463,23 +464,23 @@ const XploreGovHomepage = () => {
       <div className="relative z-10 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="flex mt-8">
+          {/* <div className="flex mt-8">
             <div className="z-20 flex">
-              {/* optional header */}</div>
-          </div>
+             </div>
+          </div> */}
 
           {/* Hero Section */}
           <div className="pt-4 pb-6 text-left">
             <div className="pt-2 pb-4 text-left flex items-center space-x-3">
               {/* Logo */}
-              <img
+              {/* <img
                 src="public\xploregov.ico"
                 alt="Logo"
                 className="w-9 h-9 rounded-full object-cover border-2"
-              />
+              /> */}
 
               {/* Heading with gradient text */}
-              <h2 className="text-3xl lg:text-3xl font-bold text-white">
+              <h2 className="text-3xl lg:text-xl font-bold text-white">
                 <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                   XploreGov
                 </span>
@@ -499,22 +500,22 @@ const XploreGovHomepage = () => {
           </div>
 
           {/* Modern Split Section */}
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-2 mt-6">
+          <div className="flex flex-col lg:flex-row justify-between gap-2 mt-6">
             {/* Left Text Section */}
-            <div className="flex-1 space-y-6 text-left">
-              <h2 className="text-3xl font-bold text-white leading-tight">
+            <div className="flex-1 text-left mt-18">
+              <h2 className="text-4xl font-bold text-white leading-tight">
                 Explore Sri Lanka’s <br />
                 <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                   Government Structure
                 </span>
               </h2>
-              <p className="text-gray-400 text-lg max-w-lg">
+              <p className="text-gray-400 text-lg max-w-lg mt-2">
                 Gain deep insights into how ministries, departments, and officials
                 are connected and how they evolve through time.
               </p>
-              <div className="flex my-8">
+              <div className="flex mt-6">
                 <button
-                  className="bg-gradient-to-r mx-2 from-cyan-500 via-blue-500 to-purple-600 text-white px-2.5 py-2 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
+                  className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white px-2.5 py-2 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
                   onClick={() => navigate("/orgchart")}
                 >
                   <History className="w-6 h-6 mr-2" />
@@ -522,7 +523,7 @@ const XploreGovHomepage = () => {
                   <ChevronRight className="w-6 h-6" />
                 </button>
                 <button
-                  className="bg-none border-1 mx-2 border-white cursor-pointer text-white px-2.5 py-2 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
+                  className="bg-none border-1 mx-3 border-gray-300 cursor-pointer text-gray-300 px-3.5 py-2 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
                   onClick={() => window.open("/docs?file=information-pane", "_blank")}
                 >
                   <BookOpenText className="w-6 h-6 mr-2" />
@@ -533,8 +534,8 @@ const XploreGovHomepage = () => {
             </div>
 
             {/* Right Cards Section (Auto Slideshow) */}
-            <div className="flex-1 w-full lg:w-1/2">
-              <div className="relative overflow-hidden rounded-xl">
+            <div className="flex-1 w-full lg:w-1/2 ">
+              <div className="relative overflow-hidden  rounded-xl">
 
                 {/* Carousel container */}
                 <div
@@ -623,14 +624,19 @@ const XploreGovHomepage = () => {
                 </div>
 
                 {/* Edge gradients */}
-                <div className="absolute inset-y-0 left-0 w-1/8 bg-gradient-to-r from-gray-900 to-transparent pointer-events-none"></div>
-                <div className="absolute inset-y-0 right-0 w-1/8 bg-gradient-to-l from-gray-900 to-transparent pointer-events-none"></div>
+                <div className="absolute inset-y-0 left-0 w-1/10 bg-gradient-to-r from-gray-900 to-transparent pointer-events-none"></div>
+                <div className="absolute inset-y-0 right-0 w-1/10 bg-gradient-to-l from-gray-900 to-transparent pointer-events-none"></div>
+                {/* Top gradient fade */}
+                <div className="absolute inset-x-0 top-0 h-[5%] bg-gradient-to-b from-gray-900 to-transparent pointer-events-none"></div>
+
+                {/* Bottom gradient fade */}
+                <div className="absolute inset-x-0 bottom-0 h-[2%] bg-gradient-to-t from-gray-900 to-transparent pointer-events-none"></div>
               </div>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex justify-center mb-10 mt-16">
+          <div className="flex justify-center mb-10 mt-25">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-800/50 border border-cyan-400/20 text-sm text-cyan-400 mb-6">
               <Clock className="w-4 h-4 mr-2" />
               Powered by OpenGIN: Open General Information Network

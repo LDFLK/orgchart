@@ -416,7 +416,6 @@ export default function PresidencyTimeline() {
                       flexDirection: "column",
                       alignItems: "center",
                       cursor: "pointer",
-                      transform: isDateSelected ? "scale(1.1)" : "scale(1)",
                       transition: "transform 0.2s ease",
                       flexShrink: 0,
                       mt: { xs: -8.5, sm: -4 },
@@ -424,38 +423,38 @@ export default function PresidencyTimeline() {
                   >
                     <Tooltip title="Gazette published date" placement="top" arrow>
                       <Box
-  ref={isDateSelected ? dotRef : null}
-  sx={{
-    width:  15,
-    height:  15,
-    borderRadius: "50%",
-    backgroundColor: isDateSelected
-      ? selectedPresident?.themeColorLight || colors.timelineColor
-      : colors.dotColorInactive,
-    border: `3px solid ${colors.backgroundPrimary}`,
-    zIndex: 99,
-    pointerEvents: "auto",
-    transition: "all 0.3s ease",
-    // Pulse animation
-    animation: isDateSelected
-      ? "pulse 1.2s infinite ease-in-out"
-      : "none",
-    "@keyframes pulse": {
-      "0%": {
-        transform: "scale(1)",
-         zIndex: 1000,
-      },
-      "50%": {
-        transform: "scale(1.2)",
-         zIndex: 1000,
-      },
-      "100%": {
-        transform: "scale(1)",
-         zIndex: 1000,
-      },
-    },
-  }}
-/>
+                        ref={isDateSelected ? dotRef : null}
+                        sx={{
+                          width: isDateSelected ? 18 : 15,
+                          height: isDateSelected ? 18 : 15,
+                          borderRadius: "50%",
+                          backgroundColor: isDateSelected
+                            ? selectedPresident?.themeColorLight || colors.timelineColor
+                            : colors.dotColorInactive,
+                          border: `3px solid ${colors.backgroundPrimary}`,
+                          zIndex: 99,
+                          pointerEvents: "auto",
+                          transition: "all 0.3s ease",
+                          // Pulse animation
+                          animation: isDateSelected
+                            ? "pulse 1.2s infinite ease-in-out"
+                            : "none",
+                          "@keyframes pulse": {
+                            "0%": {
+                              transform: "scale(1)",
+                              zIndex: 1000,
+                            },
+                            "50%": {
+                              transform: "scale(1.1)",
+                              zIndex: 1000,
+                            },
+                            "100%": {
+                              transform: "scale(1)",
+                              zIndex: 1000,
+                            },
+                          },
+                        }}
+                      />
 
                     </Tooltip>
                     <Typography
@@ -469,6 +468,7 @@ export default function PresidencyTimeline() {
                         fontSize: "0.75rem",
                         fontWeight: isDateSelected ? "bold" : "",
                         fontFamily: "poppins",
+                        transform: isDateSelected ? "scale(1.2)" : "scale(1)",
                         whiteSpace: "nowrap",
                       }}
                     >
