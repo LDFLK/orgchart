@@ -1,5 +1,4 @@
 import { Card, Typography, Box, Stack } from "@mui/material";
-import PersonIcon from "@mui/icons-material/Person";
 import utils from "../utils/utils";
 import { useSelector } from "react-redux";
 import { useThemeContext } from "../themeContext";
@@ -50,8 +49,8 @@ const MinistryCard = ({ card, onClick }) => {
           spacing={1}
           minHeight={50}
           sx={{
-            px: 2,
-            py: 1,
+            px: 1.5,
+            py: 0.5,
             backgroundColor:
               mouseHover && mouseHover.id == card.id
                 ? `${selectedPresident.themeColorLight}`
@@ -59,17 +58,40 @@ const MinistryCard = ({ card, onClick }) => {
             "&:hover": {
               backgroundColor: selectedPresident.themeColorLight,
             },
-            //  backgroundColor: colors.backgroundSecondary
+            display: "flex",
+            justifyContent: "flex-start",
           }}
         >
-          <Typography variant="h7" sx={{ color: "#ffffff", fontWeight: 600 }}>
-            {card.name.split(":")[0]}
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center", // vertically centers content
+              height: `calc(1.4em * 4)`, // fixed 4-line height
+              overflow: "hidden",
+            }}
+          >
+            <Typography
+              variant="h7"
+              sx={{
+                color: "#ffffff",
+                fontWeight: 600,
+                display: "-webkit-box",
+                WebkitLineClamp: 4,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                lineHeight: 1.4,
+              }}
+            >
+              {card.name.split(":")[0]}
+            </Typography>
+          </Box>
+
           {card.newMin && showMinistryBadge && (
             <Box
               sx={{
                 backgroundColor: selectedPresident.themeColorLight,
-                // backgroundColor: colors.green,
                 color: "#fff",
                 fontSize: "0.7rem",
                 fontWeight: "bold",
@@ -77,12 +99,14 @@ const MinistryCard = ({ card, onClick }) => {
                 px: 1,
                 py: "2px",
                 fontFamily: "poppins",
+                ml: 1,
               }}
             >
               NEW
             </Box>
           )}
         </Stack>
+
 
         {/* Minister Info */}
         <Stack spacing={0.5} sx={{ p: 1, minHeight: 60 }}>
@@ -104,18 +128,7 @@ const MinistryCard = ({ card, onClick }) => {
                     .extractNameFromProtobuf(selectedPresident.name)
                     .split(":")[0]) ? (
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  {/* <Typography
-                    variant="subtitle2"
-                    sx={{
-                      // color: colors.textSecondary,
-                      color: selectedPresident.themeColorLight,
-                      fontFamily: "poppins",
-                      py: "5px",
-                      pr: "8px",
-                    }}
-                  >
-                    Minister
-                  </Typography> */}
+
                   <Typography
                     variant="subtitle2"
                     sx={{
@@ -133,18 +146,6 @@ const MinistryCard = ({ card, onClick }) => {
                   </Typography>
                 </Box>
               ) : (
-                // <Typography
-                //   variant="subtitle2"
-                //   sx={{
-                //     // color: colors.textSecondary,
-                //     color: selectedPresident.themeColorLight,
-                //     fontFamily: "poppins",
-                //     py: "5px",
-                //     pr: "10px",
-                //   }}
-                // >
-                //   Minister
-                // </Typography>
                 <></>
               )}
 
