@@ -110,16 +110,8 @@ const MinistryCard = ({ card, onClick }) => {
 
 
         {/* Minister Info */}
-        <Stack spacing={0.5} sx={{ p: 1, minHeight: 60 }}>
+        <Stack spacing={0.5} sx={{ p: 1, minHeight: 60, justifyContent: "flex-end" }}>
           <Stack direction="row" spacing={1}>
-            {/* <PersonIcon
-              sx={{
-                color: selectedPresident.themeColorLight,
-                // color: colors.backgroundSecondary,
-                alignSelf: "center",
-              }}
-              fontSize="small"
-            /> */}
             <Stack direction="column" spacing={0}>
               {/* Minister / President label */}
               {!card.headMinisterName ||
@@ -128,18 +120,16 @@ const MinistryCard = ({ card, onClick }) => {
                   utils
                     .extractNameFromProtobuf(selectedPresident.name)
                     .split(":")[0]) ? (
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box sx={{ display: "flex", alignItems: "flex-end" }}>
 
                   <Typography
                     variant="subtitle2"
                     sx={{
-                      // color: colors.textSecondary,
                       color: colors.white,
                       fontFamily: "poppins",
                       py: "2px",
                       px: "6px",
                       fontSize: "10px",
-                      // backgroundColor: `${colors.green}50`,
                       backgroundColor: `${selectedPresident.themeColorLight}`,
                       borderRadius: "3px",
                       mb: "2px",
@@ -183,10 +173,7 @@ const MinistryCard = ({ card, onClick }) => {
                 {card.newPerson && showPersonBadge && (
                   <Box
                     sx={{
-                      // backgroundColor: colors.purple,
-                      // backgroundColor: selectedPresident.themeColorLight,
                       border: `1px solid ${selectedPresident.themeColorLight}`,
-                      // color: "#fff",
                       color: `${selectedPresident.themeColorLight}`,
                       fontSize: "0.65rem",
                       fontWeight: "semibold",
