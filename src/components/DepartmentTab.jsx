@@ -46,7 +46,7 @@ const DepartmentTab = ({ selectedDate, ministryId }) => {
     const params = new URLSearchParams(window.location.search);
     const selectedMinistry = params.get("ministry");
 
-    if(selectedMinistry){
+    if (selectedMinistry) {
       fetchDepartmentList(ministryId || selectedMinistry);
     }
   }, [ministryId, selectedDate, location.search]);
@@ -116,115 +116,123 @@ const DepartmentTab = ({ selectedDate, ministryId }) => {
       ) : (
         <>
           {/* Key Highlights */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              width: "40%",
-              border: `2px solid ${colors.backgroundWhite}`,
-              p: 2,
-              backgroundColor: colors.backgroundWhite,
-              borderRadius: "14px",
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontFamily: "Poppins",
-                fontWeight: 600,
-                color: colors.textPrimary,
-                mb: 2,
-              }}
-            >
-              Key Highlights
-            </Typography>
-
-            <Box
-              sx={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-              }}
-            >
-              {/* Total Departments */}
+          {(departmentListForMinistry.length > 0 ||
+            departmentListForMinistry.filter((dep) => dep.isNew).length > 0) && (
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  width: "100%",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  width: "40%",
+                  border: `2px solid ${colors.backgroundWhite}`,
+                  p: 2,
+                  backgroundColor: colors.backgroundWhite,
+                  borderRadius: "14px",
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <ApartmentIcon sx={{ color: colors.textMuted }} />
-                  <Typography
-                    sx={{
-                      fontFamily: "Poppins",
-                      fontWeight: 500,
-                      color: colors.textMuted,
-                    }}
-                  >
-                    Total Departments{" "}
-                    <InfoTooltip
-                      message="Total of departments under the minister on this date"
-                      iconColor={colors.textPrimary}
-                      iconSize={14}
-                    />
-                  </Typography>
-                </Box>
                 <Typography
+                  variant="h6"
                   sx={{
                     fontFamily: "Poppins",
-                    fontSize: 20,
-                    fontWeight: 500,
+                    fontWeight: 600,
                     color: colors.textPrimary,
+                    mb: 2,
                   }}
                 >
-                  {departmentListForMinistry.length}
+                  Key Highlights
                 </Typography>
-              </Box>
 
-              {/* New Departments */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  width: "100%",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <DomainAddIcon sx={{ color: colors.textMuted }} />
-                  <Typography
-                    sx={{
-                      fontFamily: "Poppins",
-                      fontWeight: 500,
-                      color: colors.textMuted,
-                    }}
-                  >
-                    New Departments{" "}
-                    <InfoTooltip
-                      message="Total of newly added departments to this minister on this date"
-                      iconColor={colors.textPrimary}
-                      iconSize={14}
-                    />
-                  </Typography>
-                </Box>
-                <Typography
+                <Box
                   sx={{
-                    fontFamily: "Poppins",
-                    fontSize: 20,
-                    fontWeight: 500,
-                    color: colors.textPrimary,
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
                   }}
                 >
-                  {departmentListForMinistry.filter((dep) => dep.isNew).length}
-                </Typography>
+                  {/* Total Departments */}
+                  {departmentListForMinistry.length > 0 && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "100%",
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <ApartmentIcon sx={{ color: colors.textMuted }} />
+                        <Typography
+                          sx={{
+                            fontFamily: "Poppins",
+                            fontWeight: 500,
+                            color: colors.textMuted,
+                          }}
+                        >
+                          Total Departments{" "}
+                          <InfoTooltip
+                            message="Total of departments under the minister on this date"
+                            iconColor={colors.textPrimary}
+                            iconSize={14}
+                          />
+                        </Typography>
+                      </Box>
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins",
+                          fontSize: 20,
+                          fontWeight: 500,
+                          color: colors.textPrimary,
+                        }}
+                      >
+                        {departmentListForMinistry.length}
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* New Departments */}
+                  {departmentListForMinistry.filter((dep) => dep.isNew).length > 0 && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "100%",
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <DomainAddIcon sx={{ color: colors.textMuted }} />
+                        <Typography
+                          sx={{
+                            fontFamily: "Poppins",
+                            fontWeight: 500,
+                            color: colors.textMuted,
+                          }}
+                        >
+                          New Departments{" "}
+                          <InfoTooltip
+                            message="Total of newly added departments to this minister on this date"
+                            iconColor={colors.textPrimary}
+                            iconSize={14}
+                          />
+                        </Typography>
+                      </Box>
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins",
+                          fontSize: 20,
+                          fontWeight: 500,
+                          color: colors.textPrimary,
+                        }}
+                      >
+                        {departmentListForMinistry.filter((dep) => dep.isNew).length}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </Box>
-            </Box>
-          </Box>
+            )}
+
 
           {/* Departments Header + Search */}
           <Box
@@ -269,10 +277,13 @@ const DepartmentTab = ({ selectedDate, ministryId }) => {
                     "& fieldset": { borderColor: colors.textMuted },
                     "&:hover fieldset": { borderColor: colors.textMuted },
                     "&.Mui-focused fieldset": { borderColor: colors.textMuted },
+                    "& input:-webkit-autofill": {
+                      WebkitBoxShadow: `0 0 0 1000px ${colors.backgroundColor} inset`,
+                      WebkitTextFillColor: colors.textMuted,
+                      transition: "background-color 5000s ease-in-out 0s",
+                    },
                   },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: colors.textMuted,
-                  },
+                  "& .MuiInputLabel-root.Mui-focused": { color: colors.textMuted },
                   "& .MuiInputBase-input": { color: colors.textMuted },
                 }}
               />
