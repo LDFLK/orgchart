@@ -109,87 +109,94 @@ const MinistryCard = ({ card, onClick }) => {
         </Stack>
 
 
-        {/* Minister Info */}
-        <Stack spacing={0.5} sx={{ p: 1, minHeight: 60, justifyContent: "flex-end" }}>
-          <Stack direction="row" spacing={1}>
-            <Stack direction="column" spacing={0}>
-              {/* Minister / President label */}
-              {!card.headMinisterName ||
-                (selectedPresident &&
-                  utils.extractNameFromProtobuf(card.headMinisterName) ===
-                  utils
-                    .extractNameFromProtobuf(selectedPresident.name)
-                    .split(":")[0]) ? (
-                <Box sx={{ display: "flex", alignItems: "flex-end" }}>
+        {/* Card Container */}
+        <Stack
+          spacing={0.5}
+          sx={{
+            p: 1,
+            minHeight: 80,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between", // push name to bottom
+          }}
+        >
+          <Stack direction="row">
+            {/* this is for spacing for longer names*/}
+          </Stack>
 
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      color: colors.white,
-                      fontFamily: "poppins",
-                      py: "2px",
-                      px: "6px",
-                      fontSize: "10px",
-                      backgroundColor: `${selectedPresident.themeColorLight}`,
-                      borderRadius: "3px",
-                      mb: "2px",
-                    }}
-                  >
-                    President
-                  </Typography>
-                </Box>
-              ) : (
-                <></>
-              )}
-
-              {/* Head Minister Name + NEW badge if newPerson */}
-              <Stack direction="row" alignItems="center" spacing={1}>
+          {/* Name & Badge Section */}
+          <Stack direction="column" spacing={0}>
+            {/* President Label */}
+            {!card.headMinisterName ||
+              (selectedPresident &&
+                utils.extractNameFromProtobuf(card.headMinisterName) ===
+                utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]) ? (
+              <Box sx={{ display: "flex", alignItems: "flex-end" }}>
                 <Typography
                   variant="subtitle2"
-                  onClick={() =>
-                    handleOpenProfile(card.headMinisterId || selectedPresident?.id)
-                  }
                   sx={{
-                    fontWeight: 400,
-                    fontSize: "13px",
-                    color: colors.textPrimary,
+                    color: colors.white,
                     fontFamily: "poppins",
-                    textDecorationThickness: "1px",
-                    textUnderlineOffset: "3px",
-                    cursor: "pointer",
-                    "&:hover": {
-                      textDecoration: "underline",
-                      opacity: 0.9,
-                    },
+                    py: "2px",
+                    px: "6px",
+                    fontSize: "10px",
+                    backgroundColor: `${selectedPresident.themeColorLight}`,
+                    borderRadius: "3px",
+                    mb: "2px",
                   }}
                 >
-                  {card.headMinisterName
-                    ? utils.extractNameFromProtobuf(card.headMinisterName)
-                    : selectedPresident &&
-                    utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]}
+                  President
                 </Typography>
+              </Box>
+            ) : null}
 
+            {/* Name + NEW badge */}
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography
+                variant="subtitle2"
+                onClick={() =>
+                  handleOpenProfile(card.headMinisterId || selectedPresident?.id)
+                }
+                sx={{
+                  fontWeight: 400,
+                  fontSize: "13px",
+                  color: colors.textPrimary,
+                  fontFamily: "poppins",
+                  textDecorationThickness: "1px",
+                  textUnderlineOffset: "3px",
+                  cursor: "pointer",
+                  "&:hover": {
+                    textDecoration: "underline",
+                    opacity: 0.9,
+                  },
+                }}
+              >
+                {card.headMinisterName
+                  ? utils.extractNameFromProtobuf(card.headMinisterName)
+                  : selectedPresident &&
+                  utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]}
+              </Typography>
 
-                {card.newPerson && showPersonBadge && (
-                  <Box
-                    sx={{
-                      border: `1px solid ${selectedPresident.themeColorLight}`,
-                      color: `${selectedPresident.themeColorLight}`,
-                      fontSize: "0.65rem",
-                      fontWeight: "semibold",
-                      borderRadius: "4px",
-                      px: 1,
-                      py: "1px",
-                      fontFamily: "poppins",
-                    }}
-                  >
-                    NEW
-                  </Box>
-                )}
-              </Stack>
+              {card.newPerson && showPersonBadge && (
+                <Box
+                  sx={{
+                    border: `1px solid ${selectedPresident.themeColorLight}`,
+                    color: `${selectedPresident.themeColorLight}`,
+                    fontSize: "0.65rem",
+                    fontWeight: "semibold",
+                    borderRadius: "4px",
+                    px: 1,
+                    py: "1px",
+                    fontFamily: "poppins",
+                  }}
+                >
+                  NEW
+                </Box>
+              )}
             </Stack>
           </Stack>
         </Stack>
+
       </Stack>
     </Card>
   );
