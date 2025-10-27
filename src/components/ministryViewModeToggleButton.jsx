@@ -9,7 +9,7 @@ export default function MinistryViewModeToggleButton({
   const { colors } = useThemeContext();
   
   return (
-    <div className="flex justify-end mx-10">
+    <div className="flex justify-end">
       <button
         className="flex justify-center items-center py-3 px-4 cursor-pointer transition-all duration-200 ease-in-out rounded-l-sm"
         style={{

@@ -106,115 +106,123 @@ const PersonsTab = ({ selectedDate }) => {
     <>
       <Box>
         {/* Key Highlights */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            width: "40%",
-            border: `2px solid ${colors.backgroundWhite}`,
-            p: 2,
-            backgroundColor: colors.backgroundWhite,
-            borderRadius: "14px",
-          }}
-        >
-          <Typography
-            variant="h6"
-            sx={{
-              fontFamily: "Poppins",
-              fontWeight: 600,
-              color: colors.textPrimary,
-              mb: 2,
-            }}
-          >
-            Key Highlights
-          </Typography>
-
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            {/* Total People */}
+        {(ministerListForMinistry.length > 0 ||
+          ministerListForMinistry.filter((p) => p.isNew).length > 0) && (
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
+                flexDirection: "column",
+                alignItems: "flex-start",
+                width: "40%",
+                border: `2px solid ${colors.backgroundWhite}`,
+                p: 2,
+                backgroundColor: colors.backgroundWhite,
+                borderRadius: "14px",
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <PersonIcon sx={{ color: colors.textMuted }} />
-                <Typography
-                  sx={{
-                    fontFamily: "Poppins",
-                    fontWeight: 500,
-                    color: colors.textMuted,
-                  }}
-                >
-                  Total People{" "}
-                  <InfoTooltip
-                    message="Total people under the minister on this date"
-                    iconColor={colors.textPrimary}
-                    iconSize={14}
-                  />
-                </Typography>
-              </Box>
               <Typography
+                variant="h6"
                 sx={{
                   fontFamily: "Poppins",
-                  fontSize: 20,
-                  fontWeight: 500,
+                  fontWeight: 600,
                   color: colors.textPrimary,
+                  mb: 2,
                 }}
               >
-                {ministerListForMinistry.length}
+                Key Highlights
               </Typography>
-            </Box>
 
-            {/* New Departments */}
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "100%",
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
-                <Typography
-                  sx={{
-                    fontFamily: "Poppins",
-                    fontWeight: 500,
-                    color: colors.textMuted,
-                  }}
-                >
-                  New People{" "}
-                  <InfoTooltip
-                    message="New people assigned to this ministry on this date"
-                    iconColor={colors.textPrimary}
-                    iconSize={14}
-                  />
-                </Typography>
-              </Box>
-              <Typography
+              <Box
                 sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 20,
-                  fontWeight: 500,
-                  color: colors.textPrimary,
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
                 }}
               >
-                {ministerListForMinistry.filter((p) => p.isNew).length}
-              </Typography>
+                {/* Total People */}
+                {ministerListForMinistry.length > 0 && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "100%",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <PersonIcon sx={{ color: colors.textMuted }} />
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins",
+                          fontWeight: 500,
+                          color: colors.textMuted,
+                        }}
+                      >
+                        Total People{" "}
+                        <InfoTooltip
+                          message="Total people under the minister on this date"
+                          iconColor={colors.textPrimary}
+                          iconSize={14}
+                        />
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontFamily: "Poppins",
+                        fontSize: 20,
+                        fontWeight: 500,
+                        color: colors.textPrimary,
+                      }}
+                    >
+                      {ministerListForMinistry.length}
+                    </Typography>
+                  </Box>
+                )}
+
+                {/* New People */}
+                {ministerListForMinistry.filter((p) => p.isNew).length > 0 && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: "100%",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <PersonAddAlt1Icon sx={{ color: colors.textMuted }} />
+                      <Typography
+                        sx={{
+                          fontFamily: "Poppins",
+                          fontWeight: 500,
+                          color: colors.textMuted,
+                        }}
+                      >
+                        New People{" "}
+                        <InfoTooltip
+                          message="New people assigned to this ministry on this date"
+                          iconColor={colors.textPrimary}
+                          iconSize={14}
+                        />
+                      </Typography>
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontFamily: "Poppins",
+                        fontSize: 20,
+                        fontWeight: 500,
+                        color: colors.textPrimary,
+                      }}
+                    >
+                      {ministerListForMinistry.filter((p) => p.isNew).length}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             </Box>
-          </Box>
-        </Box>
+          )}
+
         <Typography
           variant="subtitle1"
           sx={{
@@ -270,7 +278,7 @@ const PersonsTab = ({ selectedDate }) => {
                       borderRadius: "5px",
                       // backgroundColor: selectedPresident.themeColorLight,
                       // color: colors.white,
-                      backgroundColor: colors.backgroundPrimary,
+                      backgroundColor: colors.backgroundBlue,
                       color: selectedPresident.themeColorLight,
                       border: `1px solid ${selectedPresident.themeColorLight}`,
                       fontFamily: "poppins",

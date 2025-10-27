@@ -250,10 +250,10 @@ const MinistryCardGrid = () => {
 
       setActiveMinistryList(enrichedMinistries);
       setFilteredMinistryList(enrichedMinistries);
-      setMinistryLoading(false); 
+      setMinistryLoading(false);
     } catch (e) {
       console.log("error fetch ministry list : ", e.message);
-      setMinistryLoading(false); 
+      setMinistryLoading(false);
     }
   };
 
@@ -355,8 +355,8 @@ const MinistryCardGrid = () => {
             xs: "1fr",
             sm: "1fr",
             md: "1fr",
-            lg: "18% 32% 45%",
-            xl: "18% 34% 45%"
+            lg: "43% 56%",
+            xl: "43% 56%",
           },
           alignItems: "stretch",
           width: "100%",
@@ -368,97 +368,29 @@ const MinistryCardGrid = () => {
           borderRadius: 2
         }}
       >
-        {/* Gazette Date */}
+        {/* Highlights Box*/}
         <Box
           sx={{
             gridColumn: { xs: "1 / -1", sm: "1 / -1", md: "1 / -1", lg: "1 / 2" },
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            ml: { xs: 0, md: 1 },
-            mb: { xs: 2, md: 0 },
-            pb: { xs: 2 },
-            pt: { xs: 2 },
-            pr: { lg: 6 },
-            borderRight: { lg: `1px solid ${colors.timelineColor}` },
-            borderBottom: { xs: `1px solid ${colors.timelineColor}`, lg: "none" },
-          }}
-        >
-          <Typography
-            sx={{
-              color: colors.textPrimary,
-              fontFamily: "poppins",
-              fontSize: 16,
-            }}
-          >
-            Gazette Date
-          </Typography>
-
-          <Chip
-            label={new Date(selectedDate.date).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })}
-            sx={{
-              backgroundColor: "transparent",
-              fontWeight: "bold",
-              color: selectedPresident.themeColorLight,
-              fontFamily: "poppins",
-              fontSize: 16,
-            }}
-          />
-
-        </Box>
-
-        {/* Key Highlights */}
-        <Box
-          sx={{
-            gridColumn: { xs: "1 / -1", sm: "1 / -1", md: "1 / -1", lg: "2 / 3" },
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+            alignItems: "left",
             justifyContent: "center",
             backgroundColor: colors.backgroundWhite,
             overflow: "hidden",
             p: 1.5,
-            ml: { xs: 0, md: 3 },
             pr: { lg: 6 },
             borderRight: { lg: `1px solid ${colors.timelineColor}` },
             borderBottom: { xs: `1px solid ${colors.timelineColor}`, lg: "none" },
           }}
         >
-          {/* <Typography
-            sx={{
-              fontFamily: "Poppins",
-              fontWeight: 400,
-              fontSize: 16,
-              color: colors.textPrimary,
-              mb: 0.5,
-            }}
-          >
-            Key Highlights
-          </Typography> */}
-
-
-          <Box sx={{ p: 1.2, mt: -0.5 }}>
+          <Box sx={{ mt: -0.5 }}>
             {primeMinister.person && primeMinister.relation && selectedPresident ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                }}
-              >
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-start", paddingLeft: 3 }}>
                 <Avatar
                   src={primeMinister.person.imageUrl}
                   alt={primeMinister.person.name}
-                  sx={{
-                    width: 55,
-                    height: 55,
-                    backgroundColor: colors.backgroundPrimary,
-                  }}
+                  sx={{ width: 55, height: 55, backgroundColor: colors.backgroundPrimary }}
                 />
                 <Box sx={{ display: "block", ml: 1.2 }}>
                   <Typography
@@ -466,10 +398,12 @@ const MinistryCardGrid = () => {
                       fontSize: 12,
                       color: colors.textMuted,
                       fontWeight: 500,
-                      backgroundColor: `${selectedPresident.themeColorLight}50`,
-                      px: 0.5,
+                      backgroundColor: `${selectedPresident.themeColorLight}75`,
+                      py: 0.25,
+                      px: 1,
                       borderRadius: 1,
-                      width: "95px"
+                      width: "102px",
+                      mb: 0.5
                     }}
                   >
                     Prime Minister
@@ -486,17 +420,10 @@ const MinistryCardGrid = () => {
                   >
                     {utils.extractNameFromProtobuf(primeMinister.person.name)}
                   </Typography>
-
-
                   <Typography sx={{ fontSize: 14, color: colors.textMuted }}>
-                    {(() => {
-                      if (!primeMinister.relation) return "Unknown";
-                      return primeMinister.relation.endTime
-                        ? `${primeMinister.relation.startTime.split("-")[0]} - ${new Date(
-                          primeMinister.relation.endTime
-                        ).getFullYear()}`
-                        : `${primeMinister.relation.startTime.split("-")[0]} - Present`;
-                    })()}
+                    {primeMinister.relation.endTime
+                      ? `${primeMinister.relation.startTime.split("-")[0]} - ${new Date(primeMinister.relation.endTime).getFullYear()}`
+                      : `${primeMinister.relation.startTime.split("-")[0]} - Present`}
                   </Typography>
                   <Button
                     component={Link}
@@ -532,24 +459,12 @@ const MinistryCardGrid = () => {
                 </Box>
               </Box>
             ) : primeMinister.person == null && primeMinister.relation == null && !pmloading ? (
-              <Typography
-                sx={{
-                  fontStyle: "italic",
-                  color: colors.textMuted,
-                  textAlign: "left",
-                }}
-              >
+              <Typography sx={{ fontStyle: "italic", color: colors.textMuted, textAlign: "left" }}>
                 No Prime Minister appointed on this date.
               </Typography>
             ) : (
               pmloading && (
-                <Typography
-                  sx={{
-                    fontStyle: "italic",
-                    color: colors.textMuted,
-                    textAlign: "left",
-                  }}
-                >
+                <Typography sx={{ fontStyle: "italic", color: colors.textMuted, textAlign: "left" }}>
                   Loading Prime Minister data...
                 </Typography>
               )
@@ -557,157 +472,109 @@ const MinistryCardGrid = () => {
           </Box>
         </Box>
 
-        {/* Prime Minister */}
         <Card
           sx={{
-            gridColumn: { xs: "1 / -1", sm: "1 / -1", md: "1 / -1", lg: "3 / 4" },
+            gridColumn: { xs: "1 / -1", sm: "1 / -1", md: "1 / -1", lg: "2 / 3" },
             backgroundColor: colors.backgroundWhite,
             boxShadow: "none",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             mb: { xs: 2, md: 0 },
-            ml: 1,
             borderRadius: 2
           }}
         >
-          {/* <Typography
-            sx={{
-              fontWeight: 400,
-              color: colors.textPrimary,
-              fontSize: 16,
-              textAlign: "center",
-              mt: 2,
-              px: 2,
-              fontFamily: "Poppins",
-            }}
-          >
-            Prime Minister
-          </Typography> */}
-          <Box
-            sx={{
-              width: "90%",
-              px: 1,
-              display: "flex",
-              flexDirection: "column",
-              gap: 0.4,
-            }}
-          >
+          <Box sx={{ width: "90%", px: 1, display: "flex", flexDirection: "column", gap: 0.4 }}>
+            {/* Active Ministries */}
+            {activeMinistryList.length > 0 && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <AccountBalanceIcon sx={{ color: colors.textMuted, fontSize: 18 }} />
+                <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted, fontSize: 15 }}>
+                  Active Ministries{" "}
+                  <InfoTooltip
+                    message="Number of ministry portfolios active on the selected gazette date or last date in selected range if no new gazettes published"
+                    iconColor={colors.textPrimary}
+                    iconSize={13}
+                  />
+                </Typography>
+                <Typography sx={{ fontFamily: "Poppins", fontSize: 17, fontWeight: 500, color: colors.textPrimary }}>
+                  {activeMinistryList.length}
+                </Typography>
+              </Box>
+            )}
+
             {/* New Ministries */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <AccountBalanceIcon sx={{ color: colors.textMuted, fontSize: 18 }} />
-              <Typography
-                sx={{
-                  flex: 1,
-                  fontFamily: "Poppins",
-                  fontWeight: 500,
-                  color: colors.textMuted,
-                  fontSize: 15,
-                }}
-              >
-                New Ministries{" "}
-                <InfoTooltip
-                  message="New ministry portfolios created on selected date"
-                  iconColor={colors.textPrimary}
-                  iconSize={13}
-                />
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 17,
-                  fontWeight: 500,
-                  color: colors.textPrimary,
-                }}
-              >
-                {activeMinistryList.filter((m) => m.newMin).length}
-              </Typography>
-            </Box>
+            {activeMinistryList.filter((m) => m.newMin).length > 0 && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <AccountBalanceIcon sx={{ color: colors.textMuted, fontSize: 18 }} />
+                <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted, fontSize: 15 }}>
+                  New Ministries{" "}
+                  <InfoTooltip
+                    message="New ministry portfolios created on selected date"
+                    iconColor={colors.textPrimary}
+                    iconSize={13}
+                  />
+                </Typography>
+                <Typography sx={{ fontFamily: "Poppins", fontSize: 17, fontWeight: 500, color: colors.textPrimary }}>
+                  {activeMinistryList.filter((m) => m.newMin).length}
+                </Typography>
+              </Box>
+            )}
 
             {/* New Ministers */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <PersonAddAlt1Icon sx={{ color: colors.textMuted, fontSize: 18 }} />
-              <Typography
-                sx={{
-                  flex: 1,
-                  fontFamily: "Poppins",
-                  fontWeight: 500,
-                  color: colors.textMuted,
-                  fontSize: 15,
-                }}
-              >
-                New Ministers{" "}
-                <InfoTooltip
-                  message="New ministers assigned to portfolios on selected date"
-                  iconColor={colors.textPrimary}
-                  iconSize={13}
-                />
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 17,
-                  fontWeight: 500,
-                  color: colors.textPrimary,
-                }}
-              >
-                {activeMinistryList.filter((m) => m.newPerson).length}
-              </Typography>
-            </Box>
+            {activeMinistryList.filter((m) => m.newPerson).length > 0 && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <PersonAddAlt1Icon sx={{ color: colors.textMuted, fontSize: 18 }} />
+                <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted, fontSize: 15 }}>
+                  New Ministers{" "}
+                  <InfoTooltip
+                    message="New ministers assigned to portfolios on selected date"
+                    iconColor={colors.textPrimary}
+                    iconSize={13}
+                  />
+                </Typography>
+                <Typography sx={{ fontFamily: "Poppins", fontSize: 17, fontWeight: 500, color: colors.textPrimary }}>
+                  {activeMinistryList.filter((m) => m.newPerson).length}
+                </Typography>
+              </Box>
+            )}
 
             {/* Ministries under president */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <WorkspacePremiumIcon sx={{ color: colors.textMuted, fontSize: 18 }} />
-              <Typography
-                sx={{
-                  flex: 1,
-                  fontFamily: "Poppins",
-                  fontWeight: 500,
-                  color: colors.textMuted,
-                  fontSize: 15,
-                }}
-              >
-                Ministries under president{" "}
-                <InfoTooltip
-                  message="Ministry portfolios under the president on selected date"
-                  iconColor={colors.textPrimary}
-                  iconSize={13}
-                />
-              </Typography>
-              <Typography
-                sx={{
-                  fontFamily: "Poppins",
-                  fontSize: 17,
-                  fontWeight: 500,
-                  color: colors.textPrimary,
-                }}
-              >
-                {
-                  activeMinistryList.filter((m) => {
-                    const headName = m.headMinisterName
-                      ? utils.extractNameFromProtobuf(m.headMinisterName)
-                      : null;
-                    const presidentName = selectedPresident?.name
-                      ? utils
-                        .extractNameFromProtobuf(selectedPresident.name)
-                        .split(":")[0]
-                      : null;
-                    if (!headName && presidentName) return true;
-                    return (
-                      headName &&
-                      presidentName &&
-                      headName.toLowerCase().trim() ===
-                      presidentName.toLowerCase().trim()
-                    );
-                  }).length
-                }
-              </Typography>
-            </Box>
+            {activeMinistryList.filter((m) => {
+              const headName = m.headMinisterName ? utils.extractNameFromProtobuf(m.headMinisterName) : null;
+              const presidentName = selectedPresident?.name
+                ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
+                : null;
+              if (!headName && presidentName) return true;
+              return headName && presidentName && headName.toLowerCase().trim() === presidentName.toLowerCase().trim();
+            }).length > 0 && (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <WorkspacePremiumIcon sx={{ color: colors.textMuted, fontSize: 18 }} />
+                  <Typography sx={{ flex: 1, fontFamily: "Poppins", fontWeight: 500, color: colors.textMuted, fontSize: 15 }}>
+                    Ministries under president{" "}
+                    <InfoTooltip
+                      message="Ministry portfolios under the president on selected date"
+                      iconColor={colors.textPrimary}
+                      iconSize={13}
+                    />
+                  </Typography>
+                  <Typography sx={{ fontFamily: "Poppins", fontSize: 17, fontWeight: 500, color: colors.textPrimary }}>
+                    {activeMinistryList.filter((m) => {
+                      const headName = m.headMinisterName ? utils.extractNameFromProtobuf(m.headMinisterName) : null;
+                      const presidentName = selectedPresident?.name
+                        ? utils.extractNameFromProtobuf(selectedPresident.name).split(":")[0]
+                        : null;
+                      if (!headName && presidentName) return true;
+                      return headName && presidentName && headName.toLowerCase().trim() === presidentName.toLowerCase().trim();
+                    }).length}
+                  </Typography>
+                </Box>
+              )}
           </Box>
 
         </Card>
-
       </Box>
+
 
       {/* Container for Active Ministries Section */}
       <Box
@@ -722,172 +589,115 @@ const MinistryCardGrid = () => {
           backgroundColor: colors.backgroundWhite,
         }}
       >
-        {/* Top Bar with Title + Search + Filter */}
+        {/* Top Bar with Title + Search + Filter + ViewMode Toggle */}
         <Box
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", sm: "row" }, // stack on xs, row on sm+
-            justifyContent: "space-between",
-            alignItems: { xs: "flex-start", sm: "center" },
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "right",
+            alignItems: { xs: "flex-end", sm: "center" },
             gap: 2,
             mb: 1,
             px: 5,
             pt: 3,
           }}
         >
-          {/* Left Title */}
+          {/* Right Controls (Search + Filter + ViewMode Toggle) */}
           <Box
             sx={{
               display: "flex",
-              flexDirection: "column",
-              mb: { xs: 2, sm: 0 },
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                color: colors.textPrimary,
-                fontFamily: "Poppins",
-              }}
-            >
-              {activeMinistryList.length > 0
-                ? `${activeMinistryList.length} `
-                : ""}
-              Active Ministries
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 500,
-                color: colors.textMuted,
-                fontFamily: "Poppins",
-              }}
-            >
-              {new Date(selectedDate.date).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })}
-            </Typography>
-          </Box>
-
-          {/* Right Controls (Search + Filter) */}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", sm: "row" }, // stack on xs, row on sm+
+              flexDirection: { xs: "column", sm: "row" },
               gap: 2,
+              alignItems: "center",
               width: { xs: "100%", sm: "auto" },
-              alignItems: { xs: "stretch", sm: "center" },
+              justifyContent: "flex-end", // push everything to end
             }}
           >
-            {/* Search Bar */}
-            <Box
-              sx={{
-                flex: 1,
-                minWidth: { xs: "100%", sm: "30%" },
-                maxWidth: { sm: "68%" },
-              }}
-            >
-              <TextField
-                fullWidth
-                label="Search by ministry name"
-                id="ministry-search"
-                onChange={handleChange}
-                value={searchText}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <SearchIcon sx={{ color: colors.textMuted }} />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-                sx={{
-                  backgroundColor: colors.backgroundColor,
-                  "& .MuiInputLabel-root": { color: colors.textMuted },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: colors.textMuted },
-                    "&:hover fieldset": { borderColor: colors.textMuted },
-                    "&.Mui-focused fieldset": { borderColor: colors.textMuted },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": {
-                    color: colors.textMuted,
-                  },
-                  "& .MuiInputBase-input": { color: colors.textMuted },
-                }}
-              />
-            </Box>
+            {/* Hide Search + Filter if current step label === "Departments & People" */}
+            {steps[activeStep]?.label !== "Departments & People" && (
+              <>
+                {/* Search Bar */}
+                <Box sx={{ flex: 1, minWidth: { xs: "100%", sm: 250 }, maxWidth: { sm: 400 } }}>
+                  <TextField
+                    fullWidth
+                    label="Search ministries"
+                    id="ministry-search"
+                    onChange={handleChange}
+                    value={searchText}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <SearchIcon sx={{ color: colors.textMuted }} />
+                          </InputAdornment>
+                        ),
+                      },
+                    }}
+                    sx={{
+                      backgroundColor: colors.backgroundColor,
+                      "& .MuiInputLabel-root": { color: colors.textMuted },
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": { borderColor: colors.textMuted },
+                        "&:hover fieldset": { borderColor: colors.textMuted },
+                        "&.Mui-focused fieldset": { borderColor: colors.textMuted },
+                        "& input:-webkit-autofill": {
+                          WebkitBoxShadow: `0 0 0 1000px ${colors.backgroundColor} inset`,
+                          WebkitTextFillColor: colors.textMuted,
+                          transition: "background-color 5000s ease-in-out 0s",
+                        },
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": { color: colors.textMuted },
+                      "& .MuiInputBase-input": { color: colors.textMuted },
+                    }}
+                  />
+                </Box>
 
-            {/* Dropdown Filter */}
-            <FormControl
-              sx={{ minWidth: { xs: "100%", sm: 30 }, flexShrink: 0 }}
-            >
-              <InputLabel
-                sx={{
-                  color: colors.textMuted,
-                  "&.Mui-focused": { color: colors.textMuted },
-                }}
-              >
-                Filter
-              </InputLabel>
-              <Select
-                value={filterType}
-                label="Filter"
-                onChange={(e) => setFilterType(e.target.value)}
-                sx={{
-                  backgroundColor: colors.backgroundColor,
-                  color: colors.textMuted,
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: colors.textMuted,
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: colors.textMuted,
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: colors.textMuted,
-                  },
-                  "&.MuiOutlinedInput-root:hover": {
-                    backgroundColor: colors.backgroundColor,
-                  },
-                  "& .MuiSvgIcon-root": {
-                    color: colors.textMuted,
-                  },
-                }}
-                MenuProps={{
-                  PaperProps: {
-                    sx: {
-                      backgroundColor: colors.backgroundPrimary, // dropdown background
-                      "& .MuiMenuItem-root": {
-                        color: colors.textPrimary, // menu item text
+                {/* Dropdown Filter */}
+                <FormControl sx={{ minWidth: { xs: "100%", sm: 150 }, flexShrink: 0 }}>
+                  <InputLabel sx={{ color: colors.textMuted, "&.Mui-focused": { color: colors.textMuted } }}>
+                    Filter
+                  </InputLabel>
+                  <Select
+                    value={filterType}
+                    label="Filter"
+                    onChange={(e) => setFilterType(e.target.value)}
+                    sx={{
+                      backgroundColor: colors.backgroundColor,
+                      color: colors.textMuted,
+                      "& .MuiOutlinedInput-notchedOutline": { borderColor: colors.textMuted },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: colors.textMuted },
+                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: colors.textMuted },
+                      "&.MuiOutlinedInput-root:hover": { backgroundColor: colors.backgroundColor },
+                      "& .MuiSvgIcon-root": { color: colors.textMuted },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          backgroundColor: colors.backgroundPrimary,
+                          "& .MuiMenuItem-root": { color: colors.textPrimary },
+                          "& .MuiMenuItem-root.Mui-selected": {
+                            color: colors.textMuted,
+                            backgroundColor: `${colors.backgroundColor} !important`,
+                          },
+                          "& .MuiMenuItem-root:hover": { backgroundColor: `${colors.textMuted}10 !important` },
+                        },
                       },
-                      "& .MuiMenuItem-root.Mui-selected": {
-                        color: colors.textMuted, // selected item text
-                        backgroundColor: `${colors.backgroundColor} !important`,
-                      },
-                      "& .MuiMenuItem-root:hover": {
-                        backgroundColor: `${colors.textMuted}10 !important`,
-                      },
-                    },
-                  },
-                }}
-              >
-                <MenuItem value="all">All Ministries</MenuItem>
-                <MenuItem value="newPerson">New Ministers Appointed</MenuItem>
-                <MenuItem value="newMinistry">New Ministries</MenuItem>
-                <MenuItem value="presidentAsMinister">
-                  President as Minister
-                </MenuItem>
-              </Select>
-            </FormControl>
+                    }}
+                  >
+                    <MenuItem value="all">All Ministries</MenuItem>
+                    <MenuItem value="newPerson">New Ministers Appointed</MenuItem>
+                    <MenuItem value="newMinistry">New Ministries</MenuItem>
+                    <MenuItem value="presidentAsMinister">President as Minister</MenuItem>
+                  </Select>
+                </FormControl>
+              </>
+            )}
+
+            {/* View Mode Toggle */}
+            <MinistryViewModeToggleButton viewMode={viewMode} setViewMode={setViewMode} />
           </Box>
         </Box>
 
-        <MinistryViewModeToggleButton
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-        />
 
         {pmloading || ministryLoading ? (
           <Box

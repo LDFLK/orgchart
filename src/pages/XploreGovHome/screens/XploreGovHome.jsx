@@ -12,8 +12,7 @@ import {
   BookOpenText,
 } from "lucide-react";
 import ForceGraph3D from "react-force-graph-3d";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import InformationDrawer from "../components/information_drawer";
+import { useNavigate } from "react-router-dom";
 
 // Simulate the 3D network data structure
 const genRandomTree = (N = 100) => {
@@ -36,12 +35,7 @@ const XploreGovHomepage = () => {
   const navigate = useNavigate();
 
   const graphData = genRandomTree();
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [showLearn, setShowLearn] = useState(
-    searchParams.get("showLearn") === "true"
-  );
-  
   const distance = 1400;
 
   useEffect(() => {
@@ -61,6 +55,17 @@ const XploreGovHomepage = () => {
     }, 10);
 
     return () => clearInterval(intervalId);
+  }, []);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const cards = [0, 1]; // Two cards
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % cards.length);
+    }, 10000); // Slide every 10s
+
+    return () => clearInterval(interval);
   }, []);
 
   // Simulate network visualization
@@ -248,11 +253,11 @@ const XploreGovHomepage = () => {
   const PresidentialTimeline = () => (
     <div
       ref={timelineRef}
-      className="relative bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-xl p-6 overflow-hidden"
+      className="relative rounded-xl p-6 overflow-hidden"
     >
       <div className="mb-6">
-        <div className="text-sm text-gray-300 mb-2">
-          Sri Lankan Presidential Timeline
+        <div className="text-sm text-gray-300 ">
+          Gazette Publication Timeline
         </div>
         <div className="text-xs text-gray-500">
           Timeline showing presidential governance periods and gazette
@@ -289,9 +294,8 @@ const XploreGovHomepage = () => {
                   {/* President Avatar */}
                   <div className="relative flex flex-col items-center group z-10">
                     <div
-                      className={`relative transition-all duration-500 ${
-                        isActive ? "transform scale-125" : "transform scale-100"
-                      }`}
+                      className={`relative transition-all duration-500 ${isActive ? "transform scale-125" : "transform scale-100"
+                        }`}
                     >
                       <div
                         ref={isSelected ? avatarRef : null}
@@ -306,9 +310,8 @@ const XploreGovHomepage = () => {
                         <img
                           src={president.image}
                           alt={president.name}
-                          className={`w-full h-full object-cover transition-all duration-500 ${
-                            isActive ? "filter-none" : "grayscale"
-                          }`}
+                          className={`w-full h-full object-cover transition-all duration-500 ${isActive ? "filter-none" : "grayscale"
+                            }`}
                         />
                       </div>
                       {president.active && isActive && (
@@ -318,11 +321,10 @@ const XploreGovHomepage = () => {
 
                     <div className="text-center mt-2">
                       <div
-                        className={`text-xs font-medium transition-all duration-500 ${
-                          isActive
-                            ? "text-white transform scale-110"
-                            : "text-gray-500"
-                        }`}
+                        className={`text-xs font-medium transition-all duration-500 ${isActive
+                          ? "text-white transform scale-110"
+                          : "text-gray-500"
+                          }`}
                         style={{
                           color: isActive ? president.color : undefined,
                         }}
@@ -330,9 +332,8 @@ const XploreGovHomepage = () => {
                         {president.name.split(" ").slice(-1)[0]}
                       </div>
                       <div
-                        className={`text-xs transition-colors duration-500 ${
-                          isActive ? "text-gray-300" : "text-gray-600"
-                        }`}
+                        className={`text-xs transition-colors duration-500 ${isActive ? "text-gray-300" : "text-gray-600"
+                          }`}
                       >
                         {president.period}
                       </div>
@@ -362,7 +363,7 @@ const XploreGovHomepage = () => {
                         revealedCount > 0 &&
                         dotRefs.current[0].offsetLeft !== undefined &&
                         dotRefs.current[revealedCount - 1].offsetLeft !==
-                          undefined && (
+                        undefined && (
                           <div
                             className="absolute top-3 h-0.5 z-0 rounded-full"
                             style={{
@@ -372,7 +373,7 @@ const XploreGovHomepage = () => {
                               width:
                                 dotRefs.current[revealedCount - 1].offsetLeft +
                                 dotRefs.current[revealedCount - 1].offsetWidth /
-                                  2 -
+                                2 -
                                 (dotRefs.current[0].offsetLeft +
                                   dotRefs.current[0].offsetWidth / 2),
                               backgroundColor: president.color,
@@ -391,11 +392,10 @@ const XploreGovHomepage = () => {
                             className="relative flex flex-col items-center z-10 group"
                           >
                             <div
-                              className={`rounded-full border-2 border-gray-900 transition-all duration-500 ${
-                                selectedDate === date
-                                  ? "w-6 h-6 transform scale-80 shadow-lg"
-                                  : "w-4 h-4"
-                              }`}
+                              className={`rounded-full border-2 border-gray-900 transition-all duration-500 ${selectedDate === date
+                                ? "w-6 h-6 transform scale-80 shadow-lg"
+                                : "w-4 h-4"
+                                }`}
                               style={{
                                 backgroundColor: active
                                   ? president.color
@@ -408,11 +408,10 @@ const XploreGovHomepage = () => {
                             ></div>
 
                             <div
-                              className={`text-xs mt-2 transition-all duration-200 text-center ${
-                                selectedDate === date
-                                  ? "font-semibold transform scale-100"
-                                  : "text-gray-500"
-                              }`}
+                              className={`text-xs mt-2 transition-all duration-200 text-center ${selectedDate === date
+                                ? "font-semibold transform scale-100"
+                                : "text-gray-500"
+                                }`}
                               style={{
                                 color:
                                   selectedDate === date
@@ -436,27 +435,14 @@ const XploreGovHomepage = () => {
     </div>
   );
 
-  const handleLearnToggle = () => {
-    setShowLearn(true);
-    setSearchParams({ showLearn: true });
-  };
-
-  const handleLearnClose = () => {
-    setShowLearn(false);
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.delete("showLearn");
-      return params;
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gray-950 relative overflow-x-hidden">
-      {showLearn && <InformationDrawer onClose={handleLearnClose} />}
+
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.1)_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(128, 131, 133, 0.1)_0%,transparent_50%)]"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(168,85,247,0.1)_0%,transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_90%,rgba(168,85,247,0.25)_0%,rgba(34,211,238,0.15)_30%,transparent_60%)]"></div>
       </div>
 
       {/* Animated particles */}
@@ -478,166 +464,179 @@ const XploreGovHomepage = () => {
       <div className="relative z-10 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="flex mt-8">
+          {/* <div className="flex mt-8">
             <div className="z-20 flex">
-              {/* <h1 className="text-2xl font-bold text-white">
-                Xplore
-                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  Gov
-                </span>
-              </h1> */}
-            </div>
-          </div>
+             </div>
+          </div> */}
 
           {/* Hero Section */}
-          <div className="pt-8 pb-6 text-center">
-            <h2 className="text-5xl lg:text-6xl font-bold text-white mb-4">
-              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                XploreGov
-              </span>
-            </h2>
-            <div className="flex items-center justify-center mb-7 mt-5">
-              <div className="border flex items-center space-x-3 px-4 py-2 rounded-full bg-gray-800/50 border-cyan-400/30">
-                <img
-                  src="https://imgs.search.brave.com/g1a5xxmzRkIhv3A2zqV-q55_m7bBju-lI6z2OF85BRQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA5LzMzLzk3LzU0/LzM2MF9GXzkzMzk3/NTQyOV9nbGc3NUpw/WFJBRzR4bHM1Vkxl/NmZEdkI0ZXNmWFE5/aC5qcGc"
-                  alt="XploreGov Logo"
-                  className="w-7"
-                />
-                <span className="text-white text-xl">Sri Lanka</span>
+          <div className="pt-4 pb-6 text-left">
+            <div className="pt-2 pb-4 text-left flex items-center space-x-3">
+              {/* Logo */}
+              {/* <img
+                src="public\xploregov.ico"
+                alt="Logo"
+                className="w-9 h-9 rounded-full object-cover border-2"
+              /> */}
+
+              {/* Heading with gradient text */}
+              <h2 className="text-3xl lg:text-xl font-bold text-white">
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  XploreGov
+                </span>
+              </h2>
+            </div>
+
+            {/* <div className="flex items-center justify-center mb-7 mt-3">
+            <div className="border flex items-center space-x-2 px-3 py-2 rounded-full bg-gray-800/50 border-cyan-400/30">
+              <img
+                src="https://imgs.search.brave.com/g1a5xxmzRkIhv3A2zqV-q55_m7bBju-lI6z2OF85BRQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA5LzMzLzk3LzU0/LzM2MF9GXzkzMzk3/NTQyOV9nbGc3NUpw/WFJBRzR4bHM1Vkxl/NmZEdkI0ZXNmWFE5/aC5qcGc"
+                alt="XploreGov Logo"
+                className="w-5"
+              />
+              <span className="text-white text-md">Sri Lanka</span>
+            </div>
+          </div> */}
+          </div>
+
+          {/* Modern Split Section */}
+          <div className="flex flex-col lg:flex-row justify-between gap-2 mt-6">
+            {/* Left Text Section */}
+            <div className="flex-1 text-left mt-18">
+              <h2 className="text-4xl font-bold text-white leading-tight">
+                Explore Sri Lanka’s <br />
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Government Structure
+                </span>
+              </h2>
+              <p className="text-gray-400 text-lg max-w-lg mt-2">
+                Gain deep insights into how ministries, departments, and officials
+                are connected and how they evolve through time.
+              </p>
+              <div className="flex mt-6">
+                <button
+                  className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white px-2.5 py-2 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
+                  onClick={() => navigate("/orgchart")}
+                >
+                  <History className="w-6 h-6 mr-2" />
+                  <span>Xplore</span>
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+                <button
+                  className="bg-none border-1 mx-3 border-gray-300 cursor-pointer text-gray-300 px-3.5 py-2 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
+                  onClick={() => window.open("/docs?file=information-pane", "_blank")}
+                >
+                  <BookOpenText className="w-6 h-6 mr-2" />
+                  <span>Learn</span>
+                  {/* <ChevronRight className="w-6 h-6" /> */}
+                </button>
               </div>
             </div>
 
-            <p className="text-lg text-gray-300 mb-4 font-light">
-              A Deep Dive into the Government of Sri Lanka
-            </p>
+            {/* Right Cards Section (Auto Slideshow) */}
+            <div className="flex-1 w-full lg:w-1/2 ">
+              <div className="relative overflow-hidden  rounded-xl">
 
-            {/* <p className="text-lg text-cyan-400 mb-8 font-semibold">
-              Transparency through Connecting Data, Time and Governance
-            </p>
+                {/* Carousel container */}
+                <div
+                  className="flex transition-transform duration-700 ease-in-out"
+                  style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                >
+                  {/* Card 1 */}
+                  <div className="min-w-full px-2">
+                    <div className="rounded-2xl p-8 transition-all duration-300 group">
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20">
+                          <TrendingUp className="w-6 h-6 text-cyan-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-white">
+                            Government Structure Visualization
+                          </h3>
+                          <p className="text-sm text-gray-400">
+                            Track changes across presidencies and time
+                          </p>
+                        </div>
+                      </div>
+                      <PresidentialTimeline />
+                      <div className="mt-6 space-y-4">
+                        <div className="flex items-center space-x-3 p-3 rounded-lg bg-blue-950/20 border-l-4 border-blue-400">
+                          <Calendar className="w-4 h-4 text-blue-400" />
+                          <span className="text-sm text-gray-300">
+                            Presidential term transitions
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg bg-purple-950/20 border-l-4 border-purple-400">
+                          <GitBranch className="w-4 h-4 text-purple-400" />
+                          <span className="text-sm text-gray-300">
+                            Ministry restructuring events
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-            <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-              Visualize structural changes, track evolution, and explore the
-              connections that shape governance.
-            </p> */}
+                  {/* Card 2 */}
+                  <div className="min-w-full px-2">
+                    <div className="rounded-2xl p-8 transition-all duration-300 group">
+                      <div className="flex items-center space-x-3 mb-6">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                          <Network className="w-6 h-6 text-purple-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-white">
+                            Government Network Mapping
+                          </h3>
+                          <p className="text-sm text-gray-400">
+                            Visualize connections and hierarchies
+                          </p>
+                        </div>
+                      </div>
+                      <NetworkVisualization />
+                      <div className="mt-6 space-y-4">
+                        <div className="flex items-center space-x-3 p-3 rounded-lg bg-cyan-950/20 border-l-4 border-cyan-400">
+                          <Building2 className="w-4 h-4 text-cyan-400" />
+                          <span className="text-sm text-gray-300">
+                            Ministry-Department relationships
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-3 p-3 rounded-lg bg-blue-950/20 border-l-4 border-blue-400">
+                          <Users className="w-4 h-4 text-blue-400" />
+                          <span className="text-sm text-gray-300">
+                            Official role connections
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-            <div className="flex justify-center my-8">
-              <button
-                className="bg-gradient-to-r mx-2 from-cyan-500 via-blue-500 to-purple-600 text-white px-2.5 py-2 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
-                onClick={() => navigate("/orgchart")}
-              >
-                <History className="w-6 h-6 mr-2" />
-                <span>Xplore</span>
-                <ChevronRight className="w-6 h-6" />
-              </button>
-              <button
-                className="bg-none border-1 mx-2 border-white cursor-pointer text-white px-2.5 py-2 rounded-lg font-normal text-lg hover:scale-105 transition transform inline-flex items-center hover:cursor-pointer"
-                onClick={handleLearnToggle}
-              >
-                <BookOpenText className="w-6 h-6 mr-2" />
-                <span>Learn</span>
-                <ChevronRight className="w-6 h-6" />
-              </button>
+                {/* Dots */}
+                <div className="absolute bottom-2 w-full flex justify-center space-x-2">
+                  {cards.map((_, idx) => (
+                    <span
+                      key={idx}
+                      className={`w-2 h-2 rounded-full cursor-pointer transition-all ${currentIndex === idx ? "bg-white" : "bg-gray-500"
+                        }`}
+                      onClick={() => setCurrentIndex(idx)}
+                    ></span>
+                  ))}
+                </div>
+
+                {/* Edge gradients */}
+                <div className="absolute inset-y-0 left-0 w-1/10 bg-gradient-to-r from-gray-900 to-transparent pointer-events-none"></div>
+                <div className="absolute inset-y-0 right-0 w-1/10 bg-gradient-to-l from-gray-900 to-transparent pointer-events-none"></div>
+                {/* Top gradient fade */}
+                <div className="absolute inset-x-0 top-0 h-[5%] bg-gradient-to-b from-gray-900 to-transparent pointer-events-none"></div>
+
+                {/* Bottom gradient fade */}
+                <div className="absolute inset-x-0 bottom-0 h-[2%] bg-gradient-to-t from-gray-900 to-transparent pointer-events-none"></div>
+              </div>
             </div>
           </div>
 
-          {/* Main Feature Cards */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Temporal Analysis Card */}
-            <div className="bg-gray-900/70 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 hover:border-cyan-400/50 transition-all duration-300 group">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20">
-                  <TrendingUp className="w-6 h-6 text-cyan-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">
-                    Government Structure Visualization
-                  </h3>
-                  <p className="text-sm text-gray-400">
-                    Track changes across presidencies and time
-                  </p>
-                </div>
-              </div>
-
-              <PresidentialTimeline />
-
-              <div className="mt-6 space-y-4">
-                <div className="flex items-center space-x-3 p-3 rounded-lg bg-blue-950/20 border-l-4 border-blue-400">
-                  <Calendar className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm text-gray-300">
-                    Presidential term transitions
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3 p-3 rounded-lg bg-purple-950/20 border-l-4 border-purple-400">
-                  <GitBranch className="w-4 h-4 text-purple-400" />
-                  <span className="text-sm text-gray-300">
-                    Ministry restructuring events
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Network Analysis Card */}
-            <div className="bg-gray-900/70 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 hover:border-purple-400/50 transition-all duration-300 group">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-                  <Network className="w-6 h-6 text-purple-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">
-                    Government Network Mapping
-                  </h3>
-                  <p className="text-sm text-gray-400">
-                    Visualize connections and hierarchies
-                  </p>
-                </div>
-              </div>
-              <NetworkVisualization />
-              <div className="mt-6 space-y-4">
-                <div className="flex items-center space-x-3 p-3 rounded-lg bg-cyan-950/20 border-l-4 border-cyan-400">
-                  <Building2 className="w-4 h-4 text-cyan-400" />
-                  <span className="text-sm text-gray-300">
-                    Ministry-Department relationships
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3 p-3 rounded-lg bg-blue-950/20 border-l-4 border-blue-400">
-                  <Users className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm text-gray-300">
-                    Official role connections
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* CTA Section */}
-          <div className="text-center py-16">
-            <h3 className="text-3xl font-bold text-white mb-4">
-              Ready to Explore Sri Lanka's Government?
-            </h3>
-            <p className="text-gray-400 mb-8 max-w-2xl mx-auto">
-              Dive deep into the data that shapes the nation. Track changes,
-              analyze trends, and discover insights that matter.
-            </p>
-            <div className="flex justify-center space-x-3 my-10">
-              <button
-                className="bg-none border-white cursor-pointer text-white hover:text-cyan-500 px-4 py-3 rounded-xl font-normal text-lg hover:scale-105 transition-all duration-200 transform inline-flex items-center space-x-3 hover:cursor-pointer"
-                onClick={() => navigate("/orgchart")}
-              >
-                <History className="w-6 h-6" />
-                <span>Xplore</span>
-              </button>
-              <div className="border border-white/35"></div>
-              <button
-                className="bg-none border-white cursor-pointer text-white hover:text-cyan-500 px-4 py-3 rounded-xl font-normal text-lg hover:scale-105 transition-all duration-200 transform inline-flex items-center space-x-3 hover:cursor-pointer"
-                onClick={handleLearnToggle}
-              >
-                <BookOpenText className="w-6 h-6" />
-                <span>Learn</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="flex justify-center mb-10">
+          {/* Footer */}
+          <div className="flex justify-center mb-10 mt-25">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-gray-800/50 border border-cyan-400/20 text-sm text-cyan-400 mb-6">
               <Clock className="w-4 h-4 mr-2" />
               Powered by OpenGIN: Open General Information Network
@@ -647,6 +646,7 @@ const XploreGovHomepage = () => {
       </div>
     </div>
   );
+
 };
 
 export default XploreGovHomepage;
