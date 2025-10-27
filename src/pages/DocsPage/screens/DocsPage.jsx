@@ -407,22 +407,22 @@ export default function DocsPage() {
                         a: ({ href, children, ...props }) => {
                             const isExternal = href?.startsWith("http://") || href?.startsWith("https://");
                             const isGlossaryLink = href?.includes("file=glossary") || href?.startsWith("#");
+                            const isInternal = href?.startsWith("/");
 
-                            const showArrow = isExternal || isGlossaryLink;
+                            const showArrow = isExternal || isGlossaryLink || isInternal;
 
-                            // Conditional classes: blue only for external links
                             const linkClass = isExternal
                                 ? "text-blue-600 underline hover:text-blue-800 font-medium"
                                 : "font-medium text-gray-800 hover:text-gray-900";
 
-                            // Open all links in new tab
+                            // Always open in new tab
                             const linkTarget = "_blank";
                             const linkRel = "noopener noreferrer";
 
                             return (
                                 <a
                                     href={href}
-                                    className={`${linkClass} inline-flex items-center gap-0.2`}
+                                    className={`${linkClass} inline-flex items-center gap-0.5`}
                                     target={linkTarget}
                                     rel={linkRel}
                                     {...props}
@@ -450,6 +450,7 @@ export default function DocsPage() {
                                 </a>
                             );
                         },
+
 
                         ul: ({ node, ...props }) => (
                             <ul className="list-disc pl-6 mb-5 space-y-1 text-gray-700" {...props} />
