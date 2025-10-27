@@ -613,81 +613,85 @@ const MinistryCardGrid = () => {
               justifyContent: "flex-end", // push everything to end
             }}
           >
-            {/* Search Bar */}
-            <Box sx={{ flex: 1, minWidth: { xs: "100%", sm: 250 }, maxWidth: { sm: 400 } }}>
-              <TextField
-                fullWidth
-                label="Search ministries"
-                id="ministry-search"
-                onChange={handleChange}
-                value={searchText}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <SearchIcon sx={{ color: colors.textMuted }} />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-                sx={{
-                  backgroundColor: colors.backgroundColor,
-                  "& .MuiInputLabel-root": { color: colors.textMuted },
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": { borderColor: colors.textMuted },
-                    "&:hover fieldset": { borderColor: colors.textMuted },
-                    "&.Mui-focused fieldset": { borderColor: colors.textMuted },
-                    "& input:-webkit-autofill": {
-                      WebkitBoxShadow: `0 0 0 1000px ${colors.backgroundColor} inset`,
-                      WebkitTextFillColor: colors.textMuted,
-                      transition: "background-color 5000s ease-in-out 0s",
-                    },
-                  },
-                  "& .MuiInputLabel-root.Mui-focused": { color: colors.textMuted },
-                  "& .MuiInputBase-input": { color: colors.textMuted },
-                }}
-              />
-            </Box>
-
-
-            {/* Dropdown Filter */}
-            <FormControl sx={{ minWidth: { xs: "100%", sm: 150 }, flexShrink: 0 }}>
-              <InputLabel sx={{ color: colors.textMuted, "&.Mui-focused": { color: colors.textMuted } }}>
-                Filter
-              </InputLabel>
-              <Select
-                value={filterType}
-                label="Filter"
-                onChange={(e) => setFilterType(e.target.value)}
-                sx={{
-                  backgroundColor: colors.backgroundColor,
-                  color: colors.textMuted,
-                  "& .MuiOutlinedInput-notchedOutline": { borderColor: colors.textMuted },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: colors.textMuted },
-                  "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: colors.textMuted },
-                  "&.MuiOutlinedInput-root:hover": { backgroundColor: colors.backgroundColor },
-                  "& .MuiSvgIcon-root": { color: colors.textMuted },
-                }}
-                MenuProps={{
-                  PaperProps: {
-                    sx: {
-                      backgroundColor: colors.backgroundPrimary,
-                      "& .MuiMenuItem-root": { color: colors.textPrimary },
-                      "& .MuiMenuItem-root.Mui-selected": {
-                        color: colors.textMuted,
-                        backgroundColor: `${colors.backgroundColor} !important`,
+            {/* Hide Search + Filter if current step label === "Departments & People" */}
+            {steps[activeStep]?.label !== "Departments & People" && (
+              <>
+                {/* Search Bar */}
+                <Box sx={{ flex: 1, minWidth: { xs: "100%", sm: 250 }, maxWidth: { sm: 400 } }}>
+                  <TextField
+                    fullWidth
+                    label="Search ministries"
+                    id="ministry-search"
+                    onChange={handleChange}
+                    value={searchText}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <SearchIcon sx={{ color: colors.textMuted }} />
+                          </InputAdornment>
+                        ),
                       },
-                      "& .MuiMenuItem-root:hover": { backgroundColor: `${colors.textMuted}10 !important` },
-                    },
-                  },
-                }}
-              >
-                <MenuItem value="all">All Ministries</MenuItem>
-                <MenuItem value="newPerson">New Ministers Appointed</MenuItem>
-                <MenuItem value="newMinistry">New Ministries</MenuItem>
-                <MenuItem value="presidentAsMinister">President as Minister</MenuItem>
-              </Select>
-            </FormControl>
+                    }}
+                    sx={{
+                      backgroundColor: colors.backgroundColor,
+                      "& .MuiInputLabel-root": { color: colors.textMuted },
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": { borderColor: colors.textMuted },
+                        "&:hover fieldset": { borderColor: colors.textMuted },
+                        "&.Mui-focused fieldset": { borderColor: colors.textMuted },
+                        "& input:-webkit-autofill": {
+                          WebkitBoxShadow: `0 0 0 1000px ${colors.backgroundColor} inset`,
+                          WebkitTextFillColor: colors.textMuted,
+                          transition: "background-color 5000s ease-in-out 0s",
+                        },
+                      },
+                      "& .MuiInputLabel-root.Mui-focused": { color: colors.textMuted },
+                      "& .MuiInputBase-input": { color: colors.textMuted },
+                    }}
+                  />
+                </Box>
+
+                {/* Dropdown Filter */}
+                <FormControl sx={{ minWidth: { xs: "100%", sm: 150 }, flexShrink: 0 }}>
+                  <InputLabel sx={{ color: colors.textMuted, "&.Mui-focused": { color: colors.textMuted } }}>
+                    Filter
+                  </InputLabel>
+                  <Select
+                    value={filterType}
+                    label="Filter"
+                    onChange={(e) => setFilterType(e.target.value)}
+                    sx={{
+                      backgroundColor: colors.backgroundColor,
+                      color: colors.textMuted,
+                      "& .MuiOutlinedInput-notchedOutline": { borderColor: colors.textMuted },
+                      "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: colors.textMuted },
+                      "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: colors.textMuted },
+                      "&.MuiOutlinedInput-root:hover": { backgroundColor: colors.backgroundColor },
+                      "& .MuiSvgIcon-root": { color: colors.textMuted },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          backgroundColor: colors.backgroundPrimary,
+                          "& .MuiMenuItem-root": { color: colors.textPrimary },
+                          "& .MuiMenuItem-root.Mui-selected": {
+                            color: colors.textMuted,
+                            backgroundColor: `${colors.backgroundColor} !important`,
+                          },
+                          "& .MuiMenuItem-root:hover": { backgroundColor: `${colors.textMuted}10 !important` },
+                        },
+                      },
+                    }}
+                  >
+                    <MenuItem value="all">All Ministries</MenuItem>
+                    <MenuItem value="newPerson">New Ministers Appointed</MenuItem>
+                    <MenuItem value="newMinistry">New Ministries</MenuItem>
+                    <MenuItem value="presidentAsMinister">President as Minister</MenuItem>
+                  </Select>
+                </FormControl>
+              </>
+            )}
 
             {/* View Mode Toggle */}
             <MinistryViewModeToggleButton viewMode={viewMode} setViewMode={setViewMode} />
